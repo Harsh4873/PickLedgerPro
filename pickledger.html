@@ -1026,20 +1026,6 @@
         <button class="model-run-btn" id="btn-refresh-nba-props-games" onclick="loadNbaPropsGames()">REFRESH GAMES</button>
         <div class="model-status" id="status-nba-props"></div>
       </div>
-      <div class="model-card" id="model-card-scores24">
-        <div class="model-card-icon">&#128270;</div>
-        <div class="model-card-title">Scores24 Manual Feed</div>
-        <div class="model-card-desc">Loads the committed Scores24 manual feed JSON from this repo and falls back to browser cache if needed.</div>
-        <div class="model-status" id="scores24-sync-meta">Last sync: never</div>
-        <button class="model-run-btn" id="btn-run-scores24" onclick="runModel('scores24')">SYNC SCORES24 NOW</button>
-        <select id="scores24-league-select" class="model-league-select">
-          <option value="nba">NBA only</option>
-          <option value="nhl">NHL only</option>
-          <option value="mlb">MLB only</option>
-        </select>
-        <button class="model-run-btn" id="btn-run-scores24-league" onclick="runSelectedScores24League()">SYNC SELECTED LEAGUE</button>
-        <div class="model-status" id="status-scores24"></div>
-      </div>
       <div class="model-card" id="model-card-sportytrader">
         <div class="model-card-icon">&#127936;</div>
         <div class="model-card-title">SportyTrader NBA + MLB Feed</div>
@@ -1111,14 +1097,11 @@ const MODEL_SERVER = 'http://127.0.0.1:8765';
 const GRADER_URL = `${MODEL_SERVER}/grade`;
 const HEALTH_URL = `${MODEL_SERVER}/health`;
 const LEDGER_STATE_URL = `${MODEL_SERVER}/api/ledger-state`;
-const SCORES24_FEED_URL = './scores24_manual_feed.json';
-const SCORES24_CACHE_KEY = 'pickledger_scores24_feed_cache';
 const SPORTYTRADER_FEED_URL = './sportytrader_manual_feed.json';
 const SPORTYTRADER_CACHE_KEY = 'pickledger_sportytrader_feed_cache';
 const SPORTSGAMBLER_FEED_URL = './sportsgambler_manual_feed.json';
 const SPORTSGAMBLER_CACHE_KEY = 'pickledger_sportsgambler_feed_cache';
 const LOOPBACK_MODEL_SERVER = 'http://127.0.0.1:8765';
-const LOCAL_SCORES24_SERVER = LOOPBACK_MODEL_SERVER;
 const LOCAL_SPORTYTRADER_SERVER = LOOPBACK_MODEL_SERVER;
 const LOCAL_SPORTSGAMBLER_SERVER = LOOPBACK_MODEL_SERVER;
 let ledgerStateSyncTimer = null;
@@ -1882,9 +1865,6 @@ function isExactLedgerDuplicate(candidate) {
 }
 
 function getRankingSourceKey(p) {
-  if (p.source === 'Scores24' && (p.sport === 'NBA' || p.sport === 'MLB' || p.sport === 'NHL')) {
-    return `Scores24${p.sport}`;
-  }
   return p.source;
 }
 
@@ -3700,7 +3680,6 @@ function _resetModelButton(model) {
     'nba-new': 'RUN NBA NEW',
     'nba-old': 'RUN NBA MODEL',
     'nba-props': 'RUN PROPS MODEL',
-    scores24: 'SYNC SCORES24 NOW',
     sportytrader: 'SYNC SPORTYTRADER NOW',
     sportsgambler: 'SYNC SPORTSGAMBLER NOW',
   };
@@ -3897,10 +3876,7 @@ async function _pollJob(jobId, model, baseUrl = MODEL_SERVER, timeoutMs = 600000
 
     await new Promise(r => setTimeout(r, pollInterval));
     try {
-      if (model === 'scores24') {
-        const secs = Math.floor(elapsedMs / 1000);
-        setModelStatus(model, `Running local Scores24 scrape... ${secs}s`, 'running');
-      } else if (model === 'sportytrader') {
+      if (model === 'sportytrader') {
         const secs = Math.floor(elapsedMs / 1000);
         setModelStatus(model, `Running local SportyTrader scrape... ${secs}s`, 'running');
       } else if (model === 'sportsgambler') {
@@ -3961,55 +3937,6 @@ function _buildManualFeedCandidates(feedUrl, endpointPath) {
   const candidates = serverBases.map(base => `${base}${endpointPath}?${cacheBust}`);
   candidates.push(`${feedUrl}?${cacheBust}`);
   return candidates.filter((value, index, list) => value && list.indexOf(value) === index);
-}
-
-async function loadScores24ManualFeed() {
-  const payload = await _fetchManualFeedPayload(
-    _buildManualFeedCandidates(SCORES24_FEED_URL, '/scores24-feed')
-  );
-  const picks = Array.isArray(payload) ? payload : payload.picks;
-  if (!Array.isArray(picks)) {
-    throw new Error('Invalid feed format: expected { picks: [] }');
-  }
-
-  const normalized = picks.map(p => ({
-    source: String(p.source || 'Scores24').trim() || 'Scores24',
-    pick: String(p.pick || '').trim(),
-    matchup: String(p.matchup || p.game || '').trim(),
-    sport: String(p.sport || 'Other').trim() || 'Other',
-    odds: normalizeOddsValue(p.odds),
-    units: Number(p.units) || 1,
-    probability: (p.probability == null ? null : Number(p.probability)),
-    edge: (p.edge == null ? null : Number(p.edge)),
-    decision: String(p.decision || 'BET').toUpperCase(),
-    home_team: String(p.home_team || '').trim(),
-    away_team: String(p.away_team || '').trim(),
-    start_time: (p.start_time == null ? null : String(p.start_time).trim()),
-  })).filter(p => p.pick);
-
-  const meta = {
-    updatedAt: String(payload.updated_at || payload.updatedAt || '').trim(),
-    date: String(payload.date || '').trim(),
-    note: String(payload.note || '').trim(),
-  };
-
-  return { picks: normalized, meta };
-}
-
-function getScores24CachedFeed() {
-  try {
-    const raw = localStorage.getItem(SCORES24_CACHE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    if (!parsed || !Array.isArray(parsed.picks)) return null;
-    return parsed;
-  } catch {
-    return null;
-  }
-}
-
-function saveScores24CachedFeed(payload) {
-  localStorage.setItem(SCORES24_CACHE_KEY, JSON.stringify(payload));
 }
 
 async function loadSportyTraderManualFeed() {
@@ -4117,32 +4044,6 @@ function setSportsgamblerSyncMeta(meta) {
   el.textContent = formatSportyTraderSyncMeta(base);
 }
 
-function formatScores24SyncMeta(meta) {
-  if (!meta) return 'Last sync: never';
-  const from = String(meta.from || '').trim();
-  const updatedAt = String(meta.updatedAt || '').trim();
-  const date = String(meta.date || '').trim();
-  const leagues = String(meta.leagues || '').trim();
-
-  const parts = [];
-  if (updatedAt) {
-    const dt = new Date(updatedAt);
-    const ts = Number.isNaN(dt.getTime()) ? updatedAt : dt.toLocaleString();
-    parts.push(ts);
-  }
-  if (date) parts.push(`for ${date}`);
-  if (leagues) parts.push(`(${leagues.toUpperCase()})`);
-  if (from) parts.push(`[${from}]`);
-
-  return parts.length ? `Last sync: ${parts.join(' ')}` : 'Last sync: unknown';
-}
-
-function setScores24SyncMeta(meta) {
-  const el = document.getElementById('scores24-sync-meta');
-  if (!el) return;
-  el.textContent = formatScores24SyncMeta(meta);
-}
-
 function formatSportyTraderSyncMeta(meta) {
   if (!meta) return 'Last sync: never';
   const from = String(meta.from || '').trim();
@@ -4167,47 +4068,6 @@ function setSportyTraderSyncMeta(meta) {
   const el = document.getElementById('sportytrader-sync-meta');
   if (!el) return;
   el.textContent = formatSportyTraderSyncMeta(meta);
-}
-
-async function syncScores24FromServer(sports = ['nba', 'nhl', 'mlb']) {
-  const server = LOCAL_SCORES24_SERVER;
-  const selectedSports = Array.isArray(sports) ? sports.map(s => String(s || '').toLowerCase().trim()).filter(Boolean) : [];
-
-  const body = {
-    async: true,
-    date: _getTodayDateStr(),
-    sports: selectedSports.length ? selectedSports : ['nba', 'nhl', 'mlb'],
-  };
-
-  const resp = await fetch(server + '/run-scores24', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-
-  const launch = await resp.json();
-  if (!launch.ok) {
-    throw new Error(launch.error || `HTTP ${resp.status}`);
-  }
-
-  let data = launch;
-  if (launch.job_id) {
-    data = await _pollJob(launch.job_id, 'scores24', server, 600000);
-  }
-  if (!data || !data.ok) {
-    throw new Error((data && data.error) || 'Scores24 job failed');
-  }
-
-  return {
-    picks: Array.isArray(data.picks) ? data.picks : [],
-    meta: {
-      updatedAt: new Date().toISOString(),
-      date: _getTodayDateStr(),
-      note: 'Synced from localhost backend',
-      from: 'local-backend',
-      leagues: body.sports.join(','),
-    },
-  };
 }
 
 async function syncSportyTraderFromServer() {
@@ -4301,83 +4161,6 @@ async function syncSportsgamblerFromServer() {
   throw new Error(lastErr);
 }
 
-async function runSelectedScores24League() {
-  const btn = document.getElementById('btn-run-scores24-league');
-  const select = document.getElementById('scores24-league-select');
-  const league = String(select && select.value ? select.value : 'nba').toLowerCase();
-  if (btn) { btn.disabled = true; btn.textContent = 'SYNCING...'; }
-  setModelStatus('scores24', `Syncing Scores24 ${league.toUpperCase()} from backend...`, 'running');
-  try {
-    const synced = await syncScores24FromServer([league]);
-    const filtered = Array.isArray(synced.picks) ? synced.picks : [];
-    if (!filtered.length) {
-      throw new Error('no picks returned from backend');
-    }
-    const meta = {
-      ...(synced.meta || {}),
-      updatedAt: synced.meta && synced.meta.updatedAt ? synced.meta.updatedAt : new Date().toISOString(),
-      date: synced.meta && synced.meta.date ? synced.meta.date : _getTodayDateStr(),
-      from: 'local-backend',
-      leagues: league,
-      note: synced.meta && synced.meta.note ? synced.meta.note : 'Synced from localhost backend',
-    };
-    _clearNbaComparisonResults();
-    pendingModelPicks = filtered;
-    renderModelResults(filtered, { meta: '' });
-    saveScores24CachedFeed({ picks: filtered, meta });
-    setScores24SyncMeta(meta);
-    setModelStatus('scores24', `Synced ${filtered.length} ${league.toUpperCase()} pick(s) from backend`, 'ok');
-  } catch (e) {
-    const err = String(e && e.message ? e.message : e);
-    try {
-      setModelStatus('scores24', 'Backend unavailable, loading feed file...', 'running');
-      const loaded = await loadScores24ManualFeed();
-      const sportMap = { nba: 'NBA', nhl: 'NHL', mlb: 'MLB' };
-      const targetSport = sportMap[league] || league.toUpperCase();
-      const fallbackPicks = (loaded.picks || []).filter(p => String(p.sport || '').toUpperCase() === targetSport);
-      if (!fallbackPicks.length) {
-        throw new Error('no matching picks in feed');
-      }
-      const meta = {
-        ...loaded.meta,
-        updatedAt: loaded.meta && loaded.meta.updatedAt ? loaded.meta.updatedAt : new Date().toISOString(),
-        date: loaded.meta && loaded.meta.date ? loaded.meta.date : _getTodayDateStr(),
-        from: 'feed-file',
-        leagues: league,
-      };
-      _clearNbaComparisonResults();
-      pendingModelPicks = fallbackPicks;
-      renderModelResults(fallbackPicks, { meta: '' });
-      saveScores24CachedFeed({ picks: fallbackPicks, meta });
-      setScores24SyncMeta(meta);
-      setModelStatus('scores24', `Loaded ${fallbackPicks.length} ${league.toUpperCase()} pick(s) from feed file`, 'ok');
-    } catch (feedErr) {
-      const cached = getScores24CachedFeed();
-      if (cached && Array.isArray(cached.picks) && cached.picks.length && _isFreshFeedMeta(cached.meta)) {
-        const sportMap = { nba: 'NBA', nhl: 'NHL', mlb: 'MLB' };
-        const targetSport = sportMap[league] || league.toUpperCase();
-        const fallbackPicks = cached.picks.filter(p => String(p.sport || '').toUpperCase() === targetSport);
-        if (fallbackPicks.length) {
-          _clearNbaComparisonResults();
-          pendingModelPicks = fallbackPicks;
-          renderModelResults(fallbackPicks, { meta: '' });
-          setScores24SyncMeta({ ...(cached.meta || {}), from: 'cache', leagues: league });
-          setModelStatus('scores24', `Using cached ${fallbackPicks.length} ${league.toUpperCase()} pick(s)`, 'ok');
-        } else {
-          setModelStatus('scores24', `Scores24 sync failed (${err})`, 'error');
-        }
-      } else {
-        setModelStatus('scores24', `Scores24 sync failed (${err})`, 'error');
-      }
-    }
-  } finally {
-    if (btn) {
-      btn.disabled = false;
-      btn.textContent = 'SYNC SELECTED LEAGUE';
-    }
-  }
-}
-
 async function runModel(model) {
   _setModelButtonRunning(model);
 
@@ -4414,50 +4197,6 @@ async function runModel(model) {
       setModelStatus(model, `Done. Winner + ${playerCount} fantasy selections returned.`, 'ok');
     } catch (e) {
       setModelStatus(model, `Error: ${String(e && e.message ? e.message : e)}`, 'error');
-    } finally {
-      _resetModelButton(model);
-    }
-    return;
-  }
-
-  if (model === 'scores24') {
-    try {
-      setModelStatus(model, 'Trying live Scores24 backend sync...', 'running');
-      const synced = await syncScores24FromServer();
-      _clearNbaComparisonResults();
-      pendingModelPicks = synced.picks;
-      renderModelResults(synced.picks, { meta: '' });
-      saveScores24CachedFeed({ picks: synced.picks, meta: synced.meta });
-      setScores24SyncMeta(synced.meta);
-      setModelStatus(model, `Synced ${synced.picks.length} pick(s) from backend`, 'ok');
-    } catch (e) {
-      const backendErr = String(e && e.message ? e.message : e);
-      try {
-        setModelStatus(model, 'Backend sync unavailable, loading feed file...', 'running');
-        const loaded = await loadScores24ManualFeed();
-        _clearNbaComparisonResults();
-        pendingModelPicks = loaded.picks;
-        renderModelResults(loaded.picks, { meta: '' });
-        const meta = {
-          ...loaded.meta,
-          from: 'feed-file',
-          updatedAt: loaded.meta.updatedAt || new Date().toISOString(),
-        };
-        saveScores24CachedFeed({ picks: loaded.picks, meta });
-        setScores24SyncMeta(meta);
-        setModelStatus(model, `Loaded ${loaded.picks.length} pick(s) from feed file`, 'ok');
-      } catch (feedErr) {
-        const cached = getScores24CachedFeed();
-        if (cached && Array.isArray(cached.picks) && _isFreshFeedMeta(cached.meta)) {
-          _clearNbaComparisonResults();
-          pendingModelPicks = cached.picks;
-          renderModelResults(cached.picks, { meta: '' });
-          setScores24SyncMeta({ ...(cached.meta || {}), from: 'cache' });
-          setModelStatus(model, `Using cached Scores24 feed (${cached.picks.length} pick(s))`, 'ok');
-        } else {
-          setModelStatus(model, `Scores24 sync failed (${backendErr})`, 'error');
-        }
-      }
     } finally {
       _resetModelButton(model);
     }
@@ -4872,15 +4611,6 @@ function addModelPicksToLedger() {
   }
 }
 
-function initScores24SyncMeta() {
-  const cached = getScores24CachedFeed();
-  if (cached && cached.meta && _isFreshFeedMeta(cached.meta)) {
-    setScores24SyncMeta(cached.meta);
-  } else {
-    setScores24SyncMeta(null);
-  }
-}
-
 function initSportyTraderSyncMeta() {
   const cached = getSportyTraderCachedFeed();
   if (cached && cached.meta && _isFreshFeedMeta(cached.meta)) {
@@ -4921,7 +4651,6 @@ function initPickLogFilterCleanup() {
 
 initTheme();
 initializeNbaModelDate();
-initScores24SyncMeta();
 initSportyTraderSyncMeta();
 initSportsgamblerSyncMeta();
 initPickLogFilterCleanup();

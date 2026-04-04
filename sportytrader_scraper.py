@@ -2,8 +2,8 @@
 """
 SportyTrader Scraper
 ====================
-Scrapes NBA and MLB picks from SportyTrader and prints Scores24-style
-blocks so the existing backend parser can consume them.
+Scrapes NBA and MLB picks from SportyTrader and prints structured
+pick blocks for the backend parser.
 """
 
 from __future__ import annotations
