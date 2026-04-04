@@ -989,6 +989,20 @@
     const field = outcome === 'win' ? 'wins'
                 : outcome === 'loss' ? 'losses' : 'pushes';
     await updateDoc(ref, { [field]: increment(1) });
+
+    // Keep the visible record in sync with the canonical Firestore record.
+    const rec = await getDoc(doc(db, 'users', uid, 'record', 'summary'));
+    if (rec.exists()) {
+      const d = rec.data();
+      const w = d.wins || 0;
+      const l = d.losses || 0;
+      const p = d.pushes || 0;
+      const el = document.getElementById('total-record');
+      if (el) el.textContent = p > 0 ? `${w}-${l}-${p}` : `${w}-${l}`;
+      const pr = document.getElementById('profile-record');
+      if (pr) pr.textContent = p > 0 ? `${w}-${l}-${p}` : `${w}-${l}`;
+      window._userRecord = d;
+    }
   };
 
   // ── Per-user picks in Firestore ───────────────────────────
@@ -1116,6 +1130,15 @@
       window._userUid    = user.uid;
       updateProfilePanel(user, record);
 
+      // Override header record display with Firestore user record.
+      const totalRecordEl = document.getElementById('total-record');
+      if (totalRecordEl) {
+        const w = record.wins || 0;
+        const l = record.losses || 0;
+        const p = record.pushes || 0;
+        totalRecordEl.textContent = p > 0 ? `${w}-${l}-${p}` : `${w}-${l}`;
+      }
+
       const userPicks = await window._loadUserPicks(user.uid);
       if (userPicks !== null) {
         window._applyUserLedgerState(userPicks);
@@ -1128,6 +1151,14 @@
         console.log('[Firestore] New user, cleared local ledger state for a fresh start');
       }
       refreshLedgerUi();
+
+      const totalRecordElAfterRender = document.getElementById('total-record');
+      if (totalRecordElAfterRender) {
+        const w = record.wins || 0;
+        const l = record.losses || 0;
+        const p = record.pushes || 0;
+        totalRecordElAfterRender.textContent = p > 0 ? `${w}-${l}-${p}` : `${w}-${l}`;
+      }
     } else {
       // Show login gate
       if (gate) {
@@ -1135,6 +1166,8 @@
         gate.style.opacity  = '1';
       }
       resetProfilePanel();
+      const totalRecordElOut = document.getElementById('total-record');
+      if (totalRecordElOut) totalRecordElOut.textContent = '0-0';
       window._userUid    = null;
       window._userRecord = null;
       refreshLedgerUi();
@@ -3951,7 +3984,17 @@ function render() {
   const d=w+l, acc=d>0?(w/d*100).toFixed(1)+'%':'—';
   const nu=decided.reduce((s,p)=>s+p.pl,0), tw=decided.filter(p=>p.result!=='push').reduce((s,p)=>s+p.units,0);
   const roi=tw>0?((nu/tw)*100).toFixed(1)+'%':'—', nuf=nu;
-  document.getElementById('total-record').textContent=`${w}-${l}`;
+  const totalRecordEl = document.getElementById('total-record');
+  if (totalRecordEl) {
+    if (window._userUid && window._userRecord) {
+      const rw = window._userRecord.wins || 0;
+      const rl = window._userRecord.losses || 0;
+      const rp = window._userRecord.pushes || 0;
+      totalRecordEl.textContent = rp > 0 ? `${rw}-${rl}-${rp}` : `${rw}-${rl}`;
+    } else {
+      totalRecordEl.textContent = `${w}-${l}`;
+    }
+  }
   document.getElementById('stat-picks').textContent=picks.length;
   document.getElementById('stat-wins').textContent=w;
   document.getElementById('stat-losses').textContent=l;
