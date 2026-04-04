@@ -860,6 +860,70 @@
   }
   .pick-model-pred { text-align: center; min-width: 80px; }
 </style>
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
+  import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
+
+  const firebaseConfig = {
+    // TODO: Replace with your Firebase Web App apiKey
+    apiKey: "REPLACE_WITH_YOUR_API_KEY",
+    // TODO: Replace with your Firebase Web App authDomain
+    authDomain: "REPLACE_WITH_YOUR_AUTH_DOMAIN",
+    // TODO: Replace with your Firebase Web App projectId
+    projectId: "REPLACE_WITH_YOUR_PROJECT_ID",
+    // TODO: Replace with your Firebase Web App storageBucket
+    storageBucket: "REPLACE_WITH_YOUR_STORAGE_BUCKET",
+    // TODO: Replace with your Firebase Web App messagingSenderId
+    messagingSenderId: "REPLACE_WITH_YOUR_SENDER_ID",
+    // TODO: Replace with your Firebase Web App appId
+    appId: "REPLACE_WITH_YOUR_APP_ID"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  async function loadFirestorePicks() {
+    try {
+      const docRef = doc(db, 'picks', 'latest');
+      const snap = await getDoc(docRef);
+      if (!snap.exists()) {
+        console.log('Firestore: no picks document found yet.');
+        return null;
+      }
+      const data = snap.data();
+      const picks = typeof data.picks === 'string'
+        ? JSON.parse(data.picks)
+        : (data.picks || []);
+      return { ...data, picks };
+    } catch (e) {
+      console.warn('Firestore load failed, falling back to localStorage:', e.message);
+      return null;
+    }
+  }
+
+  // Expose globally so existing app code can call it
+  window._loadFirestorePicks = loadFirestorePicks;
+
+  // Auto-load on page ready and inject into the existing picks UI
+  window.addEventListener('DOMContentLoaded', async () => {
+    const data = await loadFirestorePicks();
+    if (!data || !Array.isArray(data.picks) || data.picks.length === 0) {
+      console.log('Firestore: no picks to display, localStorage takes over.');
+      return;
+    }
+    // Dispatch a custom event so the existing JS can react
+    window.dispatchEvent(new CustomEvent('firestorePicksLoaded', {
+      detail: {
+        picks: data.picks,
+        timestamp: data.timestamp,
+        model: data.model,
+        games_evaluated: data.games_evaluated
+      }
+    }));
+    console.log(`Firestore: loaded ${data.picks.length} picks (${data.date})`);
+  });
+</script>
 </head>
 <body>
 <div class="container">
