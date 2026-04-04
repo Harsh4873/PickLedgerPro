@@ -924,8 +924,147 @@
     console.log(`Firestore: loaded ${data.picks.length} picks (${data.date})`);
   });
 </script>
+<!-- Firebase SDK + Auth -->
+<script type="module">
+  import { initializeApp }
+    from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
+  import { getFirestore, doc, getDoc, setDoc, updateDoc, increment }
+    from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
+  import {
+    getAuth,
+    GoogleAuthProvider,
+    signInWithPopup,
+    signOut,
+    onAuthStateChanged
+  } from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyATQK7NHNXIshlJIy7xT17z8Kr8fUWatLs",
+    authDomain: "pickledgerpro.firebaseapp.com",
+    projectId: "pickledgerpro",
+    storageBucket: "pickledgerpro.firebasestorage.app",
+    messagingSenderId: "285462656063",
+    appId: "1:285462656063:web:caa084d1daf04e04eab48a"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const db   = getFirestore(app);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+
+  function setAuthUI(user) {
+    const btn    = document.getElementById('auth-btn');
+    const avatar = document.getElementById('auth-avatar');
+    const label  = document.getElementById('auth-label');
+    if (!btn) return;
+    if (user) {
+      if (avatar) { avatar.src = user.photoURL || ''; avatar.style.display = 'inline'; }
+      if (label)  label.textContent = user.displayName || user.email;
+      btn.textContent = 'Sign out';
+      btn.onclick = () => signOut(auth);
+    } else {
+      if (avatar) avatar.style.display = 'none';
+      if (label)  label.textContent = '';
+      btn.textContent = 'Sign in with Google';
+      btn.onclick = () => signInWithPopup(auth, provider).catch(console.error);
+    }
+  }
+
+  async function loadUserRecord(uid) {
+    const ref  = doc(db, 'users', uid, 'record', 'summary');
+    const snap = await getDoc(ref);
+    if (snap.exists()) return snap.data();
+    const fresh = { wins: 0, losses: 0, pushes: 0 };
+    await setDoc(ref, fresh);
+    return fresh;
+  }
+
+  window._incrementRecord = async function(uid, outcome) {
+    const ref   = doc(db, 'users', uid, 'record', 'summary');
+    const field = outcome === 'win' ? 'wins'
+                : outcome === 'loss' ? 'losses' : 'pushes';
+    await updateDoc(ref, { [field]: increment(1) });
+  };
+
+  function renderRecord(record) {
+    const el = document.getElementById('user-record');
+    if (!el) return;
+    const w = record.wins   || 0;
+    const l = record.losses || 0;
+    const p = record.pushes || 0;
+    el.textContent = p > 0 ? `Record: ${w}-${l}-${p}` : `Record: ${w}-${l}`;
+  }
+
+  async function loadFirestorePicks() {
+    try {
+      const snap = await getDoc(doc(db, 'picks', 'latest'));
+      if (!snap.exists()) return null;
+      const data = snap.data();
+      const picks = typeof data.picks === 'string'
+        ? JSON.parse(data.picks) : (data.picks || []);
+      return { ...data, picks };
+    } catch (e) {
+      console.warn('Firestore picks load failed:', e.message);
+      return null;
+    }
+  }
+  window._loadFirestorePicks = loadFirestorePicks;
+
+  onAuthStateChanged(auth, async (user) => {
+    setAuthUI(user);
+    window._currentUser = user || null;
+    if (user) {
+      const record = await loadUserRecord(user.uid);
+      renderRecord(record);
+      window._userRecord = record;
+      window._userUid    = user.uid;
+    } else {
+      window._currentUser = null;
+      window._userUid     = null;
+      const el = document.getElementById('user-record');
+      if (el) el.textContent = 'Sign in to see your record';
+    }
+  });
+
+  window.addEventListener('DOMContentLoaded', async () => {
+    const data = await loadFirestorePicks();
+    if (!data || !Array.isArray(data.picks) || !data.picks.length) return;
+    window.dispatchEvent(new CustomEvent('firestorePicksLoaded', {
+      detail: {
+        picks: data.picks,
+        timestamp: data.timestamp,
+        model: data.model,
+        games_evaluated: data.games_evaluated
+      }
+    }));
+  });
+</script>
 </head>
 <body>
+<div id="auth-bar" style="
+  position:fixed;top:0;right:0;z-index:10000;
+  display:flex;align-items:center;gap:10px;
+  padding:8px 16px;
+  background:rgba(20,20,20,0.92);
+  backdrop-filter:blur(6px);
+  border-bottom-left-radius:10px;
+  font-family:monospace;font-size:13px;color:#fff;">
+  <img id="auth-avatar" src="" alt=""
+    style="width:26px;height:26px;border-radius:50%;display:none;">
+  <span id="auth-label"
+    style="color:#aaa;max-width:180px;overflow:hidden;
+           text-overflow:ellipsis;white-space:nowrap;"></span>
+  <span id="user-record"
+    style="color:#4ade80;font-weight:bold;">
+    Sign in to see your record
+  </span>
+  <button id="auth-btn"
+    style="background:#4285f4;color:#fff;border:none;
+           padding:5px 12px;border-radius:5px;cursor:pointer;
+           font-size:12px;font-family:monospace;">
+    Sign in with Google
+  </button>
+</div>
 <div class="container">
 
   <header>
