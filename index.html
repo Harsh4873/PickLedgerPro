@@ -991,47 +991,99 @@
     await updateDoc(ref, { [field]: increment(1) });
   };
 
-  // ── Top-right user bar (shown after login) ────────────────
-  function showUserBar(user, record) {
-    let bar = document.getElementById('user-bar');
-    if (!bar) {
-      bar = document.createElement('div');
-      bar.id = 'user-bar';
-      bar.style.cssText = [
-        'position:fixed','top:8px','right:12px','z-index:9999',
-        'display:flex','align-items:center','gap:8px',
-        'background:rgba(15,15,15,0.9)',
-        'backdrop-filter:blur(8px)',
-        'border:1px solid #222',
-        'border-radius:999px',
-        'padding:5px 12px 5px 6px',
-        'font-family:monospace','font-size:12px','color:#fff',
-      ].join(';');
-      document.body.appendChild(bar);
+  // ── Per-user picks in Firestore ───────────────────────────
+  window._saveUserPicks = async function(uid, picksData) {
+    if (!uid) return;
+    try {
+      const ref = doc(db, 'users', uid, 'data', 'ledger');
+      await setDoc(ref, {
+        picks: JSON.stringify(picksData),
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
+    } catch (e) {
+      console.warn('[Firestore] saveUserPicks failed:', e.message);
     }
-    const w = record.wins   || 0;
-    const l = record.losses || 0;
-    const p = record.pushes || 0;
-    const rec = p > 0 ? `${w}-${l}-${p}` : `${w}-${l}`;
-    bar.innerHTML = `
-      <img src="${user.photoURL||''}" alt=""
-        style="width:22px;height:22px;border-radius:50%;
-               display:${user.photoURL?'block':'none'}">
-      <span style="color:#aaa;max-width:120px;overflow:hidden;
-                   text-overflow:ellipsis;white-space:nowrap;">
-        ${user.displayName||user.email}
-      </span>
-      <span style="color:#4ade80;font-weight:700;">${rec}</span>
-      <button onclick="window._signOut()"
-        style="background:#222;color:#888;border:1px solid #333;
-               padding:2px 8px;border-radius:999px;cursor:pointer;
-               font-size:11px;font-family:monospace;margin-left:4px;">
-        sign out
-      </button>
-    `;
+  };
+
+  window._loadUserPicks = async function(uid) {
+    if (!uid) return null;
+    try {
+      const ref  = doc(db, 'users', uid, 'data', 'ledger');
+      const snap = await getDoc(ref);
+      if (!snap.exists()) return null;
+      const raw = snap.data().picks;
+      const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+      if (Array.isArray(parsed)) {
+        return {
+          addedPicks: parsed,
+          deletedPickIds: [],
+          results: {},
+          gameTimes: {}
+        };
+      }
+      return parsed;
+    } catch (e) {
+      console.warn('[Firestore] loadUserPicks failed:', e.message);
+      return null;
+    }
+  };
+
+  function refreshLedgerUi() {
+    if (typeof window.render === 'function') window.render();
+    else if (typeof window.loadLedger === 'function') window.loadLedger();
+    else if (typeof window.initApp === 'function') window.initApp();
+    else if (typeof window.renderAll === 'function') window.renderAll();
+
+    const searchTab = document.getElementById('tab-search');
+    if (searchTab && searchTab.classList.contains('active') && typeof window.renderSearch === 'function') {
+      window.renderSearch();
+    }
   }
 
-  window._signOut = () => signOut(auth);
+  async function waitForLedgerHelpers() {
+    if (window._applyUserLedgerState && window._clearLedgerLocalState) return;
+    await new Promise((resolve) => {
+      window.addEventListener('pickledger:helpers-ready', resolve, { once: true });
+    });
+  }
+
+  function updateProfilePanel(user, record) {
+    const pAvatar = document.getElementById('profile-avatar');
+    const pName   = document.getElementById('profile-name');
+    const pEmail  = document.getElementById('profile-email');
+    const pRecord = document.getElementById('profile-record');
+    if (pAvatar) pAvatar.src = user.photoURL || '';
+    if (pName) pName.textContent = user.displayName || '';
+    if (pEmail) pEmail.textContent = user.email || '';
+    if (pRecord) {
+      const w = record.wins || 0;
+      const l = record.losses || 0;
+      const p = record.pushes || 0;
+      pRecord.textContent = p > 0 ? `${w}-${l}-${p}` : `${w}-${l}`;
+    }
+  }
+
+  function resetProfilePanel() {
+    const pAvatar = document.getElementById('profile-avatar');
+    const pName   = document.getElementById('profile-name');
+    const pEmail  = document.getElementById('profile-email');
+    const pRecord = document.getElementById('profile-record');
+    if (pAvatar) pAvatar.src = '';
+    if (pName) pName.textContent = '';
+    if (pEmail) pEmail.textContent = '';
+    if (pRecord) pRecord.textContent = '0-0';
+  }
+
+  window._signOut = async () => {
+    if (window._userUid && typeof window._saveUserPicks === 'function' && typeof window._buildLedgerStatePayload === 'function') {
+      await window._saveUserPicks(window._userUid, window._buildLedgerStatePayload());
+    }
+    if (typeof window._clearLedgerLocalState === 'function') {
+      window._clearLedgerLocalState();
+    }
+    refreshLedgerUi();
+    signOut(auth);
+  };
 
   async function loadFirestorePicks() {
     try {
@@ -1050,6 +1102,7 @@
 
   onAuthStateChanged(auth, async (user) => {
     window._currentUser = user || null;
+    await waitForLedgerHelpers();
 
     if (user) {
       // Hide login gate with fade
@@ -1061,17 +1114,28 @@
       const record = await loadUserRecord(user.uid);
       window._userRecord = record;
       window._userUid    = user.uid;
-      showUserBar(user, record);
+      updateProfilePanel(user, record);
+
+      const userPicks = await window._loadUserPicks(user.uid);
+      if (userPicks !== null) {
+        window._applyUserLedgerState(userPicks);
+        console.log('[Firestore] Loaded user ledger state, reloading app state');
+      } else {
+        window._clearLedgerLocalState();
+        console.log('[Firestore] New user, cleared local ledger state for a fresh start');
+      }
+      refreshLedgerUi();
     } else {
       // Show login gate
-      const bar = document.getElementById('user-bar');
-      if (bar) bar.remove();
       if (gate) {
         gate.style.display  = 'flex';
         gate.style.opacity  = '1';
       }
+      window._clearLedgerLocalState();
+      resetProfilePanel();
       window._userUid    = null;
       window._userRecord = null;
+      refreshLedgerUi();
     }
   });
 
@@ -1195,6 +1259,7 @@
     <button class="tab" onclick="switchTab('trends')">TRENDS</button>
     <button class="tab" onclick="switchTab('parlays')">PARLAYS</button>
     <button class="tab" onclick="switchTab('models')">MODELS</button>
+    <button class="tab" onclick="switchTab('profile')">PROFILE</button>
   </div>
 
   <!-- HOME TAB -->
@@ -1364,6 +1429,34 @@
     </div>
   </div>
 
+  <div id="tab-profile" class="tab-content">
+    <div id="profile-panel" style="display:none;padding:40px 20px;max-width:480px;margin:0 auto;">
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:32px;">
+        <img id="profile-avatar" src="" alt=""
+          style="width:56px;height:56px;border-radius:50%;background:#222;display:block;">
+        <div>
+          <div id="profile-name"
+            style="font-size:16px;font-weight:700;color:#fff;letter-spacing:0.05em;"></div>
+          <div id="profile-email"
+            style="font-size:12px;color:#555;margin-top:4px;"></div>
+        </div>
+      </div>
+
+      <div style="background:#111;border:1px solid #222;border-radius:12px;padding:24px;margin-bottom:20px;text-align:center;">
+        <div style="font-size:11px;color:#555;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px;">Overall Record</div>
+        <div id="profile-record"
+          style="font-size:36px;font-weight:700;color:#4ade80;letter-spacing:0.05em;">
+          0-0
+        </div>
+      </div>
+
+      <button onclick="window._signOut()"
+        style="width:100%;background:#1a1a1a;color:#888;border:1px solid #333;border-radius:8px;padding:12px;font-size:13px;font-family:monospace;cursor:pointer;letter-spacing:0.05em;">
+        Sign out
+      </button>
+    </div>
+  </div>
+
 </div>
 
 <script src="./ipl/ipl_frontend.js"></script>
@@ -1468,8 +1561,18 @@ function buildLedgerStatePayload() {
   };
 }
 
-function applyLedgerStateFromServer(state) {
-  if (!state || typeof state !== 'object') return false;
+window._buildLedgerStatePayload = buildLedgerStatePayload;
+
+function clearLedgerLocalState() {
+  localStorage.removeItem(ADDED_PICKS_KEY);
+  localStorage.removeItem(DELETED_PICKS_KEY);
+  localStorage.removeItem(RESULTS_KEY);
+  localStorage.removeItem(GAME_TIMES_KEY);
+}
+
+function writeLedgerStateToLocalStorage(state, options = {}) {
+  if (!state || typeof state !== 'object') return { hasAny: false };
+  const mirrorResultsToServer = options.mirrorResultsToServer === true;
   runOneTimeNbaPropsCleanup(state);
   const addedRaw = Array.isArray(state.addedPicks) ? state.addedPicks : [];
   const added = addedRaw;
@@ -1479,15 +1582,31 @@ function applyLedgerStateFromServer(state) {
   const gameTimesRaw = (state.gameTimes && typeof state.gameTimes === 'object') ? state.gameTimes : {};
   const gameTimes = { ...gameTimesRaw };
   const hasAny = added.length || deleted.length || Object.keys(results).length || Object.keys(gameTimes).length;
-  if (!hasAny) return false;
+  if (!hasAny) return { hasAny: false };
 
   localStorage.setItem(ADDED_PICKS_KEY, JSON.stringify(added));
   localStorage.setItem(DELETED_PICKS_KEY, JSON.stringify(deleted));
   localStorage.setItem(RESULTS_KEY, JSON.stringify(results));
-  Object.entries(results).forEach(([id, result]) => saveResultToServer(id, result));
+  if (mirrorResultsToServer) {
+    Object.entries(results).forEach(([id, result]) => saveResultToServer(id, result));
+  }
   localStorage.setItem(GAME_TIMES_KEY, JSON.stringify(gameTimes));
-  return true;
+  return { hasAny: true };
 }
+
+function applyLedgerStateFromServer(state) {
+  const { hasAny } = writeLedgerStateToLocalStorage(state, { mirrorResultsToServer: true });
+  return hasAny;
+}
+
+function applyUserLedgerState(state) {
+  clearLedgerLocalState();
+  const { hasAny } = writeLedgerStateToLocalStorage(state);
+  return hasAny;
+}
+
+window._clearLedgerLocalState = clearLedgerLocalState;
+window._applyUserLedgerState = applyUserLedgerState;
 
 async function pushLedgerState(force = false) {
   if (!LEDGER_STATE_URL) return;
@@ -1512,6 +1631,9 @@ function scheduleLedgerStateSync() {
   }
   ledgerStateSyncTimer = setTimeout(() => {
     pushLedgerState(false);
+    if (window._userUid && window._saveUserPicks) {
+      window._saveUserPicks(window._userUid, buildLedgerStatePayload());
+    }
   }, 1200);
 }
 
@@ -2470,8 +2592,12 @@ function initDayOfWeekChartRendering() {
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-  document.querySelector(`.tab[onclick*="${name}"]`).classList.add('active');
-  document.getElementById('tab-'+name).classList.add('active');
+  const activeTab = document.querySelector(`.tab[onclick*="${name}"]`);
+  const activePanel = document.getElementById('tab-'+name);
+  if (activeTab) activeTab.classList.add('active');
+  if (activePanel) activePanel.classList.add('active');
+  const profilePanel = document.getElementById('profile-panel');
+  if (profilePanel) profilePanel.style.display = name === 'profile' ? 'block' : 'none';
   localStorage.setItem('pickledger_tab', name);
   if (name === 'search') {
     setTimeout(() => document.getElementById('search-input').focus(), 50);
@@ -4955,6 +5081,7 @@ initSportyTraderSyncMeta();
 initSportsgamblerSyncMeta();
 initPickLogFilterCleanup();
 initDayOfWeekChartRendering();
+window.dispatchEvent(new Event('pickledger:helpers-ready'));
 syncWithServer().catch(() => setSyncStatus('offline'));
 loadNbaPropsGames();
 const savedTab = localStorage.getItem('pickledger_tab') || 'home';
