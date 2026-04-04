@@ -1120,6 +1120,9 @@
       if (userPicks !== null) {
         window._applyUserLedgerState(userPicks);
         console.log('[Firestore] Loaded user ledger state, reloading app state');
+      } else if (typeof window._hasMeaningfulLocalState === 'function' && window._hasMeaningfulLocalState()) {
+        await window._saveUserPicks(user.uid, window._buildLedgerStatePayload());
+        console.log('[Firestore] Migrated existing local ledger state to this user');
       } else {
         window._clearLedgerLocalState();
         console.log('[Firestore] New user, cleared local ledger state for a fresh start');
@@ -1131,7 +1134,6 @@
         gate.style.display  = 'flex';
         gate.style.opacity  = '1';
       }
-      window._clearLedgerLocalState();
       resetProfilePanel();
       window._userUid    = null;
       window._userRecord = null;
@@ -1549,6 +1551,8 @@ function hasMeaningfulLocalState() {
     Object.keys(getGameTimes()).length > 0
   );
 }
+
+window._hasMeaningfulLocalState = hasMeaningfulLocalState;
 
 function buildLedgerStatePayload() {
   return {
