@@ -1092,10 +1092,12 @@
     if (window._userUid && typeof window._saveUserPicks === 'function' && typeof window._buildLedgerStatePayload === 'function') {
       await window._saveUserPicks(window._userUid, window._buildLedgerStatePayload());
     }
-    if (typeof window._clearLedgerLocalState === 'function') {
-      window._clearLedgerLocalState();
-    }
-    refreshLedgerUi();
+    Object.keys(localStorage).filter(k =>
+      k.startsWith('pickledger_added_picks') ||
+      k.startsWith('pickledger_deleted_pick_ids') ||
+      k.startsWith('pickledger_results') ||
+      k.startsWith('pickledger_game_times')
+    ).forEach(k => localStorage.removeItem(k));
     signOut(auth);
   };
 
@@ -1143,12 +1145,19 @@
       if (userPicks !== null) {
         window._applyUserLedgerState(userPicks);
         console.log('[Firestore] Loaded user ledger state, reloading app state');
-      } else if (typeof window._hasMeaningfulLocalState === 'function' && window._hasMeaningfulLocalState()) {
-        await window._saveUserPicks(user.uid, window._buildLedgerStatePayload());
-        console.log('[Firestore] Migrated existing local ledger state to this user');
       } else {
-        window._clearLedgerLocalState();
-        console.log('[Firestore] New user, cleared local ledger state for a fresh start');
+        // New user — wipe ALL ledger keys for a clean slate
+        // First collect all versioned keys matching our pattern
+        const pickKeys = Object.keys(localStorage).filter(k =>
+          k.startsWith('pickledger_added_picks') ||
+          k.startsWith('pickledger_deleted_pick_ids') ||
+          k.startsWith('pickledger_results') ||
+          k.startsWith('pickledger_game_times')
+        );
+        pickKeys.forEach(k => localStorage.removeItem(k));
+        console.log('[Auth] New user — cleared', pickKeys.length, 'ledger keys');
+        // Re-render so the pick log shows empty
+        if (typeof render === 'function') render();
       }
       refreshLedgerUi();
 
@@ -1170,6 +1179,15 @@
       if (totalRecordElOut) totalRecordElOut.textContent = '0-0';
       window._userUid    = null;
       window._userRecord = null;
+      // Sign-out — wipe all ledger keys
+      const signOutKeys = Object.keys(localStorage).filter(k =>
+        k.startsWith('pickledger_added_picks') ||
+        k.startsWith('pickledger_deleted_pick_ids') ||
+        k.startsWith('pickledger_results') ||
+        k.startsWith('pickledger_game_times')
+      );
+      signOutKeys.forEach(k => localStorage.removeItem(k));
+      if (typeof render === 'function') render();
       refreshLedgerUi();
     }
   });
