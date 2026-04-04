@@ -469,3 +469,65 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+    # ── Firestore push (PickLedgerPro) ──────────────────────────
+    try:
+        import sys as _sys
+        _sys.path.insert(0, str(__import__('pathlib').Path(__file__).parent.parent))
+        from scripts.firebase_writer import save_picks as _save_picks
+
+        _args = parse_args()
+        _target_date = _normalize_target_date(_args.date or _args.legacy_date)
+        firebase_picks = []
+
+        if _args.variant == "new":
+            from prediction_logging import load_prediction_rows as _load_prediction_rows
+
+            _, _rows = _load_prediction_rows()
+            _latest_by_game = {}
+            for _row in _rows:
+                if str(_row.get("game_date", "")) != _target_date:
+                    continue
+                _game_id = str(_row.get("game_id", "")).strip()
+                if not _game_id:
+                    continue
+                _latest_by_game[_game_id] = _row
+
+            for _row in _latest_by_game.values():
+                _away = str(_row.get("away_team", "")).strip()
+                _home = str(_row.get("home_team", "")).strip()
+                if not _away or not _home:
+                    continue
+
+                try:
+                    _home_prob = float(_row.get("calibrated_probability", 0.5))
+                except (TypeError, ValueError):
+                    _home_prob = 0.5
+
+                try:
+                    _predicted_spread = float(_row.get("predicted_spread", 0.0))
+                except (TypeError, ValueError):
+                    _predicted_spread = 0.0
+
+                _winner = _home if _home_prob >= 0.5 else _away
+                _confidence = _home_prob if _winner == _home else (1.0 - _home_prob)
+
+                firebase_picks.append({
+                    "source": "NBANEW",
+                    "sport": "NBA",
+                    "game": f"{_away} @ {_home}",
+                    "matchup": f"{_away} @ {_home}",
+                    "away_team": _away,
+                    "home_team": _home,
+                    "pick": f"{_winner} ML ({_away} @ {_home})",
+                    "model_prediction": round(_predicted_spread, 2),
+                    "confidence": round(_confidence * 100, 1),
+                    "date": str(_row.get("game_date", "")),
+                })
+
+            _save_picks(firebase_picks, model="NBANEW")
+        else:
+            print("[firebase_writer] Skipped Firestore push: variant is not NBANEW")
+    except Exception as _fb_err:
+        print(f"[firebase_writer] Skipped Firestore push: {_fb_err}")
+    # ────────────────────────────────────────────────────────────

@@ -867,17 +867,17 @@
 
   const firebaseConfig = {
     // TODO: Replace with your Firebase Web App apiKey
-    apiKey: "REPLACE_WITH_YOUR_API_KEY",
+    apiKey: "AIzaSyATQK7NHNXIshlJIy7xT17z8Kr8fUWatLs",
     // TODO: Replace with your Firebase Web App authDomain
-    authDomain: "REPLACE_WITH_YOUR_AUTH_DOMAIN",
+    authDomain: "pickledgerpro.firebaseapp.com",
     // TODO: Replace with your Firebase Web App projectId
-    projectId: "REPLACE_WITH_YOUR_PROJECT_ID",
+    projectId: "pickledgerpro",
     // TODO: Replace with your Firebase Web App storageBucket
-    storageBucket: "REPLACE_WITH_YOUR_STORAGE_BUCKET",
+    storageBucket: "pickledgerpro.firebasestorage.app",
     // TODO: Replace with your Firebase Web App messagingSenderId
-    messagingSenderId: "REPLACE_WITH_YOUR_SENDER_ID",
+    messagingSenderId: "285462656063",
     // TODO: Replace with your Firebase Web App appId
-    appId: "REPLACE_WITH_YOUR_APP_ID"
+    appId: "1:285462656063:web:caa084d1daf04e04eab48a"
   };
 
   const app = initializeApp(firebaseConfig);
@@ -4734,6 +4734,65 @@ if (missingStartTimesCount() > 0) {
     pushLedgerState(true);
   }
 })();
+</script>
+<script>
+// Firestore picks integration
+// Listens for picks loaded from Firebase and injects them into
+// the existing pick rendering pipeline as if they came from
+// the local model run.
+window.addEventListener('firestorePicksLoaded', function(e) {
+  try {
+    var detail = e.detail;
+    if (!detail || !Array.isArray(detail.picks) || !detail.picks.length) return;
+
+    console.log('[Firestore] Injecting', detail.picks.length, 'picks into UI');
+
+    // Use the same global used by the existing model runner
+    if (typeof pendingModelPicks !== 'undefined') {
+      pendingModelPicks = detail.picks;
+    }
+
+    // Call the existing render function with the Firestore picks
+    if (typeof renderModelResults === 'function') {
+      renderModelResults(detail.picks, {
+        meta: 'Source: Firestore (NBANEW) · ' + (detail.timestamp
+          ? new Date(detail.timestamp).toLocaleString()
+          : 'latest'),
+        fromFirestore: true
+      });
+    }
+
+    // Show a subtle status indicator so the user knows picks
+    // are live from the cloud
+    var statusEl = document.getElementById('firestore-status');
+    if (!statusEl) {
+      statusEl = document.createElement('div');
+      statusEl.id = 'firestore-status';
+      statusEl.style.cssText = [
+        'position:fixed',
+        'bottom:12px',
+        'right:16px',
+        'background:rgba(0,180,100,0.92)',
+        'color:#fff',
+        'font-size:12px',
+        'padding:6px 12px',
+        'border-radius:6px',
+        'z-index:9999',
+        'pointer-events:none',
+        'font-family:monospace'
+      ].join(';');
+      document.body.appendChild(statusEl);
+    }
+    statusEl.textContent = '✓ ' + detail.picks.length
+      + ' picks loaded from Firestore';
+    setTimeout(function() {
+      if (statusEl) statusEl.style.opacity = '0';
+    }, 4000);
+
+  } catch (err) {
+    console.warn('[Firestore] listener handler error:', err);
+  }
+});
 </script>
 </body>
 </html>
