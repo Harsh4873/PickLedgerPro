@@ -175,7 +175,7 @@ def _load_local_env() -> None:
 
 _load_local_env()
 
-HOST = os.environ.get("HOST", "0.0.0.0")
+HOST = "0.0.0.0"
 try:
     PORT = int(os.environ.get("PORT", "8765"))
 except ValueError:
