@@ -1,1 +1,22 @@
-# Render disabled. Running fully local via macOS launchd agents on 127.0.0.1:8765.
+services:
+  - type: web
+    name: pickledger-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: PORT
+        value: 8765
+      - key: ENABLE_SPORTYTRADER_REMOTE
+        value: "true"
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_PRIVATE_KEY
+        sync: false
+      - key: FIREBASE_CLIENT_EMAIL
+        sync: false
+      - key: FIREBASE_PRIVATE_KEY_ID
+        sync: false
+      - key: FIREBASE_CLIENT_ID
+        sync: false
+    healthCheckPath: /health

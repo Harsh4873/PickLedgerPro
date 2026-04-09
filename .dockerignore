@@ -1,0 +1,14 @@
+.env
+.env.local
+.env.*
+__pycache__/
+*.pyc
+*.pyo
+.git/
+.venv/
+node_modules/
+*.sqlite
+*.db
+.chromium_profile/
+.codex/
+*.log

@@ -1520,21 +1520,42 @@ function normalizeServerBase(value) {
   return /^https?:\/\//i.test(s) ? s : '';
 }
 
-// Hard-locked to local Mac agent. No Render.
+function isLoopbackServer(value) {
+  try {
+    return LOOPBACK_HOST_RE.test(new URL(value).hostname);
+  } catch {
+    return false;
+  }
+}
+
 localStorage.removeItem('pickledger_model_server');
-const MODEL_SERVER = 'http://127.0.0.1:8765';
-const GRADER_URL = `${MODEL_SERVER}/grade`;
-const HEALTH_URL = `${MODEL_SERVER}/health`;
-const LEDGER_STATE_URL = `${MODEL_SERVER}/api/ledger-state`;
+const GRADER_URL = (() => {
+  // Local dev: override via localStorage key `pickledger_backend`.
+  const override = normalizeServerBase(localStorage.getItem('pickledger_backend'));
+  if (override) return override;
+  return 'https://pickledger-backend.onrender.com';
+})();
+const GRADE_URL = `${GRADER_URL}/grade`;
+const HEALTH_URL = `${GRADER_URL}/health`;
+const LEDGER_STATE_URL = `${GRADER_URL}/api/ledger-state`;
 const SPORTYTRADER_FEED_URL = './sportytrader_manual_feed.json';
 const SPORTYTRADER_CACHE_KEY = 'pickledger_sportytrader_feed_cache';
 const SPORTSGAMBLER_FEED_URL = './sportsgambler_manual_feed.json';
 const SPORTSGAMBLER_CACHE_KEY = 'pickledger_sportsgambler_feed_cache';
-const LOOPBACK_MODEL_SERVER = 'http://127.0.0.1:8765';
-const LOCAL_SPORTYTRADER_SERVER = LOOPBACK_MODEL_SERVER;
-const LOCAL_SPORTSGAMBLER_SERVER = LOOPBACK_MODEL_SERVER;
+const SPORTYTRADER_SERVER = GRADER_URL;
+const SPORTSGAMBLER_SERVER = GRADER_URL;
 let ledgerStateSyncTimer = null;
 let ledgerStateSyncInFlight = false;
+
+// Render backend wake ping (free tier sleeps after 15 min)
+(function keepAlive() {
+  const ping = () => fetch(GRADER_URL + '/health', {
+    method: 'GET', cache: 'no-store'
+  }).catch(() => {});
+  // Ping immediately, then every 14 minutes
+  ping();
+  setInterval(ping, 840000);
+})();
 
 function getAddedPicks() {
   try {
@@ -1784,7 +1805,7 @@ async function refreshAutoGrades(silent = false) {
       year: new Date().getFullYear(),
     };
 
-    const res = await fetch(GRADER_URL, {
+    const res = await fetch(GRADE_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -1826,7 +1847,7 @@ async function refreshAutoGrades(silent = false) {
     if (!silent) {
       const message = String(err && err.message ? err.message : err);
       if (isNetworkRequestErrorMessage(message)) {
-        setRefreshStatus(`Grader offline at ${MODEL_SERVER}. Start: python3 pickgrader_server.py`, 'error');
+        setRefreshStatus('Backend offline. Check Render status.', 'error');
       } else {
         setRefreshStatus(`Grader error: ${message}`, 'error');
       }
@@ -4163,7 +4184,7 @@ function _resetModelButton(model) {
 
 async function _runAsyncModelRequest(model, endpoint, body) {
   setModelStatus(model, 'Launching model (async)...', 'running');
-  const resp = await fetch(MODEL_SERVER + endpoint, {
+  const resp = await fetch(GRADER_URL + endpoint, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -4187,7 +4208,7 @@ async function _runAsyncModelRequest(model, endpoint, body) {
 
 async function _runIplModelRequest() {
   setModelStatus('ipl', 'Calling IPL backend...', 'running');
-  const resp = await fetch(`${MODEL_SERVER}/api/ipl`, { method: 'GET' });
+  const resp = await fetch(`${GRADER_URL}/api/ipl`, { method: 'GET' });
   const data = await resp.json().catch(() => ({}));
   if (!resp.ok) {
     throw new Error(data.error || `HTTP ${resp.status}`);
@@ -4240,7 +4261,7 @@ async function _runNbaVariantModel(model, dateStr) {
 
 async function _refreshSportsLineOdds() {
   try {
-    const resp = await fetch(MODEL_SERVER + '/run-sportsline-odds', {
+    const resp = await fetch(GRADER_URL + '/run-sportsline-odds', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ async: true, league: 'NBA' }),
@@ -4338,7 +4359,7 @@ async function loadNbaPropsGames() {
   }
 }
 
-async function _pollJob(jobId, model, baseUrl = MODEL_SERVER, timeoutMs = 600000) {
+async function _pollJob(jobId, model, baseUrl = GRADER_URL, timeoutMs = 600000) {
   const pollInterval = 3000; // 3 seconds
   const started = Date.now();
   while (true) {
@@ -4406,7 +4427,7 @@ async function _fetchManualFeedPayload(candidates) {
 
 function _buildManualFeedCandidates(feedUrl, endpointPath) {
   const cacheBust = `t=${Date.now()}`;
-  const serverBases = ['http://127.0.0.1:8765'].map(normalizeServerBase).filter((value, index, list) => value && list.indexOf(value) === index);
+  const serverBases = [GRADER_URL].map(normalizeServerBase).filter((value, index, list) => value && list.indexOf(value) === index);
 
   const candidates = serverBases.map(base => `${base}${endpointPath}?${cacheBust}`);
   candidates.push(`${feedUrl}?${cacheBust}`);
@@ -4546,8 +4567,7 @@ function setSportyTraderSyncMeta(meta) {
 
 async function syncSportyTraderFromServer() {
   const body = { async: true, date: _getTodayDateStr(), sports: ['nba', 'mlb'] };
-  const modelBase = String(MODEL_SERVER || '').trim().replace(/\/+$/, '');
-  const candidates = [MODEL_SERVER, LOCAL_SPORTYTRADER_SERVER]
+  const candidates = [GRADER_URL, SPORTYTRADER_SERVER]
     .map(v => String(v || '').trim().replace(/\/+$/, ''))
     .filter((v, i, arr) => v && arr.indexOf(v) === i);
   let lastErr = 'SportyTrader sync failed';
@@ -4582,7 +4602,7 @@ async function syncSportyTraderFromServer() {
             updatedAt: new Date().toISOString(),
             date: _getTodayDateStr(),
             note: 'Synced from backend',
-            from: (server === modelBase ? 'render-backend' : 'local-backend'),
+            from: isLoopbackServer(server) ? 'local-backend' : 'render-backend',
             leagues: 'nba,mlb',
           },
         };
@@ -4597,7 +4617,7 @@ async function syncSportyTraderFromServer() {
 
 async function syncSportsgamblerFromServer() {
   const body = { async: true, date: _getTodayDateStr(), sports: ['nba', 'mlb'] };
-  const server = LOCAL_SPORTSGAMBLER_SERVER;
+  const server = SPORTSGAMBLER_SERVER;
   let lastErr = 'SportsGambler sync failed';
 
   try {
