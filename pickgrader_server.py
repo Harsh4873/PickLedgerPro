@@ -41,10 +41,6 @@ except Exception as e:
     print(f"[IPL] Model not available: {e}")
 
 
-GITHUB_PAGES_ORIGIN = "https://harsh4873.github.io"
-_LOOPBACK_CORS_HOST_RE = re.compile(r"^(?:localhost|0\.0\.0\.0|::1|127(?:\.\d{1,3}){3})$")
-
-
 def _sl_get_total(home, away, league='MLB'):
     """Get real Vegas total line and odds from cbs_odds (SportsLine data)."""
     candidates = ['pickledger.db', '../pickledger.db']
@@ -3002,25 +2998,10 @@ def run_sportsline_odds(league: str = "NBA") -> dict[str, Any]:
 
 
 class Handler(BaseHTTPRequestHandler):
-    def _get_cors_origin(self) -> str:
-        origin = str(self.headers.get("Origin", "")).strip()
-        if not origin:
-            return GITHUB_PAGES_ORIGIN
-        if origin == "null":
-            return origin
-        try:
-            hostname = (urlparse(origin).hostname or "").strip().lower()
-        except Exception:
-            return GITHUB_PAGES_ORIGIN
-        if origin == GITHUB_PAGES_ORIGIN or _LOOPBACK_CORS_HOST_RE.match(hostname):
-            return origin
-        return GITHUB_PAGES_ORIGIN
-
     def _send_cors_headers(self) -> None:
-        self.send_header("Access-Control-Allow-Origin", self._get_cors_origin())
-        self.send_header("Vary", "Origin")
+        self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
     def _send_json(
         self,
@@ -3040,7 +3021,9 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(data)
 
     def do_OPTIONS(self) -> None:  # noqa: N802
-        self._send_json(200, {"ok": True})
+        self.send_response(200)
+        self._send_cors_headers()
+        self.end_headers()
 
     def do_GET(self) -> None:  # noqa: N802
         raw_path = self.path
