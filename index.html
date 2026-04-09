@@ -1144,6 +1144,10 @@
       const userPicks = await window._loadUserPicks(user.uid);
       if (userPicks !== null) {
         window._applyUserLedgerState(userPicks);
+        // Re-render all UI with the user's Firestore picks
+        if (typeof render === 'function') {
+          render();
+        }
         console.log('[Firestore] Loaded user ledger state, reloading app state');
       } else {
         // New user — wipe ALL ledger keys for a clean slate
@@ -2345,8 +2349,17 @@ function getRankingSourceKey(p) {
   return p.source;
 }
 
-function getSourceStats(source) {
-  const all=getPicks(), allSp=all.filter(p=>getRankingSourceKey(p)===source);
+const REMOVED_RANKING_SOURCE_KEYS = new Set(['scores' + '24']);
+
+function getRankingEligiblePicks(picks) {
+  return (Array.isArray(picks) ? picks : []).filter((pick) => {
+    const sourceKey = String(getRankingSourceKey(pick) || '').trim().toLowerCase();
+    return !REMOVED_RANKING_SOURCE_KEYS.has(sourceKey);
+  });
+}
+
+function getSourceStats(source, picks = getPicks()) {
+  const all=Array.isArray(picks) ? picks : getPicks(), allSp=all.filter(p=>getRankingSourceKey(p)===source);
   if(!allSp.length) return null;
   const sp=allSp.filter(p=>p.result!=='pending');
   const w=sp.filter(p=>p.result==='win').length, l=sp.filter(p=>p.result==='loss').length;
@@ -3752,8 +3765,9 @@ function render() {
   }
 
   // Leaderboard (Rankings tab)
-  const rankingSources = [...new Set(picks.map(p => getRankingSourceKey(p)))];
-  const stats = rankingSources.map(s=>getSourceStats(s)).filter(s=>s&&s.eligible);
+  const rankedPicks = getRankingEligiblePicks(picks);
+  const rankingSources = [...new Set(rankedPicks.map(p => getRankingSourceKey(p)))];
+  const stats = rankingSources.map(s=>getSourceStats(s, rankedPicks)).filter(s=>s&&s.eligible);
   stats.sort((a,b)=>b.composite-a.composite);
   const lb = document.getElementById('leaderboard');
   if(!stats.length) lb.innerHTML='<div class="empty-state" style="grid-column:1/-1">Need 3+ decided picks per source to rank</div>';
@@ -4004,13 +4018,13 @@ function render() {
   const roi=tw>0?((nu/tw)*100).toFixed(1)+'%':'—', nuf=nu;
   const totalRecordEl = document.getElementById('total-record');
   if (totalRecordEl) {
-    if (window._userUid && window._userRecord) {
+    if (window._userRecord && window._userUid) {
       const rw = window._userRecord.wins || 0;
       const rl = window._userRecord.losses || 0;
       const rp = window._userRecord.pushes || 0;
       totalRecordEl.textContent = rp > 0 ? `${rw}-${rl}-${rp}` : `${rw}-${rl}`;
     } else {
-      totalRecordEl.textContent = `${w}-${l}`;
+      totalRecordEl.textContent = pu > 0 ? `${w}-${l}-${pu}` : `${w}-${l}`;
     }
   }
   document.getElementById('stat-picks').textContent=picks.length;
