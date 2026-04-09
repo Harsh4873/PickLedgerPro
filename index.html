@@ -1533,6 +1533,7 @@ const GRADER_URL = (() => {
   // Local dev: override via localStorage key `pickledger_backend`.
   const override = normalizeServerBase(localStorage.getItem('pickledger_backend'));
   if (override) return override;
+  // Production frontend origin: https://harsh4873.github.io
   return 'https://pickledger-backend.onrender.com';
 })();
 const GRADE_URL = `${GRADER_URL}/grade`;
