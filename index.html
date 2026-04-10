@@ -1529,12 +1529,26 @@ function isLoopbackServer(value) {
 }
 
 localStorage.removeItem('pickledger_model_server');
+const DEFAULT_GRADER_URL = 'https://pickledgerpro.onrender.com';
+const STALE_GRADER_URLS = new Set([
+  'https://pickledger-backend.onrender.com',
+  'https://pickledger-grader.onrender.com'
+]);
 const GRADER_URL = (() => {
+  const queryOverride = normalizeServerBase(new URLSearchParams(window.location.search).get('api'));
+  if (queryOverride) {
+    localStorage.setItem('pickledger_backend', queryOverride);
+    return queryOverride;
+  }
   // Local dev: override via localStorage key `pickledger_backend`.
   const override = normalizeServerBase(localStorage.getItem('pickledger_backend'));
-  if (override) return override;
+  if (STALE_GRADER_URLS.has(override)) {
+    localStorage.removeItem('pickledger_backend');
+  } else if (override) {
+    return override;
+  }
   // Production frontend origin: https://harsh4873.github.io
-  return 'https://pickledger-backend.onrender.com';
+  return DEFAULT_GRADER_URL;
 })();
 const GRADE_URL = `${GRADER_URL}/grade`;
 const HEALTH_URL = `${GRADER_URL}/health`;

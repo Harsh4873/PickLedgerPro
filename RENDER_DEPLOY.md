@@ -10,7 +10,7 @@ Render deploys from GitHub, so push this project first.
 
 1. In Render, click `New` -> `Blueprint` (recommended).
 2. Connect your GitHub repo.
-3. Select this repo. Render will read `render.yaml` and create `pickledger-grader`.
+3. Select this repo. Render will read `render.yaml` and create `pickledgerpro`.
 4. Deploy.
 
 If you prefer manual setup, choose `Web Service` and use:
@@ -24,15 +24,15 @@ If you prefer manual setup, choose `Web Service` and use:
 
 ## 3. Point Frontend To Render Backend
 
-After deploy, copy your backend URL (example: `https://pickledger-grader.onrender.com`).
+After deploy, copy your backend URL (example: `https://pickledgerpro.onrender.com`).
 
 Then open your ledger page with:
 
-- `pickledger.html?api=https://pickledger-grader.onrender.com`
+- `index.html?api=https://pickledgerpro.onrender.com`
 
 Or set once in browser console:
 
-- `localStorage.setItem('pickledger_model_server', 'https://pickledger-grader.onrender.com')`
+- `localStorage.setItem('pickledger_backend', 'https://pickledgerpro.onrender.com')`
 
 The frontend now reads this value automatically.
 
@@ -67,7 +67,7 @@ Optional: to force manual-only mode on Render, set:
 
 ## 6. Local Fallback
 
-No change to your local flow is required. If no `api` query/localStorage is set, frontend still uses `http://127.0.0.1:8765`.
+No change to your local flow is required. To force a local backend, set `pickledger_backend` to `http://127.0.0.1:8765` in local storage or pass it with `?api=http://127.0.0.1:8765`.
 
 ## 7. Build Failure: "No module named playwright"
 

@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: pickledger-backend
+    name: pickledgerpro
     runtime: docker
     dockerfilePath: ./Dockerfile
     plan: free
