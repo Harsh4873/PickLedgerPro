@@ -471,6 +471,9 @@ def predict_winner(
     db_path: str | Path,
 ) -> dict[str, Any]:
     build_match_features(db_path)
+    if not MODEL_PATH.exists() or not FEATURES_PATH.exists():
+        train_win_model(db_path)
+
     model = joblib.load(MODEL_PATH)
     with FEATURES_PATH.open("r", encoding="utf-8") as handle:
         feature_cols = json.load(handle)
