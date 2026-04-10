@@ -9,6 +9,7 @@ __pycache__/
 node_modules/
 *.sqlite
 *.db
+!pickledger.db
 .chromium_profile/
 .codex/
 *.log
