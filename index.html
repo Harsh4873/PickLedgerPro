@@ -4380,15 +4380,23 @@ async function _runAsyncModelRequest(model, endpoint, body) {
   }
 
   if (!launch.job_id) {
-    return Array.isArray(launch.picks) ? launch.picks : [];
+    return {
+      ...launch,
+      picks: Array.isArray(launch.picks) ? launch.picks : [],
+      note: String(launch.note || '').trim(),
+    };
   }
 
   setModelStatus(model, 'Model is running in background — polling for results...', 'running');
   const data = await _pollJob(launch.job_id, model);
   if (!data || !data.ok) {
-    throw new Error((data && data.error) || 'Job failed');
+    throw new Error((data && data.error) || 'Lost connection while polling');
   }
-  return Array.isArray(data.picks) ? data.picks : [];
+  return {
+    ...data,
+    picks: Array.isArray(data.picks) ? data.picks : [],
+    note: String(data.note || '').trim(),
+  };
 }
 
 async function _runIplModelRequest() {
@@ -4439,8 +4447,10 @@ async function _runNbaVariantModel(model, dateStr) {
   }
 
   setModelStatus(model, `Running ${NBA_MODEL_SOURCE_LABELS[model]} for ${label}...`, 'running');
-  const picks = await _runAsyncModelRequest(model, endpoint, { async: true, date: dateStr });
-  setModelStatus(model, `Done. ${picks.length} prediction(s) returned for ${label}.`, 'ok');
+  const result = await _runAsyncModelRequest(model, endpoint, { async: true, date: dateStr });
+  const picks = Array.isArray(result.picks) ? result.picks : [];
+  const note = String(result.note || '').trim();
+  setModelStatus(model, note || `Done. ${picks.length} prediction(s) returned for ${label}.`, 'ok');
   return picks;
 }
 
@@ -4507,8 +4517,24 @@ async function loadNbaPropsGames() {
   setModelStatus('nba-props', 'Loading today\'s games...', 'running');
 
   try {
-    const gamesResp = await fetch(NBA_PROPS_GAMES_URL, { method: 'GET' });
-    const gamesData = await gamesResp.json();
+    let gamesResp = null;
+    let gamesData = null;
+    let lastErr = null;
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        gamesResp = await fetch(NBA_PROPS_GAMES_URL, { method: 'GET' });
+        gamesData = await gamesResp.json();
+        lastErr = null;
+        break;
+      } catch (err) {
+        lastErr = err;
+        if (attempt < 2) {
+          setModelStatus('nba-props', `Retrying game list lookup (${attempt + 2}/3)...`, 'running');
+          await new Promise(r => setTimeout(r, 1200 * (attempt + 1)));
+        }
+      }
+    }
+    if (lastErr) throw lastErr;
     if (!gamesData || !gamesData.ok) {
       throw new Error((gamesData && gamesData.error) || `HTTP ${gamesResp.status}`);
     }
@@ -4547,6 +4573,7 @@ async function loadNbaPropsGames() {
 async function _pollJob(jobId, model, baseUrl = GRADER_URL, timeoutMs = 600000) {
   const pollInterval = 3000; // 3 seconds
   const started = Date.now();
+  let consecutiveFailures = 0;
   while (true) {
     const elapsedMs = Date.now() - started;
     if (elapsedMs > timeoutMs) {
@@ -4565,14 +4592,22 @@ async function _pollJob(jobId, model, baseUrl = GRADER_URL, timeoutMs = 600000) 
       }
 
       const resp = await fetch(`${baseUrl}/job-status?id=${jobId}`);
+      if (!resp.ok) {
+        throw new Error(`HTTP ${resp.status}`);
+      }
       const data = await resp.json();
+      consecutiveFailures = 0;
       if (data.status === 'done') {
         return data;
       }
       // still running
     } catch (e) {
-      setModelStatus(model, 'Lost connection while polling...', 'error');
-      return null;
+      consecutiveFailures += 1;
+      if (consecutiveFailures >= 3) {
+        setModelStatus(model, `Lost connection while polling: ${String(e && e.message ? e.message : e)}`, 'error');
+        return null;
+      }
+      setModelStatus(model, `Polling retry ${consecutiveFailures}/3...`, 'running');
     }
   }
 }
@@ -4989,8 +5024,10 @@ async function runModel(model) {
   }
 
   try {
-    const picks = await _runAsyncModelRequest(model, endpoint, body);
-    setModelStatus(model, `Done. ${picks.length} prediction(s) returned.`, 'ok');
+    const result = await _runAsyncModelRequest(model, endpoint, body);
+    const picks = Array.isArray(result.picks) ? result.picks : [];
+    const note = String(result.note || '').trim();
+    setModelStatus(model, note || `Done. ${picks.length} prediction(s) returned.`, 'ok');
     _clearNbaComparisonResults();
     pendingModelPicks = picks;
     renderModelResults(picks, { meta: '' });

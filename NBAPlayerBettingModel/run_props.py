@@ -6,10 +6,6 @@ from itertools import combinations
 from datetime import datetime
 from typing import Any
 
-from live_data import fetch_todays_games, load_props_slate
-from rf_model import build_prop_predictions
-
-
 def _parse_date_arg(date_str: str | None) -> str:
     if not date_str:
         return datetime.now().strftime("%Y-%m-%d")
@@ -28,6 +24,9 @@ def _parse_game_ids_arg(raw_value: str | None) -> set[str]:
 
 
 def _run_for_games(date_arg: str | None, game_ids: set[str] | None = None) -> tuple[list[dict[str, Any]], list[Any], list[Any]]:
+    from live_data import load_props_slate
+    from rf_model import build_prop_predictions
+
     (
         games,
         players,
@@ -77,6 +76,8 @@ def main() -> None:
 
     if list_game_ids:
         try:
+            from live_data import fetch_todays_games
+
             for game in fetch_todays_games(date_arg):
                 game_id = str(game.get("game_id", "")).strip()
                 if game_id:

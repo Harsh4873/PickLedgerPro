@@ -1073,35 +1073,12 @@ def _load_nba_props_games_with_meta(date_str: str | None = None) -> dict[str, An
     if db_games:
         return {"games": db_games, "source": "db", "error": None}
 
-    python_bin = _resolve_python_bin(os.path.join(NBA_PROPS_MODEL_DIR, "venv", "bin", "python"))
-    extra_args: list[str] = ["--list-game-ids"]
-    normalized_date = str(date_str or "").strip()
-    if normalized_date:
-        extra_args.insert(0, normalized_date)
-
     try:
-        output = _run_script(
-            python_bin,
-            "run_props.py",
-            NBA_PROPS_MODEL_DIR,
-            timeout=90,
-            extra_args=extra_args,
-        )
+        live_games = _fetch_nba_props_games_from_api(date_str)
     except subprocess.TimeoutExpired:
         return {"games": [], "source": "live", "error": "NBA props game lookup timed out"}
-    except (OSError, ValueError) as exc:
+    except (OSError, ValueError, RuntimeError) as exc:
         return {"games": [], "source": "live", "error": str(exc)}
-
-    if "Traceback (most recent call last)" in output or "ModuleNotFoundError" in output:
-        tail = " | ".join((output.strip().splitlines() or ["no output"])[-8:])
-        return {"games": [], "source": "live", "error": f"NBA props live slate failed ({tail})"}
-
-    error = None
-    error_match = re.search(r"Error loading NBA game IDs:\s*(.+)", output)
-    if error_match:
-        error = error_match.group(1).strip()
-
-    live_games = _extract_nba_props_games(output)
     if live_games:
         try:
             live_games = _upsert_nba_props_games(live_games, date_str)
@@ -1111,7 +1088,7 @@ def _load_nba_props_games_with_meta(date_str: str | None = None) -> dict[str, An
     return {
         "games": live_games,
         "source": "live",
-        "error": error,
+        "error": None,
     }
 
 
@@ -2611,17 +2588,7 @@ def run_nba_props_model(
 
     if selected_game_label and not selected_game_id:
         try:
-            list_output = _run_script(
-                python_bin,
-                "run_props.py",
-                NBA_PROPS_MODEL_DIR,
-                timeout=180,
-                extra_args=extra + ["--list-game-ids"],
-            )
-            if "Traceback (most recent call last)" in list_output or "ModuleNotFoundError" in list_output:
-                tail = " | ".join((list_output.strip().splitlines() or ["no output"])[-12:])
-                return {"ok": False, "error": f"NBA props model runtime failed ({tail})"}
-            games = _extract_nba_props_games(list_output)
+            games = _load_nba_props_games(date_str)
             target = selected_game_label.casefold()
             for game in games:
                 label = str(game.get("label") or "").strip()
@@ -2662,26 +2629,12 @@ def run_nba_props_model(
             return {"ok": False, "error": str(e)}
 
     try:
-        list_output = _run_script(
-            python_bin,
-            "run_props.py",
-            NBA_PROPS_MODEL_DIR,
-            timeout=180,
-            extra_args=extra + ["--list-game-ids"],
-        )
-        if "Traceback (most recent call last)" in list_output or "ModuleNotFoundError" in list_output:
-            tail = " | ".join((list_output.strip().splitlines() or ["no output"])[-12:])
-            return {"ok": False, "error": f"NBA props model runtime failed ({tail})"}
-
-        game_ids = _extract_nba_props_game_ids(list_output)
+        game_ids = [
+            str(game.get("game_id") or "").strip()
+            for game in _load_nba_props_games(date_str)
+            if str(game.get("game_id") or "").strip()
+        ]
         if not game_ids:
-            if "No NBA games found for today." in list_output:
-                return {
-                    "ok": True,
-                    "picks": [],
-                    "raw_lines": len(list_output.split("\n")),
-                    "note": "No NBA props candidates found today",
-                }
             output = _run_script(python_bin, "run_props.py", NBA_PROPS_MODEL_DIR, timeout=300, extra_args=extra)
             if "Traceback (most recent call last)" in output or "ModuleNotFoundError" in output:
                 tail = " | ".join((output.strip().splitlines() or ["no output"])[-12:])
@@ -2707,7 +2660,7 @@ def run_nba_props_model(
             return {"ok": True, "picks": picks, "raw_lines": len(output.split("\n"))}
 
         all_picks: list[dict[str, Any]] = []
-        raw_lines = len(list_output.split("\n"))
+        raw_lines = 0
         for game_id in game_ids:
             chunk_output = _run_script(
                 python_bin,
@@ -2747,7 +2700,30 @@ def run_mlb_model(date_str: str | None = None) -> dict[str, Any]:
 
     try:
         output = _run_script(python_bin, "run_today.py", MLB_MODEL_DIR, timeout=300, extra_args=extra)
+        if (
+            "Traceback (most recent call last)" in output
+            or "ModuleNotFoundError" in output
+            or "MLB live inference failed:" in output
+            or "FileNotFoundError" in output
+        ):
+            tail = " | ".join((output.strip().splitlines() or ["no output"])[-12:])
+            return {"ok": False, "error": f"MLB model runtime failed ({tail})"}
+
         picks = _parse_mlb_output(output)
+        if not picks:
+            if "No MLB games found for" in output:
+                return {
+                    "ok": True,
+                    "picks": [],
+                    "raw_lines": len(output.split("\n")),
+                    "note": "No MLB games found for requested date",
+                }
+            tail = " | ".join((output.strip().splitlines() or ["no output"])[-12:])
+            return {
+                "ok": False,
+                "error": f"MLB parser found no predictions ({tail})",
+                "raw_lines": len(output.split("\n")),
+            }
         return {"ok": True, "picks": picks, "raw_lines": len(output.split("\n"))}
     except subprocess.TimeoutExpired:
         return {"ok": False, "error": "MLB model timed out (5 min limit)"}
@@ -2980,7 +2956,13 @@ def _launch_job(target_fn, *args) -> str:
         _jobs[job_id] = {"status": "running", "result": None}
 
     def _worker():
-        result = target_fn(*args)
+        try:
+            result = target_fn(*args)
+        except Exception as exc:
+            result = {
+                "ok": False,
+                "error": f"{getattr(target_fn, '__name__', 'job')} crashed: {type(exc).__name__}: {exc}",
+            }
         with _jobs_lock:
             _jobs[job_id] = {"status": "done", "result": result}
 
