@@ -951,15 +951,15 @@
   window._currentUser = null;
   window._userUid = null;
   window._userRecord = null;
+  window._authStateResolved = false;
+  window._authStateGeneration = 0;
 
-  let authStateResolved = false;
   let authStateReadyResolve = null;
-  const authStateReady = new Promise((resolve) => { authStateReadyResolve = resolve; });
-  let authStateGeneration = 0;
+  window._authStateReady = new Promise((resolve) => { authStateReadyResolve = resolve; });
 
   function resolveAuthStateReady() {
-    if (authStateResolved) return;
-    authStateResolved = true;
+    if (window._authStateResolved) return;
+    window._authStateResolved = true;
     if (typeof authStateReadyResolve === 'function') authStateReadyResolve();
   }
 
@@ -999,6 +999,11 @@
     if (headerRecord) headerRecord.textContent = text;
     if (profileRecord) profileRecord.textContent = text;
   }
+
+  window.getLedgerSyncUid = getLedgerSyncUid;
+  window.buildLedgerStateUrl = buildLedgerStateUrl;
+  window.buildRecordSummaryFromPicks = buildRecordSummaryFromPicks;
+  window.updateRecordDisplays = updateRecordDisplays;
 
   // ── Login gate ────────────────────────────────────────────
   const gate = document.getElementById('login-gate');
@@ -1173,12 +1178,12 @@
   window._loadFirestorePicks = loadFirestorePicks;
 
   onAuthStateChanged(auth, async (user) => {
-    const currentGeneration = ++authStateGeneration;
+    const currentGeneration = ++window._authStateGeneration;
     window._currentUser = user || null;
     window._userUid = user ? user.uid : null;
     resolveAuthStateReady();
     await waitForLedgerHelpers();
-    if (currentGeneration !== authStateGeneration) return;
+    if (currentGeneration !== window._authStateGeneration) return;
 
     if (user) {
       // Hide login gate with fade
@@ -1188,12 +1193,12 @@
         setTimeout(() => { gate.style.display = 'none'; }, 300);
       }
       const record = await loadUserRecord(user.uid);
-      if (currentGeneration !== authStateGeneration) return;
+      if (currentGeneration !== window._authStateGeneration) return;
       window._userRecord = record;
       updateProfilePanel(user, record);
 
       const userPicks = await window._loadUserPicks(user.uid);
-      if (currentGeneration !== authStateGeneration) return;
+      if (currentGeneration !== window._authStateGeneration) return;
       let localLedgerLoaded = false;
       if (userPicks !== null) {
         window._applyUserLedgerState(userPicks);
@@ -1202,7 +1207,7 @@
       } else {
         window._clearLedgerLocalState();
         const restored = await pullLedgerStateIfNeeded({ uid: user.uid, expectedGeneration: currentGeneration });
-        if (currentGeneration !== authStateGeneration) return;
+        if (currentGeneration !== window._authStateGeneration) return;
         localLedgerLoaded = restored;
         if (!restored) {
           console.log('[Auth] No existing ledger state for user — cleared local ledger state');
@@ -1219,6 +1224,13 @@
       } else {
         updateRecordDisplays(record);
         window._userRecord = record;
+      }
+      if (isRankingsOwnerUser()) {
+        rankingsLedgerState = _coerceLedgerState(buildLedgerStatePayload());
+      } else {
+        loadCanonicalRankingsState().then(() => {
+          if (typeof render === 'function') render();
+        }).catch(() => {});
       }
       syncWithServer().catch(() => setSyncStatus('offline'));
     } else {
@@ -1243,6 +1255,9 @@
       signOutKeys.forEach(k => localStorage.removeItem(k));
       if (typeof render === 'function') render();
       refreshLedgerUi();
+      loadCanonicalRankingsState().then(() => {
+        if (typeof render === 'function') render();
+      }).catch(() => {});
     }
   });
 
@@ -1625,6 +1640,8 @@ const GRADE_URL = `${GRADER_URL}/grade`;
 const HEALTH_URL = `${GRADER_URL}/health`;
 const LEDGER_STATE_URL = `${GRADER_URL}/api/ledger-state`;
 const NBA_PROPS_GAMES_URL = `${GRADER_URL}/api/nba-props-games`;
+const RANKINGS_OWNER_EMAIL = 'hdav4873@gmail.com';
+const RANKINGS_STATE_UID = 'primary';
 const SPORTYTRADER_FEED_URL = './sportytrader_manual_feed.json';
 const SPORTYTRADER_CACHE_KEY = 'pickledger_sportytrader_feed_cache';
 const SPORTSGAMBLER_FEED_URL = './sportsgambler_manual_feed.json';
@@ -1633,6 +1650,7 @@ const SPORTYTRADER_SERVER = GRADER_URL;
 const SPORTSGAMBLER_SERVER = GRADER_URL;
 let ledgerStateSyncTimer = null;
 let ledgerStateSyncInFlight = false;
+let rankingsLedgerState = null;
 
 // Render backend wake ping (free tier sleeps after 15 min)
 (function keepAlive() {
@@ -1683,6 +1701,67 @@ function runOneTimeNbaPropsCleanup(state) {
 function getAllLedgerPicks() {
   const deleted = new Set(getDeletedPickIds());
   return [...PICKS, ...getAddedPicks()].filter(p => !deleted.has(String(p.id)));
+}
+
+function _coerceLedgerState(state) {
+  const source = state && typeof state === 'object' ? state : {};
+  return {
+    addedPicks: Array.isArray(source.addedPicks) ? source.addedPicks : [],
+    deletedPickIds: Array.isArray(source.deletedPickIds) ? source.deletedPickIds.map(v => String(v)) : [],
+    results: source.results && typeof source.results === 'object' ? { ...source.results } : {},
+    gameTimes: source.gameTimes && typeof source.gameTimes === 'object' ? { ...source.gameTimes } : {},
+  };
+}
+
+function isRankingsOwnerUser() {
+  const email = String(window._currentUser && window._currentUser.email || '').trim().toLowerCase();
+  return email === RANKINGS_OWNER_EMAIL;
+}
+
+function getPicksFromLedgerState(state) {
+  const ledger = _coerceLedgerState(state);
+  const deleted = new Set(ledger.deletedPickIds);
+  return [...PICKS, ...ledger.addedPicks]
+    .filter(p => !deleted.has(String(p.id)))
+    .map(p => {
+      const result = normalizeResultValue(ledger.results[String(p.id)] || p.result);
+      return { ...p, result, pl: calcPL(p.units, result) };
+    });
+}
+
+function getRankingsPicks() {
+  if (isRankingsOwnerUser()) return getPicks();
+  return getPicksFromLedgerState(rankingsLedgerState);
+}
+
+async function loadCanonicalRankingsState() {
+  if (!LEDGER_STATE_URL) return null;
+  try {
+    const res = await fetch(`${LEDGER_STATE_URL}?uid=${encodeURIComponent(RANKINGS_STATE_UID)}`, { method: 'GET' });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data || !data.ok) return null;
+    rankingsLedgerState = _coerceLedgerState(data.state || {});
+    return rankingsLedgerState;
+  } catch {
+    return null;
+  }
+}
+
+async function pushCanonicalRankingsState(state) {
+  if (!LEDGER_STATE_URL || !isRankingsOwnerUser()) return false;
+  const payload = _coerceLedgerState(state);
+  rankingsLedgerState = payload;
+  try {
+    const res = await fetch(LEDGER_STATE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid: RANKINGS_STATE_UID, state: payload }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
 }
 
 function hasMeaningfulLocalState() {
@@ -1755,16 +1834,18 @@ window._clearLedgerLocalState = clearLedgerLocalState;
 window._applyUserLedgerState = applyUserLedgerState;
 
 async function pushLedgerState(force = false) {
-  const uid = getLedgerSyncUid();
-  if (!LEDGER_STATE_URL || !authStateResolved || !uid) return;
+  const uid = window.getLedgerSyncUid ? window.getLedgerSyncUid() : '';
+  if (!LEDGER_STATE_URL || !window._authStateResolved || !uid) return;
   if (ledgerStateSyncInFlight && !force) return;
   ledgerStateSyncInFlight = true;
   try {
-    await fetch(buildLedgerStateUrl(uid), {
+    const state = buildLedgerStatePayload();
+    await fetch(window.buildLedgerStateUrl(uid), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uid, state: buildLedgerStatePayload() }),
+      body: JSON.stringify({ uid, state }),
     });
+    await pushCanonicalRankingsState(state);
   } catch {
     // Best-effort backup only.
   } finally {
@@ -1781,22 +1862,25 @@ function scheduleLedgerStateSync() {
     if (window._userUid && window._saveUserPicks) {
       const payload = buildLedgerStatePayload();
       window._saveUserPicks(window._userUid, payload);
-      if (window._saveUserRecordSummary && typeof getPicks === 'function') {
-        window._saveUserRecordSummary(window._userUid, buildRecordSummaryFromPicks(getPicks()));
+      if (isRankingsOwnerUser()) {
+        rankingsLedgerState = _coerceLedgerState(payload);
+      }
+      if (window._saveUserRecordSummary && typeof getPicks === 'function' && typeof window.buildRecordSummaryFromPicks === 'function') {
+        window._saveUserRecordSummary(window._userUid, window.buildRecordSummaryFromPicks(getPicks()));
       }
     }
   }, 1200);
 }
 
 async function pullLedgerStateIfNeeded(options = {}) {
-  const uid = getLedgerSyncUid(options.uid);
+  const uid = window.getLedgerSyncUid ? window.getLedgerSyncUid(options.uid) : '';
   const expectedGeneration = Number.isInteger(options.expectedGeneration) ? options.expectedGeneration : null;
-  if (hasMeaningfulLocalState() || !LEDGER_STATE_URL || !authStateResolved || !uid) return false;
+  if (hasMeaningfulLocalState() || !LEDGER_STATE_URL || !window._authStateResolved || !uid) return false;
   try {
-    const res = await fetch(buildLedgerStateUrl(uid), { method: 'GET' });
+    const res = await fetch(window.buildLedgerStateUrl(uid), { method: 'GET' });
     if (!res.ok) return false;
     const data = await res.json();
-    if (expectedGeneration !== null && expectedGeneration !== authStateGeneration) return false;
+    if (expectedGeneration !== null && expectedGeneration !== window._authStateGeneration) return false;
     if (!data || !data.ok) return false;
     const restored = applyLedgerStateFromServer(data.state || {});
     if (restored) {
@@ -1858,12 +1942,13 @@ async function syncWithServer() {
     if (!data || data.ok === false) {
       throw new Error((data && data.error) || 'health check failed');
     }
-    const uid = getLedgerSyncUid();
+    const uid = window.getLedgerSyncUid ? window.getLedgerSyncUid() : '';
     if (uid && hasMeaningfulLocalState()) {
       await pushLedgerState(false);
     } else if (uid) {
-      await pullLedgerStateIfNeeded({ uid, expectedGeneration: authStateGeneration });
+      await pullLedgerStateIfNeeded({ uid, expectedGeneration: window._authStateGeneration });
     }
+    await loadCanonicalRankingsState();
     setSyncStatus('synced');
   } catch {
     setSyncStatus('offline');
@@ -2240,7 +2325,7 @@ function formatSourceRecordLine(label, picks) {
   return { label, text: `${record} | ${netUnits >= 0 ? '+' : ''}${netUnits}u` };
 }
 
-function getSourcePastRecordLines(source) {
+function getSourcePastRecordLines(source, picks = getPicks()) {
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
 
@@ -2250,7 +2335,7 @@ function getSourcePastRecordLines(source) {
   const lastWeekStart = new Date(todayStart);
   lastWeekStart.setDate(lastWeekStart.getDate() - 7);
 
-  const sourcePicks = getPicks()
+  const sourcePicks = (Array.isArray(picks) ? picks : getPicks())
     .filter(p => getRankingSourceKey(p) === source && p.result !== 'pending')
     .map(p => ({ ...p, parsedDate: parsePickDateLabel(p.date) }));
 
@@ -3861,7 +3946,8 @@ function render() {
   }
 
   // Leaderboard (Rankings tab)
-  const rankedPicks = getRankingEligiblePicks(picks);
+  const rankingsPicks = getRankingsPicks();
+  const rankedPicks = getRankingEligiblePicks(rankingsPicks);
   const rankingSources = [...new Set(rankedPicks.map(p => getRankingSourceKey(p)))];
   const stats = rankingSources.map(s=>getSourceStats(s, rankedPicks)).filter(s=>s&&s.eligible);
   stats.sort((a,b)=>b.composite-a.composite);
@@ -3871,7 +3957,7 @@ function render() {
     const rank=i+1, rc=rank<=3?`rank-${rank}`:'', c=getColor(s.composite);
     const roiStr=(s.roi>=0?'+':'')+(s.roi*100).toFixed(1)+'%', netStr=(s.netUnits>=0?'+':'')+s.netUnits+'u';
     const pn=s.pending>0?` &bull; ${s.pending} pending`:'';
-    const recordLines = getSourcePastRecordLines(s.source);
+    const recordLines = getSourcePastRecordLines(s.source, rankingsPicks);
     return `<div class="source-card ${rc} ${expandedSourceKeys.has(s.source) ? 'expanded' : ''}" data-source-key="${String(s.source).replace(/"/g, '&quot;')}" onclick="toggleSourceCardFromEl(this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleSourceCardFromEl(this)}"><div class="card-rank">${rank}</div><div class="card-name">${s.source}</div>
       <div class="score-bar-wrap"><div class="score-label"><span>ACCURACY</span><span class="score-val">${(s.acc*100).toFixed(1)}% (${s.wins}-${s.losses})</span></div><div class="bar-bg"><div class="bar-fill bar-acc" style="width:${s.accScore}%"></div></div></div>
       <div class="score-bar-wrap"><div class="score-label"><span>ROI</span><span class="score-val" style="color:${s.roi>=0?'var(--win)':'var(--loss)'}">${roiStr} (${netStr})</span></div><div class="bar-bg"><div class="bar-fill bar-roi" style="width:${s.roiScore}%"></div></div></div>
@@ -3888,7 +3974,7 @@ function render() {
 
   const sportBoard = document.getElementById('sport-board');
   const decidedBySport = {};
-  picks.filter(p=>p.result!=='pending').forEach(p => {
+  rankingsPicks.filter(p=>p.result!=='pending').forEach(p => {
     if(!decidedBySport[p.sport]) decidedBySport[p.sport] = [];
     decidedBySport[p.sport].push(p);
   });
@@ -4112,7 +4198,9 @@ function render() {
   const d=w+l, acc=d>0?(w/d*100).toFixed(1)+'%':'—';
   const nu=decided.reduce((s,p)=>s+p.pl,0), tw=decided.filter(p=>p.result!=='push').reduce((s,p)=>s+p.units,0);
   const roi=tw>0?((nu/tw)*100).toFixed(1)+'%':'—', nuf=nu;
-  updateRecordDisplays({ wins: w, losses: l, pushes: pu });
+  if (typeof window.updateRecordDisplays === 'function') {
+    window.updateRecordDisplays({ wins: w, losses: l, pushes: pu });
+  }
   window._userRecord = { wins: w, losses: l, pushes: pu };
   document.getElementById('stat-picks').textContent=picks.length;
   document.getElementById('stat-wins').textContent=w;
@@ -5248,6 +5336,7 @@ initPickLogFilterCleanup();
 initDayOfWeekChartRendering();
 window.dispatchEvent(new Event('pickledger:helpers-ready'));
 syncWithServer().catch(() => setSyncStatus('offline'));
+loadCanonicalRankingsState().then(() => render()).catch(() => {});
 loadNbaPropsGames();
 const savedTab = localStorage.getItem('pickledger_tab') || 'home';
 if (savedTab !== 'home') switchTab(savedTab);
@@ -5256,7 +5345,7 @@ if (missingStartTimesCount() > 0) {
   refreshAutoGrades(true);
 }
 (async () => {
-  await authStateReady;
+  await window._authStateReady;
   if (window._userUid && hasMeaningfulLocalState()) {
     scheduleLedgerStateSync();
     pushLedgerState(true);
