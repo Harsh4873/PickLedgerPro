@@ -948,6 +948,57 @@
   const db       = getFirestore(app);
   const auth     = getAuth(app);
   const provider = new GoogleAuthProvider();
+  window._currentUser = null;
+  window._userUid = null;
+  window._userRecord = null;
+
+  let authStateResolved = false;
+  let authStateReadyResolve = null;
+  const authStateReady = new Promise((resolve) => { authStateReadyResolve = resolve; });
+  let authStateGeneration = 0;
+
+  function resolveAuthStateReady() {
+    if (authStateResolved) return;
+    authStateResolved = true;
+    if (typeof authStateReadyResolve === 'function') authStateReadyResolve();
+  }
+
+  function getLedgerSyncUid(explicitUid) {
+    const value = explicitUid === undefined ? window._userUid : explicitUid;
+    return typeof value === 'string' ? value.trim() : '';
+  }
+
+  function buildLedgerStateUrl(explicitUid) {
+    const uid = getLedgerSyncUid(explicitUid);
+    if (!uid) return LEDGER_STATE_URL;
+    const url = new URL(LEDGER_STATE_URL, window.location.href);
+    url.searchParams.set('uid', uid);
+    return url.toString();
+  }
+
+  function formatRecordSummary(record) {
+    const wins = Number(record && record.wins) || 0;
+    const losses = Number(record && record.losses) || 0;
+    const pushes = Number(record && record.pushes) || 0;
+    return pushes > 0 ? `${wins}-${losses}-${pushes}` : `${wins}-${losses}`;
+  }
+
+  function buildRecordSummaryFromPicks(picks) {
+    const list = Array.isArray(picks) ? picks : [];
+    return {
+      wins: list.filter(p => p && p.result === 'win').length,
+      losses: list.filter(p => p && p.result === 'loss').length,
+      pushes: list.filter(p => p && p.result === 'push').length,
+    };
+  }
+
+  function updateRecordDisplays(record) {
+    const text = formatRecordSummary(record);
+    const headerRecord = document.getElementById('total-record');
+    const profileRecord = document.getElementById('profile-record');
+    if (headerRecord) headerRecord.textContent = text;
+    if (profileRecord) profileRecord.textContent = text;
+  }
 
   // ── Login gate ────────────────────────────────────────────
   const gate = document.getElementById('login-gate');
@@ -984,6 +1035,21 @@
     return fresh;
   }
 
+  window._saveUserRecordSummary = async function(uid, record) {
+    if (!uid) return;
+    const summary = {
+      wins: Number(record && record.wins) || 0,
+      losses: Number(record && record.losses) || 0,
+      pushes: Number(record && record.pushes) || 0,
+    };
+    try {
+      await setDoc(doc(db, 'users', uid, 'record', 'summary'), summary, { merge: true });
+      window._userRecord = summary;
+    } catch (e) {
+      console.warn('[Firestore] saveUserRecordSummary failed:', e.message);
+    }
+  };
+
   window._incrementRecord = async function(uid, outcome) {
     const ref   = doc(db, 'users', uid, 'record', 'summary');
     const field = outcome === 'win' ? 'wins'
@@ -994,11 +1060,7 @@
     const rec = await getDoc(doc(db, 'users', uid, 'record', 'summary'));
     if (rec.exists()) {
       const d = rec.data();
-      const pr = document.getElementById('profile-record');
-      const w = d.wins || 0;
-      const l = d.losses || 0;
-      const p = d.pushes || 0;
-      if (pr) pr.textContent = p > 0 ? `${w}-${l}-${p}` : `${w}-${l}`;
+      updateRecordDisplays(d);
       window._userRecord = d;
     }
   };
@@ -1063,32 +1125,28 @@
     const pAvatar = document.getElementById('profile-avatar');
     const pName   = document.getElementById('profile-name');
     const pEmail  = document.getElementById('profile-email');
-    const pRecord = document.getElementById('profile-record');
     if (pAvatar) pAvatar.src = user.photoURL || '';
     if (pName) pName.textContent = user.displayName || '';
     if (pEmail) pEmail.textContent = user.email || '';
-    if (pRecord) {
-      const w = record.wins || 0;
-      const l = record.losses || 0;
-      const p = record.pushes || 0;
-      pRecord.textContent = p > 0 ? `${w}-${l}-${p}` : `${w}-${l}`;
-    }
+    updateRecordDisplays(record);
   }
 
   function resetProfilePanel() {
     const pAvatar = document.getElementById('profile-avatar');
     const pName   = document.getElementById('profile-name');
     const pEmail  = document.getElementById('profile-email');
-    const pRecord = document.getElementById('profile-record');
     if (pAvatar) pAvatar.src = '';
     if (pName) pName.textContent = '';
     if (pEmail) pEmail.textContent = '';
-    if (pRecord) pRecord.textContent = '0-0';
+    updateRecordDisplays({ wins: 0, losses: 0, pushes: 0 });
   }
 
   window._signOut = async () => {
     if (window._userUid && typeof window._saveUserPicks === 'function' && typeof window._buildLedgerStatePayload === 'function') {
       await window._saveUserPicks(window._userUid, window._buildLedgerStatePayload());
+    }
+    if (window._userUid && typeof window._saveUserRecordSummary === 'function' && typeof getPicks === 'function') {
+      await window._saveUserRecordSummary(window._userUid, buildRecordSummaryFromPicks(getPicks()));
     }
     Object.keys(localStorage).filter(k =>
       k.startsWith('pickledger_added_picks') ||
@@ -1115,8 +1173,12 @@
   window._loadFirestorePicks = loadFirestorePicks;
 
   onAuthStateChanged(auth, async (user) => {
+    const currentGeneration = ++authStateGeneration;
     window._currentUser = user || null;
+    window._userUid = user ? user.uid : null;
+    resolveAuthStateReady();
     await waitForLedgerHelpers();
+    if (currentGeneration !== authStateGeneration) return;
 
     if (user) {
       // Hide login gate with fade
@@ -1126,33 +1188,39 @@
         setTimeout(() => { gate.style.display = 'none'; }, 300);
       }
       const record = await loadUserRecord(user.uid);
+      if (currentGeneration !== authStateGeneration) return;
       window._userRecord = record;
-      window._userUid    = user.uid;
       updateProfilePanel(user, record);
 
       const userPicks = await window._loadUserPicks(user.uid);
+      if (currentGeneration !== authStateGeneration) return;
+      let localLedgerLoaded = false;
       if (userPicks !== null) {
         window._applyUserLedgerState(userPicks);
-        // Re-render all UI with the user's Firestore picks
-        if (typeof render === 'function') {
-          render();
-        }
+        localLedgerLoaded = hasMeaningfulLocalState();
         console.log('[Firestore] Loaded user ledger state, reloading app state');
       } else {
-        // New user — wipe ALL ledger keys for a clean slate
-        // First collect all versioned keys matching our pattern
-        const pickKeys = Object.keys(localStorage).filter(k =>
-          k.startsWith('pickledger_added_picks') ||
-          k.startsWith('pickledger_deleted_pick_ids') ||
-          k.startsWith('pickledger_results') ||
-          k.startsWith('pickledger_game_times')
-        );
-        pickKeys.forEach(k => localStorage.removeItem(k));
-        console.log('[Auth] New user — cleared', pickKeys.length, 'ledger keys');
-        // Re-render so the pick log shows empty
-        if (typeof render === 'function') render();
+        window._clearLedgerLocalState();
+        const restored = await pullLedgerStateIfNeeded({ uid: user.uid, expectedGeneration: currentGeneration });
+        if (currentGeneration !== authStateGeneration) return;
+        localLedgerLoaded = restored;
+        if (!restored) {
+          console.log('[Auth] No existing ledger state for user — cleared local ledger state');
+        }
       }
       refreshLedgerUi();
+      if (localLedgerLoaded) {
+        const visibleRecord = buildRecordSummaryFromPicks(typeof getPicks === 'function' ? getPicks() : []);
+        updateRecordDisplays(visibleRecord);
+        window._userRecord = visibleRecord;
+        if (window._saveUserRecordSummary) {
+          window._saveUserRecordSummary(user.uid, visibleRecord).catch(() => {});
+        }
+      } else {
+        updateRecordDisplays(record);
+        window._userRecord = record;
+      }
+      syncWithServer().catch(() => setSyncStatus('offline'));
     } else {
       // Show login gate
       if (gate) {
@@ -1160,8 +1228,11 @@
         gate.style.opacity  = '1';
       }
       resetProfilePanel();
-      window._userUid    = null;
       window._userRecord = null;
+      if (ledgerStateSyncTimer) {
+        clearTimeout(ledgerStateSyncTimer);
+        ledgerStateSyncTimer = null;
+      }
       // Sign-out — wipe all ledger keys
       const signOutKeys = Object.keys(localStorage).filter(k =>
         k.startsWith('pickledger_added_picks') ||
@@ -1553,6 +1624,7 @@ const GRADER_URL = (() => {
 const GRADE_URL = `${GRADER_URL}/grade`;
 const HEALTH_URL = `${GRADER_URL}/health`;
 const LEDGER_STATE_URL = `${GRADER_URL}/api/ledger-state`;
+const NBA_PROPS_GAMES_URL = `${GRADER_URL}/api/nba-props-games`;
 const SPORTYTRADER_FEED_URL = './sportytrader_manual_feed.json';
 const SPORTYTRADER_CACHE_KEY = 'pickledger_sportytrader_feed_cache';
 const SPORTSGAMBLER_FEED_URL = './sportsgambler_manual_feed.json';
@@ -1683,14 +1755,15 @@ window._clearLedgerLocalState = clearLedgerLocalState;
 window._applyUserLedgerState = applyUserLedgerState;
 
 async function pushLedgerState(force = false) {
-  if (!LEDGER_STATE_URL) return;
+  const uid = getLedgerSyncUid();
+  if (!LEDGER_STATE_URL || !authStateResolved || !uid) return;
   if (ledgerStateSyncInFlight && !force) return;
   ledgerStateSyncInFlight = true;
   try {
-    await fetch(LEDGER_STATE_URL, {
+    await fetch(buildLedgerStateUrl(uid), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ state: buildLedgerStatePayload() }),
+      body: JSON.stringify({ uid, state: buildLedgerStatePayload() }),
     });
   } catch {
     // Best-effort backup only.
@@ -1706,17 +1779,24 @@ function scheduleLedgerStateSync() {
   ledgerStateSyncTimer = setTimeout(() => {
     pushLedgerState(false);
     if (window._userUid && window._saveUserPicks) {
-      window._saveUserPicks(window._userUid, buildLedgerStatePayload());
+      const payload = buildLedgerStatePayload();
+      window._saveUserPicks(window._userUid, payload);
+      if (window._saveUserRecordSummary && typeof getPicks === 'function') {
+        window._saveUserRecordSummary(window._userUid, buildRecordSummaryFromPicks(getPicks()));
+      }
     }
   }, 1200);
 }
 
-async function pullLedgerStateIfNeeded() {
-  if (hasMeaningfulLocalState() || !LEDGER_STATE_URL) return false;
+async function pullLedgerStateIfNeeded(options = {}) {
+  const uid = getLedgerSyncUid(options.uid);
+  const expectedGeneration = Number.isInteger(options.expectedGeneration) ? options.expectedGeneration : null;
+  if (hasMeaningfulLocalState() || !LEDGER_STATE_URL || !authStateResolved || !uid) return false;
   try {
-    const res = await fetch(LEDGER_STATE_URL, { method: 'GET' });
+    const res = await fetch(buildLedgerStateUrl(uid), { method: 'GET' });
     if (!res.ok) return false;
     const data = await res.json();
+    if (expectedGeneration !== null && expectedGeneration !== authStateGeneration) return false;
     if (!data || !data.ok) return false;
     const restored = applyLedgerStateFromServer(data.state || {});
     if (restored) {
@@ -1778,10 +1858,11 @@ async function syncWithServer() {
     if (!data || data.ok === false) {
       throw new Error((data && data.error) || 'health check failed');
     }
-    if (hasMeaningfulLocalState()) {
+    const uid = getLedgerSyncUid();
+    if (uid && hasMeaningfulLocalState()) {
       await pushLedgerState(false);
-    } else {
-      await pullLedgerStateIfNeeded();
+    } else if (uid) {
+      await pullLedgerStateIfNeeded({ uid, expectedGeneration: authStateGeneration });
     }
     setSyncStatus('synced');
   } catch {
@@ -4031,7 +4112,8 @@ function render() {
   const d=w+l, acc=d>0?(w/d*100).toFixed(1)+'%':'—';
   const nu=decided.reduce((s,p)=>s+p.pl,0), tw=decided.filter(p=>p.result!=='push').reduce((s,p)=>s+p.units,0);
   const roi=tw>0?((nu/tw)*100).toFixed(1)+'%':'—', nuf=nu;
-  const headerRecordEl = document.getElementById('total-record'); if (headerRecordEl) { const decidedPicks = picks.filter(px => px.result === 'win' || px.result === 'loss' || px.result === 'push'); const w = decidedPicks.filter(px => px.result === 'win').length; const l = decidedPicks.filter(px => px.result === 'loss').length; const p = decidedPicks.filter(px => px.result === 'push').length; headerRecordEl.textContent = p > 0 ? `${w}-${l}-${p}` : `${w}-${l}`; }
+  updateRecordDisplays({ wins: w, losses: l, pushes: pu });
+  window._userRecord = { wins: w, losses: l, pushes: pu };
   document.getElementById('stat-picks').textContent=picks.length;
   document.getElementById('stat-wins').textContent=w;
   document.getElementById('stat-losses').textContent=l;
@@ -4337,13 +4419,13 @@ async function loadNbaPropsGames() {
   setModelStatus('nba-props', 'Loading today\'s games...', 'running');
 
   try {
-    const stateResp = await fetch(LEDGER_STATE_URL, { method: 'GET' });
-    const stateData = await stateResp.json();
-    if (!stateData || !stateData.ok) {
-      throw new Error((stateData && stateData.error) || `HTTP ${stateResp.status}`);
+    const gamesResp = await fetch(NBA_PROPS_GAMES_URL, { method: 'GET' });
+    const gamesData = await gamesResp.json();
+    if (!gamesData || !gamesData.ok) {
+      throw new Error((gamesData && gamesData.error) || `HTTP ${gamesResp.status}`);
     }
-    const games = Array.isArray(stateData.nba_games) ? stateData.nba_games : [];
-    const gamesError = String((stateData && stateData.nba_games_error) || '').trim();
+    const games = Array.isArray(gamesData.games) ? gamesData.games : [];
+    const gamesError = String((gamesData && gamesData.error) || '').trim();
     const current = String(select.value || '');
     if (!games.length) {
       select.innerHTML = '<option value="">No games found for today</option>';
@@ -5174,8 +5256,8 @@ if (missingStartTimesCount() > 0) {
   refreshAutoGrades(true);
 }
 (async () => {
-  const restored = await pullLedgerStateIfNeeded();
-  if (!restored && hasMeaningfulLocalState()) {
+  await authStateReady;
+  if (window._userUid && hasMeaningfulLocalState()) {
     scheduleLedgerStateSync();
     pushLedgerState(true);
   }

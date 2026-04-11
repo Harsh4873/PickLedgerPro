@@ -16,6 +16,7 @@ from __future__ import annotations
 import json
 import math as _math
 import os
+import errno
 import re
 import sqlite3
 import sqlite3 as _sqlite3, os as _os
@@ -228,6 +229,22 @@ LEDGER_STATE_FILE = os.environ.get(
     os.path.join(os.path.dirname(os.path.abspath(__file__)), "pickledger_state.json"),
 )
 LEDGER_STATE_KEY = "primary"
+LEDGER_STATE_FILE_SAFE_RE = re.compile(r"[^A-Za-z0-9._-]+")
+
+
+def _ledger_state_key_for_uid(uid: Any = None) -> str:
+    text = str(uid or "").strip()
+    if not text:
+        return LEDGER_STATE_KEY
+    return text
+
+
+def _ledger_state_file_path(state_key: str) -> str:
+    if state_key == LEDGER_STATE_KEY:
+        return LEDGER_STATE_FILE
+    root, ext = os.path.splitext(LEDGER_STATE_FILE)
+    safe_suffix = LEDGER_STATE_FILE_SAFE_RE.sub("_", str(state_key or "")).strip("._-") or "user"
+    return f"{root}.{safe_suffix[:120]}{ext or '.json'}"
 
 
 def _default_playwright_browsers_path() -> str:
@@ -450,7 +467,13 @@ def _ensure_nba_props_games_table(conn: sqlite3.Connection) -> None:
     )
 
 
-def _sync_picks_table_from_state(conn: sqlite3.Connection, state: dict[str, Any]) -> None:
+def _sync_picks_table_from_state(
+    conn: sqlite3.Connection,
+    state: dict[str, Any],
+    state_key: str = LEDGER_STATE_KEY,
+) -> None:
+    if state_key != LEDGER_STATE_KEY:
+        return
     _ensure_picks_table(conn)
     added = state.get("addedPicks")
     deleted = state.get("deletedPickIds")
@@ -515,13 +538,13 @@ def _sync_picks_table_from_state(conn: sqlite3.Connection, state: dict[str, Any]
         )
 
 
-def _load_ledger_state_from_sql() -> dict[str, Any] | None:
+def _load_ledger_state_from_sql(state_key: str = LEDGER_STATE_KEY) -> dict[str, Any] | None:
     try:
         with _ledger_db_connect() as conn:
             _ensure_ledger_state_table(conn)
             row = conn.execute(
                 "SELECT state_json FROM ledger_state WHERE state_key = ? LIMIT 1",
-                (LEDGER_STATE_KEY,),
+                (state_key,),
             ).fetchone()
         if not row:
             return None
@@ -533,12 +556,15 @@ def _load_ledger_state_from_sql() -> dict[str, Any] | None:
     return None
 
 
-def _save_ledger_state_to_sql(state: dict[str, Any]) -> bool:
+def _save_ledger_state_to_sql(
+    state: dict[str, Any],
+    state_key: str = LEDGER_STATE_KEY,
+) -> bool:
     try:
         payload = json.dumps(state, ensure_ascii=True, separators=(",", ":"))
         with _ledger_db_connect() as conn:
             _ensure_ledger_state_table(conn)
-            _sync_picks_table_from_state(conn, state)
+            _sync_picks_table_from_state(conn, state, state_key)
             conn.execute(
                 """
                 INSERT INTO ledger_state (state_key, state_json, updated_at)
@@ -547,16 +573,16 @@ def _save_ledger_state_to_sql(state: dict[str, Any]) -> bool:
                     state_json=excluded.state_json,
                     updated_at=excluded.updated_at
                 """,
-                (LEDGER_STATE_KEY, payload),
+                (state_key, payload),
             )
         return True
     except sqlite3.Error:
         return False
 
 
-def _load_ledger_state_from_file() -> dict[str, Any] | None:
+def _load_ledger_state_from_file(state_key: str = LEDGER_STATE_KEY) -> dict[str, Any] | None:
     try:
-        with open(LEDGER_STATE_FILE, "r", encoding="utf-8") as f:
+        with open(_ledger_state_file_path(state_key), "r", encoding="utf-8") as f:
             payload = json.load(f)
         if isinstance(payload, dict):
             return _coerce_ledger_state(payload)
@@ -565,55 +591,64 @@ def _load_ledger_state_from_file() -> dict[str, Any] | None:
     return None
 
 
-def _save_ledger_state_to_file(state: dict[str, Any]) -> bool:
+def _save_ledger_state_to_file(
+    state: dict[str, Any],
+    state_key: str = LEDGER_STATE_KEY,
+) -> bool:
     try:
-        with open(LEDGER_STATE_FILE, "w", encoding="utf-8") as f:
+        with open(_ledger_state_file_path(state_key), "w", encoding="utf-8") as f:
             json.dump(state, f, ensure_ascii=True, indent=2)
         return True
     except OSError:
         return False
 
 
-def _load_ledger_state() -> dict[str, Any]:
+def _load_ledger_state(state_key: str = LEDGER_STATE_KEY) -> dict[str, Any]:
     with _ledger_state_lock:
-        from_sql = _load_ledger_state_from_sql()
+        from_sql = _load_ledger_state_from_sql(state_key)
         if from_sql is not None:
             return from_sql
 
         # One-time compatibility fallback: hydrate SQL from prior file-backed state.
-        from_file = _load_ledger_state_from_file()
+        from_file = _load_ledger_state_from_file(state_key)
         if from_file is not None:
-            _save_ledger_state_to_sql(from_file)
+            _save_ledger_state_to_sql(from_file, state_key)
             return from_file
     return _default_ledger_state()
 
 
-def _save_ledger_state(payload: dict[str, Any]) -> bool:
+def _save_ledger_state(
+    payload: dict[str, Any],
+    state_key: str = LEDGER_STATE_KEY,
+) -> bool:
     state = _coerce_ledger_state(payload)
     state["savedAt"] = datetime.utcnow().isoformat() + "Z"
     with _ledger_state_lock:
-        sql_ok = _save_ledger_state_to_sql(state)
-        file_ok = _save_ledger_state_to_file(state)
+        sql_ok = _save_ledger_state_to_sql(state, state_key)
+        file_ok = _save_ledger_state_to_file(state, state_key)
     return sql_ok or file_ok
 
 
-def _load_ledger_state_unlocked() -> dict[str, Any]:
-    from_sql = _load_ledger_state_from_sql()
+def _load_ledger_state_unlocked(state_key: str = LEDGER_STATE_KEY) -> dict[str, Any]:
+    from_sql = _load_ledger_state_from_sql(state_key)
     if from_sql is not None:
         return from_sql
 
-    from_file = _load_ledger_state_from_file()
+    from_file = _load_ledger_state_from_file(state_key)
     if from_file is not None:
-        _save_ledger_state_to_sql(from_file)
+        _save_ledger_state_to_sql(from_file, state_key)
         return from_file
     return _default_ledger_state()
 
 
-def _save_ledger_state_unlocked(payload: dict[str, Any]) -> tuple[bool, dict[str, Any]]:
+def _save_ledger_state_unlocked(
+    payload: dict[str, Any],
+    state_key: str = LEDGER_STATE_KEY,
+) -> tuple[bool, dict[str, Any]]:
     state = _coerce_ledger_state(payload)
     state["savedAt"] = datetime.utcnow().isoformat() + "Z"
-    sql_ok = _save_ledger_state_to_sql(state)
-    file_ok = _save_ledger_state_to_file(state)
+    sql_ok = _save_ledger_state_to_sql(state, state_key)
+    file_ok = _save_ledger_state_to_file(state, state_key)
     return sql_ok or file_ok, state
 
 
@@ -653,7 +688,10 @@ def _coerce_optional_float(value: Any) -> float | None:
         return None
 
 
-def _next_ledger_pick_id(state: dict[str, Any]) -> int:
+def _next_ledger_pick_id(
+    state: dict[str, Any],
+    state_key: str = LEDGER_STATE_KEY,
+) -> int:
     max_id = 0
     for item in state.get("addedPicks", []):
         if not isinstance(item, dict):
@@ -662,14 +700,15 @@ def _next_ledger_pick_id(state: dict[str, Any]) -> int:
             max_id = max(max_id, int(item.get("id") or 0))
         except (TypeError, ValueError):
             continue
-    try:
-        with _ledger_db_connect() as conn:
-            _ensure_picks_table(conn)
-            row = conn.execute("SELECT MAX(id) AS max_id FROM picks").fetchone()
-        if row and row["max_id"] is not None:
-            max_id = max(max_id, int(row["max_id"]))
-    except sqlite3.Error:
-        pass
+    if state_key == LEDGER_STATE_KEY:
+        try:
+            with _ledger_db_connect() as conn:
+                _ensure_picks_table(conn)
+                row = conn.execute("SELECT MAX(id) AS max_id FROM picks").fetchone()
+            if row and row["max_id"] is not None:
+                max_id = max(max_id, int(row["max_id"]))
+        except sqlite3.Error:
+            pass
     return max_id + 1
 
 
@@ -716,23 +755,30 @@ def _build_pick_log_entry(raw: dict[str, Any], pick_id: int | None = None) -> di
     return entry
 
 
-def _save_pick_to_ledger(raw: dict[str, Any]) -> tuple[bool, dict[str, Any] | None, str | None]:
+def _save_pick_to_ledger(
+    raw: dict[str, Any],
+    state_key: str = LEDGER_STATE_KEY,
+) -> tuple[bool, dict[str, Any] | None, str | None]:
     with _ledger_state_lock:
-        state = _load_ledger_state_unlocked()
-        entry = _build_pick_log_entry(raw, pick_id=_next_ledger_pick_id(state))
+        state = _load_ledger_state_unlocked(state_key)
+        entry = _build_pick_log_entry(raw, pick_id=_next_ledger_pick_id(state, state_key))
         if not entry["pick"]:
             return False, None, "Pick text is required"
         added = state.get("addedPicks")
         added_list = list(added) if isinstance(added, list) else []
         added_list.append(entry)
         state["addedPicks"] = added_list
-        ok, _ = _save_ledger_state_unlocked(state)
+        ok, _ = _save_ledger_state_unlocked(state, state_key)
     if not ok:
         return False, None, "Failed to persist pick"
     return True, entry, None
 
 
-def _set_pick_result_in_ledger(pick_id: Any, result: Any) -> tuple[bool, str | None, str | None]:
+def _set_pick_result_in_ledger(
+    pick_id: Any,
+    result: Any,
+    state_key: str = LEDGER_STATE_KEY,
+) -> tuple[bool, str | None, str | None]:
     normalized = _normalize_pick_result(result, allow_pending=True)
     if normalized is None:
         return False, None, "Result must be one of W/L/P or pending"
@@ -742,12 +788,14 @@ def _set_pick_result_in_ledger(pick_id: Any, result: Any) -> tuple[bool, str | N
         return False, None, "Pick id is required"
 
     with _ledger_state_lock:
-        state = _load_ledger_state_unlocked()
+        state = _load_ledger_state_unlocked(state_key)
         known_ids = set()
         for item in state.get("addedPicks", []):
             if isinstance(item, dict):
                 known_ids.add(str(item.get("id", "")).strip())
         if pick_id_str not in known_ids:
+            if state_key != LEDGER_STATE_KEY:
+                return False, None, "Pick not found"
             try:
                 with _ledger_db_connect() as conn:
                     _ensure_picks_table(conn)
@@ -767,7 +815,7 @@ def _set_pick_result_in_ledger(pick_id: Any, result: Any) -> tuple[bool, str | N
         else:
             result_map[pick_id_str] = normalized
         state["results"] = result_map
-        ok, _ = _save_ledger_state_unlocked(state)
+        ok, _ = _save_ledger_state_unlocked(state, state_key)
     if not ok:
         return False, None, "Failed to persist result"
     return True, normalized, None
@@ -2945,6 +2993,7 @@ def _public_endpoints() -> list[str]:
     endpoints = [
         "/health",
         "/ledger-state",
+        "/nba-props-games",
         "/picks",
         "/grade",
         "/run-sportsline-odds",
@@ -2998,6 +3047,16 @@ def run_sportsline_odds(league: str = "NBA") -> dict[str, Any]:
 
 
 class Handler(BaseHTTPRequestHandler):
+    @staticmethod
+    def _is_client_disconnect_error(exc: BaseException) -> bool:
+        if isinstance(exc, (BrokenPipeError, ConnectionResetError)):
+            return True
+        return isinstance(exc, OSError) and getattr(exc, "errno", None) in {
+            errno.EPIPE,
+            errno.ECONNRESET,
+            errno.ECONNABORTED,
+        }
+
     def _send_cors_headers(self) -> None:
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
@@ -3009,16 +3068,22 @@ class Handler(BaseHTTPRequestHandler):
         payload: dict[str, Any],
         extra_headers: dict[str, str] | None = None,
     ) -> None:
-        data = json.dumps(payload).encode("utf-8")
-        self.send_response(status)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Content-Length", str(len(data)))
-        self._send_cors_headers()
-        if extra_headers:
-            for key, value in extra_headers.items():
-                self.send_header(key, value)
-        self.end_headers()
-        self.wfile.write(data)
+        try:
+            data = json.dumps(payload).encode("utf-8")
+            self.send_response(status)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(data)))
+            self._send_cors_headers()
+            if extra_headers:
+                for key, value in extra_headers.items():
+                    self.send_header(key, value)
+            self.end_headers()
+            self.wfile.write(data)
+        except Exception as exc:
+            if self._is_client_disconnect_error(exc):
+                self.close_connection = True
+                return
+            raise
 
     def do_OPTIONS(self) -> None:  # noqa: N802
         self.send_response(200)
@@ -3029,6 +3094,10 @@ class Handler(BaseHTTPRequestHandler):
         raw_path = self.path
         parsed = urlparse(raw_path)
         path = parsed.path or raw_path
+        from urllib.parse import parse_qs
+
+        qs = parse_qs(parsed.query)
+        ledger_uid = str((qs.get("uid") or [""])[0] or "").strip()
         if path == "/api":
             path = "/"
         elif path.startswith("/api/"):
@@ -3059,8 +3128,23 @@ class Handler(BaseHTTPRequestHandler):
             })
             return
 
+        if path == "/nba-props-games":
+            query_date = (qs.get("date") or [""])[0] or None
+            nba_games_meta = _load_nba_props_games_with_meta(query_date)
+            self._send_json(200, {
+                "ok": True,
+                "games": nba_games_meta.get("games", []),
+                "source": nba_games_meta.get("source"),
+                "error": nba_games_meta.get("error"),
+            })
+            return
+
         if path == "/ledger-state":
-            state = _load_ledger_state()
+            if not ledger_uid:
+                self._send_json(400, {"ok": False, "error": "uid required"})
+                return
+            ledger_state_key = _ledger_state_key_for_uid(ledger_uid)
+            state = _load_ledger_state(ledger_state_key)
             nba_games_meta = _load_nba_props_games_with_meta()
             self._send_json(200, {
                 "ok": True,
@@ -3072,9 +3156,6 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         if path == "/refresh-nba-props-games":
-            from urllib.parse import parse_qs
-
-            qs = parse_qs(parsed.query)
             refresh_date = (qs.get("date") or [""])[0] or None
             try:
                 result = _refresh_nba_props_games(refresh_date)
@@ -3150,6 +3231,8 @@ class Handler(BaseHTTPRequestHandler):
         if self.path in {
             "/",
             "/health",
+            "/nba-props-games",
+            "/api/nba-props-games",
             "/ledger-state",
             "/api/ledger-state",
             "/refresh-nba-props-games",
@@ -3194,6 +3277,8 @@ class Handler(BaseHTTPRequestHandler):
         date_str = body.get("date")  # optional MM/DD/YYYY date for the model
         game_id = body.get("game_id")
         game_label = body.get("game_label")
+        ledger_uid = str(body.get("uid") or "").strip()
+        ledger_state_key = _ledger_state_key_for_uid(ledger_uid)
 
         if path == "/refresh-nba-props-games":
             try:
@@ -3205,18 +3290,27 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         if path == "/ledger-state":
+            if not ledger_uid:
+                self._send_json(400, {"ok": False, "error": "uid required"})
+                return
             state = body.get("state", body)
             if not isinstance(state, dict):
                 self._send_json(400, {"ok": False, "error": "Invalid ledger state payload"})
                 return
-            if not _save_ledger_state(state):
+            if not _save_ledger_state(state, ledger_state_key):
                 self._send_json(500, {"ok": False, "error": "Failed to persist ledger state"})
                 return
-            self._send_json(200, {"ok": True, "state": _load_ledger_state()})
+            self._send_json(200, {"ok": True, "state": _load_ledger_state(ledger_state_key)})
             return
 
         if path == "/picks":
-            ok, entry, error = _save_pick_to_ledger(body if isinstance(body, dict) else {})
+            if not ledger_uid:
+                self._send_json(400, {"ok": False, "error": "uid required"})
+                return
+            ok, entry, error = _save_pick_to_ledger(
+                body if isinstance(body, dict) else {},
+                ledger_state_key,
+            )
             if not ok or entry is None:
                 self._send_json(400, {"ok": False, "error": error or "Failed to save pick"})
                 return
@@ -3224,7 +3318,14 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         if path == "/grade" and "id" in body and "result" in body and "picks" not in body:
-            ok, normalized, error = _set_pick_result_in_ledger(body.get("id"), body.get("result"))
+            if not ledger_uid:
+                self._send_json(400, {"ok": False, "error": "uid required"})
+                return
+            ok, normalized, error = _set_pick_result_in_ledger(
+                body.get("id"),
+                body.get("result"),
+                ledger_state_key,
+            )
             if not ok or normalized is None:
                 self._send_json(400, {"ok": False, "error": error or "Failed to save result"})
                 return
