@@ -34,13 +34,6 @@ from urllib.error import URLError, HTTPError
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
-try:
-    from ipl.ipl_model import run_ipl_model, format_ipl_output
-    IPL_AVAILABLE = True
-except Exception as e:
-    IPL_AVAILABLE = False
-    print(f"[IPL] Model not available: {e}")
-
 
 def _sl_get_total(home, away, league='MLB'):
     """Get real Vegas total line and odds from cbs_odds (SportsLine data)."""
@@ -1688,6 +1681,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 NBA_MODEL_DIR = os.path.join(BASE_DIR, "NBAPredictionModel")
 MLB_MODEL_DIR = os.path.join(BASE_DIR, "MLBPredictionModel")
 NBA_PROPS_MODEL_DIR = os.path.join(BASE_DIR, "NBAPlayerBettingModel")
+IPL_MODEL_RUNNER = os.path.join(BASE_DIR, "ipl", "run_api.py")
 SPORTYTRADER_VENV = os.path.join(BASE_DIR, ".venv", "bin", "python")
 SPORTSGAMBLER_VENV = os.path.join(BASE_DIR, ".venv", "bin", "python")
 
@@ -1723,6 +1717,49 @@ def _resolve_python_bin(preferred_path: str) -> str:
     if os.path.exists(preferred_path):
         return preferred_path
     return sys.executable
+
+
+def _run_ipl_model_subprocess(
+    team1: str | None = None,
+    team2: str | None = None,
+    venue: str | None = None,
+    toss_winner: str | None = None,
+    toss_decision: str | None = None,
+    db_path: str | None = None,
+) -> dict[str, Any]:
+    python_bin = _resolve_python_bin(os.path.join(BASE_DIR, ".venv", "bin", "python"))
+    extra_args: list[str] = []
+    for flag, value in (
+        ("--team1", team1),
+        ("--team2", team2),
+        ("--venue", venue),
+        ("--toss-winner", toss_winner),
+        ("--toss-decision", toss_decision),
+        ("--db-path", db_path),
+    ):
+        text = str(value or "").strip()
+        if text:
+            extra_args.extend([flag, text])
+
+    output = _run_script(
+        python_bin,
+        IPL_MODEL_RUNNER,
+        BASE_DIR,
+        timeout=240,
+        extra_args=extra_args,
+    )
+    lines = [line.strip() for line in output.splitlines() if line.strip()]
+    if not lines:
+        return {"error": "IPL runner returned no output"}
+    payload_line = lines[-1]
+    try:
+        payload = json.loads(payload_line)
+    except json.JSONDecodeError:
+        tail = " | ".join(lines[-12:])
+        return {"error": f"IPL runner returned invalid JSON ({tail})"}
+    if not isinstance(payload, dict):
+        return {"error": "IPL runner returned invalid payload"}
+    return payload
 
 
 def _looks_like_playwright_browser_missing(output: str) -> bool:
@@ -3150,8 +3187,8 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/ipl":
             from urllib.parse import parse_qs
 
-            if not IPL_AVAILABLE:
-                self._send_json(503, {"error": "IPL model not loaded"})
+            if not os.path.exists(IPL_MODEL_RUNNER):
+                self._send_json(503, {"error": "IPL model runner not found"})
                 return
 
             qs = parse_qs(parsed.query)
@@ -3162,7 +3199,7 @@ class Handler(BaseHTTPRequestHandler):
                 return text or None
 
             try:
-                result = run_ipl_model(
+                result = _run_ipl_model_subprocess(
                     team1=_optional_query_arg("team1"),
                     team2=_optional_query_arg("team2"),
                     venue=_optional_query_arg("venue"),
@@ -3170,7 +3207,12 @@ class Handler(BaseHTTPRequestHandler):
                     toss_decision=_optional_query_arg("toss_decision"),
                     db_path=LEDGER_DB_FILE,
                 )
+                if result.get("error"):
+                    self._send_json(500, result)
+                    return
                 self._send_json(200, result)
+            except subprocess.TimeoutExpired:
+                self._send_json(500, {"error": "IPL model timed out"})
             except Exception as e:
                 self._send_json(500, {"error": str(e)})
             return
