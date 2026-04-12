@@ -13,9 +13,11 @@ Formula:
 """
 from nba_api.stats.endpoints import teamplayeronoffsummary
 from nba_api.stats.static import teams
+import os
 import time
 
 _nba_teams = teams.get_teams()
+IS_RENDER_RUNTIME = os.environ.get("RENDER", "").strip().lower() == "true"
 
 def get_team_id(team_name: str) -> int:
     for t in _nba_teams:
@@ -47,7 +49,8 @@ def fetch_player_on_off(team_name: str, season: str = '2025-26') -> dict:
     # Retry logic with longer timeout for rate-limited NBA API
     for attempt in range(3):
         try:
-            time.sleep(2 + attempt * 2)  # Increasing backoff: 2s, 4s, 6s
+            backoff = (0.25 + attempt * 0.5) if IS_RENDER_RUNTIME else (2 + attempt * 2)
+            time.sleep(backoff)
             onoff = teamplayeronoffsummary.TeamPlayerOnOffSummary(
                 team_id=team_id,
                 season=season,

@@ -1689,6 +1689,7 @@ SPORTSGAMBLER_VENV = os.path.join(BASE_DIR, ".venv", "bin", "python")
 # Tracks running/completed model jobs so the frontend can poll for results.
 _jobs: dict[str, dict[str, Any]] = {}
 _jobs_lock = threading.Lock()
+_model_job_semaphore = threading.Semaphore(1)
 _playwright_install_lock = threading.Lock()
 _playwright_ready = False
 
@@ -2579,7 +2580,7 @@ def run_nba_model(date_str: str | None = None, variant: str = "new") -> dict[str
             python_bin,
             "run_live.py",
             NBA_MODEL_DIR,
-            timeout=300,
+            timeout=420,
             extra_args=_nba_model_extra_args(date_str, variant),
         )
         if "Traceback (most recent call last)" in output or "ModuleNotFoundError" in output:
@@ -2604,7 +2605,7 @@ def run_nba_model(date_str: str | None = None, variant: str = "new") -> dict[str
 
         return {"ok": True, "picks": picks, "raw_lines": len(output.split("\n"))}
     except subprocess.TimeoutExpired:
-        return {"ok": False, "error": f"{source_label} timed out (5 min limit)"}
+        return {"ok": False, "error": f"{source_label} timed out (7 min limit)"}
     except Exception as e:
         return {"ok": False, "error": str(e)}
 
@@ -2994,7 +2995,8 @@ def _launch_job(target_fn, *args) -> str:
 
     def _worker():
         try:
-            result = target_fn(*args)
+            with _model_job_semaphore:
+                result = target_fn(*args)
         except Exception as exc:
             result = {
                 "ok": False,

@@ -27,6 +27,7 @@ ODDS_ARCHIVE_URL = (
     "https://github.com/ArnavSaraogi/mlb-odds-scraper/releases/download/dataset/"
     "mlb_odds_dataset.json"
 )
+API_RETRY_DELAYS = (0.5, 1.5, 3.0)
 
 
 def ensure_data_dirs() -> None:
@@ -45,14 +46,55 @@ def ensure_data_dirs() -> None:
 def _read_json(path: Path) -> Any | None:
     if not path.exists():
         return None
-    with path.open("r", encoding="utf-8") as handle:
-        return json.load(handle)
+    try:
+        with path.open("r", encoding="utf-8") as handle:
+            return json.load(handle)
+    except json.JSONDecodeError:
+        try:
+            path.unlink()
+        except OSError:
+            pass
+        return None
 
 
 def _write_json(path: Path, payload: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as handle:
+    temp_path = path.with_suffix(path.suffix + ".tmp")
+    with temp_path.open("w", encoding="utf-8") as handle:
         json.dump(payload, handle)
+    temp_path.replace(path)
+
+
+def _statsapi_call(endpoint: str, params: dict[str, Any]) -> Any:
+    last_exc: Exception | None = None
+    for index, delay in enumerate((0.0, *API_RETRY_DELAYS)):
+        if delay > 0:
+            time.sleep(delay)
+        try:
+            return statsapi.get(endpoint, params)
+        except Exception as exc:
+            last_exc = exc
+            if index == len(API_RETRY_DELAYS):
+                break
+    if last_exc is not None:
+        raise last_exc
+    raise RuntimeError(f"StatsAPI call failed for endpoint {endpoint}")
+
+
+def _statsapi_schedule(**params: Any) -> list[dict[str, Any]]:
+    last_exc: Exception | None = None
+    for index, delay in enumerate((0.0, *API_RETRY_DELAYS)):
+        if delay > 0:
+            time.sleep(delay)
+        try:
+            return statsapi.schedule(**params)
+        except Exception as exc:
+            last_exc = exc
+            if index == len(API_RETRY_DELAYS):
+                break
+    if last_exc is not None:
+        raise last_exc
+    raise RuntimeError("StatsAPI schedule call failed")
 
 
 def _median_int(values: list[int]) -> int | None:
@@ -160,7 +202,7 @@ class StatsAPIClient:
             return cached
 
         self._sleep()
-        games = statsapi.schedule(
+        games = _statsapi_schedule(
             start_date=f"{season}-03-01",
             end_date=f"{season}-11-30",
             sportId=1,
@@ -190,7 +232,7 @@ class StatsAPIClient:
         if cached is not None:
             return cached
         self._sleep()
-        payload = statsapi.get("game", {"gamePk": game_pk})
+        payload = _statsapi_call("game", {"gamePk": game_pk})
         _write_json(cache_file, payload)
         return payload
 
@@ -213,7 +255,7 @@ class StatsAPIClient:
             return cached
 
         self._sleep()
-        payload = statsapi.get("person", {"personId": player_id})
+        payload = _statsapi_call("person", {"personId": player_id})
         people = payload.get("people", [])
         person = people[0] if people else {}
         _write_json(cache_file, person)
@@ -231,7 +273,7 @@ class StatsAPIClient:
             return list(cached)
 
         self._sleep()
-        payload = statsapi.get(
+        payload = _statsapi_call(
             "person",
             {
                 "personId": player_id,
@@ -255,7 +297,7 @@ class StatsAPIClient:
             return {int(key): value for key, value in cached.items()}
 
         self._sleep()
-        payload = statsapi.get(
+        payload = _statsapi_call(
             "stats",
             {
                 "stats": "season",

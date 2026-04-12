@@ -4,6 +4,7 @@ Pulls real current rosters, today's games, and injury reports.
 """
 import math
 import json
+import os
 import time
 from datetime import datetime
 from urllib.error import URLError, HTTPError
@@ -22,6 +23,12 @@ from nba_api.stats.endpoints import (
 
 _nba_teams = teams.get_teams()
 _GARBAGE_TIME_MARGIN_CAP = 15.0
+REQUEST_PAUSE_SECONDS = 0.1 if os.environ.get("RENDER", "").strip().lower() == "true" else 0.6
+
+
+def _pause() -> None:
+    if REQUEST_PAUSE_SECONDS > 0:
+        time.sleep(REQUEST_PAUSE_SECONDS)
 
 
 def _team_key(full_name: str) -> str:
@@ -133,7 +140,7 @@ def fetch_team_schedule_context(
     drag, and rolling 5/10-game form windows weighted toward the most recent
     games.
     """
-    time.sleep(0.6)
+    _pause()
     finder = leaguegamefinder.LeagueGameFinder(
         season_nullable=season,
         season_type_nullable='Regular Season',
@@ -239,7 +246,7 @@ def fetch_roster(team_name: str, season: str = '2025-26') -> list:
         print(f"WARNING: Could not find team '{team_name}'")
         return []
     
-    time.sleep(0.6)
+    _pause()
     roster = commonteamroster.CommonTeamRoster(team_id=team_id, season=season)
     df = roster.get_data_frames()[0]
     
@@ -264,7 +271,7 @@ def fetch_all_team_stats(
     Returns dict keyed by team name.
     Blends season-long and last-10-game Net Rating (70/30).
     """
-    time.sleep(0.6)
+    _pause()
     stats = leaguedashteamstats.LeagueDashTeamStats(
         measure_type_detailed_defense='Advanced',
         season=season,
@@ -273,7 +280,7 @@ def fetch_all_team_stats(
     df = stats.get_data_frames()[0]
     
     # Also fetch last-10 stats for recent form blending
-    time.sleep(0.6)
+    _pause()
     try:
         last10_stats = leaguedashteamstats.LeagueDashTeamStats(
             measure_type_detailed_defense='Advanced',
@@ -292,7 +299,7 @@ def fetch_all_team_stats(
 
     four_factor_lookup = {}
     try:
-        time.sleep(0.6)
+        _pause()
         four_factor_stats = leaguedashteamstats.LeagueDashTeamStats(
             measure_type_detailed_defense='Four Factors',
             season=season,
@@ -391,7 +398,7 @@ def fetch_todays_games(date_str: str = None) -> list:
     parts = date_str.split('-')
     formatted = f"{parts[1]}/{parts[2]}/{parts[0]}"
     
-    time.sleep(0.6)
+    _pause()
     sb = scoreboardv2.ScoreboardV2(game_date=formatted)
     dfs = sb.get_data_frames()
     

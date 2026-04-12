@@ -6,6 +6,7 @@ Supports:
 """
 import argparse
 import datetime
+import os
 import time
 
 from calibration import load_platt_scaler
@@ -28,6 +29,10 @@ from injury_impact import calculate_injury_adjustment as calculate_legacy_injury
 from injury_report import fetch_injuries, get_expected_injury_impact, get_team_out_players
 from main import format_output, format_output_new
 from live_data import fetch_all_team_stats, fetch_todays_games, fetch_espn_total_lines
+
+IS_RENDER_RUNTIME = os.environ.get("RENDER", "").strip().lower() == "true"
+INJURY_PAUSE_SECONDS = 0.0 if IS_RENDER_RUNTIME else 1.0
+ENABLE_FIREBASE_PUSH = os.environ.get("PICKLEDGER_ENABLE_FIREBASE_PUSH", "").strip().lower() == "true"
 
 
 def _normalize_target_date(raw_value: str | None) -> str:
@@ -53,6 +58,42 @@ def _normalize_market_total_line(raw_value) -> float | None:
     if line <= 0:
         return None
     return line
+
+
+def _pause_after_injury_lookup() -> None:
+    if INJURY_PAUSE_SECONDS > 0:
+        time.sleep(INJURY_PAUSE_SECONDS)
+
+
+def _render_fast_injury_adjustment(
+    team_name: str,
+    injury_entries: list[dict] | None,
+) -> tuple[float, str]:
+    entries = [entry for entry in (injury_entries or []) if isinstance(entry, dict)]
+    if not entries:
+        return 0.0, "No expected injury absences"
+
+    total_adj = 0.0
+    reasons: list[str] = []
+    for entry in entries:
+        player_name = str(entry.get("name", "")).strip() or "Unknown"
+        status = str(entry.get("status", "")).strip() or "Unknown"
+        absence_probability = float(entry.get("absence_probability", 0.0) or 0.0)
+        if absence_probability >= 0.85:
+            penalty = 0.025
+        elif absence_probability >= 0.6:
+            penalty = 0.015
+        elif absence_probability >= 0.35:
+            penalty = 0.0075
+        else:
+            penalty = 0.0
+        if penalty <= 0.0:
+            continue
+        total_adj -= penalty
+        reasons.append(f"{player_name} {status} ({absence_probability:.0%} miss → {-penalty*100:+.1f}%)")
+
+    total_adj = max(-0.08, total_adj)
+    return total_adj, (", ".join(reasons) if reasons else f"{team_name}: no render-fast injury penalties")
 
 
 def parse_args() -> argparse.Namespace:
@@ -220,14 +261,18 @@ def run_game(
         inj_adj_home, inj_reason_home = (0.0, "No expected injury absences")
         inj_adj_away, inj_reason_away = (0.0, "No expected injury absences")
 
-        if home_expected_injuries:
-            print(f"  Fetching probabilistic on/off data for {home_name} ({len(home_expected_injuries)} injury statuses)...")
-            inj_adj_home, inj_reason_home = calculate_probabilistic_injury_adjustment(home_name, home_expected_injuries)
-            time.sleep(1)
-        if away_expected_injuries:
-            print(f"  Fetching probabilistic on/off data for {away_name} ({len(away_expected_injuries)} injury statuses)...")
-            inj_adj_away, inj_reason_away = calculate_probabilistic_injury_adjustment(away_name, away_expected_injuries)
-            time.sleep(1)
+        if IS_RENDER_RUNTIME:
+            inj_adj_home, inj_reason_home = _render_fast_injury_adjustment(home_name, home_expected_injuries)
+            inj_adj_away, inj_reason_away = _render_fast_injury_adjustment(away_name, away_expected_injuries)
+        else:
+            if home_expected_injuries:
+                print(f"  Fetching probabilistic on/off data for {home_name} ({len(home_expected_injuries)} injury statuses)...")
+                inj_adj_home, inj_reason_home = calculate_probabilistic_injury_adjustment(home_name, home_expected_injuries)
+                _pause_after_injury_lookup()
+            if away_expected_injuries:
+                print(f"  Fetching probabilistic on/off data for {away_name} ({len(away_expected_injuries)} injury statuses)...")
+                inj_adj_away, inj_reason_away = calculate_probabilistic_injury_adjustment(away_name, away_expected_injuries)
+                _pause_after_injury_lookup()
 
         home_team.injury_flag = int(bool(home_expected_injuries))
         away_team.injury_flag = int(bool(away_expected_injuries))
@@ -240,14 +285,20 @@ def run_game(
         inj_adj_home, inj_reason_home = (0.0, "No OUT players")
         inj_adj_away, inj_reason_away = (0.0, "No OUT players")
 
-        if home_out:
-            print(f"  Fetching on/off court data for {home_name} ({len(home_out)} OUT)...")
-            inj_adj_home, inj_reason_home = calculate_legacy_injury_adjustment(home_name, home_out)
-            time.sleep(1)
-        if away_out:
-            print(f"  Fetching on/off court data for {away_name} ({len(away_out)} OUT)...")
-            inj_adj_away, inj_reason_away = calculate_legacy_injury_adjustment(away_name, away_out)
-            time.sleep(1)
+        if IS_RENDER_RUNTIME:
+            render_home_entries = [{"name": player_name, "status": "Out", "absence_probability": 1.0} for player_name in home_out]
+            render_away_entries = [{"name": player_name, "status": "Out", "absence_probability": 1.0} for player_name in away_out]
+            inj_adj_home, inj_reason_home = _render_fast_injury_adjustment(home_name, render_home_entries)
+            inj_adj_away, inj_reason_away = _render_fast_injury_adjustment(away_name, render_away_entries)
+        else:
+            if home_out:
+                print(f"  Fetching on/off court data for {home_name} ({len(home_out)} OUT)...")
+                inj_adj_home, inj_reason_home = calculate_legacy_injury_adjustment(home_name, home_out)
+                _pause_after_injury_lookup()
+            if away_out:
+                print(f"  Fetching on/off court data for {away_name} ({len(away_out)} OUT)...")
+                inj_adj_away, inj_reason_away = calculate_legacy_injury_adjustment(away_name, away_out)
+                _pause_after_injury_lookup()
 
         home_team.injury_flag = int(bool(injuries.get(home_name, [])))
         away_team.injury_flag = int(bool(injuries.get(away_name, [])))
@@ -471,6 +522,8 @@ if __name__ == "__main__":
     main()
 
     # ── Firestore push (PickLedgerPro) ──────────────────────────
+    if not ENABLE_FIREBASE_PUSH:
+        raise SystemExit(0)
     try:
         import sys as _sys
         _sys.path.insert(0, str(__import__('pathlib').Path(__file__).parent.parent))
