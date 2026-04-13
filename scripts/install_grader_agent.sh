@@ -6,6 +6,17 @@ GRADER_PLIST_SRC="$REPO_DIR/scripts/com.pickledger.grader.plist"
 GRADER_PLIST_DEST="$HOME/Library/LaunchAgents/com.pickledger.grader.plist"
 MODELS_PLIST_SRC="$REPO_DIR/scripts/com.pickledger.models.plist"
 MODELS_PLIST_DEST="$HOME/Library/LaunchAgents/com.pickledger.models.plist"
+
+# Load repo-local env files when variables were sourced without export.
+for env_file in "$REPO_DIR/.env" "$REPO_DIR/.env.local"; do
+  if [ -f "$env_file" ] && [ -z "${ADMIN_PICKS_SECRET:-}" ]; then
+    set -a
+    # shellcheck disable=SC1090
+    source "$env_file"
+    set +a
+  fi
+done
+
 SECRET="${ADMIN_PICKS_SECRET:-}"
 GOOGLE_CREDS="${GOOGLE_APPLICATION_CREDENTIALS:-}"
 
@@ -31,6 +42,7 @@ sed -e "s|REPO_PATH_PLACEHOLDER|$REPO_DIR_ESCAPED|g" \
     -e "s|GOOGLE_APPLICATION_CREDENTIALS_PLACEHOLDER|$GOOGLE_CREDS_ESCAPED|g" \
     "$GRADER_PLIST_SRC" > "$GRADER_PLIST_DEST"
 
+launchctl enable "gui/$(id -u)/com.pickledger.grader" 2>/dev/null || true
 launchctl unload "$GRADER_PLIST_DEST" 2>/dev/null || true
 launchctl load "$GRADER_PLIST_DEST"
 
@@ -39,6 +51,7 @@ sed -e "s|REPO_PATH_PLACEHOLDER|$REPO_DIR_ESCAPED|g" \
     -e "s|GOOGLE_APPLICATION_CREDENTIALS_PLACEHOLDER|$GOOGLE_CREDS_ESCAPED|g" \
     "$MODELS_PLIST_SRC" > "$MODELS_PLIST_DEST"
 
+launchctl enable "gui/$(id -u)/com.pickledger.models" 2>/dev/null || true
 launchctl unload "$MODELS_PLIST_DEST" 2>/dev/null || true
 launchctl load "$MODELS_PLIST_DEST"
 

@@ -728,6 +728,11 @@ def _get_firestore_client():
         if _firestore_client is not None:
             return _firestore_client
 
+        env_backed_client = _init_admin_firestore()
+        if env_backed_client is not None:
+            _firestore_client = env_backed_client
+            return _firestore_client
+
         try:
             import firebase_admin
             from firebase_admin import firestore as firestore_client
