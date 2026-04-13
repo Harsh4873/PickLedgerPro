@@ -34,6 +34,16 @@ from urllib.error import URLError, HTTPError
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
+try:
+    import firebase_admin
+    from firebase_admin import credentials, firestore
+    _FIREBASE_ADMIN_AVAILABLE = True
+except Exception:
+    firebase_admin = None  # type: ignore[assignment]
+    credentials = None  # type: ignore[assignment]
+    firestore = None  # type: ignore[assignment]
+    _FIREBASE_ADMIN_AVAILABLE = False
+
 
 def _sl_get_total(home, away, league='MLB'):
     """Get real Vegas total line and odds from cbs_odds (SportsLine data)."""
@@ -145,6 +155,69 @@ def _ou_probability(model_total: float, vegas_line: float, rmse: float) -> float
 # Model-specific RMSE constants (from backtest metadata)
 _MLB_TOTALS_RMSE = 4.329383382244959
 _NBA_TOTALS_RMSE = 12.5
+
+_firebase_init_lock = threading.Lock()
+_firebase_db = None
+
+
+def _init_admin_firestore():
+    global _firebase_db
+    if not _FIREBASE_ADMIN_AVAILABLE:
+        return None
+
+    if _firebase_db is not None:
+        return _firebase_db
+
+    required = [
+        "FIREBASE_PROJECT_ID",
+        "FIREBASE_PRIVATE_KEY",
+        "FIREBASE_CLIENT_EMAIL",
+    ]
+    if any(not os.getenv(name) for name in required):
+        return None
+
+    with _firebase_init_lock:
+        if _firebase_db is not None:
+            return _firebase_db
+        if not _FIREBASE_ADMIN_AVAILABLE:
+            return None
+        try:
+            if firebase_admin._apps:
+                _firebase_db = firestore.client()
+                return _firebase_db
+            cred = credentials.Certificate({
+                "type": "service_account",
+                "project_id": os.getenv("FIREBASE_PROJECT_ID"),
+                "private_key_id": os.getenv("FIREBASE_PRIVATE_KEY_ID", ""),
+                "private_key": os.getenv("FIREBASE_PRIVATE_KEY", "").replace("\\n", "\n"),
+                "client_email": os.getenv("FIREBASE_CLIENT_EMAIL"),
+                "client_id": os.getenv("FIREBASE_CLIENT_ID", ""),
+                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                "token_uri": "https://oauth2.googleapis.com/token",
+            })
+            firebase_admin.initialize_app(cred)
+            _firebase_db = firestore.client()
+            return _firebase_db
+        except Exception:
+            return None
+
+
+def _save_admin_picks_doc(model_key: str, picks_data: Any, date_str: str | None = None) -> bool:
+    db = _init_admin_firestore()
+    if db is None:
+        return False
+    model = str(model_key or "").strip()
+    if not model:
+        return False
+    doc_date = str(date_str or "").strip() or datetime.utcnow().strftime("%Y-%m-%d")
+    try:
+        db.collection("admin_picks").document(doc_date).set(
+            {model: picks_data, f"{model}_ts": datetime.utcnow().isoformat()},
+            merge=True,
+        )
+        return True
+    except Exception:
+        return False
 
 def _load_local_env() -> None:
     base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -1760,6 +1833,8 @@ def _run_ipl_model_subprocess(
         return {"error": f"IPL runner returned invalid JSON ({tail})"}
     if not isinstance(payload, dict):
         return {"error": "IPL runner returned invalid payload"}
+    if not payload.get("error"):
+        _save_admin_picks_doc("ipl", payload)
     return payload
 
 
@@ -2590,12 +2665,18 @@ def run_nba_model(date_str: str | None = None, variant: str = "new") -> dict[str
         picks = _parse_nba_output(output, source_label=source_label)
         if not picks:
             if "No games found for today." in output:
-                return {
+                result = {
                     "ok": True,
                     "picks": [],
                     "raw_lines": len(output.split("\n")),
                     "note": f"No NBA games found for requested date ({source_label})",
                 }
+                if variant == "new":
+                    _save_admin_picks_doc("nba", result)
+                    _save_admin_picks_doc("nba_new", result)
+                else:
+                    _save_admin_picks_doc("nba_old", result)
+                return result
             tail = " | ".join((output.strip().splitlines() or ["no output"])[-12:])
             return {
                 "ok": False,
@@ -2603,7 +2684,13 @@ def run_nba_model(date_str: str | None = None, variant: str = "new") -> dict[str
                 "raw_lines": len(output.split("\n")),
             }
 
-        return {"ok": True, "picks": picks, "raw_lines": len(output.split("\n"))}
+        result = {"ok": True, "picks": picks, "raw_lines": len(output.split("\n"))}
+        if variant == "new":
+            _save_admin_picks_doc("nba", result)
+            _save_admin_picks_doc("nba_new", result)
+        else:
+            _save_admin_picks_doc("nba_old", result)
+        return result
     except subprocess.TimeoutExpired:
         return {"ok": False, "error": f"{source_label} timed out (7 min limit)"}
     except Exception as e:
@@ -2654,13 +2741,17 @@ def run_nba_props_model(
                 return {"ok": False, "error": f"NBA props model runtime failed ({tail})"}
             picks = _parse_nba_props_output(chunk_output)
             if not picks:
-                return {
+                result = {
                     "ok": True,
                     "picks": [],
                     "raw_lines": len(chunk_output.split("\n")),
                     "note": "No NBA props candidates found for selected game",
                 }
-            return {"ok": True, "picks": picks, "raw_lines": len(chunk_output.split("\n"))}
+                _save_admin_picks_doc("props", result)
+                return result
+            result = {"ok": True, "picks": picks, "raw_lines": len(chunk_output.split("\n"))}
+            _save_admin_picks_doc("props", result)
+            return result
         except subprocess.TimeoutExpired:
             return {"ok": False, "error": "NBA props model timed out (per-game run limit)"}
         except Exception as e:
@@ -2683,19 +2774,23 @@ def run_nba_props_model(
                     "No NBA games found for today." in output
                     or "No qualifying player props candidates" in output
                 ):
-                    return {
+                    result = {
                         "ok": True,
                         "picks": [],
                         "raw_lines": len(output.split("\n")),
                         "note": "No NBA props candidates found today",
                     }
+                    _save_admin_picks_doc("props", result)
+                    return result
                 tail = " | ".join((output.strip().splitlines() or ["no output"])[-12:])
                 return {
                     "ok": False,
                     "error": f"NBA props parser found no predictions ({tail})",
                     "raw_lines": len(output.split("\n")),
                 }
-            return {"ok": True, "picks": picks, "raw_lines": len(output.split("\n"))}
+            result = {"ok": True, "picks": picks, "raw_lines": len(output.split("\n"))}
+            _save_admin_picks_doc("props", result)
+            return result
 
         all_picks: list[dict[str, Any]] = []
         raw_lines = 0
@@ -2714,14 +2809,18 @@ def run_nba_props_model(
             all_picks.extend(_parse_nba_props_output(chunk_output))
 
         if not all_picks:
-            return {
+            result = {
                 "ok": True,
                 "picks": [],
                 "raw_lines": raw_lines,
                 "note": "No NBA props candidates found today",
             }
+            _save_admin_picks_doc("props", result)
+            return result
 
-        return {"ok": True, "picks": all_picks, "raw_lines": raw_lines}
+        result = {"ok": True, "picks": all_picks, "raw_lines": raw_lines}
+        _save_admin_picks_doc("props", result)
+        return result
     except subprocess.TimeoutExpired:
         return {"ok": False, "error": "NBA props model timed out (per-game run limit)"}
     except Exception as e:
@@ -2750,19 +2849,23 @@ def run_mlb_model(date_str: str | None = None) -> dict[str, Any]:
         picks = _parse_mlb_output(output)
         if not picks:
             if "No MLB games found for" in output:
-                return {
+                result = {
                     "ok": True,
                     "picks": [],
                     "raw_lines": len(output.split("\n")),
                     "note": "No MLB games found for requested date",
                 }
+                _save_admin_picks_doc("mlb", result)
+                return result
             tail = " | ".join((output.strip().splitlines() or ["no output"])[-12:])
             return {
                 "ok": False,
                 "error": f"MLB parser found no predictions ({tail})",
                 "raw_lines": len(output.split("\n")),
             }
-        return {"ok": True, "picks": picks, "raw_lines": len(output.split("\n"))}
+        result = {"ok": True, "picks": picks, "raw_lines": len(output.split("\n"))}
+        _save_admin_picks_doc("mlb", result)
+        return result
     except subprocess.TimeoutExpired:
         return {"ok": False, "error": "MLB model timed out (5 min limit)"}
     except Exception as e:
@@ -3305,6 +3408,30 @@ class Handler(BaseHTTPRequestHandler):
         game_label = body.get("game_label")
         ledger_uid = str(body.get("uid") or "").strip()
         ledger_state_key = _ledger_state_key_for_uid(ledger_uid)
+
+        if path == "/save-admin-picks":
+            secret = str(body.get("secret", "") or "")
+            expected_secret = str(os.environ.get("ADMIN_PICKS_SECRET", "") or "").strip()
+            if not expected_secret or secret != expected_secret:
+                self._send_json(403, {"ok": False, "error": "unauthorized"})
+                return
+
+            model_key = str(body.get("model") or "").strip()
+            picks_data = body.get("picks")
+            admin_date = str(body.get("date") or "").strip() or datetime.utcnow().strftime("%Y-%m-%d")
+            if not model_key or picks_data is None:
+                self._send_json(400, {"ok": False, "error": "missing model or picks"})
+                return
+
+            try:
+                doc_saved = _save_admin_picks_doc(model_key, picks_data, admin_date)
+                if not doc_saved:
+                    self._send_json(500, {"ok": False, "error": "firebase unavailable"})
+                    return
+                self._send_json(200, {"ok": True, "saved": model_key, "date": admin_date})
+            except Exception as exc:
+                self._send_json(500, {"ok": False, "error": str(exc)})
+            return
 
         if path == "/refresh-nba-props-games":
             try:

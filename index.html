@@ -882,6 +882,9 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
+  window._firebaseDb = db;
+  window._firebaseDoc = doc;
+  window._firebaseGetDoc = getDoc;
 
   async function loadFirestorePicks() {
     try {
@@ -946,6 +949,9 @@
 
   const app      = initializeApp(firebaseConfig);
   const db       = getFirestore(app);
+  window._firebaseDb = db;
+  window._firebaseDoc = doc;
+  window._firebaseGetDoc = getDoc;
   const auth     = getAuth(app);
   const provider = new GoogleAuthProvider();
   window._currentUser = null;
@@ -4230,6 +4236,7 @@ function toggleTheme() {
 // ── Models Tab ──
 let pendingModelPicks = [];
 let pendingIplPrediction = null;
+const MODEL_BACKEND_TIMEOUT_MS = 15000;
 const NBA_COMPARISON_MODELS = new Set(['nba-old', 'nba-new']);
 const NBA_MODEL_SOURCE_LABELS = {
   'nba-old': 'NBA Model',
@@ -4313,6 +4320,112 @@ function setModelResultsMeta(msg, state) {
   el.className = 'model-status' + (state ? ' ' + state : '');
 }
 
+function showToast(message, durationMs = 2800) {
+  const text = String(message || '').trim();
+  if (!text) return;
+
+  let el = document.getElementById('pickledger-toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'pickledger-toast';
+    el.style.cssText = [
+      'position:fixed',
+      'right:16px',
+      'bottom:16px',
+      'z-index:9999',
+      'max-width:min(420px,calc(100vw - 32px))',
+      'padding:10px 14px',
+      'border-radius:10px',
+      'background:rgba(8,11,15,0.92)',
+      'color:#e8edf2',
+      'border:1px solid rgba(0,229,160,0.28)',
+      'box-shadow:0 10px 26px rgba(0,0,0,0.28)',
+      'font:600 12px/1.35 "DM Sans", sans-serif',
+      'letter-spacing:0.1px',
+      'pointer-events:none',
+      'opacity:0',
+      'transform:translateY(8px)',
+      'transition:opacity 180ms ease, transform 180ms ease',
+    ].join(';');
+    document.body.appendChild(el);
+  }
+
+  el.textContent = text;
+  el.style.opacity = '1';
+  el.style.transform = 'translateY(0)';
+  clearTimeout(el._hideTimer);
+  el._hideTimer = setTimeout(() => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(8px)';
+  }, durationMs);
+}
+
+function _createTimeoutSignal(ms) {
+  if (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function') {
+    return AbortSignal.timeout(ms);
+  }
+  const controller = new AbortController();
+  setTimeout(() => controller.abort(), ms);
+  return controller.signal;
+}
+
+function _adminCacheDocDateCandidates(dateStr) {
+  const candidates = [];
+  const requested = String(dateStr || '').trim();
+  if (requested) candidates.push(requested);
+  const todayUtc = new Date().toISOString().split('T')[0];
+  if (!candidates.includes(todayUtc)) candidates.push(todayUtc);
+  return candidates;
+}
+
+function _normalizeCachedModelPayload(payload) {
+  if (typeof payload === 'string') {
+    try {
+      return JSON.parse(payload);
+    } catch {
+      return payload;
+    }
+  }
+  return payload;
+}
+
+function _extractModelPicks(result) {
+  if (!result) return [];
+  if (Array.isArray(result.picks)) return result.picks;
+  if (Array.isArray(result.payload)) return result.payload;
+  if (result.payload && Array.isArray(result.payload.picks)) return result.payload.picks;
+  return [];
+}
+
+async function getAdminPicksFromFirebase(modelKey, dateStr = '') {
+  const db = window._firebaseDb;
+  const docFn = window._firebaseDoc;
+  const getDocFn = window._firebaseGetDoc;
+  if (!db || !docFn || !getDocFn || !modelKey) return null;
+
+  for (const docId of _adminCacheDocDateCandidates(dateStr)) {
+    try {
+      const snap = await getDocFn(docFn(db, 'admin_picks', docId));
+      const exists = typeof snap.exists === 'function' ? snap.exists() : !!snap.exists;
+      if (!exists) continue;
+      const data = typeof snap.data === 'function' ? snap.data() : null;
+      const payload = _normalizeCachedModelPayload(data && data[modelKey]);
+      if (payload == null) continue;
+      return {
+        ok: true,
+        source: 'firebase_cache',
+        model: modelKey,
+        date: docId,
+        payload,
+        picks: _extractModelPicks({ payload, picks: Array.isArray(payload) ? payload : [] }),
+      };
+    } catch (_err) {
+      // Try the next date candidate.
+    }
+  }
+  return null;
+}
+
 function _resetNbaComparisonState(dateStr = '') {
   pendingNbaComparisonPicks = {
     'nba-old': [],
@@ -4369,47 +4482,65 @@ function _resetModelButton(model) {
 
 async function _runAsyncModelRequest(model, endpoint, body) {
   setModelStatus(model, 'Launching model (async)...', 'running');
-  const resp = await fetch(GRADER_URL + endpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  const launch = await resp.json();
-  if (!launch.ok) {
-    throw new Error(launch.error || 'Unknown error');
-  }
+  try {
+    const resp = await fetch(GRADER_URL + endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: _createTimeoutSignal(MODEL_BACKEND_TIMEOUT_MS),
+    });
+    const launch = await resp.json().catch(() => ({}));
+    if (!launch.ok) {
+      throw new Error(launch.error || 'Unknown error');
+    }
 
-  if (!launch.job_id) {
+    if (!launch.job_id) {
+      return {
+        ...launch,
+        picks: Array.isArray(launch.picks) ? launch.picks : [],
+        note: String(launch.note || '').trim(),
+      };
+    }
+
+    setModelStatus(model, 'Model is running in background — polling for results...', 'running');
+    const data = await _pollJob(launch.job_id, model, GRADER_URL, MODEL_BACKEND_TIMEOUT_MS);
+    if (!data || !data.ok) {
+      throw new Error((data && data.error) || 'Lost connection while polling');
+    }
     return {
-      ...launch,
-      picks: Array.isArray(launch.picks) ? launch.picks : [],
-      note: String(launch.note || '').trim(),
+      ...data,
+      picks: Array.isArray(data.picks) ? data.picks : [],
+      note: String(data.note || '').trim(),
     };
+  } catch (err) {
+    const fallbackKey = String(body && body.fallbackModelKey ? body.fallbackModelKey : '').trim();
+    const fallbackDate = String(body && body.fallbackDateStr ? body.fallbackDateStr : '').trim();
+    const cached = fallbackKey ? await getAdminPicksFromFirebase(fallbackKey, fallbackDate) : null;
+    if (cached) return cached;
+    throw err;
   }
-
-  setModelStatus(model, 'Model is running in background — polling for results...', 'running');
-  const data = await _pollJob(launch.job_id, model);
-  if (!data || !data.ok) {
-    throw new Error((data && data.error) || 'Lost connection while polling');
-  }
-  return {
-    ...data,
-    picks: Array.isArray(data.picks) ? data.picks : [],
-    note: String(data.note || '').trim(),
-  };
 }
 
 async function _runIplModelRequest() {
   setModelStatus('ipl', 'Calling IPL backend...', 'running');
-  const resp = await fetch(`${GRADER_URL}/api/ipl`, { method: 'GET' });
-  const data = await resp.json().catch(() => ({}));
-  if (!resp.ok) {
-    throw new Error(data.error || `HTTP ${resp.status}`);
+  try {
+    const resp = await fetch(`${GRADER_URL}/api/ipl`, {
+      method: 'GET',
+      signal: _createTimeoutSignal(MODEL_BACKEND_TIMEOUT_MS),
+    });
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok) {
+      throw new Error(data.error || `HTTP ${resp.status}`);
+    }
+    if (data && data.error) {
+      throw new Error(data.error);
+    }
+    return data;
+  } catch (err) {
+    const cached = await getAdminPicksFromFirebase('ipl');
+    if (cached) return cached;
+    throw err;
   }
-  if (data && data.error) {
-    throw new Error(data.error);
-  }
-  return data;
 }
 
 function renderIplResults(result, options = {}) {
@@ -4447,10 +4578,24 @@ async function _runNbaVariantModel(model, dateStr) {
   }
 
   setModelStatus(model, `Running ${NBA_MODEL_SOURCE_LABELS[model]} for ${label}...`, 'running');
-  const result = await _runAsyncModelRequest(model, endpoint, { async: true, date: dateStr });
-  const picks = Array.isArray(result.picks) ? result.picks : [];
+  const result = await _runAsyncModelRequest(model, endpoint, {
+    async: true,
+    date: dateStr,
+    fallbackModelKey: model === 'nba-old' ? 'nba_old' : 'nba_new',
+    fallbackDateStr: dateStr,
+  });
+  const picks = _extractModelPicks(result);
   const note = String(result.note || '').trim();
-  setModelStatus(model, note || `Done. ${picks.length} prediction(s) returned for ${label}.`, 'ok');
+  if (result.source === 'firebase_cache') {
+    showToast('Loaded from this morning\'s cached picks');
+  }
+  setModelStatus(
+    model,
+    note || (result.source === 'firebase_cache'
+      ? `Loaded ${picks.length} cached prediction(s) for ${label}.`
+      : `Done. ${picks.length} prediction(s) returned for ${label}.`),
+    'ok'
+  );
   return picks;
 }
 
@@ -4486,13 +4631,29 @@ async function runNbaModelComparison() {
   setModelStatus('nba-compare', `Running NBA Model + NBA New for ${label}...`, 'running');
 
   try {
-    const [oldPicks, newPicks] = await Promise.all([
+    const [oldPicksResult, newPicksResult] = await Promise.allSettled([
       _runNbaVariantModel('nba-old', dateStr),
       _runNbaVariantModel('nba-new', dateStr),
     ]);
-    _storeNbaComparisonPicks('nba-old', oldPicks, dateStr);
-    _storeNbaComparisonPicks('nba-new', newPicks, dateStr);
-    setModelStatus('nba-compare', `Loaded ${oldPicks.length + newPicks.length} combined pick(s) for ${label}.`, 'ok');
+    const oldPicks = oldPicksResult.status === 'fulfilled' ? oldPicksResult.value : [];
+    const newPicks = newPicksResult.status === 'fulfilled' ? newPicksResult.value : [];
+    if (oldPicksResult.status === 'fulfilled') _storeNbaComparisonPicks('nba-old', oldPicks, dateStr);
+    if (newPicksResult.status === 'fulfilled') _storeNbaComparisonPicks('nba-new', newPicks, dateStr);
+
+    if (oldPicksResult.status !== 'fulfilled' && newPicksResult.status !== 'fulfilled') {
+      const oldErr = String(oldPicksResult.reason && oldPicksResult.reason.message ? oldPicksResult.reason.message : oldPicksResult.reason || '');
+      const newErr = String(newPicksResult.reason && newPicksResult.reason.message ? newPicksResult.reason.message : newPicksResult.reason || '');
+      throw new Error([oldErr, newErr].filter(Boolean).join(' | ') || 'Comparison failed');
+    }
+
+    if (oldPicksResult.status !== 'fulfilled' || newPicksResult.status !== 'fulfilled') {
+      const failedLabel = oldPicksResult.status !== 'fulfilled'
+        ? NBA_MODEL_SOURCE_LABELS['nba-old']
+        : NBA_MODEL_SOURCE_LABELS['nba-new'];
+      setModelStatus('nba-compare', `${failedLabel} unavailable; showing the other model.`, 'error');
+    } else {
+      setModelStatus('nba-compare', `Loaded ${oldPicks.length + newPicks.length} combined pick(s) for ${label}.`, 'ok');
+    }
   } catch (e) {
     setModelStatus('nba-compare', `Comparison failed: ${String(e && e.message ? e.message : e)}`, 'error');
   } finally {
@@ -4901,14 +5062,26 @@ async function runModel(model) {
   if (model === 'ipl') {
     try {
       const result = await _runIplModelRequest();
-      pendingIplPrediction = result;
+      const payload = result && result.payload ? result.payload : result;
+      if (result && result.source === 'firebase_cache') {
+        showToast('Loaded from this morning\'s cached picks');
+      }
+      pendingIplPrediction = payload;
       pendingModelPicks = [];
-      renderIplResults(result, {
-        meta: `Showing IPL live model for ${String(result.match || '').trim() || 'current match'}`,
+      renderIplResults(payload, {
+        meta: result && result.source === 'firebase_cache'
+          ? 'Showing IPL model from Firebase cache'
+          : `Showing IPL live model for ${String(payload.match || '').trim() || 'current match'}`,
         metaState: 'ok',
       });
-      const playerCount = Array.isArray(result.selected_players) ? result.selected_players.length : 0;
-      setModelStatus(model, `Done. Winner + ${playerCount} fantasy selections returned.`, 'ok');
+      const playerCount = Array.isArray(payload.selected_players) ? payload.selected_players.length : 0;
+      setModelStatus(
+        model,
+        result && result.source === 'firebase_cache'
+          ? `Loaded cached IPL result with ${playerCount} fantasy selections.`
+          : `Done. Winner + ${playerCount} fantasy selections returned.`,
+        'ok'
+      );
     } catch (e) {
       setModelStatus(model, `Error: ${String(e && e.message ? e.message : e)}`, 'error');
     } finally {
@@ -5024,10 +5197,26 @@ async function runModel(model) {
   }
 
   try {
+    if (model === 'mlb') {
+      body.fallbackModelKey = 'mlb';
+      body.fallbackDateStr = _getTodayIsoDate();
+    } else if (model === 'nba-props') {
+      body.fallbackModelKey = 'props';
+      body.fallbackDateStr = _getTodayIsoDate();
+    }
     const result = await _runAsyncModelRequest(model, endpoint, body);
-    const picks = Array.isArray(result.picks) ? result.picks : [];
+    const picks = _extractModelPicks(result);
     const note = String(result.note || '').trim();
-    setModelStatus(model, note || `Done. ${picks.length} prediction(s) returned.`, 'ok');
+    if (result.source === 'firebase_cache') {
+      showToast('Loaded from this morning\'s cached picks');
+    }
+    setModelStatus(
+      model,
+      note || (result.source === 'firebase_cache'
+        ? `Loaded ${picks.length} cached prediction(s).`
+        : `Done. ${picks.length} prediction(s) returned.`),
+      'ok'
+    );
     _clearNbaComparisonResults();
     pendingModelPicks = picks;
     renderModelResults(picks, { meta: '' });
