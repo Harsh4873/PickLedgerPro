@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key><string>com.pickledger.grader</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/bin/python3</string>
+        <string>REPO_PATH_PLACEHOLDER/scripts/grader_loop.py</string>
+    </array>
+    <key>StartInterval</key><integer>900</integer>
+    <key>RunAtLoad</key><true/>
+    <key>StandardOutPath</key><string>/Users/harshdave/Library/Logs/pickledger_grader.log</string>
+    <key>StandardErrorPath</key><string>/Users/harshdave/Library/Logs/pickledger_grader_err.log</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>ADMIN_PICKS_SECRET</key><string>PLACEHOLDER_SET_BY_INSTALL_SCRIPT</string>
+        <key>GOOGLE_APPLICATION_CREDENTIALS</key><string>GOOGLE_APPLICATION_CREDENTIALS_PLACEHOLDER</string>
+        <key>PYTHONPATH</key><string>REPO_PATH_PLACEHOLDER</string>
+    </dict>
+    <key>WorkingDirectory</key><string>REPO_PATH_PLACEHOLDER</string>
+</dict>
+</plist>

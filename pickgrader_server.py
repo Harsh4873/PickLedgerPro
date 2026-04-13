@@ -286,6 +286,8 @@ TEAM_ABBREVIATION_ALIASES = {
     "BRK": {"BKN"},
 }
 _ledger_state_lock = threading.Lock()
+_firestore_client_lock = threading.Lock()
+_firestore_client: Any | None = None
 LEDGER_DB_FILE = os.environ.get(
     "LEDGER_DB_FILE",
     os.path.join(os.path.dirname(os.path.abspath(__file__)), "pickledger.db"),
@@ -716,6 +718,41 @@ def _save_ledger_state_unlocked(
     sql_ok = _save_ledger_state_to_sql(state, state_key)
     file_ok = _save_ledger_state_to_file(state, state_key)
     return sql_ok or file_ok, state
+
+
+def _get_firestore_client():
+    """Initialize and cache the Firestore Admin SDK client."""
+    global _firestore_client
+
+    with _firestore_client_lock:
+        if _firestore_client is not None:
+            return _firestore_client
+
+        try:
+            import firebase_admin
+            from firebase_admin import firestore as firestore_client
+        except ImportError as exc:
+            raise RuntimeError(
+                "firebase-admin is not installed. Install requirements.txt before running Firestore jobs."
+            ) from exc
+
+        try:
+            firebase_admin.get_app()
+        except ValueError:
+            firebase_admin.initialize_app()
+
+        _firestore_client = firestore_client.client()
+        return _firestore_client
+
+
+def _write_admin_picks_cache(date_iso: str, payload: dict[str, Any]) -> None:
+    client = _get_firestore_client()
+    doc_payload = {
+        "date": date_iso,
+        "updatedAt": datetime.utcnow().isoformat() + "Z",
+        **payload,
+    }
+    client.collection("admin_picks").document(date_iso).set(doc_payload, merge=True)
 
 
 def _format_ledger_date_label(dt: datetime | None = None) -> str:
@@ -1160,6 +1197,81 @@ def _load_nba_props_games_with_meta(date_str: str | None = None) -> dict[str, An
 
 def _load_nba_props_games(date_str: str | None = None) -> list[dict[str, str]]:
     return _load_nba_props_games_with_meta(date_str).get("games", [])
+
+
+def run_daily_model_caches_to_firestore(date_str: str | None = None) -> dict[str, Any]:
+    """Run the daily model jobs and cache their outputs in Firestore admin_picks/{date}."""
+    date_iso, _ = _parse_model_date_arg(date_str)
+    now_iso = datetime.utcnow().isoformat() + "Z"
+
+    try:
+        _get_firestore_client()
+    except Exception as exc:
+        return {"ok": False, "date": date_iso, "error": str(exc)}
+
+    model_jobs: dict[str, tuple[Any, tuple[Any, ...]]] = {
+        "nba": (run_nba_model, (date_iso, "new")),
+        "nba_old": (run_nba_model, (date_iso, "old")),
+        "nba_props": (run_nba_props_model, (date_iso,)),
+        "mlb": (run_mlb_model, (date_iso,)),
+    }
+    if IPL_AVAILABLE:
+        model_jobs["ipl"] = (run_ipl_model, (None, None, None, None, None, LEDGER_DB_FILE))
+
+    results: dict[str, Any] = {}
+    errors: list[str] = []
+
+    with ThreadPoolExecutor(max_workers=len(model_jobs)) as executor:
+        future_map = {
+            executor.submit(fn, *args): key
+            for key, (fn, args) in model_jobs.items()
+        }
+        for future in as_completed(future_map):
+            key = future_map[future]
+            try:
+                results[key] = future.result()
+            except Exception as exc:
+                results[key] = {"ok": False, "error": str(exc)}
+                errors.append(f"{key}: {exc}")
+
+    try:
+        props_games = _load_nba_props_games(date_iso)
+    except Exception as exc:
+        props_games = []
+        errors.append(f"props_games: {exc}")
+
+    payload = {
+        "generatedAt": now_iso,
+        "models": results,
+        "nba": results.get("nba", {}),
+        "nba_old": results.get("nba_old", {}),
+        "nba_props": results.get("nba_props", {}),
+        "mlb": results.get("mlb", {}),
+        "ipl": results.get("ipl", {}),
+        "props_games": props_games,
+    }
+
+    try:
+        _write_admin_picks_cache(date_iso, payload)
+    except Exception as exc:
+        errors.append(f"firestore_write: {exc}")
+        return {
+            "ok": False,
+            "date": date_iso,
+            "generatedAt": now_iso,
+            "models": results,
+            "props_games_count": len(props_games),
+            "errors": errors,
+        }
+
+    return {
+        "ok": True,
+        "date": date_iso,
+        "generatedAt": now_iso,
+        "models": results,
+        "props_games_count": len(props_games),
+        "errors": errors,
+    }
 
 
 def _normalize_person_name(text: str) -> str:
@@ -1746,6 +1858,108 @@ def auto_grade(picks: list[dict[str, Any]], existing: dict[str, str], year: int)
             "remaining": max(0, attempted - len(graded)),
         },
     }
+
+
+def run_background_grade_all_users() -> dict[str, Any]:
+    """Load every user doc, grade pending picks, and write results back to Firestore."""
+    summary = {
+        "graded_users": 0,
+        "skipped": 0,
+        "errors": [],
+        "ts": datetime.utcnow().isoformat() + "Z",
+    }
+    year = datetime.utcnow().year
+
+    try:
+        client = _get_firestore_client()
+    except Exception as exc:
+        summary["errors"].append(f"Firestore init failed: {exc}")
+        return summary
+
+    try:
+        user_docs = list(client.collection("users").stream())
+    except Exception as exc:
+        summary["errors"].append(f"Firestore stream failed: {exc}")
+        return summary
+
+    for doc in user_docs:
+        uid = doc.id
+        try:
+            data = doc.to_dict() or {}
+
+            picks = data.get("picks", [])
+            if not isinstance(picks, list):
+                picks = []
+
+            if not picks and isinstance(data.get("ledger"), dict):
+                ledger_data = data.get("ledger") or {}
+                ledger_picks = ledger_data.get("addedPicks", [])
+                if isinstance(ledger_picks, list):
+                    picks = ledger_picks
+
+            existing = data.get("results", {})
+            if not isinstance(existing, dict):
+                existing = {}
+
+            existing_start_times = data.get("startTimes", {})
+            if not isinstance(existing_start_times, dict):
+                existing_start_times = {}
+
+            if not picks:
+                summary["skipped"] += 1
+                continue
+
+            pending = [
+                p
+                for p in picks
+                if isinstance(p, dict)
+                and existing.get(str(p.get("id", "")), "") in ("", None, "pending")
+            ]
+            if not pending:
+                summary["skipped"] += 1
+                continue
+
+            grade_result = auto_grade(pending, existing, year)
+            new_grades = grade_result.get("graded", {})
+            start_times = grade_result.get("startTimes", {})
+
+            if not isinstance(new_grades, dict):
+                new_grades = {}
+            if not isinstance(start_times, dict):
+                start_times = {}
+
+            if not new_grades and not start_times:
+                summary["skipped"] += 1
+                continue
+
+            merged_results = {**existing, **new_grades}
+            merged_start_times = {**existing_start_times, **start_times}
+            ledger_payload = data.get("ledger")
+            if not isinstance(ledger_payload, dict):
+                ledger_payload = {}
+            ledger_results = ledger_payload.get("results")
+            if not isinstance(ledger_results, dict):
+                ledger_results = {}
+            ledger_game_times = ledger_payload.get("gameTimes")
+            if not isinstance(ledger_game_times, dict):
+                ledger_game_times = {}
+            ledger_payload = {
+                **ledger_payload,
+                "results": {**ledger_results, **new_grades},
+                "gameTimes": {**ledger_game_times, **start_times},
+            }
+            payload: dict[str, Any] = {
+                "ledger": ledger_payload,
+                "results": merged_results,
+                "startTimes": merged_start_times,
+                "lastGraded": datetime.utcnow().isoformat() + "Z",
+            }
+            client.collection("users").document(uid).set(payload, merge=True)
+            summary["graded_users"] += 1
+        except Exception as exc:
+            summary["errors"].append(f"uid={uid}: {exc}")
+
+    return summary
 
 
 # ─── Model Runner Helpers ──────────────────────────────────────────────────────

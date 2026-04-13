@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key><string>com.pickledger.models</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>REPO_PATH_PLACEHOLDER/scripts/run_models.sh</string>
+    </array>
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key><integer>8</integer>
+        <key>Minute</key><integer>30</integer>
+    </dict>
+    <key>StandardOutPath</key><string>/Users/harshdave/Library/Logs/pickledger_models.log</string>
+    <key>StandardErrorPath</key><string>/Users/harshdave/Library/Logs/pickledger_models_err.log</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>ADMIN_PICKS_SECRET</key><string>PLACEHOLDER_SET_BY_INSTALL_SCRIPT</string>
+        <key>GOOGLE_APPLICATION_CREDENTIALS</key><string>GOOGLE_APPLICATION_CREDENTIALS_PLACEHOLDER</string>
+        <key>PORT</key><string>10000</string>
+    </dict>
+    <key>WorkingDirectory</key><string>REPO_PATH_PLACEHOLDER</string>
+</dict>
+</plist>

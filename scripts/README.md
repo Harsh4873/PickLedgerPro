@@ -1,19 +1,28 @@
-# PickLedger Scripts
+## Architecture (Post-Render)
 
-## `run_models.sh`
-Runs all prediction models locally and saves results to Firebase.
+### What runs where
+| Component | Where | How |
+|---|---|---|
+| Morning model runs | Your Mac | LaunchAgent at 8:30 AM -> `run_models.sh` -> Firebase |
+| Background grading | Your Mac | LaunchAgent every 15 min -> `grader_loop.py` -> Firebase |
+| Frontend | Render (static) or any CDN | Pure Firebase JS SDK - no backend calls |
+| Per-user records | Firebase Firestore `users/{uid}` | Isolated per UID |
+| Shared model picks | Firebase Firestore `admin_picks/{date}` | Written by admin, read by all |
 
-**Prerequisites:**
-- `.env` file at repo root with `ADMIN_PICKS_SECRET=<your secret>`
-- Python deps installed with `pip install -r requirements.txt`
-
-**Usage:**
+### Install LaunchAgents (one-time)
 ```bash
-# Today's slate
-bash scripts/run_models.sh
-
-# Specific date
-bash scripts/run_models.sh 2026-04-13
+source .env
+export GOOGLE_APPLICATION_CREDENTIALS=/absolute/path/to/service-account.json
+bash scripts/install_grader_agent.sh
 ```
 
-The script starts the local server if it is not already running, runs all 5 model cache writes in sequence, and confirms each Firebase write. Other users on `pickledgerpro.onrender.com` will see the results immediately after.
+### Trigger models manually
+```bash
+bash scripts/run_models.sh
+```
+
+### Check grader is running
+```bash
+launchctl list | grep pickledger
+tail -f ~/Library/Logs/pickledger_grader.log
+```

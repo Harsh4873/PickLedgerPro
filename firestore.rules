@@ -1,0 +1,21 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Admin picks cache - readable by any signed-in user, writable only by Admin SDK.
+    match /admin_picks/{date} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // Per-user data - each user can only read and write their own document.
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Deny everything else.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

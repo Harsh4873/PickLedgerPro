@@ -963,6 +963,8 @@
   window._firebaseDb = db;
   window._firebaseDoc = doc;
   window._firebaseGetDoc = getDoc;
+  window._firebaseSetDoc = setDoc;
+  window._firebaseUpdateDoc = updateDoc;
   const auth     = getAuth(app);
   const provider = new GoogleAuthProvider();
   window._currentUser = null;
@@ -986,11 +988,7 @@
   }
 
   function buildLedgerStateUrl(explicitUid) {
-    const uid = getLedgerSyncUid(explicitUid);
-    if (!uid) return LEDGER_STATE_URL;
-    const url = new URL(LEDGER_STATE_URL, window.location.href);
-    url.searchParams.set('uid', uid);
-    return url.toString();
+    return '';
   }
 
   function formatRecordSummary(record) {
@@ -1049,11 +1047,19 @@
   }
 
   async function loadUserRecord(uid) {
-    const ref  = doc(db, 'users', uid, 'record', 'summary');
+    const ref  = doc(db, 'users', uid);
     const snap = await getDoc(ref);
-    if (snap.exists()) return snap.data();
+    if (snap.exists()) {
+      const data = snap.data() || {};
+      const record = data.record && typeof data.record === 'object' ? data.record : {};
+      return {
+        wins: Number(record.wins) || 0,
+        losses: Number(record.losses) || 0,
+        pushes: Number(record.pushes) || 0,
+      };
+    }
     const fresh = { wins: 0, losses: 0, pushes: 0 };
-    await setDoc(ref, fresh);
+    await setDoc(ref, { record: fresh }, { merge: true });
     return fresh;
   }
 
@@ -1065,7 +1071,7 @@
       pushes: Number(record && record.pushes) || 0,
     };
     try {
-      await setDoc(doc(db, 'users', uid, 'record', 'summary'), summary, { merge: true });
+      await setDoc(doc(db, 'users', uid), { record: summary }, { merge: true });
       window._userRecord = summary;
     } catch (e) {
       console.warn('[Firestore] saveUserRecordSummary failed:', e.message);
@@ -1073,15 +1079,16 @@
   };
 
   window._incrementRecord = async function(uid, outcome) {
-    const ref   = doc(db, 'users', uid, 'record', 'summary');
+    const ref   = doc(db, 'users', uid);
     const field = outcome === 'win' ? 'wins'
                 : outcome === 'loss' ? 'losses' : 'pushes';
-    await updateDoc(ref, { [field]: increment(1) });
+    await updateDoc(ref, { [`record.${field}`]: increment(1) });
 
     // Keep the visible record in sync with the canonical Firestore record.
-    const rec = await getDoc(doc(db, 'users', uid, 'record', 'summary'));
+    const rec = await getDoc(doc(db, 'users', uid));
     if (rec.exists()) {
-      const d = rec.data();
+      const raw = rec.data() || {};
+      const d = raw.record && typeof raw.record === 'object' ? raw.record : {};
       updateRecordDisplays(d);
       window._userRecord = d;
     }
@@ -1091,10 +1098,23 @@
   window._saveUserPicks = async function(uid, picksData) {
     if (!uid) return;
     try {
-      const ref = doc(db, 'users', uid, 'data', 'ledger');
+      const ref = doc(db, 'users', uid);
+      const payload = picksData && typeof picksData === 'object' ? picksData : {};
+      const ledger = payload.ledger && typeof payload.ledger === 'object' ? payload.ledger : payload;
+      const results = payload.results && typeof payload.results === 'object'
+        ? payload.results
+        : (ledger.results && typeof ledger.results === 'object' ? ledger.results : {});
+      const startTimes = payload.startTimes && typeof payload.startTimes === 'object'
+        ? payload.startTimes
+        : (ledger.startTimes && typeof ledger.startTimes === 'object'
+          ? ledger.startTimes
+          : (ledger.gameTimes && typeof ledger.gameTimes === 'object' ? ledger.gameTimes : {}));
       await setDoc(ref, {
-        picks: JSON.stringify(picksData),
-        updatedAt: new Date().toISOString()
+        ledger,
+        picks: Array.isArray(payload.picks) ? payload.picks : (Array.isArray(ledger.addedPicks) ? ledger.addedPicks : []),
+        results,
+        startTimes,
+        lastSynced: new Date().toISOString(),
       }, { merge: true });
     } catch (e) {
       console.warn('[Firestore] saveUserPicks failed:', e.message);
@@ -1104,20 +1124,18 @@
   window._loadUserPicks = async function(uid) {
     if (!uid) return null;
     try {
-      const ref  = doc(db, 'users', uid, 'data', 'ledger');
+      const ref  = doc(db, 'users', uid);
       const snap = await getDoc(ref);
       if (!snap.exists()) return null;
-      const raw = snap.data().picks;
-      const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
-      if (Array.isArray(parsed)) {
-        return {
-          addedPicks: parsed,
-          deletedPickIds: [],
-          results: {},
-          gameTimes: {}
-        };
-      }
-      return parsed;
+      const data = snap.data() || {};
+      if (data.ledger && typeof data.ledger === 'object') return data.ledger;
+      return {
+        addedPicks: Array.isArray(data.picks) ? data.picks : [],
+        deletedPickIds: [],
+        results: data.results && typeof data.results === 'object' ? data.results : {},
+        startTimes: data.startTimes && typeof data.startTimes === 'object' ? data.startTimes : {},
+        gameTimes: data.startTimes && typeof data.startTimes === 'object' ? data.startTimes : {},
+      };
     } catch (e) {
       console.warn('[Firestore] loadUserPicks failed:', e.message);
       return null;
@@ -1502,7 +1520,7 @@
       <div class="model-card" id="model-card-ipl">
         <div class="model-card-icon">&#127951;</div>
         <div class="model-card-title">IPL Model</div>
-        <div class="model-card-desc">Runs the live IPL winner prediction and fantasy XI pipeline through the integrated backend route.</div>
+        <div class="model-card-desc">Loads the cached IPL winner prediction and fantasy XI payload from Firebase.</div>
         <span data-model-timestamp="ipl" class="model-timestamp-badge" style="display:none;"></span>
         <button class="model-run-btn" id="btn-run-ipl" onclick="runModel('ipl')">RUN IPL MODEL</button>
         <div class="model-status" id="status-ipl"></div>
@@ -1538,7 +1556,7 @@
       <div class="model-card" id="model-card-sportytrader">
         <div class="model-card-icon">&#127936;</div>
         <div class="model-card-title">SportyTrader NBA + MLB Feed</div>
-        <div class="model-card-desc">One-click SportyTrader sync for NBA and MLB. Tries backend first, then local feed/cache.</div>
+        <div class="model-card-desc">Disabled in firebase_direct mode. Cached data is read from Firebase only.</div>
         <div class="model-status" id="sportytrader-sync-meta">Last sync: never</div>
         <button class="model-run-btn" id="btn-run-sportytrader" onclick="runModel('sportytrader')">SYNC SPORTYTRADER NOW</button>
         <div class="model-status" id="status-sportytrader"></div>
@@ -1546,7 +1564,7 @@
       <div class="model-card" id="model-card-sportsgambler">
         <div class="model-card-icon">&#127921;</div>
         <div class="model-card-title">SportsGambler NBA + MLB Feed</div>
-        <div class="model-card-desc">Sync SportsGambler NBA and MLB article picks via the local backend, with feed/cache fallback.</div>
+        <div class="model-card-desc">Disabled in firebase_direct mode. Cached data is read from Firebase only.</div>
         <div class="model-status" id="sportsgambler-sync-meta">Last sync: never</div>
         <button class="model-run-btn" id="btn-run-sportsgambler" onclick="runModel('sportsgambler')">SYNC SPORTSGAMBLER NOW</button>
         <div class="model-status" id="status-sportsgambler"></div>
@@ -1620,69 +1638,122 @@ const ONE_TIME_PROPS_CLEANUP_KEY = `pickledger_cleanup_nba_props_${STORAGE_VERSI
 const RESET_CUTOFF_ISO = '2026-03-19T00:00:00.000Z';
 let activeFilter = 'ALL';
 let showSettled = false;
-const LOOPBACK_HOST_RE = /^(?:localhost|127(?:\.\d{1,3}){3}|0\.0\.0\.0)$/i;
-
-function normalizeServerBase(value) {
-  if (!value) return '';
-  const s = String(value).trim().replace(/\/+$/, '');
-  return /^https?:\/\//i.test(s) ? s : '';
-}
-
-function isLoopbackServer(value) {
-  try {
-    return LOOPBACK_HOST_RE.test(new URL(value).hostname);
-  } catch {
-    return false;
-  }
-}
-
-localStorage.removeItem('pickledger_model_server');
-const DEFAULT_GRADER_URL = 'https://pickledgerpro.onrender.com';
-const STALE_GRADER_URLS = new Set([
-  'https://pickledger-backend.onrender.com',
-  'https://pickledger-grader.onrender.com'
-]);
-const GRADER_URL = (() => {
-  const queryOverride = normalizeServerBase(new URLSearchParams(window.location.search).get('api'));
-  if (queryOverride) {
-    localStorage.setItem('pickledger_backend', queryOverride);
-    return queryOverride;
-  }
-  // Local dev: override via localStorage key `pickledger_backend`.
-  const override = normalizeServerBase(localStorage.getItem('pickledger_backend'));
-  if (STALE_GRADER_URLS.has(override)) {
-    localStorage.removeItem('pickledger_backend');
-  } else if (override) {
-    return override;
-  }
-  // Production frontend origin: https://harsh4873.github.io
-  return DEFAULT_GRADER_URL;
-})();
-const GRADE_URL = `${GRADER_URL}/grade`;
-const HEALTH_URL = `${GRADER_URL}/health`;
-const LEDGER_STATE_URL = `${GRADER_URL}/api/ledger-state`;
-const NBA_PROPS_GAMES_URL = `${GRADER_URL}/api/nba-props-games`;
+const PICKLEDGER_MODE = 'firebase_direct';
 const RANKINGS_OWNER_EMAIL = 'hdav4873@gmail.com';
 const RANKINGS_STATE_UID = 'primary';
 const SPORTYTRADER_FEED_URL = './sportytrader_manual_feed.json';
 const SPORTYTRADER_CACHE_KEY = 'pickledger_sportytrader_feed_cache';
 const SPORTSGAMBLER_FEED_URL = './sportsgambler_manual_feed.json';
 const SPORTSGAMBLER_CACHE_KEY = 'pickledger_sportsgambler_feed_cache';
-const SPORTYTRADER_SERVER = GRADER_URL;
-const SPORTSGAMBLER_SERVER = GRADER_URL;
+const MODEL_FIREBASE_KEY_ALIASES = {
+  'nba-old': ['nba_old', 'nba-old', 'nba'],
+  'nba-new': ['nba', 'nba_new', 'nba-new', 'nba_new_model', 'nbaNew'],
+  'nba-props': ['nba_props', 'nba-props', 'props'],
+  mlb: ['mlb'],
+  ipl: ['ipl'],
+  sportytrader: ['sportytrader'],
+  sportsgambler: ['sportsgambler'],
+};
 let ledgerStateSyncTimer = null;
 let ledgerStateSyncInFlight = false;
 let rankingsLedgerState = null;
 
-// Render backend wake ping (free tier sleeps after 15 min)
-(function keepAlive() {
-  const ping = () => fetch(GRADER_URL + '/health', {
-    method: 'GET', cache: 'no-store'
-  }).catch(() => {});
-  // Ping immediately, then every 14 minutes
-  ping();
-  setInterval(ping, 840000);
-})();
+function getCurrentFirebaseUid() {
+  const uid = typeof window._userUid === 'string' ? window._userUid.trim() : '';
+  if (!uid) {
+    throw new Error('Firebase sign-in required');
+  }
+  return uid;
+}
+
+function getFirestoreDateKey(dateStr = null) {
+  return String(dateStr || new Date().toISOString().split('T')[0]).trim();
+}
+
+function _extractFirebaseModelPayload(raw, options = {}) {
+  if (!raw) return null;
+  if (Array.isArray(raw)) {
+    return { picks: raw, meta: {} };
+  }
+  if (typeof raw !== 'object') {
+    return null;
+  }
+  if (options.gameLabel) {
+    const nested = [
+      raw.games && raw.games[options.gameLabel],
+      raw.by_game && raw.by_game[options.gameLabel],
+      raw.picks_by_game && raw.picks_by_game[options.gameLabel],
+      raw[options.gameLabel],
+    ];
+    for (const candidate of nested) {
+      const resolved = _extractFirebaseModelPayload(candidate, {});
+      if (resolved) return resolved;
+    }
+  }
+  if (Array.isArray(raw.picks)) {
+    return {
+      picks: raw.picks,
+      meta: raw.meta && typeof raw.meta === 'object' ? raw.meta : {},
+      note: raw.note,
+    };
+  }
+  if (raw.selected_players || raw.match || raw.win_probability || raw.fantasy_points) {
+    return raw;
+  }
+  return null;
+}
+
+async function saveLedgerToFirebase(uid, payload) {
+  if (typeof window._saveUserPicks === 'function') {
+    await window._saveUserPicks(uid, payload);
+    return;
+  }
+  throw new Error('saveUserPicks helper unavailable');
+}
+
+async function loadLedgerFromFirebase(uid) {
+  if (typeof window._loadUserPicks === 'function') {
+    return window._loadUserPicks(uid);
+  }
+  return null;
+}
+
+async function loadGradedResultsFromFirebase(uid) {
+  const db = window._firebaseDb;
+  const docFn = window._firebaseDoc;
+  const getDocFn = window._firebaseGetDoc;
+  if (!db || !docFn || !getDocFn || !uid) return {};
+  const snap = await getDocFn(docFn(db, 'users', uid));
+  const exists = typeof snap.exists === 'function' ? snap.exists() : !!snap.exists;
+  if (!exists) return {};
+  const data = typeof snap.data === 'function' ? snap.data() : {};
+  return { graded: data.results || {}, startTimes: data.startTimes || {} };
+}
+
+async function loadPropsGamesFromFirebase(dateStr = null) {
+  const db = window._firebaseDb;
+  const docFn = window._firebaseDoc;
+  const getDocFn = window._firebaseGetDoc;
+  if (!db || !docFn || !getDocFn) return [];
+  const snap = await getDocFn(docFn(db, 'admin_picks', getFirestoreDateKey(dateStr)));
+  const exists = typeof snap.exists === 'function' ? snap.exists() : !!snap.exists;
+  if (!exists) return [];
+  const data = typeof snap.data === 'function' ? snap.data() : {};
+  return Array.isArray(data.props_games) ? data.props_games : [];
+}
+
+async function checkHealth() {
+  const db = window._firebaseDb;
+  const docFn = window._firebaseDoc;
+  const getDocFn = window._firebaseGetDoc;
+  if (!db || !docFn || !getDocFn) return false;
+  try {
+    await getDocFn(docFn(db, 'admin_picks', getFirestoreDateKey()));
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 function getAddedPicks() {
   try {
@@ -1752,38 +1823,17 @@ function getPicksFromLedgerState(state) {
 }
 
 function getRankingsPicks() {
-  if (isRankingsOwnerUser()) return getPicks();
-  return getPicksFromLedgerState(rankingsLedgerState);
+  return getPicks();
 }
 
 async function loadCanonicalRankingsState() {
-  if (!LEDGER_STATE_URL) return null;
-  try {
-    const res = await fetch(`${LEDGER_STATE_URL}?uid=${encodeURIComponent(RANKINGS_STATE_UID)}`, { method: 'GET' });
-    if (!res.ok) return null;
-    const data = await res.json();
-    if (!data || !data.ok) return null;
-    rankingsLedgerState = _coerceLedgerState(data.state || {});
-    return rankingsLedgerState;
-  } catch {
-    return null;
-  }
+  rankingsLedgerState = _coerceLedgerState(buildLedgerStatePayload().ledger || {});
+  return rankingsLedgerState;
 }
 
 async function pushCanonicalRankingsState(state) {
-  if (!LEDGER_STATE_URL || !isRankingsOwnerUser()) return false;
-  const payload = _coerceLedgerState(state);
-  rankingsLedgerState = payload;
-  try {
-    const res = await fetch(LEDGER_STATE_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uid: RANKINGS_STATE_UID, state: payload }),
-    });
-    return res.ok;
-  } catch {
-    return false;
-  }
+  rankingsLedgerState = _coerceLedgerState(state && state.ledger ? state.ledger : state);
+  return true;
 }
 
 function hasMeaningfulLocalState() {
@@ -1821,12 +1871,21 @@ function writeLedgerStateToLocalStorage(state, options = {}) {
   if (!state || typeof state !== 'object') return { hasAny: false };
   const mirrorResultsToServer = options.mirrorResultsToServer === true;
   runOneTimeNbaPropsCleanup(state);
-  const addedRaw = Array.isArray(state.addedPicks) ? state.addedPicks : [];
+  const ledger = state.ledger && typeof state.ledger === 'object' ? state.ledger : state;
+  const addedRaw = Array.isArray(ledger.addedPicks) ? ledger.addedPicks : [];
   const added = addedRaw;
-  const deleted = Array.isArray(state.deletedPickIds) ? state.deletedPickIds.map(v => String(v)) : [];
-  const resultsRaw = (state.results && typeof state.results === 'object') ? state.results : {};
+  const deleted = Array.isArray(ledger.deletedPickIds) ? ledger.deletedPickIds.map(v => String(v)) : [];
+  const resultsRaw = (state.results && typeof state.results === 'object')
+    ? state.results
+    : ((ledger.results && typeof ledger.results === 'object') ? ledger.results : {});
   const results = { ...resultsRaw };
-  const gameTimesRaw = (state.gameTimes && typeof state.gameTimes === 'object') ? state.gameTimes : {};
+  const gameTimesRaw = (state.gameTimes && typeof state.gameTimes === 'object')
+    ? state.gameTimes
+    : ((state.startTimes && typeof state.startTimes === 'object')
+      ? state.startTimes
+      : ((ledger.gameTimes && typeof ledger.gameTimes === 'object')
+        ? ledger.gameTimes
+        : ((ledger.startTimes && typeof ledger.startTimes === 'object') ? ledger.startTimes : {})));
   const gameTimes = { ...gameTimesRaw };
   const hasAny = added.length || deleted.length || Object.keys(results).length || Object.keys(gameTimes).length;
   if (!hasAny) return { hasAny: false };
@@ -1857,19 +1916,15 @@ window._applyUserLedgerState = applyUserLedgerState;
 
 async function pushLedgerState(force = false) {
   const uid = window.getLedgerSyncUid ? window.getLedgerSyncUid() : '';
-  if (!LEDGER_STATE_URL || !window._authStateResolved || !uid) return;
+  if (!window._authStateResolved || !uid) return;
   if (ledgerStateSyncInFlight && !force) return;
   ledgerStateSyncInFlight = true;
   try {
     const state = buildLedgerStatePayload();
-    await fetch(window.buildLedgerStateUrl(uid), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uid, state }),
-    });
+    await saveLedgerToFirebase(uid, state);
     await pushCanonicalRankingsState(state);
   } catch {
-    // Best-effort backup only.
+    // Best-effort sync only.
   } finally {
     ledgerStateSyncInFlight = false;
   }
@@ -1881,15 +1936,8 @@ function scheduleLedgerStateSync() {
   }
   ledgerStateSyncTimer = setTimeout(() => {
     pushLedgerState(false);
-    if (window._userUid && window._saveUserPicks) {
-      const payload = buildLedgerStatePayload();
-      window._saveUserPicks(window._userUid, payload);
-      if (isRankingsOwnerUser()) {
-        rankingsLedgerState = _coerceLedgerState(payload);
-      }
-      if (window._saveUserRecordSummary && typeof getPicks === 'function' && typeof window.buildRecordSummaryFromPicks === 'function') {
-        window._saveUserRecordSummary(window._userUid, window.buildRecordSummaryFromPicks(getPicks()));
-      }
+    if (window._userUid && window._saveUserRecordSummary && typeof getPicks === 'function' && typeof window.buildRecordSummaryFromPicks === 'function') {
+      window._saveUserRecordSummary(window._userUid, window.buildRecordSummaryFromPicks(getPicks()));
     }
   }, 1200);
 }
@@ -1897,20 +1945,17 @@ function scheduleLedgerStateSync() {
 async function pullLedgerStateIfNeeded(options = {}) {
   const uid = window.getLedgerSyncUid ? window.getLedgerSyncUid(options.uid) : '';
   const expectedGeneration = Number.isInteger(options.expectedGeneration) ? options.expectedGeneration : null;
-  if (hasMeaningfulLocalState() || !LEDGER_STATE_URL || !window._authStateResolved || !uid) return false;
+  if (hasMeaningfulLocalState() || !window._authStateResolved || !uid) return false;
   try {
-    const res = await fetch(window.buildLedgerStateUrl(uid), { method: 'GET' });
-    if (!res.ok) return false;
-    const data = await res.json();
+    const data = await loadLedgerFromFirebase(uid);
     if (expectedGeneration !== null && expectedGeneration !== window._authStateGeneration) return false;
-    if (!data || !data.ok) return false;
-    const restored = applyLedgerStateFromServer(data.state || {});
+    const restored = applyLedgerStateFromServer(data || {});
     if (restored) {
       render();
       if (document.getElementById('tab-search').classList.contains('active')) {
         renderSearch();
       }
-      setRefreshStatus('Recovered ledger state from backend backup', 'ok');
+      setRefreshStatus('Recovered ledger state from Firebase', 'ok');
       return true;
     }
   } catch {
@@ -1958,11 +2003,9 @@ function saveResultToServer(id, result) {
 async function syncWithServer() {
   setSyncStatus('syncing');
   try {
-    const res = await fetch(HEALTH_URL, { signal: AbortSignal.timeout(4000) });
-    if (!res.ok) throw new Error('bad response');
-    const data = await res.json().catch(() => ({}));
-    if (!data || data.ok === false) {
-      throw new Error((data && data.error) || 'health check failed');
+    const healthy = await checkHealth();
+    if (!healthy) {
+      throw new Error('health check failed');
     }
     const uid = window.getLedgerSyncUid ? window.getLedgerSyncUid() : '';
     if (uid && hasMeaningfulLocalState()) {
@@ -1970,7 +2013,6 @@ async function syncWithServer() {
     } else if (uid) {
       await pullLedgerStateIfNeeded({ uid, expectedGeneration: window._authStateGeneration });
     }
-    await loadCanonicalRankingsState();
     setSyncStatus('synced');
   } catch {
     setSyncStatus('offline');
@@ -1996,42 +2038,35 @@ async function refreshAutoGrades(silent = false) {
   if (!silent) {
     btn.disabled = true;
     btn.textContent = 'REFRESHING';
-    setRefreshStatus('Calling local grader + live score APIs...', 'ok');
+    setRefreshStatus('Loading graded results from Firebase...', 'ok');
   } else {
-    setRefreshStatus('Syncing game start times...', 'ok');
+    setRefreshStatus('Loading Firebase start times...', 'ok');
   }
 
   try {
-    const payload = {
-      picks: getAllLedgerPicks(),
-      existing: getResults(),
-      year: new Date().getFullYear(),
-    };
-
-    const res = await fetch(GRADE_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await res.json().catch(() => null);
-    if (!res.ok) throw new Error((data && data.error) || `grader http ${res.status}`);
-    if (!data || !data.ok) throw new Error((data && data.error) || 'grader failed');
-
+    const data = await loadGradedResultsFromFirebase(getCurrentFirebaseUid());
     const graded = data.graded || {};
     const merged = getResults();
     Object.entries(graded).forEach(([id, result]) => {
       merged[id] = result;
-      saveResultToServer(id, result);
     });
-    localStorage.setItem(RESULTS_KEY, JSON.stringify(merged));
-
     const startTimes = data.startTimes || {};
     const mergedTimes = getGameTimes();
     Object.entries(startTimes).forEach(([id, iso]) => {
       if (iso) mergedTimes[id] = iso;
     });
-    localStorage.setItem(GAME_TIMES_KEY, JSON.stringify(mergedTimes));
+    writeLedgerStateToLocalStorage({
+      ledger: {
+        addedPicks: getAddedPicks(),
+        deletedPickIds: getDeletedPickIds(),
+        results: merged,
+        startTimes: mergedTimes,
+        gameTimes: mergedTimes,
+      },
+      results: merged,
+      startTimes: mergedTimes,
+      gameTimes: mergedTimes,
+    });
     scheduleLedgerStateSync();
 
     if (typeof renderPickLog === 'function') renderPickLog();
@@ -2041,22 +2076,14 @@ async function refreshAutoGrades(silent = false) {
       renderSearch();
     }
 
-    const summary = data.summary || {};
-    const updated = summary.updated || 0;
-    const attempted = summary.attempted || 0;
     const syncedTimes = Object.keys(startTimes).length;
-    setRefreshStatus(`Updated ${updated} picks, synced ${syncedTimes} start times (${attempted} checked)`, 'ok');
+    setRefreshStatus(`Loaded ${Object.keys(graded).length} graded picks, synced ${syncedTimes} start times`, 'ok');
   } catch (err) {
     if (!silent) {
       const message = String(err && err.message ? err.message : err);
-      if (isNetworkRequestErrorMessage(message)) {
-        setRefreshStatus('Backend offline. Check Render status.', 'error');
-      } else {
-        setRefreshStatus(`Grader error: ${message}`, 'error');
-      }
+      setRefreshStatus(`Firebase grade load failed: ${message}`, 'error');
     }
   } finally {
-    syncWithServer().catch(() => setSyncStatus('offline'));
     if (!silent) {
       btn.disabled = false;
       btn.textContent = 'REFRESH';
@@ -4413,27 +4440,57 @@ function _extractModelPicks(result) {
   return [];
 }
 
-async function getAdminPicksFromFirebase(modelKey, dateStr = '') {
+async function getAdminPicksFromFirebase(modelKey, options = {}) {
   const db = window._firebaseDb;
   const docFn = window._firebaseDoc;
   const getDocFn = window._firebaseGetDoc;
   if (!db || !docFn || !getDocFn || !modelKey) return null;
+  const dateStr = typeof options === 'string' ? options : (options && options.date ? options.date : '');
+  const gameLabel = options && typeof options === 'object' ? String(options.gameLabel || '').trim() : '';
+  const aliases = MODEL_FIREBASE_KEY_ALIASES[modelKey] || [modelKey];
+  const normalizedAliases = aliases.map(value => String(value || '').trim().toLowerCase().replace(/[\s_]+/g, '-'));
 
-  for (const docId of _adminCacheDocDateCandidates(dateStr)) {
+  for (const docId of _adminCacheDocDateCandidates(dateStr || getFirestoreDateKey())) {
     try {
       const snap = await getDocFn(docFn(db, 'admin_picks', docId));
       const exists = typeof snap.exists === 'function' ? snap.exists() : !!snap.exists;
       if (!exists) continue;
       const data = typeof snap.data === 'function' ? snap.data() : null;
-      const payload = _normalizeCachedModelPayload(data && data[modelKey]);
-      if (payload == null) continue;
+      if (!data || typeof data !== 'object') continue;
+
+      const containers = [
+        data,
+        data.models && typeof data.models === 'object' ? data.models : null,
+        data.model_picks && typeof data.model_picks === 'object' ? data.model_picks : null,
+        data.picks && typeof data.picks === 'object' ? data.picks : null,
+        data.cache && typeof data.cache === 'object' ? data.cache : null,
+        data.caches && typeof data.caches === 'object' ? data.caches : null,
+      ].filter(Boolean);
+
+      let payload = null;
+      for (const container of containers) {
+        const entries = Object.entries(container);
+        for (const [key, value] of entries) {
+          const normalizedKey = String(key || '').trim().toLowerCase().replace(/[\s_]+/g, '-');
+          if (
+            aliases.includes(key) ||
+            normalizedAliases.includes(normalizedKey) ||
+            normalizedAliases.some(alias => normalizedKey.includes(alias) || alias.includes(normalizedKey))
+          ) {
+            payload = _extractFirebaseModelPayload(value, { gameLabel });
+            if (payload) break;
+          }
+        }
+        if (payload) break;
+      }
+      if (!payload) continue;
       return {
         ok: true,
         source: 'firebase_cache',
         model: modelKey,
         date: docId,
         payload,
-        picks: _extractModelPicks({ payload, picks: Array.isArray(payload) ? payload : [] }),
+        picks: _extractModelPicks({ payload, picks: Array.isArray(payload && payload.picks) ? payload.picks : Array.isArray(payload) ? payload : [] }),
       };
     } catch (_err) {
       // Try the next date candidate.
@@ -4530,74 +4587,30 @@ function _resetModelButton(model) {
     'nba-new': 'RUN NBA NEW',
     'nba-old': 'RUN NBA MODEL',
     'nba-props': 'RUN PROPS MODEL',
-    sportytrader: 'SYNC SPORTYTRADER NOW',
-    sportsgambler: 'SYNC SPORTSGAMBLER NOW',
+    sportytrader: 'UNAVAILABLE',
+    sportsgambler: 'UNAVAILABLE',
   };
-  btn.disabled = false;
+  btn.disabled = model === 'sportytrader' || model === 'sportsgambler';
   btn.textContent = labels[model] || 'RUN';
 }
 
 async function _runAsyncModelRequest(model, endpoint, body) {
-  setModelStatus(model, 'Launching model (async)...', 'running');
-  try {
-    const resp = await fetch(GRADER_URL + endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-      signal: _createTimeoutSignal(MODEL_BACKEND_TIMEOUT_MS),
-    });
-    const launch = await resp.json().catch(() => ({}));
-    if (!launch.ok) {
-      throw new Error(launch.error || 'Unknown error');
-    }
-
-    if (!launch.job_id) {
-      return {
-        ...launch,
-        picks: Array.isArray(launch.picks) ? launch.picks : [],
-        note: String(launch.note || '').trim(),
-      };
-    }
-
-    setModelStatus(model, 'Model is running in background — polling for results...', 'running');
-    const data = await _pollJob(launch.job_id, model, GRADER_URL, MODEL_BACKEND_TIMEOUT_MS);
-    if (!data || !data.ok) {
-      throw new Error((data && data.error) || 'Lost connection while polling');
-    }
-    return {
-      ...data,
-      picks: Array.isArray(data.picks) ? data.picks : [],
-      note: String(data.note || '').trim(),
-    };
-  } catch (err) {
-    const fallbackKey = String(body && body.fallbackModelKey ? body.fallbackModelKey : '').trim();
-    const fallbackDate = String(body && body.fallbackDateStr ? body.fallbackDateStr : '').trim();
-    const cached = fallbackKey ? await getAdminPicksFromFirebase(fallbackKey, fallbackDate) : null;
-    if (cached) return cached;
-    throw err;
+  const dateStr = body && body.date ? body.date : getFirestoreDateKey();
+  const gameLabel = body && body.game_label ? String(body.game_label).trim() : '';
+  setModelStatus(model, 'Loading Firebase cache...', 'running');
+  const result = await getAdminPicksFromFirebase(model, { date: dateStr, gameLabel });
+  if (!result) {
+    throw new Error('No Firebase cache available');
   }
+  return result;
 }
 
 async function _runIplModelRequest() {
-  setModelStatus('ipl', 'Calling IPL backend...', 'running');
-  try {
-    const resp = await fetch(`${GRADER_URL}/api/ipl`, {
-      method: 'GET',
-      signal: _createTimeoutSignal(MODEL_BACKEND_TIMEOUT_MS),
-    });
-    const data = await resp.json().catch(() => ({}));
-    if (!resp.ok) {
-      throw new Error(data.error || `HTTP ${resp.status}`);
-    }
-    if (data && data.error) {
-      throw new Error(data.error);
-    }
-    return data;
-  } catch (err) {
-    const cached = await getAdminPicksFromFirebase('ipl');
-    if (cached) return cached;
-    throw err;
+  const cached = await getAdminPicksFromFirebase('ipl');
+  if (!cached) {
+    throw new Error('No Firebase cache available');
   }
+  return cached;
 }
 
 function renderIplResults(result, options = {}) {
@@ -4625,55 +4638,16 @@ function renderIplResults(result, options = {}) {
 }
 
 async function _runNbaVariantModel(model, dateStr) {
-  const endpoint = model === 'nba-old' ? '/run-nba-old-model' : '/run-nba-model';
   const label = formatModelRunDate(dateStr);
-
-  // For NBA New, refresh SportsLine odds first so spread lines are current
-  if (model === 'nba-new') {
-    setModelStatus(model, `Refreshing SportsLine odds...`, 'running');
-    await _refreshSportsLineOdds();
-  }
-
-  setModelStatus(model, `Running ${NBA_MODEL_SOURCE_LABELS[model]} for ${label}...`, 'running');
-  const result = await _runAsyncModelRequest(model, endpoint, {
-    async: true,
-    date: dateStr,
-    fallbackModelKey: model === 'nba-old' ? 'nba_old' : 'nba_new',
-    fallbackDateStr: dateStr,
-  });
+  setModelStatus(model, `Loading ${NBA_MODEL_SOURCE_LABELS[model]} for ${label} from Firebase...`, 'running');
+  const result = await _runAsyncModelRequest(model, '', { date: dateStr });
   const picks = _extractModelPicks(result);
-  const note = String(result.note || '').trim();
-  if (result.source === 'firebase_cache') {
-    showToast('Loaded from this morning\'s cached picks');
-  }
-  setModelStatus(
-    model,
-    note || (result.source === 'firebase_cache'
-      ? `Loaded ${picks.length} cached prediction(s) for ${label}.`
-      : `Done. ${picks.length} prediction(s) returned for ${label}.`),
-    'ok'
-  );
+  setModelStatus(model, `Done. ${picks.length} prediction(s) returned for ${label}.`, 'ok');
   loadModelTimestamps();
   return picks;
 }
 
-async function _refreshSportsLineOdds() {
-  try {
-    const resp = await fetch(GRADER_URL + '/run-sportsline-odds', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ async: true, league: 'NBA' }),
-    });
-    const launch = await resp.json();
-    if (launch.job_id) {
-      await _pollJob(launch.job_id, 'sportsline-odds');
-    }
-    // Non-async fallback: if no job_id, the scraper already ran inline
-  } catch (_e) {
-    // Scraper failure is non-fatal — model will use whatever is in DB
-    console.warn('SportsLine odds refresh failed (non-fatal):', _e);
-  }
-}
+async function _refreshSportsLineOdds() {}
 
 async function runNbaModelComparison() {
   const btn = document.getElementById('btn-run-nba-compare');
@@ -4736,37 +4710,11 @@ async function loadNbaPropsGames() {
   setModelStatus('nba-props', 'Loading today\'s games...', 'running');
 
   try {
-    let gamesResp = null;
-    let gamesData = null;
-    let lastErr = null;
-    for (let attempt = 0; attempt < 3; attempt += 1) {
-      try {
-        gamesResp = await fetch(NBA_PROPS_GAMES_URL, { method: 'GET' });
-        gamesData = await gamesResp.json();
-        lastErr = null;
-        break;
-      } catch (err) {
-        lastErr = err;
-        if (attempt < 2) {
-          setModelStatus('nba-props', `Retrying game list lookup (${attempt + 2}/3)...`, 'running');
-          await new Promise(r => setTimeout(r, 1200 * (attempt + 1)));
-        }
-      }
-    }
-    if (lastErr) throw lastErr;
-    if (!gamesData || !gamesData.ok) {
-      throw new Error((gamesData && gamesData.error) || `HTTP ${gamesResp.status}`);
-    }
-    const games = Array.isArray(gamesData.games) ? gamesData.games : [];
-    const gamesError = String((gamesData && gamesData.error) || '').trim();
+    const games = await loadPropsGamesFromFirebase();
     const current = String(select.value || '');
     if (!games.length) {
       select.innerHTML = '<option value="">No games found for today</option>';
-      if (gamesError) {
-        setModelStatus('nba-props', `Game list unavailable: ${gamesError}`, 'error');
-      } else {
-        setModelStatus('nba-props', 'No NBA games found for today\'s slate', 'ok');
-      }
+      setModelStatus('nba-props', 'No NBA games found for today\'s slate', 'ok');
       return;
     }
     const options = games.map((g) => {
@@ -4789,47 +4737,7 @@ async function loadNbaPropsGames() {
   }
 }
 
-async function _pollJob(jobId, model, baseUrl = GRADER_URL, timeoutMs = 600000) {
-  const pollInterval = 3000; // 3 seconds
-  const started = Date.now();
-  let consecutiveFailures = 0;
-  while (true) {
-    const elapsedMs = Date.now() - started;
-    if (elapsedMs > timeoutMs) {
-      setModelStatus(model, 'Timed out waiting for model job', 'error');
-      return null;
-    }
-
-    await new Promise(r => setTimeout(r, pollInterval));
-    try {
-      if (model === 'sportytrader') {
-        const secs = Math.floor(elapsedMs / 1000);
-        setModelStatus(model, `Running local SportyTrader scrape... ${secs}s`, 'running');
-      } else if (model === 'sportsgambler') {
-        const secs = Math.floor(elapsedMs / 1000);
-        setModelStatus(model, `Running SportsGambler sync... ${secs}s`, 'running');
-      }
-
-      const resp = await fetch(`${baseUrl}/job-status?id=${jobId}`);
-      if (!resp.ok) {
-        throw new Error(`HTTP ${resp.status}`);
-      }
-      const data = await resp.json();
-      consecutiveFailures = 0;
-      if (data.status === 'done') {
-        return data;
-      }
-      // still running
-    } catch (e) {
-      consecutiveFailures += 1;
-      if (consecutiveFailures >= 3) {
-        setModelStatus(model, `Lost connection while polling: ${String(e && e.message ? e.message : e)}`, 'error');
-        return null;
-      }
-      setModelStatus(model, `Polling retry ${consecutiveFailures}/3...`, 'running');
-    }
-  }
-}
+async function _pollJob() { return null; }
 
 function _normalizeFeedDate(dateStr) {
   const raw = String(dateStr || '').trim();
@@ -4850,60 +4758,15 @@ function _isFreshFeedMeta(meta, expectedDate = _getTodayFeedDate()) {
   return _normalizeFeedDate(meta.date) === expectedDate;
 }
 
-async function _fetchManualFeedPayload(candidates) {
-  let lastErr = 'Feed unavailable';
-  for (const url of candidates) {
-    try {
-      const res = await fetch(url, { cache: 'no-store' });
-      if (!res.ok) throw new Error(`Feed HTTP ${res.status}`);
-      return await res.json();
-    } catch (e) {
-      lastErr = String(e && e.message ? e.message : e);
-    }
-  }
-  throw new Error(lastErr);
+async function _fetchManualFeedPayload() {
+  throw new Error('Manual feed fetching is disabled in firebase_direct mode');
 }
 
-function _buildManualFeedCandidates(feedUrl, endpointPath) {
-  const cacheBust = `t=${Date.now()}`;
-  const serverBases = [GRADER_URL].map(normalizeServerBase).filter((value, index, list) => value && list.indexOf(value) === index);
-
-  const candidates = serverBases.map(base => `${base}${endpointPath}?${cacheBust}`);
-  candidates.push(`${feedUrl}?${cacheBust}`);
-  return candidates.filter((value, index, list) => value && list.indexOf(value) === index);
-}
+function _buildManualFeedCandidates() { return []; }
 
 async function loadSportyTraderManualFeed() {
-  const payload = await _fetchManualFeedPayload(
-    _buildManualFeedCandidates(SPORTYTRADER_FEED_URL, '/sportytrader-feed')
-  );
-  const picks = Array.isArray(payload) ? payload : payload.picks;
-  if (!Array.isArray(picks)) {
-    throw new Error('Invalid feed format: expected { picks: [] }');
-  }
-
-  const normalized = picks.map(p => ({
-    source: String(p.source || 'SportyTrader').trim() || 'SportyTrader',
-    pick: String(p.pick || '').trim(),
-    sport: String(p.sport || 'NBA').trim() || 'NBA',
-    odds: normalizeOddsValue(p.odds),
-    units: Number(p.units) || 1,
-    probability: (p.probability == null ? null : Number(p.probability)),
-    edge: (p.edge == null ? null : Number(p.edge)),
-    decision: String(p.decision || 'BET').toUpperCase(),
-  })).filter(p => {
-    const sport = String(p.sport || '').toUpperCase();
-    return p.pick && (sport === 'NBA' || sport === 'MLB');
-  });
-
-  const meta = {
-    updatedAt: String(payload.updated_at || payload.updatedAt || '').trim(),
-    date: String(payload.date || '').trim(),
-    note: String(payload.note || '').trim(),
-    leagues: String(payload.leagues || '').trim(),
-  };
-
-  return { picks: normalized, meta };
+  const cache = await getAdminPicksFromFirebase('sportytrader');
+  return cache ? { picks: cache.picks || [], meta: cache.meta || {} } : { picks: [], meta: {} };
 }
 
 function getSportyTraderCachedFeed() {
@@ -4923,36 +4786,8 @@ function saveSportyTraderCachedFeed(payload) {
 }
 
 async function loadSportsgamblerManualFeed() {
-  const payload = await _fetchManualFeedPayload(
-    _buildManualFeedCandidates(SPORTSGAMBLER_FEED_URL, '/sportsgambler-feed')
-  );
-  const picks = Array.isArray(payload) ? payload : payload.picks;
-  if (!Array.isArray(picks)) {
-    throw new Error('Invalid feed format: expected { picks: [] }');
-  }
-
-  const normalized = picks.map(p => ({
-    source: String(p.source || 'SportsGambler').trim() || 'SportsGambler',
-    pick: String(p.pick || '').trim(),
-    sport: String(p.sport || 'NBA').trim() || 'NBA',
-    odds: normalizeOddsValue(p.odds),
-    units: Number(p.units) || 1,
-    probability: (p.probability == null ? null : Number(p.probability)),
-    edge: (p.edge == null ? null : Number(p.edge)),
-    decision: String(p.decision || 'BET').toUpperCase(),
-  })).filter(p => {
-    const sport = String(p.sport || '').toUpperCase();
-    return p.pick && (sport === 'NBA' || sport === 'MLB');
-  });
-
-  const meta = {
-    updatedAt: String(payload.updated_at || payload.updatedAt || '').trim(),
-    date: String(payload.date || '').trim(),
-    note: String(payload.note || '').trim(),
-    leagues: String(payload.leagues || '').trim(),
-  };
-
-  return { picks: normalized, meta };
+  const cache = await getAdminPicksFromFirebase('sportsgambler');
+  return cache ? { picks: cache.picks || [], meta: cache.meta || {} } : { picks: [], meta: {} };
 }
 
 function getSportsgamblerCachedFeed() {
@@ -5005,93 +4840,11 @@ function setSportyTraderSyncMeta(meta) {
 }
 
 async function syncSportyTraderFromServer() {
-  const body = { async: true, date: _getTodayDateStr(), sports: ['nba', 'mlb'] };
-  const candidates = [GRADER_URL, SPORTYTRADER_SERVER]
-    .map(v => String(v || '').trim().replace(/\/+$/, ''))
-    .filter((v, i, arr) => v && arr.indexOf(v) === i);
-  let lastErr = 'SportyTrader sync failed';
-
-  for (const server of candidates) {
-    const routes = /\/api$/i.test(server) ? ['/run-sportytrader'] : ['/run-sportytrader', '/api/run-sportytrader'];
-    for (const route of routes) {
-      try {
-        const resp = await fetch(`${server}${route}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        });
-
-        const launch = await resp.json();
-        if (!launch.ok) throw new Error(launch.error || `HTTP ${resp.status}`);
-
-        let data = launch;
-        if (launch.job_id) {
-          const pollBase = `${server}${route}`.replace(/\/(?:api\/)?run-sportytrader$/, '');
-          data = await _pollJob(launch.job_id, 'sportytrader', pollBase, 600000);
-        }
-        if (!data || !data.ok) throw new Error((data && data.error) || 'SportyTrader job failed');
-
-        const picks = Array.isArray(data.picks) ? data.picks.filter(p => {
-          const sport = String(p.sport || '').toUpperCase();
-          return sport === 'NBA' || sport === 'MLB';
-        }) : [];
-        return {
-          picks,
-          meta: {
-            updatedAt: new Date().toISOString(),
-            date: _getTodayDateStr(),
-            note: 'Synced from backend',
-            from: isLoopbackServer(server) ? 'local-backend' : 'render-backend',
-            leagues: 'nba,mlb',
-          },
-        };
-      } catch (e) {
-        lastErr = String(e && e.message ? e.message : e);
-      }
-    }
-  }
-
-  throw new Error(lastErr);
+  throw new Error('SportyTrader sync is not available in firebase_direct mode');
 }
 
 async function syncSportsgamblerFromServer() {
-  const body = { async: true, date: _getTodayDateStr(), sports: ['nba', 'mlb'] };
-  const server = SPORTSGAMBLER_SERVER;
-  let lastErr = 'SportsGambler sync failed';
-
-  try {
-    const resp = await fetch(server + '/run-sportsgambler', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    const launch = await resp.json();
-    if (!launch.ok) throw new Error(launch.error || `HTTP ${resp.status}`);
-
-    let data = launch;
-    if (launch.job_id) {
-      data = await _pollJob(launch.job_id, 'sportsgambler', server, 600000);
-    }
-    if (!data || !data.ok) throw new Error((data && data.error) || 'SportsGambler job failed');
-
-    const picks = Array.isArray(data.picks) ? data.picks.filter(p => {
-      const sport = String(p.sport || '').toUpperCase();
-      return sport === 'NBA' || sport === 'MLB';
-    }) : [];
-
-    return {
-      picks,
-      meta: {
-        updatedAt: new Date().toISOString(),
-        date: _getTodayFeedDate(),
-        note: 'Synced from backend',
-        leagues: 'nba,mlb',
-      },
-    };
-  } catch (e) {
-    lastErr = String(e && e.message ? e.message : e);
-  }
-  throw new Error(lastErr);
+  throw new Error('SportsGambler sync is not available in firebase_direct mode');
 }
 
 async function runModel(model) {
@@ -5149,48 +4902,14 @@ async function runModel(model) {
     return;
   }
 
-  setModelStatus(model, 'Connecting to server...', 'running');
+  setModelStatus(model, 'Loading Firebase cache...', 'running');
 
   if (model === 'sportytrader') {
     let backendErr = '';
     try {
-      setModelStatus(model, 'Trying live SportyTrader backend sync...', 'running');
-      const synced = await syncSportyTraderFromServer();
-      _clearNbaComparisonResults();
-      pendingModelPicks = synced.picks;
-      renderModelResults(synced.picks, { meta: '' });
-      saveSportyTraderCachedFeed({ picks: synced.picks, meta: synced.meta });
-      setSportyTraderSyncMeta(synced.meta);
-      setModelStatus(model, `Synced ${synced.picks.length} NBA pick(s) from backend`, 'ok');
+      throw new Error('SportyTrader sync is not available in firebase_direct mode');
     } catch (e) {
-      backendErr = String(e && e.message ? e.message : e);
-      try {
-        setModelStatus(model, 'Backend sync unavailable, loading feed file...', 'running');
-        const loaded = await loadSportyTraderManualFeed();
-        _clearNbaComparisonResults();
-        pendingModelPicks = loaded.picks;
-        renderModelResults(loaded.picks, { meta: '' });
-        const meta = {
-          ...loaded.meta,
-          from: 'feed-file',
-          updatedAt: loaded.meta.updatedAt || new Date().toISOString(),
-        };
-        saveSportyTraderCachedFeed({ picks: loaded.picks, meta });
-        setSportyTraderSyncMeta(meta);
-        setModelStatus(model, `Loaded ${loaded.picks.length} NBA pick(s) from feed file`, 'ok');
-      } catch (feedErr) {
-        const cached = getSportyTraderCachedFeed();
-        if (cached && Array.isArray(cached.picks) && _isFreshFeedMeta(cached.meta)) {
-          _clearNbaComparisonResults();
-          pendingModelPicks = cached.picks;
-          renderModelResults(cached.picks, { meta: '' });
-          setSportyTraderSyncMeta({ ...(cached.meta || {}), from: 'cache' });
-          setModelStatus(model, `Using cached SportyTrader feed (${cached.picks.length} pick(s))`, 'ok');
-        } else {
-          const feedMsg = String(feedErr && feedErr.message ? feedErr.message : feedErr);
-          setModelStatus(model, `Sync failed (${backendErr}); feed unavailable (${feedMsg})`, 'error');
-        }
-      }
+      setModelStatus(model, `Error: ${String(e && e.message ? e.message : e)}`, 'error');
     } finally {
       _resetModelButton(model);
     }
@@ -5198,84 +4917,27 @@ async function runModel(model) {
   }
 
   if (model === 'sportsgambler') {
-    let backendErr = '';
     try {
-      setModelStatus(model, 'Trying live SportsGambler backend sync...', 'running');
-      const synced = await syncSportsgamblerFromServer();
-      _clearNbaComparisonResults();
-      pendingModelPicks = synced.picks;
-      renderModelResults(synced.picks, { meta: '' });
-      saveSportsgamblerCachedFeed({ picks: synced.picks, meta: synced.meta });
-      setSportsgamblerSyncMeta(synced.meta);
-      setModelStatus(model, `Synced ${synced.picks.length} pick(s) from SportsGambler backend`, 'ok');
+      throw new Error('SportsGambler sync is not available in firebase_direct mode');
     } catch (e) {
-      backendErr = String(e && e.message ? e.message : e);
-      try {
-        setModelStatus(model, 'Backend sync unavailable, loading SportsGambler feed file...', 'running');
-        const loaded = await loadSportsgamblerManualFeed();
-        _clearNbaComparisonResults();
-        pendingModelPicks = loaded.picks;
-        renderModelResults(loaded.picks, { meta: '' });
-        const meta = {
-          ...loaded.meta,
-          from: 'feed-file',
-          updatedAt: loaded.meta.updatedAt || new Date().toISOString(),
-        };
-        saveSportsgamblerCachedFeed({ picks: loaded.picks, meta });
-        setSportsgamblerSyncMeta(meta);
-        setModelStatus(model, `Loaded ${loaded.picks.length} pick(s) from SportsGambler feed file`, 'ok');
-      } catch (feedErr) {
-        const cached = getSportsgamblerCachedFeed();
-        if (cached && Array.isArray(cached.picks) && _isFreshFeedMeta(cached.meta)) {
-          _clearNbaComparisonResults();
-          pendingModelPicks = cached.picks;
-          renderModelResults(cached.picks, { meta: '' });
-          setSportsgamblerSyncMeta({ ...(cached.meta || {}), from: 'cache' });
-          setModelStatus(model, `Using cached SportsGambler feed (${cached.picks.length} pick(s))`, 'ok');
-        } else {
-          const feedMsg = String(feedErr && feedErr.message ? feedErr.message : feedErr);
-          setModelStatus(model, `SportsGambler sync failed (${backendErr}); feed unavailable (${feedMsg})`, 'error');
-        }
-      }
+      setModelStatus(model, `Error: ${String(e && e.message ? e.message : e)}`, 'error');
     } finally {
       _resetModelButton(model);
     }
     return;
   }
 
-  let endpoint = '';
-  let body = { async: true, date: _getTodayDateStr() };
-  if (model === 'mlb') endpoint = '/run-mlb-model';
-  else if (model === 'nba-props') {
-    endpoint = '/run-nba-props-model';
+  const body = { date: _getTodayIsoDate ? _getTodayIsoDate() : getFirestoreDateKey() };
+  if (model === 'nba-props') {
     const gameSelect = document.getElementById('nba-props-game-select');
     const selectedGameLabel = String(gameSelect && gameSelect.value ? gameSelect.value : '').trim();
-    if (selectedGameLabel) {
-      body.game_label = selectedGameLabel;
-    }
+    if (selectedGameLabel) body.game_label = selectedGameLabel;
   }
 
   try {
-    if (model === 'mlb') {
-      body.fallbackModelKey = 'mlb';
-      body.fallbackDateStr = _getTodayIsoDate();
-    } else if (model === 'nba-props') {
-      body.fallbackModelKey = 'props';
-      body.fallbackDateStr = _getTodayIsoDate();
-    }
-    const result = await _runAsyncModelRequest(model, endpoint, body);
+    const result = await _runAsyncModelRequest(model === 'nba-props' ? 'nba-props' : model, '', body);
     const picks = _extractModelPicks(result);
-    const note = String(result.note || '').trim();
-    if (result.source === 'firebase_cache') {
-      showToast('Loaded from this morning\'s cached picks');
-    }
-    setModelStatus(
-      model,
-      note || (result.source === 'firebase_cache'
-        ? `Loaded ${picks.length} cached prediction(s).`
-        : `Done. ${picks.length} prediction(s) returned.`),
-      'ok'
-    );
+    setModelStatus(model, `Done. ${picks.length} prediction(s) returned.`, 'ok');
     _clearNbaComparisonResults();
     pendingModelPicks = picks;
     renderModelResults(picks, { meta: '' });
@@ -5614,11 +5276,26 @@ function initPickLogFilterCleanup() {
   removePickLogNhlFilterOption();
 }
 
+function disableDeprecatedSyncButtons() {
+  const disabled = [
+    ['sportytrader', 'SportyTrader sync unavailable'],
+    ['sportsgambler', 'SportsGambler sync unavailable'],
+  ];
+  for (const [model, message] of disabled) {
+    const btn = document.getElementById('btn-run-' + model);
+    if (!btn) continue;
+    btn.disabled = true;
+    btn.textContent = 'UNAVAILABLE';
+    btn.title = message;
+  }
+}
+
 initTheme();
 initializeNbaModelDate();
 initSportyTraderSyncMeta();
 initSportsgamblerSyncMeta();
 initPickLogFilterCleanup();
+disableDeprecatedSyncButtons();
 initDayOfWeekChartRendering();
 window.dispatchEvent(new Event('pickledger:helpers-ready'));
 syncWithServer().catch(() => setSyncStatus('offline'));
