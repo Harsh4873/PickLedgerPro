@@ -4,3 +4,8 @@ logs/*.log
 !.env.example
 .env.local
 *.env.local
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
