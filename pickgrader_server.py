@@ -3197,7 +3197,9 @@ def run_sportytrader_scraper(
         if not all_picks and errors:
             return {"ok": False, "error": "; ".join(errors[:4])}
 
-        return {"ok": True, "picks": all_picks, "errors": errors}
+        result = {"ok": True, "picks": all_picks, "errors": errors, "date": target_date}
+        _save_admin_picks_doc("sportytrader", result, target_date)
+        return result
     except subprocess.TimeoutExpired:
         return {"ok": False, "error": f"sportytrader: timed out after {timeout_s}s"}
     except Exception as exc:
@@ -3297,7 +3299,9 @@ def run_sportsgambler_scraper(
         if not all_picks and errors:
             return {"ok": False, "error": "; ".join(errors[:4])}
 
-        return {"ok": True, "picks": all_picks, "errors": errors}
+        result = {"ok": True, "picks": all_picks, "errors": errors, "date": target_date}
+        _save_admin_picks_doc("sportsgambler", result, target_date)
+        return result
     except subprocess.TimeoutExpired:
         return {"ok": False, "error": f"sportsgambler: timed out after {timeout_s}s"}
     except Exception as exc:

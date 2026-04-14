@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -59,7 +60,7 @@ def _read_json(path: Path) -> Any | None:
 
 def _write_json(path: Path, payload: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    temp_path = path.with_suffix(path.suffix + ".tmp")
+    temp_path = path.with_suffix(path.suffix + f".{os.getpid()}.tmp")
     with temp_path.open("w", encoding="utf-8") as handle:
         json.dump(payload, handle)
     temp_path.replace(path)
