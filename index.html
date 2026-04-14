@@ -1888,10 +1888,10 @@ function refreshAdminLiveControls() {
   for (const config of configs) {
     const btn = document.getElementById(`btn-run-${config.model}`);
     if (btn) {
-      btn.disabled = !isAdmin;
+      btn.disabled = false;
       btn.textContent = isAdmin
         ? (config.model === 'sportytrader' ? 'SYNC SPORTYTRADER NOW' : 'SYNC SPORTSGAMBLER NOW')
-        : 'ADMIN ONLY';
+        : (config.model === 'sportytrader' ? 'LOAD SPORTYTRADER PICKS' : 'LOAD SPORTSGAMBLER PICKS');
       btn.title = isAdmin ? config.adminTitle : config.nonAdminTitle;
     }
     const desc = document.getElementById(config.descId);
@@ -5606,7 +5606,13 @@ async function runModel(model) {
         };
         saveSportyTraderCachedFeed({ picks: loaded.picks, meta });
         setSportyTraderSyncMeta(meta);
-        setModelStatus(model, `Loaded ${loaded.picks.length} cached SportyTrader pick(s)`, 'ok');
+        setModelStatus(
+          model,
+          backendErr
+            ? `Live sync failed (${backendErr}); loaded ${loaded.picks.length} cached SportyTrader pick(s)`
+            : `Loaded ${loaded.picks.length} cached SportyTrader pick(s)`,
+          'ok'
+        );
       } catch (feedErr) {
         const cached = getSportyTraderCachedFeed();
         if (cached && Array.isArray(cached.picks) && cached.picks.length) {
@@ -5614,7 +5620,13 @@ async function runModel(model) {
           pendingModelPicks = cached.picks;
           renderModelResults(cached.picks, { meta: '' });
           setSportyTraderSyncMeta({ ...(cached.meta || {}), from: 'browser-cache' });
-          setModelStatus(model, `Using browser-cached SportyTrader feed (${cached.picks.length} pick(s))`, 'ok');
+          setModelStatus(
+            model,
+            backendErr
+              ? `Live sync failed (${backendErr}); using browser-cached SportyTrader feed (${cached.picks.length} pick(s))`
+              : `Using browser-cached SportyTrader feed (${cached.picks.length} pick(s))`,
+            'ok'
+          );
         } else {
           const feedMsg = String(feedErr && feedErr.message ? feedErr.message : feedErr);
           setModelStatus(model, `SportyTrader unavailable (${backendErr}; ${feedMsg})`, 'error');
@@ -5650,7 +5662,13 @@ async function runModel(model) {
         };
         saveSportsgamblerCachedFeed({ picks: loaded.picks, meta });
         setSportsgamblerSyncMeta(meta);
-        setModelStatus(model, `Loaded ${loaded.picks.length} cached SportsGambler pick(s)`, 'ok');
+        setModelStatus(
+          model,
+          backendErr
+            ? `Live sync failed (${backendErr}); loaded ${loaded.picks.length} cached SportsGambler pick(s)`
+            : `Loaded ${loaded.picks.length} cached SportsGambler pick(s)`,
+          'ok'
+        );
       } catch (feedErr) {
         const cached = getSportsgamblerCachedFeed();
         if (cached && Array.isArray(cached.picks) && cached.picks.length) {
@@ -5658,7 +5676,13 @@ async function runModel(model) {
           pendingModelPicks = cached.picks;
           renderModelResults(cached.picks, { meta: '' });
           setSportsgamblerSyncMeta({ ...(cached.meta || {}), from: 'browser-cache' });
-          setModelStatus(model, `Using browser-cached SportsGambler feed (${cached.picks.length} pick(s))`, 'ok');
+          setModelStatus(
+            model,
+            backendErr
+              ? `Live sync failed (${backendErr}); using browser-cached SportsGambler feed (${cached.picks.length} pick(s))`
+              : `Using browser-cached SportsGambler feed (${cached.picks.length} pick(s))`,
+            'ok'
+          );
         } else {
           const feedMsg = String(feedErr && feedErr.message ? feedErr.message : feedErr);
           setModelStatus(model, `SportsGambler unavailable (${backendErr}; ${feedMsg})`, 'error');
