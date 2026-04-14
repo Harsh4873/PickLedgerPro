@@ -987,6 +987,43 @@
     return typeof value === 'string' ? value.trim() : '';
   }
 
+  function getFirestoreUserDocCandidates(explicitUid) {
+    const ids = [];
+    const pushId = (value) => {
+      const id = typeof value === 'string' ? value.trim() : '';
+      if (id && !ids.includes(id)) ids.push(id);
+    };
+    pushId(explicitUid === undefined ? window._userUid : explicitUid);
+    const email = String(window._currentUser && window._currentUser.email || '').trim();
+    pushId(email);
+    if (email) pushId(email.toLowerCase());
+    return ids;
+  }
+
+  function buildUserDocLedgerPayload(state) {
+    const source = state && typeof state === 'object' ? state : {};
+    const addedPicks = Array.isArray(source.addedPicks) ? source.addedPicks : [];
+    const deletedPickIds = Array.isArray(source.deletedPickIds)
+      ? source.deletedPickIds.map(v => String(v))
+      : [];
+    const results = source.results && typeof source.results === 'object' ? source.results : {};
+    const startTimes = source.startTimes && typeof source.startTimes === 'object'
+      ? source.startTimes
+      : (source.gameTimes && typeof source.gameTimes === 'object' ? source.gameTimes : {});
+    return {
+      ledger: {
+        addedPicks,
+        deletedPickIds,
+        results,
+        startTimes,
+        gameTimes: startTimes,
+      },
+      picks: addedPicks,
+      results,
+      startTimes,
+    };
+  }
+
   function buildLedgerStateUrl(explicitUid) {
     return '';
   }
@@ -1016,6 +1053,8 @@
   }
 
   window.getLedgerSyncUid = getLedgerSyncUid;
+  window.getFirestoreUserDocCandidates = getFirestoreUserDocCandidates;
+  window.buildUserDocLedgerPayload = buildUserDocLedgerPayload;
   window.buildLedgerStateUrl = buildLedgerStateUrl;
   window.buildRecordSummaryFromPicks = buildRecordSummaryFromPicks;
   window.updateRecordDisplays = updateRecordDisplays;
@@ -1047,20 +1086,51 @@
   }
 
   async function loadUserRecord(uid) {
-    const ref  = doc(db, 'users', uid);
-    const snap = await getDoc(ref);
-    if (snap.exists()) {
-      const data = snap.data() || {};
-      const record = data.record && typeof data.record === 'object' ? data.record : {};
-      return {
-        wins: Number(record.wins) || 0,
-        losses: Number(record.losses) || 0,
-        pushes: Number(record.pushes) || 0,
-      };
+    const normalizeRecordSummary = (value) => ({
+      wins: Number(value && value.wins) || 0,
+      losses: Number(value && value.losses) || 0,
+      pushes: Number(value && value.pushes) || 0,
+    });
+    const primaryRef = doc(db, 'users', uid);
+    const candidateIds = getFirestoreUserDocCandidates(uid);
+    let zeroRecord = null;
+    for (const candidateId of candidateIds) {
+      try {
+        const snap = await getDoc(doc(db, 'users', candidateId));
+        if (snap.exists()) {
+          const data = snap.data() || {};
+          if (data.record && typeof data.record === 'object') {
+            const record = normalizeRecordSummary(data.record);
+            const hasData = record.wins || record.losses || record.pushes;
+            if (hasData) {
+              if (candidateId !== uid) {
+                await setDoc(primaryRef, { record }, { merge: true });
+              }
+              return record;
+            }
+            if (!zeroRecord) zeroRecord = record;
+          }
+        }
+      } catch (e) {
+        console.warn(`[Firestore] user record read failed for ${candidateId}:`, e.message);
+      }
+      try {
+        const legacyRef = doc(db, 'users', candidateId, 'record', 'summary');
+        const legacySnap = await getDoc(legacyRef);
+        if (legacySnap.exists()) {
+          const record = normalizeRecordSummary(legacySnap.data() || {});
+          const hasData = record.wins || record.losses || record.pushes;
+          await setDoc(primaryRef, { record }, { merge: true });
+          if (hasData) {
+            return record;
+          }
+          if (!zeroRecord) zeroRecord = record;
+        }
+      } catch (e) {
+        console.warn(`[Firestore] legacy record read failed for ${candidateId}:`, e.message);
+      }
     }
-    const fresh = { wins: 0, losses: 0, pushes: 0 };
-    await setDoc(ref, { record: fresh }, { merge: true });
-    return fresh;
+    return zeroRecord || normalizeRecordSummary(null);
   }
 
   window._saveUserRecordSummary = async function(uid, record) {
@@ -1123,19 +1193,77 @@
 
   window._loadUserPicks = async function(uid) {
     if (!uid) return null;
-    try {
-      const ref  = doc(db, 'users', uid);
-      const snap = await getDoc(ref);
-      if (!snap.exists()) return null;
-      const data = snap.data() || {};
-      if (data.ledger && typeof data.ledger === 'object') return data.ledger;
+    const normalizeLegacyLedgerState = (payload) => {
+      const data = payload && typeof payload === 'object' ? payload : {};
+      const ledger = data.ledger && typeof data.ledger === 'object' ? data.ledger : data;
+      const addedPicks = Array.isArray(ledger.addedPicks)
+        ? ledger.addedPicks
+        : (Array.isArray(data.picks) ? data.picks : []);
+      const results = data.results && typeof data.results === 'object'
+        ? data.results
+        : (ledger.results && typeof ledger.results === 'object' ? ledger.results : {});
+      const startTimes = data.startTimes && typeof data.startTimes === 'object'
+        ? data.startTimes
+        : (ledger.startTimes && typeof ledger.startTimes === 'object'
+          ? ledger.startTimes
+          : (ledger.gameTimes && typeof ledger.gameTimes === 'object' ? ledger.gameTimes : {}));
+      const deletedPickIds = Array.isArray(ledger.deletedPickIds)
+        ? ledger.deletedPickIds.map(v => String(v))
+        : [];
       return {
-        addedPicks: Array.isArray(data.picks) ? data.picks : [],
-        deletedPickIds: [],
-        results: data.results && typeof data.results === 'object' ? data.results : {},
-        startTimes: data.startTimes && typeof data.startTimes === 'object' ? data.startTimes : {},
-        gameTimes: data.startTimes && typeof data.startTimes === 'object' ? data.startTimes : {},
+        addedPicks,
+        deletedPickIds,
+        results,
+        startTimes,
+        gameTimes: startTimes,
       };
+    };
+    const hasMeaningfulLedgerState = (state) => (
+      state.addedPicks.length ||
+      state.deletedPickIds.length ||
+      Object.keys(state.results).length ||
+      Object.keys(state.startTimes).length
+    );
+    try {
+      const primaryRef = doc(db, 'users', uid);
+      const candidateIds = getFirestoreUserDocCandidates(uid);
+      for (const candidateId of candidateIds) {
+        try {
+          const snap = await getDoc(doc(db, 'users', candidateId));
+          const data = snap.exists() ? (snap.data() || {}) : {};
+          const topLevelState = normalizeLegacyLedgerState(data);
+          if (hasMeaningfulLedgerState(topLevelState)) {
+            if (candidateId !== uid) {
+              await setDoc(primaryRef, buildUserDocLedgerPayload(topLevelState), { merge: true });
+            }
+            return topLevelState;
+          }
+        } catch (e) {
+          console.warn(`[Firestore] top-level ledger read failed for ${candidateId}:`, e.message);
+        }
+
+        try {
+          const legacyRef = doc(db, 'users', candidateId, 'data', 'ledger');
+          const legacySnap = await getDoc(legacyRef);
+          if (!legacySnap.exists()) continue;
+          const legacyRaw = legacySnap.data() || {};
+          let legacyPayload = legacyRaw;
+          if (typeof legacyRaw.picks === 'string') {
+            try {
+              legacyPayload = { ...legacyRaw, picks: JSON.parse(legacyRaw.picks) };
+            } catch {
+              legacyPayload = { ...legacyRaw, picks: [] };
+            }
+          }
+          const legacyState = normalizeLegacyLedgerState(legacyPayload);
+          if (!hasMeaningfulLedgerState(legacyState)) continue;
+          await setDoc(primaryRef, buildUserDocLedgerPayload(legacyState), { merge: true });
+          return legacyState;
+        } catch (e) {
+          console.warn(`[Firestore] legacy ledger read failed for ${candidateId}:`, e.message);
+        }
+      }
+      return null;
     } catch (e) {
       console.warn('[Firestore] loadUserPicks failed:', e.message);
       return null;
@@ -1722,12 +1850,82 @@ async function loadGradedResultsFromFirebase(uid) {
   const db = window._firebaseDb;
   const docFn = window._firebaseDoc;
   const getDocFn = window._firebaseGetDoc;
+  const setDocFn = window._firebaseSetDoc;
   if (!db || !docFn || !getDocFn || !uid) return {};
-  const snap = await getDocFn(docFn(db, 'users', uid));
-  const exists = typeof snap.exists === 'function' ? snap.exists() : !!snap.exists;
-  if (!exists) return {};
-  const data = typeof snap.data === 'function' ? snap.data() : {};
-  return { graded: data.results || {}, startTimes: data.startTimes || {} };
+  const normalizeGradedPayload = (payload) => {
+    const data = payload && typeof payload === 'object' ? payload : {};
+    const ledger = data.ledger && typeof data.ledger === 'object' ? data.ledger : {};
+    const graded = data.results && typeof data.results === 'object'
+      ? data.results
+      : (ledger.results && typeof ledger.results === 'object' ? ledger.results : {});
+    const startTimes = data.startTimes && typeof data.startTimes === 'object'
+      ? data.startTimes
+      : (ledger.startTimes && typeof ledger.startTimes === 'object'
+        ? ledger.startTimes
+        : (ledger.gameTimes && typeof ledger.gameTimes === 'object' ? ledger.gameTimes : {}));
+    return { graded, startTimes };
+  };
+  const primaryRef = docFn(db, 'users', uid);
+  const buildPayload = window.buildUserDocLedgerPayload;
+  const candidateIds = typeof window.getFirestoreUserDocCandidates === 'function'
+    ? window.getFirestoreUserDocCandidates(uid)
+    : [uid];
+  for (const candidateId of candidateIds) {
+    try {
+      const snap = await getDocFn(docFn(db, 'users', candidateId));
+      const exists = typeof snap.exists === 'function' ? snap.exists() : !!snap.exists;
+      const data = exists && typeof snap.data === 'function' ? (snap.data() || {}) : {};
+      const topLevel = normalizeGradedPayload(data);
+      if (Object.keys(topLevel.graded).length || Object.keys(topLevel.startTimes).length) {
+        if (setDocFn && buildPayload && candidateId !== uid) {
+          await setDocFn(primaryRef, buildPayload({
+            addedPicks: Array.isArray(data.picks) ? data.picks : [],
+            deletedPickIds: data.ledger && Array.isArray(data.ledger.deletedPickIds) ? data.ledger.deletedPickIds : [],
+            results: topLevel.graded,
+            startTimes: topLevel.startTimes,
+            gameTimes: topLevel.startTimes,
+          }), { merge: true });
+        }
+        return topLevel;
+      }
+    } catch (err) {
+      console.warn(`[Firestore] graded top-level read failed for ${candidateId}:`, err.message);
+    }
+
+    try {
+      const legacySnap = await getDocFn(docFn(db, 'users', candidateId, 'data', 'ledger'));
+      const legacyExists = typeof legacySnap.exists === 'function' ? legacySnap.exists() : !!legacySnap.exists;
+      if (!legacyExists) continue;
+      const legacyData = typeof legacySnap.data === 'function' ? (legacySnap.data() || {}) : {};
+      const normalized = normalizeGradedPayload(legacyData);
+      if (!Object.keys(normalized.graded).length && !Object.keys(normalized.startTimes).length) {
+        continue;
+      }
+      if (setDocFn && buildPayload) {
+        let legacyPicks = [];
+        if (typeof legacyData.picks === 'string') {
+          try {
+            legacyPicks = JSON.parse(legacyData.picks);
+          } catch {
+            legacyPicks = [];
+          }
+        } else if (Array.isArray(legacyData.picks)) {
+          legacyPicks = legacyData.picks;
+        }
+        await setDocFn(primaryRef, buildPayload({
+          addedPicks: legacyPicks,
+          deletedPickIds: [],
+          results: normalized.graded,
+          startTimes: normalized.startTimes,
+          gameTimes: normalized.startTimes,
+        }), { merge: true });
+      }
+      return normalized;
+    } catch (err) {
+      console.warn(`[Firestore] legacy graded load failed for ${candidateId}:`, err.message);
+    }
+  }
+  return {};
 }
 
 async function loadPropsGamesFromFirebase(dateStr = null) {
