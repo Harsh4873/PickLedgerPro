@@ -1044,6 +1044,60 @@
     };
   }
 
+  function normalizeRecordSummary(record) {
+    return {
+      wins: Number(record && record.wins) || 0,
+      losses: Number(record && record.losses) || 0,
+      pushes: Number(record && record.pushes) || 0,
+    };
+  }
+
+  function hasRecordSummaryData(record) {
+    const summary = normalizeRecordSummary(record);
+    return summary.wins > 0 || summary.losses > 0 || summary.pushes > 0;
+  }
+
+  function shouldPersistDerivedRecordSummary(canonicalRecord, derivedRecord) {
+    return !hasRecordSummaryData(canonicalRecord) && hasRecordSummaryData(derivedRecord);
+  }
+
+  function getPreferredDisplayedRecord(derivedRecord, canonicalRecord = window._userRecord) {
+    const normalizedCanonical = normalizeRecordSummary(canonicalRecord);
+    if (window._currentUser && hasRecordSummaryData(normalizedCanonical)) {
+      return normalizedCanonical;
+    }
+    const normalizedDerived = normalizeRecordSummary(derivedRecord);
+    if (hasRecordSummaryData(normalizedDerived)) {
+      return normalizedDerived;
+    }
+    return normalizedCanonical;
+  }
+
+  function syncVisibleUserRecord(record, options = {}) {
+    const summary = normalizeRecordSummary(record);
+    updateRecordDisplays(summary);
+    window._userRecord = summary;
+    const persist = options.persist === true;
+    const uid = options.uid || window._userUid;
+    if (persist && uid && typeof window._saveUserRecordSummary === 'function') {
+      window._saveUserRecordSummary(uid, summary).catch(() => {});
+    }
+    return summary;
+  }
+
+  function applyRecordOutcomeTransition(record, previousResult, nextResult) {
+    const summary = normalizeRecordSummary(record);
+    const adjust = (result, delta) => {
+      const normalized = normalizeResultValue(result);
+      if (normalized === 'win') summary.wins = Math.max(0, summary.wins + delta);
+      if (normalized === 'loss') summary.losses = Math.max(0, summary.losses + delta);
+      if (normalized === 'push') summary.pushes = Math.max(0, summary.pushes + delta);
+    };
+    adjust(previousResult, -1);
+    adjust(nextResult, 1);
+    return summary;
+  }
+
   function updateRecordDisplays(record) {
     const text = formatRecordSummary(record);
     const headerRecord = document.getElementById('total-record');
@@ -1086,11 +1140,6 @@
   }
 
   async function loadUserRecord(uid) {
-    const normalizeRecordSummary = (value) => ({
-      wins: Number(value && value.wins) || 0,
-      losses: Number(value && value.losses) || 0,
-      pushes: Number(value && value.pushes) || 0,
-    });
     const primaryRef = doc(db, 'users', uid);
     const candidateIds = getFirestoreUserDocCandidates(uid);
     let zeroRecord = null;
@@ -1135,11 +1184,7 @@
 
   window._saveUserRecordSummary = async function(uid, record) {
     if (!uid) return;
-    const summary = {
-      wins: Number(record && record.wins) || 0,
-      losses: Number(record && record.losses) || 0,
-      pushes: Number(record && record.pushes) || 0,
-    };
+    const summary = normalizeRecordSummary(record);
     try {
       await setDoc(doc(db, 'users', uid), { record: summary }, { merge: true });
       window._userRecord = summary;
@@ -1313,8 +1358,8 @@
     if (window._userUid && typeof window._saveUserPicks === 'function' && typeof window._buildLedgerStatePayload === 'function') {
       await window._saveUserPicks(window._userUid, window._buildLedgerStatePayload());
     }
-    if (window._userUid && typeof window._saveUserRecordSummary === 'function' && typeof getPicks === 'function') {
-      await window._saveUserRecordSummary(window._userUid, buildRecordSummaryFromPicks(getPicks()));
+    if (window._userUid && typeof window._saveUserRecordSummary === 'function') {
+      await window._saveUserRecordSummary(window._userUid, normalizeRecordSummary(window._userRecord));
     }
     Object.keys(localStorage).filter(k =>
       k.startsWith('pickledger_added_picks') ||
@@ -1384,15 +1429,13 @@
       }
       refreshLedgerUi();
       if (localLedgerLoaded) {
-        const visibleRecord = buildRecordSummaryFromPicks(typeof getPicks === 'function' ? getPicks() : []);
-        updateRecordDisplays(visibleRecord);
-        window._userRecord = visibleRecord;
-        if (window._saveUserRecordSummary) {
-          window._saveUserRecordSummary(user.uid, visibleRecord).catch(() => {});
+        const derivedRecord = buildRecordSummaryFromPicks(typeof getPicks === 'function' ? getPicks() : []);
+        syncVisibleUserRecord(getPreferredDisplayedRecord(derivedRecord, record));
+        if (window._saveUserRecordSummary && shouldPersistDerivedRecordSummary(record, derivedRecord)) {
+          window._saveUserRecordSummary(user.uid, derivedRecord).catch(() => {});
         }
       } else {
-        updateRecordDisplays(record);
-        window._userRecord = record;
+        syncVisibleUserRecord(getPreferredDisplayedRecord(null, record));
       }
       if (isRankingsOwnerUser()) {
         rankingsLedgerState = _coerceLedgerState(buildLedgerStatePayload());
@@ -2250,7 +2293,10 @@ function scheduleLedgerStateSync() {
   ledgerStateSyncTimer = setTimeout(() => {
     pushLedgerState(false);
     if (window._userUid && window._saveUserRecordSummary && typeof getPicks === 'function' && typeof window.buildRecordSummaryFromPicks === 'function') {
-      window._saveUserRecordSummary(window._userUid, window.buildRecordSummaryFromPicks(getPicks()));
+      const derivedRecord = window.buildRecordSummaryFromPicks(getPicks());
+      if (shouldPersistDerivedRecordSummary(window._userRecord, derivedRecord)) {
+        window._saveUserRecordSummary(window._userUid, derivedRecord);
+      }
     }
   }, 1200);
 }
@@ -2347,6 +2393,9 @@ function isNetworkRequestErrorMessage(message) {
 async function refreshAutoGrades(silent = false) {
   const btn = document.getElementById('refresh-btn');
   if (!btn) return;
+  const picksBeforeRefresh = typeof getPicks === 'function'
+    ? new Map(getPicks().map(p => [String(p.id), normalizeResultValue(p.result)]))
+    : new Map();
 
   if (!silent) {
     btn.disabled = true;
@@ -2380,6 +2429,22 @@ async function refreshAutoGrades(silent = false) {
       startTimes: mergedTimes,
       gameTimes: mergedTimes,
     });
+    if (window._currentUser && picksBeforeRefresh.size > 0) {
+      let nextRecord = normalizeRecordSummary(window._userRecord);
+      let recordChanged = false;
+      const picksAfterRefresh = typeof getPicks === 'function'
+        ? new Map(getPicks().map(p => [String(p.id), normalizeResultValue(p.result)]))
+        : new Map();
+      picksAfterRefresh.forEach((nextResult, pickId) => {
+        const previousResult = picksBeforeRefresh.get(pickId) || 'pending';
+        if (previousResult === nextResult) return;
+        nextRecord = applyRecordOutcomeTransition(nextRecord, previousResult, nextResult);
+        recordChanged = true;
+      });
+      if (recordChanged) {
+        syncVisibleUserRecord(nextRecord, { persist: Boolean(window._userUid) });
+      }
+    }
     scheduleLedgerStateSync();
 
     if (typeof renderPickLog === 'function') renderPickLog();
@@ -2604,6 +2669,10 @@ function getGameTimes() { return JSON.parse(localStorage.getItem(GAME_TIMES_KEY)
 
 function deletePick(id) {
   const idStr = String(id);
+  const previousPick = typeof getPicks === 'function'
+    ? getPicks().find(p => String(p.id) === idStr)
+    : null;
+  const previousResult = normalizeResultValue(previousPick && previousPick.result);
 
   const deleted = new Set(getDeletedPickIds());
   deleted.add(idStr);
@@ -2625,6 +2694,13 @@ function deletePick(id) {
     localStorage.setItem(GAME_TIMES_KEY, JSON.stringify(gameTimes));
   }
 
+  if (previousResult !== 'pending') {
+    syncVisibleUserRecord(
+      applyRecordOutcomeTransition(window._userRecord, previousResult, 'deleted'),
+      { persist: Boolean(window._userUid) }
+    );
+  }
+
   render();
   if (document.getElementById('tab-search').classList.contains('active')) {
     renderSearch();
@@ -2636,10 +2712,22 @@ function setResult(id,r) {
     deletePick(id);
     return;
   }
+  const idStr = String(id);
+  const previousPick = typeof getPicks === 'function'
+    ? getPicks().find(p => String(p.id) === idStr)
+    : null;
+  const previousResult = normalizeResultValue(previousPick && previousPick.result);
+  const nextResult = normalizeResultValue(r);
   const o=getResults();
-  o[id]=normalizeResultValue(r);
+  o[id]=nextResult;
   localStorage.setItem(RESULTS_KEY,JSON.stringify(o));
-  saveResultToServer(id, normalizeResultValue(r));
+  if (previousResult !== nextResult) {
+    syncVisibleUserRecord(
+      applyRecordOutcomeTransition(window._userRecord, previousResult, nextResult),
+      { persist: Boolean(window._userUid) }
+    );
+  }
+  saveResultToServer(id, nextResult);
   scheduleLedgerStateSync();
   render();
 }
@@ -4561,9 +4649,8 @@ function render() {
   const nu=decided.reduce((s,p)=>s+p.pl,0), tw=decided.filter(p=>p.result!=='push').reduce((s,p)=>s+p.units,0);
   const roi=tw>0?((nu/tw)*100).toFixed(1)+'%':'—', nuf=nu;
   if (typeof window.updateRecordDisplays === 'function') {
-    window.updateRecordDisplays({ wins: w, losses: l, pushes: pu });
+    window.updateRecordDisplays(getPreferredDisplayedRecord({ wins: w, losses: l, pushes: pu }));
   }
-  window._userRecord = { wins: w, losses: l, pushes: pu };
   document.getElementById('stat-picks').textContent=picks.length;
   document.getElementById('stat-wins').textContent=w;
   document.getElementById('stat-losses').textContent=l;
