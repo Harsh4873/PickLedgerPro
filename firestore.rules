@@ -1,12 +1,6 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isOwnUserDoc(userId) {
-      return request.auth != null && (
-        request.auth.uid == userId ||
-        (request.auth.token.email != null && request.auth.token.email == userId)
-      );
-    }
 
     // Admin picks cache - readable by any signed-in user, writable only by Admin SDK.
     match /admin_picks/{date} {
@@ -15,13 +9,8 @@ service cloud.firestore {
     }
 
     // Per-user data - each user can only read and write their own document.
-    match /users/{userId} {
-      allow read, write: if isOwnUserDoc(userId);
-    }
-
-    // Legacy per-user subcollections retained for backward compatibility.
-    match /users/{userId}/{document=**} {
-      allow read, write: if isOwnUserDoc(userId);
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
     }
 
     // Deny everything else.

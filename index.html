@@ -3910,11 +3910,25 @@ function parseTotalSignal(pickText) {
 
 function parseMoneylineSignal(pickText) {
   const head = String(pickText || '').split('(', 1)[0].trim();
-  const m = head.match(/^(.*?)\s+ml\b/i);
-  if (!m) return null;
-  const team = normalizeTrendTeam(m[1]);
-  if (!team) return null;
-  return { team, line: null };
+  // Match "X ML" (SportyTrader style, e.g. "Orioles ML")
+  const mlMatch = head.match(/^(.*?)\s+ml\b/i);
+  if (mlMatch) {
+    const team = normalizeTrendTeam(mlMatch[1]);
+    if (team) return { team, line: null };
+  }
+  // Match "X to Win" or "X to Win the Match" (SportsGambler style)
+  const toWinMatch = head.match(/^(.*?)\s+to\s+win\b/i);
+  if (toWinMatch) {
+    const team = normalizeTrendTeam(toWinMatch[1]);
+    if (team) return { team, line: null };
+  }
+  // Match "X win the match" or "X wins" (SportyTrader alternate style)
+  const winMatchStyle = head.match(/^(.*?)\s+wins?\b/i);
+  if (winMatchStyle) {
+    const team = normalizeTrendTeam(winMatchStyle[1]);
+    if (team) return { team, line: null };
+  }
+  return null;
 }
 
 const MANUAL_MODEL_SIGNALS = [
