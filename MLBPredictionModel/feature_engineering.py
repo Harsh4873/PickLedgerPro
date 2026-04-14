@@ -234,6 +234,14 @@ def ensure_feature_frame(frame: pd.DataFrame) -> pd.DataFrame:
     for column in feature_columns():
         if column not in frame.columns:
             frame[column] = 0.0
+    # market_total_line is not derived from box-score features. It is passed
+    # in from the live data layer (SportsLine) or from the historical odds
+    # archive. Fall back to the league-average total when unavailable so the
+    # feature vector stays well-defined.
+    if "market_total_line" not in frame.columns:
+        frame["market_total_line"] = 8.7
+    else:
+        frame["market_total_line"] = frame["market_total_line"].fillna(8.7)
     return frame
 
 

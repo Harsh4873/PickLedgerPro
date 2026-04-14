@@ -271,7 +271,10 @@ def _pitcher_recent_form(player_id: int, season: int, client: StatsAPIClient) ->
     }
 
 
-def build_live_dataframe(target_date: date | None = None) -> pd.DataFrame:
+def build_live_dataframe(
+    target_date: date | None = None,
+    market_odds_map: dict[tuple[str, str], dict] | None = None,
+) -> pd.DataFrame:
     target_date = target_date or date.today()
     season = _season_for_date(target_date)
     previous_season = season - 1
@@ -451,4 +454,22 @@ def build_live_dataframe(target_date: date | None = None) -> pd.DataFrame:
             }
         )
 
-    return pd.DataFrame(rows)
+    frame = pd.DataFrame(rows)
+
+    # Attach market_total_line from the SportsLine map when available. The
+    # totals model reads this as a feature; if no map is provided or a game is
+    # not matched, feature_engineering.ensure_feature_frame will default-fill
+    # it with the league average (8.7) so training and inference stay aligned.
+    if market_odds_map and not frame.empty:
+        totals: list[float | None] = []
+        for _, row in frame.iterrows():
+            away = str(row.get("away_team") or "").strip().split()
+            home = str(row.get("home_team") or "").strip().split()
+            away_key = away[-1].lower() if away else ""
+            home_key = home[-1].lower() if home else ""
+            mo = market_odds_map.get((away_key, home_key), {})
+            line = mo.get("total_line")
+            totals.append(float(line) if line is not None else None)
+        frame["market_total_line"] = totals
+
+    return frame

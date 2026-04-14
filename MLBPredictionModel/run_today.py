@@ -42,7 +42,10 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     try:
-        live_frame = build_live_dataframe(target_date)
+        # Fetch market odds once and reuse: they feed the totals model as an
+        # input feature (market_total_line) AND gate ML/OU edge calculation.
+        market_odds_map = fetch_mlb_market_odds()
+        live_frame = build_live_dataframe(target_date, market_odds_map=market_odds_map)
         if live_frame.empty:
             print(f"No MLB games found for {target_date.isoformat()}.")
             return 0
@@ -67,8 +70,6 @@ def main(argv: list[str] | None = None) -> int:
     print(f"MLB Prediction Model - Games for {target_date.isoformat()}")
     print("=" * 60)
     print(f"Found {len(predictions)} games.\n")
-
-    market_odds_map = fetch_mlb_market_odds()
 
     prediction_rows = predictions.to_dict("records")
     for row in prediction_rows:

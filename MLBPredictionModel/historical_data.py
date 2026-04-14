@@ -495,9 +495,20 @@ class HistoricalDatasetBuilder:
             # This OPS/OBP/SLG blend is an explicit proxy, not a full projected wRC+ model.
         }
 
-        odds_row = {}
+        odds_row: dict[str, Any] = {}
         if self.odds is not None:
             odds_row = self.odds.lookup_moneyline(game_date.isoformat(), away_abbrev, home_abbrev)
+
+        # Populate market_total_line for historical training rows. Prefer the
+        # StatsAPI game feed (it surfaces the pregame total when available);
+        # fall back to a league-average constant so the column is always well
+        # defined at training time.
+        try:
+            market_total = self.client.get_game_total_line(game_pk)
+        except Exception:
+            market_total = None
+        odds_row["market_total_line"] = float(market_total) if market_total is not None else 8.7
+
         row.update(odds_row)
         return row
 

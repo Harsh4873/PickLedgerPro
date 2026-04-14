@@ -53,6 +53,11 @@ TOTALS_NUMERIC_FEATURES = [
     "home_lineup_slg_proxy_shrunk",
     "away_lineup_slg_proxy_shrunk",
     "heuristic_total_runs",
+    # Vegas/market total line is the single strongest available predictor of
+    # actual totals. Including it lets the model learn how much to *adjust*
+    # around the market consensus using the other signals above, rather than
+    # predicting from scratch.
+    "market_total_line",
 ]
 
 TOTALS_CATEGORICAL_FEATURES = [
