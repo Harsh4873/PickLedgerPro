@@ -4367,8 +4367,23 @@ function renderTrends() {
     gameMap[gameKey].sources.add(p.source);
     const spread = parseSpreadSignal(p.pick);
     const moneyline = spread ? null : parseMoneylineSignal(p.pick);
-    if (spread) gameMap[gameKey].sideVotes.push({ source: p.source, origin: 'Ledger pick', ...spread });
-    if (moneyline) gameMap[gameKey].sideVotes.push({ source: p.source, origin: 'Ledger pick', ...moneyline });
+    // Normalize team names through sport-aware lookup so 'ORIOLES' and 'BALTIMORE ORIOLES'
+    // collapse to the same canonical key in summarizeMarketVotes.
+    const canonicalizeSideTeam = (rawTeam) => {
+      if (!rawTeam) return rawTeam;
+      const sport = String(p.sport || '').toUpperCase();
+      if (sport === 'MLB') {
+        const full = normalizeMLBTeam(rawTeam);
+        return full ? full.toUpperCase() : rawTeam;
+      }
+      if (sport === 'NBA') {
+        const full = normalizeNBATeam(rawTeam);
+        return full ? full.toUpperCase() : rawTeam;
+      }
+      return rawTeam;
+    };
+    if (spread) gameMap[gameKey].sideVotes.push({ source: p.source, origin: 'Ledger pick', ...spread, team: canonicalizeSideTeam(spread.team) });
+    if (moneyline) gameMap[gameKey].sideVotes.push({ source: p.source, origin: 'Ledger pick', ...moneyline, team: canonicalizeSideTeam(moneyline.team) });
     const total = parseTotalSignal(p.pick);
     if (total) gameMap[gameKey].totalVotes.push({ source: p.source, origin: 'Ledger pick', ...total });
   });
