@@ -1110,6 +1110,12 @@
   window.getFirestoreUserDocCandidates = getFirestoreUserDocCandidates;
   window.buildUserDocLedgerPayload = buildUserDocLedgerPayload;
   window.buildLedgerStateUrl = buildLedgerStateUrl;
+  window.normalizeRecordSummary = normalizeRecordSummary;
+  window.hasRecordSummaryData = hasRecordSummaryData;
+  window.shouldPersistDerivedRecordSummary = shouldPersistDerivedRecordSummary;
+  window.getPreferredDisplayedRecord = getPreferredDisplayedRecord;
+  window.syncVisibleUserRecord = syncVisibleUserRecord;
+  window.applyRecordOutcomeTransition = applyRecordOutcomeTransition;
   window.buildRecordSummaryFromPicks = buildRecordSummaryFromPicks;
   window.updateRecordDisplays = updateRecordDisplays;
 
@@ -2294,7 +2300,7 @@ function scheduleLedgerStateSync() {
     pushLedgerState(false);
     if (window._userUid && window._saveUserRecordSummary && typeof getPicks === 'function' && typeof window.buildRecordSummaryFromPicks === 'function') {
       const derivedRecord = window.buildRecordSummaryFromPicks(getPicks());
-      if (shouldPersistDerivedRecordSummary(window._userRecord, derivedRecord)) {
+      if (window.shouldPersistDerivedRecordSummary(window._userRecord, derivedRecord)) {
         window._saveUserRecordSummary(window._userUid, derivedRecord);
       }
     }
@@ -2430,7 +2436,7 @@ async function refreshAutoGrades(silent = false) {
       gameTimes: mergedTimes,
     });
     if (window._currentUser && picksBeforeRefresh.size > 0) {
-      let nextRecord = normalizeRecordSummary(window._userRecord);
+      let nextRecord = window.normalizeRecordSummary(window._userRecord);
       let recordChanged = false;
       const picksAfterRefresh = typeof getPicks === 'function'
         ? new Map(getPicks().map(p => [String(p.id), normalizeResultValue(p.result)]))
@@ -2438,11 +2444,11 @@ async function refreshAutoGrades(silent = false) {
       picksAfterRefresh.forEach((nextResult, pickId) => {
         const previousResult = picksBeforeRefresh.get(pickId) || 'pending';
         if (previousResult === nextResult) return;
-        nextRecord = applyRecordOutcomeTransition(nextRecord, previousResult, nextResult);
+        nextRecord = window.applyRecordOutcomeTransition(nextRecord, previousResult, nextResult);
         recordChanged = true;
       });
       if (recordChanged) {
-        syncVisibleUserRecord(nextRecord, { persist: Boolean(window._userUid) });
+        window.syncVisibleUserRecord(nextRecord, { persist: Boolean(window._userUid) });
       }
     }
     scheduleLedgerStateSync();
@@ -2695,8 +2701,8 @@ function deletePick(id) {
   }
 
   if (previousResult !== 'pending') {
-    syncVisibleUserRecord(
-      applyRecordOutcomeTransition(window._userRecord, previousResult, 'deleted'),
+    window.syncVisibleUserRecord(
+      window.applyRecordOutcomeTransition(window._userRecord, previousResult, 'deleted'),
       { persist: Boolean(window._userUid) }
     );
   }
@@ -2722,8 +2728,8 @@ function setResult(id,r) {
   o[id]=nextResult;
   localStorage.setItem(RESULTS_KEY,JSON.stringify(o));
   if (previousResult !== nextResult) {
-    syncVisibleUserRecord(
-      applyRecordOutcomeTransition(window._userRecord, previousResult, nextResult),
+    window.syncVisibleUserRecord(
+      window.applyRecordOutcomeTransition(window._userRecord, previousResult, nextResult),
       { persist: Boolean(window._userUid) }
     );
   }
@@ -4649,7 +4655,7 @@ function render() {
   const nu=decided.reduce((s,p)=>s+p.pl,0), tw=decided.filter(p=>p.result!=='push').reduce((s,p)=>s+p.units,0);
   const roi=tw>0?((nu/tw)*100).toFixed(1)+'%':'—', nuf=nu;
   if (typeof window.updateRecordDisplays === 'function') {
-    window.updateRecordDisplays(getPreferredDisplayedRecord({ wins: w, losses: l, pushes: pu }));
+    window.updateRecordDisplays(window.getPreferredDisplayedRecord({ wins: w, losses: l, pushes: pu }));
   }
   document.getElementById('stat-picks').textContent=picks.length;
   document.getElementById('stat-wins').textContent=w;
