@@ -1347,6 +1347,12 @@
     resolveAuthStateReady();
     await waitForLedgerHelpers();
     if (currentGeneration !== window._authStateGeneration) return;
+    if (typeof window.refreshAdminLiveControls === 'function') {
+      window.refreshAdminLiveControls();
+    }
+    if (user && typeof window.isAdminModelRunnerUser === 'function' && window.isAdminModelRunnerUser() && typeof window.checkAdminLocalBackendHealth === 'function') {
+      window.checkAdminLocalBackendHealth(true).catch(() => {});
+    }
 
     if (user) {
       // Hide login gate with fade
@@ -1421,6 +1427,7 @@
       loadCanonicalRankingsState().then(() => {
         if (typeof render === 'function') render();
       }).catch(() => {});
+      refreshAdminLiveControls();
     }
   });
 
@@ -1684,7 +1691,7 @@
       <div class="model-card" id="model-card-sportytrader">
         <div class="model-card-icon">&#127936;</div>
         <div class="model-card-title">SportyTrader NBA + MLB Feed</div>
-        <div class="model-card-desc">Disabled in firebase_direct mode. Cached data is read from Firebase only.</div>
+        <div class="model-card-desc" id="model-desc-sportytrader">Admin account can run a live local sync. Other users read cached Firebase data only.</div>
         <div class="model-status" id="sportytrader-sync-meta">Last sync: never</div>
         <button class="model-run-btn" id="btn-run-sportytrader" onclick="runModel('sportytrader')">SYNC SPORTYTRADER NOW</button>
         <div class="model-status" id="status-sportytrader"></div>
@@ -1692,7 +1699,7 @@
       <div class="model-card" id="model-card-sportsgambler">
         <div class="model-card-icon">&#127921;</div>
         <div class="model-card-title">SportsGambler NBA + MLB Feed</div>
-        <div class="model-card-desc">Disabled in firebase_direct mode. Cached data is read from Firebase only.</div>
+        <div class="model-card-desc" id="model-desc-sportsgambler">Admin account can run a live local sync. Other users read cached Firebase data only.</div>
         <div class="model-status" id="sportsgambler-sync-meta">Last sync: never</div>
         <button class="model-run-btn" id="btn-run-sportsgambler" onclick="runModel('sportsgambler')">SYNC SPORTSGAMBLER NOW</button>
         <div class="model-status" id="status-sportsgambler"></div>
@@ -1766,9 +1773,12 @@ const ONE_TIME_PROPS_CLEANUP_KEY = `pickledger_cleanup_nba_props_${STORAGE_VERSI
 const RESET_CUTOFF_ISO = '2026-03-19T00:00:00.000Z';
 let activeFilter = 'ALL';
 let showSettled = false;
+const LOOPBACK_HOST_RE = /^(?:localhost|127(?:\.\d{1,3}){3}|0\.0\.0\.0)$/i;
 const PICKLEDGER_MODE = 'firebase_direct';
 const RANKINGS_OWNER_EMAIL = 'hdav4873@gmail.com';
 const RANKINGS_STATE_UID = 'primary';
+const ADMIN_BACKEND_STORAGE_KEY = 'pickledger_backend';
+const DEFAULT_ADMIN_BACKEND_URL = 'http://127.0.0.1:8765';
 const SPORTYTRADER_FEED_URL = './sportytrader_manual_feed.json';
 const SPORTYTRADER_CACHE_KEY = 'pickledger_sportytrader_feed_cache';
 const SPORTSGAMBLER_FEED_URL = './sportsgambler_manual_feed.json';
@@ -1785,6 +1795,111 @@ const MODEL_FIREBASE_KEY_ALIASES = {
 let ledgerStateSyncTimer = null;
 let ledgerStateSyncInFlight = false;
 let rankingsLedgerState = null;
+let adminLocalBackendHealthy = false;
+let adminLocalBackendCheckedAt = 0;
+
+function normalizeServerBase(value) {
+  if (!value) return '';
+  const s = String(value).trim().replace(/\/+$/, '');
+  return /^https?:\/\//i.test(s) ? s : '';
+}
+
+function isLoopbackServer(value) {
+  try {
+    return LOOPBACK_HOST_RE.test(new URL(value).hostname);
+  } catch {
+    return false;
+  }
+}
+
+const ADMIN_BACKEND_URL = (() => {
+  const queryOverride = normalizeServerBase(new URLSearchParams(window.location.search).get('api'));
+  if (queryOverride && isLoopbackServer(queryOverride)) {
+    localStorage.setItem(ADMIN_BACKEND_STORAGE_KEY, queryOverride);
+    return queryOverride;
+  }
+  const override = normalizeServerBase(localStorage.getItem(ADMIN_BACKEND_STORAGE_KEY));
+  if (override && isLoopbackServer(override)) {
+    return override;
+  }
+  return DEFAULT_ADMIN_BACKEND_URL;
+})();
+
+function isAdminModelRunnerUser() {
+  return isRankingsOwnerUser();
+}
+
+async function checkAdminLocalBackendHealth(force = false) {
+  if (!isAdminModelRunnerUser()) {
+    adminLocalBackendHealthy = false;
+    adminLocalBackendCheckedAt = Date.now();
+    refreshAdminLiveControls();
+    return false;
+  }
+
+  const now = Date.now();
+  if (!force && adminLocalBackendCheckedAt && (now - adminLocalBackendCheckedAt) < 15000) {
+    return adminLocalBackendHealthy;
+  }
+
+  adminLocalBackendCheckedAt = now;
+  try {
+    const resp = await fetch(`${ADMIN_BACKEND_URL}/health`, {
+      method: 'GET',
+      cache: 'no-store',
+      signal: _createTimeoutSignal(3000),
+    });
+    adminLocalBackendHealthy = !!resp.ok;
+  } catch {
+    adminLocalBackendHealthy = false;
+  }
+  refreshAdminLiveControls();
+  return adminLocalBackendHealthy;
+}
+
+function refreshAdminLiveControls() {
+  const isAdmin = isAdminModelRunnerUser();
+  const healthText = adminLocalBackendHealthy
+    ? `Admin live sync enabled via ${ADMIN_BACKEND_URL}`
+    : 'Admin live sync needs the local backend on this Mac';
+  const configs = [
+    {
+      model: 'sportytrader',
+      descId: 'model-desc-sportytrader',
+      adminDesc: `${healthText}. Other users read cached Firebase data only.`,
+      nonAdminDesc: 'Live SportyTrader scraping is limited to the admin account. Other users read cached Firebase data only.',
+      adminTitle: adminLocalBackendHealthy
+        ? `Uses ${ADMIN_BACKEND_URL}/run-sportytrader`
+        : 'Admin account detected, but the local backend is offline',
+      nonAdminTitle: 'Only the admin account can run live SportyTrader syncs',
+    },
+    {
+      model: 'sportsgambler',
+      descId: 'model-desc-sportsgambler',
+      adminDesc: `${healthText}. Other users read cached Firebase data only.`,
+      nonAdminDesc: 'Live SportsGambler scraping is limited to the admin account. Other users read cached Firebase data only.',
+      adminTitle: adminLocalBackendHealthy
+        ? `Uses ${ADMIN_BACKEND_URL}/run-sportsgambler`
+        : 'Admin account detected, but the local backend is offline',
+      nonAdminTitle: 'Only the admin account can run live SportsGambler syncs',
+    },
+  ];
+
+  for (const config of configs) {
+    const btn = document.getElementById(`btn-run-${config.model}`);
+    if (btn) {
+      btn.disabled = !isAdmin;
+      btn.textContent = isAdmin
+        ? (config.model === 'sportytrader' ? 'SYNC SPORTYTRADER NOW' : 'SYNC SPORTSGAMBLER NOW')
+        : 'ADMIN ONLY';
+      btn.title = isAdmin ? config.adminTitle : config.nonAdminTitle;
+    }
+    const desc = document.getElementById(config.descId);
+    if (desc) {
+      desc.textContent = isAdmin ? config.adminDesc : config.nonAdminDesc;
+    }
+  }
+}
 
 function getCurrentFirebaseUid() {
   const uid = typeof window._userUid === 'string' ? window._userUid.trim() : '';
@@ -4785,30 +4900,117 @@ function _resetModelButton(model) {
     'nba-new': 'RUN NBA NEW',
     'nba-old': 'RUN NBA MODEL',
     'nba-props': 'RUN PROPS MODEL',
-    sportytrader: 'UNAVAILABLE',
-    sportsgambler: 'UNAVAILABLE',
+    sportytrader: 'SYNC SPORTYTRADER NOW',
+    sportsgambler: 'SYNC SPORTSGAMBLER NOW',
   };
-  btn.disabled = model === 'sportytrader' || model === 'sportsgambler';
   btn.textContent = labels[model] || 'RUN';
+  if (model === 'sportytrader' || model === 'sportsgambler') {
+    refreshAdminLiveControls();
+    return;
+  }
+  btn.disabled = false;
 }
 
 async function _runAsyncModelRequest(model, endpoint, body) {
   const dateStr = body && body.date ? body.date : getFirestoreDateKey();
   const gameLabel = body && body.game_label ? String(body.game_label).trim() : '';
-  setModelStatus(model, 'Loading Firebase cache...', 'running');
-  const result = await getAdminPicksFromFirebase(model, { date: dateStr, gameLabel });
-  if (!result) {
-    throw new Error('No Firebase cache available');
+  const fallbackModelKey = String(body && body.fallbackModelKey ? body.fallbackModelKey : model).trim() || model;
+  const fallbackDate = String(body && body.fallbackDateStr ? body.fallbackDateStr : dateStr).trim() || dateStr;
+  let backendError = null;
+
+  if (endpoint && isAdminModelRunnerUser()) {
+    const backendHealthy = await checkAdminLocalBackendHealth();
+    if (backendHealthy) {
+      setModelStatus(model, 'Connecting to local admin backend...', 'running');
+      try {
+        const resp = await fetch(`${ADMIN_BACKEND_URL}${endpoint}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body || {}),
+          signal: _createTimeoutSignal(MODEL_BACKEND_TIMEOUT_MS),
+        });
+        const launch = await resp.json().catch(() => ({}));
+        if (!resp.ok || !launch.ok) {
+          throw new Error(launch.error || `HTTP ${resp.status}`);
+        }
+        if (!launch.job_id) {
+          return {
+            ...launch,
+            source: 'local_backend',
+            picks: Array.isArray(launch.picks) ? launch.picks : [],
+            note: String(launch.note || '').trim(),
+          };
+        }
+        setModelStatus(model, 'Local backend running — polling for results...', 'running');
+        const data = await _pollJob(launch.job_id, model, ADMIN_BACKEND_URL, MODEL_BACKEND_TIMEOUT_MS);
+        if (!data || !data.ok) {
+          throw new Error((data && data.error) || 'Local backend polling failed');
+        }
+        return {
+          ...data,
+          source: 'local_backend',
+          picks: Array.isArray(data.picks) ? data.picks : [],
+          note: String(data.note || '').trim(),
+        };
+      } catch (err) {
+        backendError = err;
+      }
+    } else {
+      backendError = new Error('Local admin backend is offline');
+    }
   }
-  return result;
+
+  setModelStatus(model, 'Loading Firebase cache...', 'running');
+  const result = await getAdminPicksFromFirebase(fallbackModelKey, { date: fallbackDate, gameLabel });
+  if (result) {
+    return result;
+  }
+  if (backendError) {
+    throw new Error(String(backendError && backendError.message ? backendError.message : backendError));
+  }
+  throw new Error('No Firebase cache available');
 }
 
 async function _runIplModelRequest() {
-  const cached = await getAdminPicksFromFirebase('ipl');
-  if (!cached) {
-    throw new Error('No Firebase cache available');
+  let backendError = null;
+  if (isAdminModelRunnerUser()) {
+    const backendHealthy = await checkAdminLocalBackendHealth();
+    if (backendHealthy) {
+      setModelStatus('ipl', 'Calling local IPL backend...', 'running');
+      try {
+        const resp = await fetch(`${ADMIN_BACKEND_URL}/api/ipl`, {
+          method: 'GET',
+          cache: 'no-store',
+          signal: _createTimeoutSignal(MODEL_BACKEND_TIMEOUT_MS),
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) {
+          throw new Error(data.error || `HTTP ${resp.status}`);
+        }
+        if (data && data.error) {
+          throw new Error(data.error);
+        }
+        return {
+          ...data,
+          source: 'local_backend',
+          note: String(data.note || '').trim(),
+        };
+      } catch (err) {
+        backendError = err;
+      }
+    } else {
+      backendError = new Error('Local admin backend is offline');
+    }
   }
-  return cached;
+
+  const cached = await getAdminPicksFromFirebase('ipl');
+  if (cached) {
+    return cached;
+  }
+  if (backendError) {
+    throw new Error(String(backendError && backendError.message ? backendError.message : backendError));
+  }
+  throw new Error('No Firebase cache available');
 }
 
 function renderIplResults(result, options = {}) {
@@ -4837,15 +5039,65 @@ function renderIplResults(result, options = {}) {
 
 async function _runNbaVariantModel(model, dateStr) {
   const label = formatModelRunDate(dateStr);
-  setModelStatus(model, `Loading ${NBA_MODEL_SOURCE_LABELS[model]} for ${label} from Firebase...`, 'running');
-  const result = await _runAsyncModelRequest(model, '', { date: dateStr });
+  if (model === 'nba-new' && isAdminModelRunnerUser()) {
+    setModelStatus(model, 'Refreshing SportsLine odds...', 'running');
+    await _refreshSportsLineOdds();
+  }
+  setModelStatus(
+    model,
+    isAdminModelRunnerUser()
+      ? `Running ${NBA_MODEL_SOURCE_LABELS[model]} for ${label}...`
+      : `Loading ${NBA_MODEL_SOURCE_LABELS[model]} for ${label} from Firebase...`,
+    'running'
+  );
+  const result = await _runAsyncModelRequest(
+    model,
+    model === 'nba-old' ? '/run-nba-old-model' : '/run-nba-model',
+    {
+      async: true,
+      date: dateStr,
+      fallbackModelKey: model === 'nba-old' ? 'nba_old' : 'nba_new',
+      fallbackDateStr: dateStr,
+    }
+  );
   const picks = _extractModelPicks(result);
-  setModelStatus(model, `Done. ${picks.length} prediction(s) returned for ${label}.`, 'ok');
+  const note = String(result && result.note || '').trim();
+  if (result && result.source === 'firebase_cache') {
+    showToast('Loaded from Firebase cache');
+  }
+  setModelStatus(
+    model,
+    note || (result && result.source === 'firebase_cache'
+      ? `Loaded ${picks.length} cached prediction(s) for ${label}.`
+      : `Done. ${picks.length} prediction(s) returned for ${label}.`),
+    'ok'
+  );
   loadModelTimestamps();
   return picks;
 }
 
-async function _refreshSportsLineOdds() {}
+async function _refreshSportsLineOdds() {
+  if (!isAdminModelRunnerUser()) return;
+  const backendHealthy = await checkAdminLocalBackendHealth();
+  if (!backendHealthy) return;
+  try {
+    const resp = await fetch(`${ADMIN_BACKEND_URL}/run-sportsline-odds`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ async: true, league: 'NBA' }),
+      signal: _createTimeoutSignal(MODEL_BACKEND_TIMEOUT_MS),
+    });
+    const launch = await resp.json().catch(() => ({}));
+    if (!resp.ok || !launch.ok) {
+      throw new Error(launch.error || `HTTP ${resp.status}`);
+    }
+    if (launch.job_id) {
+      await _pollJob(launch.job_id, 'sportsline-odds', ADMIN_BACKEND_URL, MODEL_BACKEND_TIMEOUT_MS);
+    }
+  } catch (err) {
+    console.warn('SportsLine odds refresh failed (non-fatal):', err);
+  }
+}
 
 async function runNbaModelComparison() {
   const btn = document.getElementById('btn-run-nba-compare');
@@ -4908,11 +5160,40 @@ async function loadNbaPropsGames() {
   setModelStatus('nba-props', 'Loading today\'s games...', 'running');
 
   try {
-    const games = await loadPropsGamesFromFirebase();
+    let games = [];
+    let backendError = null;
+    if (isAdminModelRunnerUser()) {
+      const backendHealthy = await checkAdminLocalBackendHealth();
+      if (backendHealthy) {
+        try {
+          const resp = await fetch(`${ADMIN_BACKEND_URL}/nba-props-games`, {
+            method: 'GET',
+            cache: 'no-store',
+            signal: _createTimeoutSignal(MODEL_BACKEND_TIMEOUT_MS),
+          });
+          const data = await resp.json().catch(() => ({}));
+          if (!resp.ok || !data.ok) {
+            throw new Error(data.error || `HTTP ${resp.status}`);
+          }
+          games = Array.isArray(data.games) ? data.games : [];
+        } catch (err) {
+          backendError = err;
+        }
+      } else {
+        backendError = new Error('Local admin backend is offline');
+      }
+    }
+    if (!games.length) {
+      games = await loadPropsGamesFromFirebase();
+    }
     const current = String(select.value || '');
     if (!games.length) {
       select.innerHTML = '<option value="">No games found for today</option>';
-      setModelStatus('nba-props', 'No NBA games found for today\'s slate', 'ok');
+      if (backendError) {
+        setModelStatus('nba-props', `Game list unavailable: ${String(backendError && backendError.message ? backendError.message : backendError)}`, 'error');
+      } else {
+        setModelStatus('nba-props', 'No NBA games found for today\'s slate', 'ok');
+      }
       return;
     }
     const options = games.map((g) => {
@@ -4935,7 +5216,49 @@ async function loadNbaPropsGames() {
   }
 }
 
-async function _pollJob() { return null; }
+async function _pollJob(jobId, model, baseUrl = ADMIN_BACKEND_URL, timeoutMs = 600000) {
+  const pollInterval = 3000;
+  const started = Date.now();
+  let consecutiveFailures = 0;
+
+  while (true) {
+    const elapsedMs = Date.now() - started;
+    if (elapsedMs > timeoutMs) {
+      setModelStatus(model, 'Timed out waiting for model job', 'error');
+      return null;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, pollInterval));
+    try {
+      const resp = await fetch(`${baseUrl}/job-status?id=${encodeURIComponent(jobId)}`, {
+        method: 'GET',
+        cache: 'no-store',
+        signal: _createTimeoutSignal(5000),
+      });
+      if (!resp.ok) {
+        throw new Error(`HTTP ${resp.status}`);
+      }
+      const data = await resp.json().catch(() => ({}));
+      consecutiveFailures = 0;
+      if (data.status === 'done') {
+        return data;
+      }
+      if (model === 'sportytrader') {
+        setModelStatus(model, `Running SportyTrader scrape... ${Math.floor(elapsedMs / 1000)}s`, 'running');
+      } else if (model === 'sportsgambler') {
+        setModelStatus(model, `Running SportsGambler scrape... ${Math.floor(elapsedMs / 1000)}s`, 'running');
+      } else {
+        setModelStatus(model, `Waiting for local backend... ${Math.floor(elapsedMs / 1000)}s`, 'running');
+      }
+    } catch (err) {
+      consecutiveFailures += 1;
+      if (consecutiveFailures >= 3) {
+        setModelStatus(model, `Lost connection while polling: ${String(err && err.message ? err.message : err)}`, 'error');
+        return null;
+      }
+    }
+  }
+}
 
 function _normalizeFeedDate(dateStr) {
   const raw = String(dateStr || '').trim();
@@ -4956,15 +5279,65 @@ function _isFreshFeedMeta(meta, expectedDate = _getTodayFeedDate()) {
   return _normalizeFeedDate(meta.date) === expectedDate;
 }
 
-async function _fetchManualFeedPayload() {
-  throw new Error('Manual feed fetching is disabled in firebase_direct mode');
+async function _fetchManualFeedPayload(candidates) {
+  let lastErr = 'Feed unavailable';
+  for (const url of candidates) {
+    try {
+      const res = await fetch(url, { cache: 'no-store', signal: _createTimeoutSignal(5000) });
+      if (!res.ok) throw new Error(`Feed HTTP ${res.status}`);
+      return await res.json();
+    } catch (err) {
+      lastErr = String(err && err.message ? err.message : err);
+    }
+  }
+  throw new Error(lastErr);
 }
 
-function _buildManualFeedCandidates() { return []; }
+function _buildManualFeedCandidates(feedUrl, endpointPath = '') {
+  const cacheBust = `t=${Date.now()}`;
+  const candidates = [];
+  if (endpointPath && isAdminModelRunnerUser()) {
+    candidates.push(`${ADMIN_BACKEND_URL}${endpointPath}?${cacheBust}`);
+  }
+  candidates.push(`${feedUrl}?${cacheBust}`);
+  return candidates.filter((value, index, list) => value && list.indexOf(value) === index);
+}
 
 async function loadSportyTraderManualFeed() {
-  const cache = await getAdminPicksFromFirebase('sportytrader');
-  return cache ? { picks: cache.picks || [], meta: cache.meta || {} } : { picks: [], meta: {} };
+  const firebaseCache = await getAdminPicksFromFirebase('sportytrader');
+  if (firebaseCache) {
+    return { picks: firebaseCache.picks || [], meta: firebaseCache.meta || {} };
+  }
+
+  const payload = await _fetchManualFeedPayload(
+    _buildManualFeedCandidates(SPORTYTRADER_FEED_URL, '/sportytrader-feed')
+  );
+  const picks = Array.isArray(payload) ? payload : payload.picks;
+  if (!Array.isArray(picks)) {
+    throw new Error('Invalid feed format: expected { picks: [] }');
+  }
+  const normalized = picks.map((p) => ({
+    source: String(p.source || 'SportyTrader').trim() || 'SportyTrader',
+    pick: String(p.pick || '').trim(),
+    sport: String(p.sport || 'NBA').trim() || 'NBA',
+    odds: normalizeOddsValue(p.odds),
+    units: Number(p.units) || 1,
+    probability: (p.probability == null ? null : Number(p.probability)),
+    edge: (p.edge == null ? null : Number(p.edge)),
+    decision: String(p.decision || 'BET').toUpperCase(),
+  })).filter((p) => {
+    const sport = String(p.sport || '').toUpperCase();
+    return p.pick && (sport === 'NBA' || sport === 'MLB');
+  });
+  return {
+    picks: normalized,
+    meta: {
+      updatedAt: String(payload.updated_at || payload.updatedAt || '').trim(),
+      date: String(payload.date || '').trim(),
+      note: String(payload.note || '').trim(),
+      leagues: String(payload.leagues || '').trim(),
+    },
+  };
 }
 
 function getSportyTraderCachedFeed() {
@@ -4984,8 +5357,40 @@ function saveSportyTraderCachedFeed(payload) {
 }
 
 async function loadSportsgamblerManualFeed() {
-  const cache = await getAdminPicksFromFirebase('sportsgambler');
-  return cache ? { picks: cache.picks || [], meta: cache.meta || {} } : { picks: [], meta: {} };
+  const firebaseCache = await getAdminPicksFromFirebase('sportsgambler');
+  if (firebaseCache) {
+    return { picks: firebaseCache.picks || [], meta: firebaseCache.meta || {} };
+  }
+
+  const payload = await _fetchManualFeedPayload(
+    _buildManualFeedCandidates(SPORTSGAMBLER_FEED_URL)
+  );
+  const picks = Array.isArray(payload) ? payload : payload.picks;
+  if (!Array.isArray(picks)) {
+    throw new Error('Invalid feed format: expected { picks: [] }');
+  }
+  const normalized = picks.map((p) => ({
+    source: String(p.source || 'SportsGambler').trim() || 'SportsGambler',
+    pick: String(p.pick || '').trim(),
+    sport: String(p.sport || 'NBA').trim() || 'NBA',
+    odds: normalizeOddsValue(p.odds),
+    units: Number(p.units) || 1,
+    probability: (p.probability == null ? null : Number(p.probability)),
+    edge: (p.edge == null ? null : Number(p.edge)),
+    decision: String(p.decision || 'BET').toUpperCase(),
+  })).filter((p) => {
+    const sport = String(p.sport || '').toUpperCase();
+    return p.pick && (sport === 'NBA' || sport === 'MLB');
+  });
+  return {
+    picks: normalized,
+    meta: {
+      updatedAt: String(payload.updated_at || payload.updatedAt || '').trim(),
+      date: String(payload.date || '').trim(),
+      note: String(payload.note || '').trim(),
+      leagues: String(payload.leagues || '').trim(),
+    },
+  };
 }
 
 function getSportsgamblerCachedFeed() {
@@ -5038,11 +5443,85 @@ function setSportyTraderSyncMeta(meta) {
 }
 
 async function syncSportyTraderFromServer() {
-  throw new Error('SportyTrader sync is not available in firebase_direct mode');
+  if (!isAdminModelRunnerUser()) {
+    throw new Error('SportyTrader live sync is admin-only');
+  }
+  const backendHealthy = await checkAdminLocalBackendHealth();
+  if (!backendHealthy) {
+    throw new Error('Local admin backend is offline');
+  }
+
+  const resp = await fetch(`${ADMIN_BACKEND_URL}/run-sportytrader`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ async: true, date: _getTodayDateStr(), sports: ['nba', 'mlb'] }),
+    signal: _createTimeoutSignal(MODEL_BACKEND_TIMEOUT_MS),
+  });
+  const launch = await resp.json().catch(() => ({}));
+  if (!resp.ok || !launch.ok) {
+    throw new Error(launch.error || `HTTP ${resp.status}`);
+  }
+  const data = launch.job_id
+    ? await _pollJob(launch.job_id, 'sportytrader', ADMIN_BACKEND_URL, 600000)
+    : launch;
+  if (!data || !data.ok) {
+    throw new Error((data && data.error) || 'SportyTrader job failed');
+  }
+  const picks = Array.isArray(data.picks) ? data.picks.filter((p) => {
+    const sport = String(p.sport || '').toUpperCase();
+    return sport === 'NBA' || sport === 'MLB';
+  }) : [];
+  return {
+    picks,
+    meta: {
+      updatedAt: new Date().toISOString(),
+      date: _getTodayFeedDate(),
+      note: 'Synced from local backend',
+      from: 'local-backend',
+      leagues: 'nba,mlb',
+    },
+  };
 }
 
 async function syncSportsgamblerFromServer() {
-  throw new Error('SportsGambler sync is not available in firebase_direct mode');
+  if (!isAdminModelRunnerUser()) {
+    throw new Error('SportsGambler live sync is admin-only');
+  }
+  const backendHealthy = await checkAdminLocalBackendHealth();
+  if (!backendHealthy) {
+    throw new Error('Local admin backend is offline');
+  }
+
+  const resp = await fetch(`${ADMIN_BACKEND_URL}/run-sportsgambler`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ async: true, date: _getTodayDateStr(), sports: ['nba', 'mlb'] }),
+    signal: _createTimeoutSignal(MODEL_BACKEND_TIMEOUT_MS),
+  });
+  const launch = await resp.json().catch(() => ({}));
+  if (!resp.ok || !launch.ok) {
+    throw new Error(launch.error || `HTTP ${resp.status}`);
+  }
+  const data = launch.job_id
+    ? await _pollJob(launch.job_id, 'sportsgambler', ADMIN_BACKEND_URL, 600000)
+    : launch;
+  if (!data || !data.ok) {
+    throw new Error((data && data.error) || 'SportsGambler job failed');
+  }
+  const picks = Array.isArray(data.picks) ? data.picks.filter((p) => {
+    const sport = String(p.sport || '').toUpperCase();
+    return sport === 'NBA' || sport === 'MLB';
+  }) : [];
+  return {
+    picks,
+    meta: {
+      updatedAt: new Date().toISOString(),
+      date: _getTodayFeedDate(),
+      note: 'Synced from local backend',
+      from: 'local-backend',
+      leagues: 'nba,mlb',
+    },
+  };
 }
 
 async function runModel(model) {
@@ -5105,9 +5584,42 @@ async function runModel(model) {
   if (model === 'sportytrader') {
     let backendErr = '';
     try {
-      throw new Error('SportyTrader sync is not available in firebase_direct mode');
+      setModelStatus(model, 'Trying live SportyTrader sync...', 'running');
+      const synced = await syncSportyTraderFromServer();
+      _clearNbaComparisonResults();
+      pendingModelPicks = synced.picks;
+      renderModelResults(synced.picks, { meta: '' });
+      saveSportyTraderCachedFeed({ picks: synced.picks, meta: synced.meta });
+      setSportyTraderSyncMeta(synced.meta);
+      setModelStatus(model, `Synced ${synced.picks.length} pick(s) from SportyTrader`, 'ok');
     } catch (e) {
-      setModelStatus(model, `Error: ${String(e && e.message ? e.message : e)}`, 'error');
+      backendErr = String(e && e.message ? e.message : e);
+      try {
+        const loaded = await loadSportyTraderManualFeed();
+        _clearNbaComparisonResults();
+        pendingModelPicks = loaded.picks;
+        renderModelResults(loaded.picks, { meta: '' });
+        const meta = {
+          ...loaded.meta,
+          from: loaded.meta && loaded.meta.from ? loaded.meta.from : 'firebase-cache',
+          updatedAt: loaded.meta && loaded.meta.updatedAt ? loaded.meta.updatedAt : new Date().toISOString(),
+        };
+        saveSportyTraderCachedFeed({ picks: loaded.picks, meta });
+        setSportyTraderSyncMeta(meta);
+        setModelStatus(model, `Loaded ${loaded.picks.length} cached SportyTrader pick(s)`, 'ok');
+      } catch (feedErr) {
+        const cached = getSportyTraderCachedFeed();
+        if (cached && Array.isArray(cached.picks) && cached.picks.length) {
+          _clearNbaComparisonResults();
+          pendingModelPicks = cached.picks;
+          renderModelResults(cached.picks, { meta: '' });
+          setSportyTraderSyncMeta({ ...(cached.meta || {}), from: 'browser-cache' });
+          setModelStatus(model, `Using browser-cached SportyTrader feed (${cached.picks.length} pick(s))`, 'ok');
+        } else {
+          const feedMsg = String(feedErr && feedErr.message ? feedErr.message : feedErr);
+          setModelStatus(model, `SportyTrader unavailable (${backendErr}; ${feedMsg})`, 'error');
+        }
+      }
     } finally {
       _resetModelButton(model);
     }
@@ -5116,26 +5628,81 @@ async function runModel(model) {
 
   if (model === 'sportsgambler') {
     try {
-      throw new Error('SportsGambler sync is not available in firebase_direct mode');
+      setModelStatus(model, 'Trying live SportsGambler sync...', 'running');
+      const synced = await syncSportsgamblerFromServer();
+      _clearNbaComparisonResults();
+      pendingModelPicks = synced.picks;
+      renderModelResults(synced.picks, { meta: '' });
+      saveSportsgamblerCachedFeed({ picks: synced.picks, meta: synced.meta });
+      setSportsgamblerSyncMeta(synced.meta);
+      setModelStatus(model, `Synced ${synced.picks.length} pick(s) from SportsGambler`, 'ok');
     } catch (e) {
-      setModelStatus(model, `Error: ${String(e && e.message ? e.message : e)}`, 'error');
+      const backendErr = String(e && e.message ? e.message : e);
+      try {
+        const loaded = await loadSportsgamblerManualFeed();
+        _clearNbaComparisonResults();
+        pendingModelPicks = loaded.picks;
+        renderModelResults(loaded.picks, { meta: '' });
+        const meta = {
+          ...loaded.meta,
+          from: loaded.meta && loaded.meta.from ? loaded.meta.from : 'firebase-cache',
+          updatedAt: loaded.meta && loaded.meta.updatedAt ? loaded.meta.updatedAt : new Date().toISOString(),
+        };
+        saveSportsgamblerCachedFeed({ picks: loaded.picks, meta });
+        setSportsgamblerSyncMeta(meta);
+        setModelStatus(model, `Loaded ${loaded.picks.length} cached SportsGambler pick(s)`, 'ok');
+      } catch (feedErr) {
+        const cached = getSportsgamblerCachedFeed();
+        if (cached && Array.isArray(cached.picks) && cached.picks.length) {
+          _clearNbaComparisonResults();
+          pendingModelPicks = cached.picks;
+          renderModelResults(cached.picks, { meta: '' });
+          setSportsgamblerSyncMeta({ ...(cached.meta || {}), from: 'browser-cache' });
+          setModelStatus(model, `Using browser-cached SportsGambler feed (${cached.picks.length} pick(s))`, 'ok');
+        } else {
+          const feedMsg = String(feedErr && feedErr.message ? feedErr.message : feedErr);
+          setModelStatus(model, `SportsGambler unavailable (${backendErr}; ${feedMsg})`, 'error');
+        }
+      }
     } finally {
       _resetModelButton(model);
     }
     return;
   }
 
-  const body = { date: _getTodayIsoDate ? _getTodayIsoDate() : getFirestoreDateKey() };
+  let endpoint = '';
+  const body = {
+    async: true,
+    date: _getTodayIsoDate ? _getTodayIsoDate() : getFirestoreDateKey(),
+  };
+  if (model === 'mlb') {
+    endpoint = '/run-mlb-model';
+    body.fallbackModelKey = 'mlb';
+    body.fallbackDateStr = body.date;
+  }
   if (model === 'nba-props') {
+    endpoint = '/run-nba-props-model';
+    body.fallbackModelKey = 'props';
+    body.fallbackDateStr = body.date;
     const gameSelect = document.getElementById('nba-props-game-select');
     const selectedGameLabel = String(gameSelect && gameSelect.value ? gameSelect.value : '').trim();
     if (selectedGameLabel) body.game_label = selectedGameLabel;
   }
 
   try {
-    const result = await _runAsyncModelRequest(model === 'nba-props' ? 'nba-props' : model, '', body);
+    const result = await _runAsyncModelRequest(model === 'nba-props' ? 'nba-props' : model, endpoint, body);
     const picks = _extractModelPicks(result);
-    setModelStatus(model, `Done. ${picks.length} prediction(s) returned.`, 'ok');
+    const note = String(result && result.note || '').trim();
+    if (result && result.source === 'firebase_cache') {
+      showToast('Loaded from Firebase cache');
+    }
+    setModelStatus(
+      model,
+      note || (result && result.source === 'firebase_cache'
+        ? `Loaded ${picks.length} cached prediction(s).`
+        : `Done. ${picks.length} prediction(s) returned.`),
+      'ok'
+    );
     _clearNbaComparisonResults();
     pendingModelPicks = picks;
     renderModelResults(picks, { meta: '' });
@@ -5475,17 +6042,7 @@ function initPickLogFilterCleanup() {
 }
 
 function disableDeprecatedSyncButtons() {
-  const disabled = [
-    ['sportytrader', 'SportyTrader sync unavailable'],
-    ['sportsgambler', 'SportsGambler sync unavailable'],
-  ];
-  for (const [model, message] of disabled) {
-    const btn = document.getElementById('btn-run-' + model);
-    if (!btn) continue;
-    btn.disabled = true;
-    btn.textContent = 'UNAVAILABLE';
-    btn.title = message;
-  }
+  refreshAdminLiveControls();
 }
 
 initTheme();
@@ -5493,7 +6050,7 @@ initializeNbaModelDate();
 initSportyTraderSyncMeta();
 initSportsgamblerSyncMeta();
 initPickLogFilterCleanup();
-disableDeprecatedSyncButtons();
+refreshAdminLiveControls();
 initDayOfWeekChartRendering();
 window.dispatchEvent(new Event('pickledger:helpers-ready'));
 syncWithServer().catch(() => setSyncStatus('offline'));
@@ -5507,6 +6064,10 @@ if (missingStartTimesCount() > 0) {
 }
 (async () => {
   await window._authStateReady;
+  refreshAdminLiveControls();
+  if (isAdminModelRunnerUser()) {
+    checkAdminLocalBackendHealth(true).catch(() => {});
+  }
   if (window._userUid && hasMeaningfulLocalState()) {
     scheduleLedgerStateSync();
     pushLedgerState(true);

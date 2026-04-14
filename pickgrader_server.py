@@ -728,11 +728,6 @@ def _get_firestore_client():
         if _firestore_client is not None:
             return _firestore_client
 
-        env_backed_client = _init_admin_firestore()
-        if env_backed_client is not None:
-            _firestore_client = env_backed_client
-            return _firestore_client
-
         try:
             import firebase_admin
             from firebase_admin import firestore as firestore_client
@@ -3404,6 +3399,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+        self.send_header("Access-Control-Allow-Private-Network", "true")
 
     def _send_json(
         self,
