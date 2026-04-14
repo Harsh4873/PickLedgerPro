@@ -1246,7 +1246,12 @@
     if (!uid) return null;
     const normalizeLegacyLedgerState = (payload) => {
       const data = payload && typeof payload === 'object' ? payload : {};
-      const ledger = data.ledger && typeof data.ledger === 'object' ? data.ledger : data;
+      const embeddedLedger = data.picks && typeof data.picks === 'object' && !Array.isArray(data.picks)
+        ? data.picks
+        : null;
+      const ledger = data.ledger && typeof data.ledger === 'object'
+        ? data.ledger
+        : (embeddedLedger && typeof embeddedLedger === 'object' ? embeddedLedger : data);
       const addedPicks = Array.isArray(ledger.addedPicks)
         ? ledger.addedPicks
         : (Array.isArray(data.picks) ? data.picks : []);
@@ -1269,26 +1274,63 @@
         gameTimes: startTimes,
       };
     };
-    const hasMeaningfulLedgerState = (state) => (
-      state.addedPicks.length ||
-      state.deletedPickIds.length ||
-      Object.keys(state.results).length ||
-      Object.keys(state.startTimes).length
-    );
+    const mergeLedgerStates = (preferredState, fallbackState) => {
+      const primary = preferredState && typeof preferredState === 'object' ? preferredState : null;
+      const secondary = fallbackState && typeof fallbackState === 'object' ? fallbackState : null;
+      if (!primary) return secondary;
+      if (!secondary) return primary;
+
+      const picksById = new Map();
+      const ingest = (pick) => {
+        if (!pick || typeof pick !== 'object') return;
+        const rawId = pick.id != null ? String(pick.id) : '';
+        const key = rawId || `${pick.source || ''}::${pick.pick || ''}::${pick.date || ''}`;
+        if (!key) return;
+        picksById.set(key, pick);
+      };
+      secondary.addedPicks.forEach(ingest);
+      primary.addedPicks.forEach(ingest);
+
+      const mergedDeletedIds = [...new Set([
+        ...secondary.deletedPickIds,
+        ...primary.deletedPickIds,
+      ].map(v => String(v)))];
+      const mergedResults = {
+        ...(secondary.results || {}),
+        ...(primary.results || {}),
+      };
+      const mergedStartTimes = {
+        ...(secondary.startTimes || {}),
+        ...(primary.startTimes || {}),
+      };
+      return {
+        addedPicks: [...picksById.values()],
+        deletedPickIds: mergedDeletedIds,
+        results: mergedResults,
+        startTimes: mergedStartTimes,
+        gameTimes: mergedStartTimes,
+      };
+    };
+    const hasMeaningfulLedgerState = (state) => {
+      const normalized = state && typeof state === 'object'
+        ? state
+        : { addedPicks: [], deletedPickIds: [], results: {}, startTimes: {} };
+      return (
+        normalized.addedPicks.length ||
+        normalized.deletedPickIds.length ||
+        Object.keys(normalized.results).length ||
+        Object.keys(normalized.startTimes).length
+      );
+    };
     try {
       const primaryRef = doc(db, 'users', uid);
       const candidateIds = getFirestoreUserDocCandidates(uid);
       for (const candidateId of candidateIds) {
+        let topLevelState = null;
         try {
           const snap = await getDoc(doc(db, 'users', candidateId));
           const data = snap.exists() ? (snap.data() || {}) : {};
-          const topLevelState = normalizeLegacyLedgerState(data);
-          if (hasMeaningfulLedgerState(topLevelState)) {
-            if (candidateId !== uid) {
-              await setDoc(primaryRef, buildUserDocLedgerPayload(topLevelState), { merge: true });
-            }
-            return topLevelState;
-          }
+          topLevelState = normalizeLegacyLedgerState(data);
         } catch (e) {
           console.warn(`[Firestore] top-level ledger read failed for ${candidateId}:`, e.message);
         }
@@ -1296,22 +1338,49 @@
         try {
           const legacyRef = doc(db, 'users', candidateId, 'data', 'ledger');
           const legacySnap = await getDoc(legacyRef);
-          if (!legacySnap.exists()) continue;
+          if (!legacySnap.exists()) {
+            if (hasMeaningfulLedgerState(topLevelState)) {
+              if (candidateId !== uid) {
+                await setDoc(primaryRef, buildUserDocLedgerPayload(topLevelState), { merge: true });
+              }
+              return topLevelState;
+            }
+            continue;
+          }
           const legacyRaw = legacySnap.data() || {};
           let legacyPayload = legacyRaw;
           if (typeof legacyRaw.picks === 'string') {
             try {
-              legacyPayload = { ...legacyRaw, picks: JSON.parse(legacyRaw.picks) };
+              const parsedLegacyPicks = JSON.parse(legacyRaw.picks);
+              legacyPayload = Array.isArray(parsedLegacyPicks)
+                ? { ...legacyRaw, picks: parsedLegacyPicks }
+                : (parsedLegacyPicks && typeof parsedLegacyPicks === 'object'
+                  ? { ...legacyRaw, ledger: parsedLegacyPicks }
+                  : { ...legacyRaw, picks: [] });
             } catch {
               legacyPayload = { ...legacyRaw, picks: [] };
             }
           }
-          const legacyState = normalizeLegacyLedgerState(legacyPayload);
-          if (!hasMeaningfulLedgerState(legacyState)) continue;
-          await setDoc(primaryRef, buildUserDocLedgerPayload(legacyState), { merge: true });
-          return legacyState;
+          const mergedState = mergeLedgerStates(topLevelState, normalizeLegacyLedgerState(legacyPayload));
+          if (!hasMeaningfulLedgerState(mergedState)) {
+            if (hasMeaningfulLedgerState(topLevelState)) {
+              if (candidateId !== uid) {
+                await setDoc(primaryRef, buildUserDocLedgerPayload(topLevelState), { merge: true });
+              }
+              return topLevelState;
+            }
+            continue;
+          }
+          await setDoc(primaryRef, buildUserDocLedgerPayload(mergedState), { merge: true });
+          return mergedState;
         } catch (e) {
           console.warn(`[Firestore] legacy ledger read failed for ${candidateId}:`, e.message);
+          if (hasMeaningfulLedgerState(topLevelState)) {
+            if (candidateId !== uid) {
+              await setDoc(primaryRef, buildUserDocLedgerPayload(topLevelState), { merge: true });
+            }
+            return topLevelState;
+          }
         }
       }
       return null;
