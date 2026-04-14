@@ -5,9 +5,11 @@ from datetime import datetime
 
 from calibration import apply_moneyline_calibration
 from live_data import build_live_dataframe
+from market_mechanics import calculate_edge, check_minimum_threshold, remove_vig
 from moneyline_model import predict_home_win_probability
 from prediction_logging import append_prediction_rows, build_prediction_log_rows
 from probability_layers import predict_total_runs
+from sportsline_odds import fetch_mlb_market_odds
 from totals_model import predict_totals
 
 
@@ -66,7 +68,17 @@ def main(argv: list[str] | None = None) -> int:
     print("=" * 60)
     print(f"Found {len(predictions)} games.\n")
 
+    market_odds_map = fetch_mlb_market_odds()
+
     prediction_rows = predictions.to_dict("records")
+    for row in prediction_rows:
+        away_key = str(row.get("away_team", "")).strip().split()[-1].lower() if row.get("away_team") else ""
+        home_key = str(row.get("home_team", "")).strip().split()[-1].lower() if row.get("home_team") else ""
+        mo = market_odds_map.get((away_key, home_key), {})
+        row["market_ml_away"] = mo.get("ml_away")
+        row["market_ml_home"] = mo.get("ml_home")
+        row["market_total_line"] = mo.get("total_line")
+
     append_prediction_rows(build_prediction_log_rows(prediction_rows))
 
     for row in prediction_rows:
@@ -81,14 +93,62 @@ def main(argv: list[str] | None = None) -> int:
             f"{away_odds}|{home_odds}|{away_prob:.4f}|{home_prob:.4f}"
         )
 
-        predicted_total = float(row.get("predicted_total_runs", predict_total_runs(row)))
-        ou_line = 8.5
-        if predicted_total > ou_line + 0.5:
-            selection = "OVER"
-        elif predicted_total < ou_line - 0.5:
-            selection = "UNDER"
+        ml_away = row.get("market_ml_away")
+        ml_home = row.get("market_ml_home")
+        market_total = row.get("market_total_line")
+
+        if ml_away is not None and ml_home is not None:
+            true_away, true_home = remove_vig(int(ml_away), int(ml_home))
+            home_ml_edge = calculate_edge(home_prob, true_home)
+            away_ml_edge = calculate_edge(away_prob, true_away)
+            best_edge = max(home_ml_edge, away_ml_edge)
+            best_side = row["home_team"] if home_ml_edge >= away_ml_edge else row["away_team"]
+            ml_bet = check_minimum_threshold(best_edge, "moneyline")
+            print(
+                f"ML market: {row['away_team']} {int(ml_away):+d} | "
+                f"{row['home_team']} {int(ml_home):+d}"
+            )
+            print(
+                f"ML vig-free: {row['away_team']} {true_away:.1%} | "
+                f"{row['home_team']} {true_home:.1%}"
+            )
+            print(
+                f"ML edge: best={best_side} {best_edge:+.1%} | "
+                f"BET: {'YES' if ml_bet else 'PASS'}"
+            )
         else:
-            selection = "PASS"
+            print("ML market: unavailable (SportsLine scrape failed)")
+            print(f"ML model only: {row['home_team']} {home_prob:.1%}")
+
+        predicted_total = float(row.get("predicted_total_runs", predict_total_runs(row)))
+
+        if market_total is not None:
+            line = float(market_total)
+            totals_edge = predicted_total - line
+            direction = "OVER" if totals_edge > 0 else "UNDER"
+            totals_bet = abs(totals_edge) >= 0.4 and check_minimum_threshold(
+                abs(totals_edge) / 9.0, "total"
+            )
+            print(
+                f"OU market: {line:.1f} | model: {predicted_total:.2f} | "
+                f"edge: {totals_edge:+.2f} runs"
+            )
+            print(
+                f"OU pick: {direction} {line:.1f} | "
+                f"BET: {'YES' if totals_bet else 'PASS'}"
+            )
+            selection = direction if totals_bet else "PASS"
+            ou_line = line
+        else:
+            ou_line = 8.5
+            if predicted_total > ou_line + 0.5:
+                selection = "OVER"
+            elif predicted_total < ou_line - 0.5:
+                selection = "UNDER"
+            else:
+                selection = "PASS"
+            print(f"OU market: unavailable | model: {predicted_total:.2f}")
+
         print(f"OU|{selection}|{ou_line}|{predicted_total:.2f}")
         print("---")
 
