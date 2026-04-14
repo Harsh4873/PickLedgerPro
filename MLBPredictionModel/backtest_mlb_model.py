@@ -14,7 +14,9 @@ from totals_model import predict_totals
 
 
 BASE_DIR = Path(__file__).resolve().parent
-DATASET_PATH = BASE_DIR / "data" / "mlb_historical_dataset_2023_2024.csv"
+_PRIMARY_DATASET = BASE_DIR / "data" / "mlb_historical_dataset.csv"
+_LEGACY_DATASET = BASE_DIR / "data" / "mlb_historical_dataset_2023_2024.csv"
+DATASET_PATH = _PRIMARY_DATASET if _PRIMARY_DATASET.exists() else _LEGACY_DATASET
 REPORT_PATH = BASE_DIR / "mlb_backtest_report.json"
 SAMPLE_PATH = BASE_DIR / "mlb_backtest_sample.csv"
 

@@ -717,7 +717,7 @@ def parse_args() -> argparse.Namespace:
         "--seasons",
         nargs="+",
         type=int,
-        default=[2023, 2024, 2025],
+        default=[2024, 2025, 2026],
         help="Regular seasons to include in the dataset.",
     )
     parser.add_argument(

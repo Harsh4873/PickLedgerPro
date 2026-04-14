@@ -125,7 +125,7 @@ def train_moneyline_model(
     rebuild_dataset: bool = False,
 ) -> dict[str, Any]:
     if rebuild_dataset or not dataset_path.exists():
-        target_seasons = seasons or [2023, 2024, 2025]
+        target_seasons = seasons or [2024, 2025, 2026]
         build_historical_dataset(target_seasons, output_path=dataset_path)
 
     frame = pd.read_csv(dataset_path, parse_dates=["game_date"])

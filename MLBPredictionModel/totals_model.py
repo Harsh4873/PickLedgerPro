@@ -83,8 +83,12 @@ def add_totals_features(frame: pd.DataFrame) -> pd.DataFrame:
 def build_recency_sample_weights(frame: pd.DataFrame) -> np.ndarray:
     years = frame["game_date"].dt.year
     weights = np.ones(len(frame), dtype=float)
-    weights[years == 2024] = 2.0
+    # More recent seasons carry heavier weight because team composition,
+    # pitching usage patterns, and run-scoring environment change year to year.
     weights[years == 2023] = 1.0
+    weights[years == 2024] = 1.0
+    weights[years == 2025] = 1.5
+    weights[years == 2026] = 2.0
     return weights
 
 
@@ -206,8 +210,10 @@ def train_totals_model(dataset_path: Path = DATASET_PATH) -> dict[str, Any]:
         "training_years": sorted(train_frame["game_date"].dt.year.unique().astype(int).tolist()),
         "validation_years": sorted(validation_frame["game_date"].dt.year.unique().astype(int).tolist()),
         "sample_weighting": {
-            "2024": 2.0,
             "2023": 1.0,
+            "2024": 1.0,
+            "2025": 1.5,
+            "2026": 2.0,
         },
         "feature_columns": TOTALS_NUMERIC_FEATURES + TOTALS_CATEGORICAL_FEATURES,
         "raw_model_metrics": raw_model_metrics,

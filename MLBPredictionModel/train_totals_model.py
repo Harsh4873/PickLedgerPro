@@ -15,7 +15,13 @@ def _current_validation_mae() -> float | None:
 
 
 if __name__ == "__main__":
-    dataset_path = Path("data/mlb_historical_dataset_2023_2024.csv")
+    # Use the canonical build_historical_dataset.py output (data/mlb_historical_dataset.csv).
+    # The previous frozen 2023-2024 snapshot is retained as a fallback only if the
+    # refreshed dataset is missing.
+    base_dir = Path(__file__).resolve().parent
+    primary_path = base_dir / "data" / "mlb_historical_dataset.csv"
+    legacy_path = base_dir / "data" / "mlb_historical_dataset_2023_2024.csv"
+    dataset_path = primary_path if primary_path.exists() else legacy_path
     dataset = pd.read_csv(dataset_path, parse_dates=["game_date"])
 
     min_date = dataset["game_date"].min().date()
