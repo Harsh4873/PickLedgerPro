@@ -1512,13 +1512,9 @@
       } else {
         syncVisibleUserRecord(getPreferredDisplayedRecord(null, record));
       }
-      if (isRankingsOwnerUser()) {
-        rankingsLedgerState = _coerceLedgerState(buildLedgerStatePayload());
-      } else {
-        loadCanonicalRankingsState().then(() => {
-          if (typeof render === 'function') render();
-        }).catch(() => {});
-      }
+      loadCanonicalRankingsState().then(() => {
+        if (typeof render === 'function') render();
+      }).catch(() => {});
       syncWithServer().catch(() => setSyncStatus('offline'));
     } else {
       // Show login gate
@@ -1913,6 +1909,7 @@ const MODEL_FIREBASE_KEY_ALIASES = {
 let ledgerStateSyncTimer = null;
 let ledgerStateSyncInFlight = false;
 let rankingsLedgerState = null;
+let adminHistoricalRankingsState = null;
 let adminLocalBackendHealthy = false;
 let adminLocalBackendCheckedAt = 0;
 
@@ -2017,6 +2014,74 @@ function refreshAdminLiveControls() {
       desc.textContent = isAdmin ? config.adminDesc : config.nonAdminDesc;
     }
   }
+}
+
+function hasMeaningfulLedgerData(state) {
+  const ledger = _coerceLedgerState(state);
+  return (
+    ledger.addedPicks.length > 0 ||
+    ledger.deletedPickIds.length > 0 ||
+    Object.keys(ledger.results).length > 0 ||
+    Object.keys(ledger.gameTimes).length > 0
+  );
+}
+
+function mergeLedgerStates(baseState, overlayState) {
+  const base = _coerceLedgerState(baseState);
+  const overlay = _coerceLedgerState(overlayState);
+  const pickMap = new Map();
+  const order = [];
+  const upsertPick = (pick, index) => {
+    if (!pick || typeof pick !== 'object') return;
+    const key = pick.id != null
+      ? String(pick.id)
+      : `${pick.source || ''}::${pick.pick || ''}::${pick.date || ''}::${index}`;
+    if (!pickMap.has(key)) order.push(key);
+    pickMap.set(key, pick);
+  };
+  base.addedPicks.forEach((pick, index) => upsertPick(pick, index));
+  overlay.addedPicks.forEach((pick, index) => upsertPick(pick, base.addedPicks.length + index));
+  return {
+    addedPicks: order.map((key) => pickMap.get(key)).filter(Boolean),
+    deletedPickIds: [...new Set([...base.deletedPickIds, ...overlay.deletedPickIds])],
+    results: { ...base.results, ...overlay.results },
+    gameTimes: { ...base.gameTimes, ...overlay.gameTimes },
+  };
+}
+
+async function loadAdminHistoricalRankingsState() {
+  if (!isRankingsOwnerUser()) return null;
+  if (hasMeaningfulLedgerData(adminHistoricalRankingsState)) {
+    return adminHistoricalRankingsState;
+  }
+  const backendHealthy = await checkAdminLocalBackendHealth();
+  if (!backendHealthy) return null;
+  try {
+    const resp = await fetch(`${ADMIN_BACKEND_URL}/ledger-state?uid=${encodeURIComponent(RANKINGS_STATE_UID)}`, {
+      method: 'GET',
+      cache: 'no-store',
+      signal: _createTimeoutSignal(5000),
+    });
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok || !data.ok || !data.state) {
+      throw new Error(data.error || `HTTP ${resp.status}`);
+    }
+    const state = _coerceLedgerState(data.state);
+    if (!hasMeaningfulLedgerData(state)) return null;
+    adminHistoricalRankingsState = state;
+    return state;
+  } catch (err) {
+    console.warn('[Rankings] admin historical ledger load failed:', err);
+    return null;
+  }
+}
+
+function getMergedRankingsLedgerState(localState) {
+  const local = _coerceLedgerState(localState);
+  if (!isRankingsOwnerUser() || !hasMeaningfulLedgerData(adminHistoricalRankingsState)) {
+    return local;
+  }
+  return mergeLedgerStates(adminHistoricalRankingsState, local);
 }
 
 function getCurrentFirebaseUid() {
@@ -2254,16 +2319,24 @@ function getPicksFromLedgerState(state) {
 }
 
 function getRankingsPicks() {
+  if (hasMeaningfulLedgerData(rankingsLedgerState)) {
+    return getPicksFromLedgerState(rankingsLedgerState);
+  }
   return getPicks();
 }
 
 async function loadCanonicalRankingsState() {
-  rankingsLedgerState = _coerceLedgerState(buildLedgerStatePayload().ledger || {});
+  const localState = _coerceLedgerState(buildLedgerStatePayload());
+  if (isRankingsOwnerUser()) {
+    await loadAdminHistoricalRankingsState();
+  }
+  rankingsLedgerState = getMergedRankingsLedgerState(localState);
   return rankingsLedgerState;
 }
 
 async function pushCanonicalRankingsState(state) {
-  rankingsLedgerState = _coerceLedgerState(state && state.ledger ? state.ledger : state);
+  const nextState = _coerceLedgerState(state && state.ledger ? state.ledger : state);
+  rankingsLedgerState = getMergedRankingsLedgerState(nextState);
   return true;
 }
 
@@ -3064,7 +3137,7 @@ function getRankingEligiblePicks(picks) {
   });
 }
 
-function getSourceStats(source, picks = getPicks()) {
+function getSourceStats(source, picks = getRankingsPicks()) {
   const all=Array.isArray(picks) ? picks : getPicks(), allSp=all.filter(p=>getRankingSourceKey(p)===source);
   if(!allSp.length) return null;
   const sp=allSp.filter(p=>p.result!=='pending');
@@ -3181,7 +3254,7 @@ function buildDayOfWeekChart() {
   const breakdown = document.getElementById('dow-model-breakdown');
   if (!heatmap || !breakdown) return;
 
-  const allPicks = getPicks();
+  const allPicks = getRankingsPicks();
   if (!allPicks.length) {
     heatmap.innerHTML = '<div class="empty-state">No decided picks yet</div>';
     breakdown.innerHTML = '';
@@ -3307,8 +3380,8 @@ function buildDayOfWeekChart() {
   });
 
   const sortedSources = [...sourceByDay.keys()].sort((a, b) => {
-    const aStats = getSourceStats(a);
-    const bStats = getSourceStats(b);
+    const aStats = getSourceStats(a, allPicks);
+    const bStats = getSourceStats(b, allPicks);
     const compositeDelta = (bStats ? bStats.composite : -Infinity) - (aStats ? aStats.composite : -Infinity);
     if (compositeDelta) return compositeDelta;
     const countDelta = (bStats ? bStats.count : 0) - (aStats ? aStats.count : 0);
@@ -4717,16 +4790,17 @@ function render() {
   }
 
   // Overall stats
-  const decided=picks.filter(p=>p.result!=='pending');
+  const statsPicks = getRankingsPicks();
+  const decided=statsPicks.filter(p=>p.result!=='pending');
   const w=decided.filter(p=>p.result==='win').length, l=decided.filter(p=>p.result==='loss').length;
-  const pu=decided.filter(p=>p.result==='push').length, pe=picks.filter(p=>p.result==='pending').length;
+  const pu=decided.filter(p=>p.result==='push').length, pe=statsPicks.filter(p=>p.result==='pending').length;
   const d=w+l, acc=d>0?(w/d*100).toFixed(1)+'%':'—';
   const nu=decided.reduce((s,p)=>s+p.pl,0), tw=decided.filter(p=>p.result!=='push').reduce((s,p)=>s+p.units,0);
   const roi=tw>0?((nu/tw)*100).toFixed(1)+'%':'—', nuf=nu;
   if (typeof window.updateRecordDisplays === 'function') {
     window.updateRecordDisplays(window.getPreferredDisplayedRecord({ wins: w, losses: l, pushes: pu }));
   }
-  document.getElementById('stat-picks').textContent=picks.length;
+  document.getElementById('stat-picks').textContent=statsPicks.length;
   document.getElementById('stat-wins').textContent=w;
   document.getElementById('stat-losses').textContent=l;
   document.getElementById('stat-pushes').textContent=pu;
