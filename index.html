@@ -817,8 +817,306 @@
   body[data-theme="light"] .dow-heat-bar-track { background: rgba(15,25,40,0.08); }
   body[data-theme="light"] .dow-table th { background: rgba(11,157,116,0.08); }
 
+  /* ── Header Profile Widget ── */
+  .header-profile-widget {
+    position: relative;
+    display: none; /* shown via JS when user is signed in */
+    cursor: pointer;
+    user-select: none;
+  }
+  .header-profile-trigger {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 10px 5px 5px;
+    border-radius: 28px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .header-profile-trigger:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+  .header-profile-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #222;
+    object-fit: cover;
+  }
+  .header-profile-name {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text);
+    letter-spacing: 0.5px;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .header-profile-caret {
+    font-size: 8px;
+    color: var(--muted);
+    transition: transform 0.2s;
+  }
+  .header-profile-widget.open .header-profile-caret {
+    transform: rotate(180deg);
+  }
+  .header-profile-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 220px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 20px 48px rgba(0,0,0,0.35);
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 100;
+  }
+  .header-profile-widget.open .header-profile-dropdown {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+  .profile-dd-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+  .profile-dd-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #222;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  .profile-dd-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+  }
+  .profile-dd-email {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+    word-break: break-all;
+  }
+  .profile-dd-signout {
+    width: 100%;
+    padding: 10px 14px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--danger);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.8px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    text-align: center;
+  }
+  .profile-dd-signout:hover {
+    background: rgba(255,69,96,0.1);
+    border-color: var(--danger);
+  }
+  body[data-theme="light"] .header-profile-trigger {
+    background: #fff;
+    border-color: #dde2e8;
+  }
+  body[data-theme="light"] .header-profile-dropdown {
+    background: #fff;
+    border-color: #dde2e8;
+    box-shadow: 0 12px 32px rgba(15,25,40,0.12);
+  }
+
+  /* ── Custom Model Management ── */
+  .model-card-remove {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(255,69,96,0.1);
+    border: 1px solid rgba(255,69,96,0.25);
+    color: var(--danger);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s, background 0.2s;
+    line-height: 1;
+  }
+  .model-card:hover .model-card-remove {
+    opacity: 1;
+  }
+  .model-card-remove:hover {
+    background: rgba(255,69,96,0.25);
+    border-color: var(--danger);
+  }
+  .model-card { position: relative; }
+  .model-add-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 200px;
+    background: var(--card);
+    border: 2px dashed var(--border);
+    border-radius: 18px;
+    padding: 24px;
+    cursor: pointer;
+    transition: border-color 0.25s, background 0.25s, transform 0.2s;
+  }
+  .model-add-card:hover {
+    border-color: var(--accent);
+    background: rgba(0,229,160,0.04);
+    transform: translateY(-2px);
+  }
+  .model-add-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    color: var(--muted);
+    transition: border-color 0.25s, color 0.25s;
+  }
+  .model-add-card:hover .model-add-icon {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .model-add-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    transition: color 0.25s;
+  }
+  .model-add-card:hover .model-add-label {
+    color: var(--accent);
+  }
+  /* Modal for adding custom model */
+  .model-add-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+  }
+  .model-add-modal-overlay.visible {
+    display: flex;
+  }
+  .model-add-modal {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 32px;
+    width: 380px;
+    max-width: 90vw;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.4);
+    animation: modalSlideIn 0.25s ease;
+  }
+  @keyframes modalSlideIn {
+    from { opacity: 0; transform: translateY(16px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .model-add-modal h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    letter-spacing: 1.2px;
+    color: var(--text);
+    margin-bottom: 20px;
+  }
+  .model-add-modal label {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.8px;
+    margin-bottom: 6px;
+    margin-top: 14px;
+  }
+  .model-add-modal label:first-of-type { margin-top: 0; }
+  .model-add-modal input,
+  .model-add-modal textarea {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .model-add-modal input:focus,
+  .model-add-modal textarea:focus {
+    border-color: var(--accent);
+  }
+  .model-add-modal textarea {
+    resize: vertical;
+    min-height: 64px;
+  }
+  .model-add-modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 22px;
+  }
+  .model-add-modal-actions button {
+    flex: 1;
+    padding: 11px;
+    border-radius: 10px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 15px;
+    letter-spacing: 1.2px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .modal-btn-cancel {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .modal-btn-cancel:hover { border-color: var(--text); color: var(--text); }
+  .modal-btn-add {
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+  }
+  .modal-btn-add:hover { background: var(--accent); color: var(--bg); }
+  body[data-theme="light"] .model-add-modal {
+    background: #fff;
+    box-shadow: 0 12px 32px rgba(15,25,40,0.12);
+  }
+  body[data-theme="light"] .model-add-modal-overlay {
+    background: rgba(0,0,0,0.35);
+  }
+
   @media (max-width: 700px) {
     .logo-title { font-size: 28px; }
+    .header-profile-name { display: none; }
     .stats-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
     .leaderboard { grid-template-columns: 1fr; }
     .tab { padding: 12px 14px; font-size: 14px; letter-spacing: 1px; }
@@ -1101,9 +1399,7 @@
   function updateRecordDisplays(record) {
     const text = formatRecordSummary(record);
     const headerRecord = document.getElementById('total-record');
-    const profileRecord = document.getElementById('profile-record');
     if (headerRecord) headerRecord.textContent = text;
-    if (profileRecord) profileRecord.textContent = text;
   }
 
   window.getLedgerSyncUid = getLedgerSyncUid;
@@ -1410,22 +1706,38 @@
   }
 
   function updateProfilePanel(user, record) {
-    const pAvatar = document.getElementById('profile-avatar');
-    const pName   = document.getElementById('profile-name');
-    const pEmail  = document.getElementById('profile-email');
-    if (pAvatar) pAvatar.src = user.photoURL || '';
-    if (pName) pName.textContent = user.displayName || '';
-    if (pEmail) pEmail.textContent = user.email || '';
+    // Header widget avatar + name
+    const hWidget = document.getElementById('header-profile-widget');
+    const hAvatar = document.getElementById('header-profile-avatar');
+    const hName   = document.getElementById('header-profile-name');
+    // Dropdown details
+    const ddAvatar = document.getElementById('profile-dd-avatar');
+    const ddName   = document.getElementById('profile-dd-name');
+    const ddEmail  = document.getElementById('profile-dd-email');
+
+    if (hWidget) hWidget.style.display = 'block';
+    if (hAvatar) hAvatar.src = user.photoURL || '';
+    if (hName) hName.textContent = (user.displayName || '').split(' ')[0] || '';
+    if (ddAvatar) ddAvatar.src = user.photoURL || '';
+    if (ddName) ddName.textContent = user.displayName || '';
+    if (ddEmail) ddEmail.textContent = user.email || '';
     updateRecordDisplays(record);
   }
 
   function resetProfilePanel() {
-    const pAvatar = document.getElementById('profile-avatar');
-    const pName   = document.getElementById('profile-name');
-    const pEmail  = document.getElementById('profile-email');
-    if (pAvatar) pAvatar.src = '';
-    if (pName) pName.textContent = '';
-    if (pEmail) pEmail.textContent = '';
+    const hWidget = document.getElementById('header-profile-widget');
+    const hAvatar = document.getElementById('header-profile-avatar');
+    const hName   = document.getElementById('header-profile-name');
+    const ddAvatar = document.getElementById('profile-dd-avatar');
+    const ddName   = document.getElementById('profile-dd-name');
+    const ddEmail  = document.getElementById('profile-dd-email');
+
+    if (hWidget) { hWidget.style.display = 'none'; hWidget.classList.remove('open'); }
+    if (hAvatar) hAvatar.src = '';
+    if (hName) hName.textContent = '';
+    if (ddAvatar) ddAvatar.src = '';
+    if (ddName) ddName.textContent = '';
+    if (ddEmail) ddEmail.textContent = '';
     updateRecordDisplays({ wins: 0, losses: 0, pushes: 0 });
   }
 
@@ -1649,6 +1961,24 @@
         </button>
         <button id="refresh-btn" class="refresh-btn" onclick="refreshAutoGrades()" aria-label="Auto-grade picks">REFRESH</button>
         <span id="sync-status" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-left:8px;"></span>
+        <!-- Profile widget (top-right) -->
+        <div class="header-profile-widget" id="header-profile-widget">
+          <div class="header-profile-trigger" id="header-profile-trigger">
+            <img class="header-profile-avatar" id="header-profile-avatar" src="" alt="">
+            <span class="header-profile-name" id="header-profile-name"></span>
+            <span class="header-profile-caret">&#9660;</span>
+          </div>
+          <div class="header-profile-dropdown" id="header-profile-dropdown">
+            <div class="profile-dd-info">
+              <img class="profile-dd-avatar" id="profile-dd-avatar" src="" alt="">
+              <div>
+                <div class="profile-dd-name" id="profile-dd-name"></div>
+                <div class="profile-dd-email" id="profile-dd-email"></div>
+              </div>
+            </div>
+            <button class="profile-dd-signout" onclick="window._signOut()">SIGN OUT</button>
+          </div>
+        </div>
       </div>
       <div id="refresh-status" class="refresh-status">Ready to auto-grade</div>
       <div>
@@ -1665,7 +1995,6 @@
     <button class="tab" onclick="switchTab('trends')">TRENDS</button>
     <button class="tab" onclick="switchTab('parlays')">PARLAYS</button>
     <button class="tab" onclick="switchTab('models')">MODELS</button>
-    <button class="tab" onclick="switchTab('profile')">PROFILE</button>
   </div>
 
   <!-- HOME TAB -->
@@ -1742,21 +2071,14 @@
   <!-- MODELS TAB -->
   <div id="tab-models" class="tab-content">
     <div class="section-title clean-title">Run Prediction Models</div>
-    <div class="panel model-controls-panel">
-      <div class="model-controls-row">
-        <div class="model-controls-copy">
-          <div class="model-controls-title">NBA Model vs NBA New</div>
-          <div class="model-controls-desc">Choose the NBA slate date once, then run either model by itself or launch both together so the table keeps both result sets on screen for quick comparison.</div>
-        </div>
-        <div class="model-controls-actions">
-          <input type="date" id="nba-model-date" class="model-date-input">
-          <button class="model-run-btn model-inline-btn" type="button" onclick="setNbaModelDateOffset(0)">TODAY</button>
-          <button class="model-run-btn model-inline-btn" type="button" onclick="setNbaModelDateOffset(-1)">YESTERDAY</button>
-          <button class="model-run-btn model-inline-btn" id="btn-run-nba-compare" onclick="runNbaModelComparison()">RUN BOTH NBA MODELS</button>
-        </div>
-      </div>
-      <div class="model-status" id="status-nba-compare"></div>
+    <!-- Date picker for NBA models (moved from comparison panel) -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap;">
+      <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.8px;">NBA SLATE DATE</span>
+      <input type="date" id="nba-model-date" class="model-date-input">
+      <button class="model-run-btn model-inline-btn" type="button" onclick="setNbaModelDateOffset(0)">TODAY</button>
+      <button class="model-run-btn model-inline-btn" type="button" onclick="setNbaModelDateOffset(-1)">YESTERDAY</button>
     </div>
+    <div class="model-status" id="status-nba-compare" style="margin-bottom:12px;"></div>
     <div class="models-grid">
       <div class="model-card" id="model-card-mlb">
         <div class="model-card-icon">&#9918;</div>
@@ -1818,6 +2140,21 @@
         <button class="model-run-btn" id="btn-run-sportsgambler" onclick="runModel('sportsgambler')">SYNC SPORTSGAMBLER NOW</button>
         <div class="model-status" id="status-sportsgambler"></div>
       </div>
+      <div class="model-card" id="model-card-cannon-analytics">
+        <div class="model-card-icon">&#128371;</div>
+        <div class="model-card-title">Cannon Analytics</div>
+        <div class="model-card-desc">Custom analytics pipeline. Integration coming soon.</div>
+        <span class="model-timestamp-badge" style="display:none;"></span>
+        <button class="model-run-btn" disabled>COMING SOON</button>
+        <div class="model-status" id="status-cannon-analytics"></div>
+      </div>
+      <!-- Custom user models injected here -->
+      <div id="custom-models-anchor" style="display:none;"></div>
+      <!-- Add model card -->
+      <div class="model-add-card" onclick="openAddModelModal()" title="Add a custom model">
+        <div class="model-add-icon">+</div>
+        <div class="model-add-label">ADD MODEL</div>
+      </div>
     </div>
     <div id="model-results-section" style="display:none;">
       <div class="section-title clean-title" style="margin-top:24px">Model Results</div>
@@ -1840,31 +2177,20 @@
     </div>
   </div>
 
-  <div id="tab-profile" class="tab-content">
-    <div id="profile-panel" style="display:none;padding:40px 20px;max-width:480px;margin:0 auto;">
-      <div style="display:flex;align-items:center;gap:16px;margin-bottom:32px;">
-        <img id="profile-avatar" src="" alt=""
-          style="width:56px;height:56px;border-radius:50%;background:#222;display:block;">
-        <div>
-          <div id="profile-name"
-            style="font-size:16px;font-weight:700;color:#fff;letter-spacing:0.05em;"></div>
-          <div id="profile-email"
-            style="font-size:12px;color:#555;margin-top:4px;"></div>
-        </div>
+  <!-- Add Model Modal -->
+  <div class="model-add-modal-overlay" id="model-add-modal-overlay" onclick="if(event.target===this)closeAddModelModal()">
+    <div class="model-add-modal">
+      <h3>Add Custom Model</h3>
+      <label>MODEL NAME</label>
+      <input type="text" id="custom-model-name" placeholder="e.g. My Edge Model" maxlength="40">
+      <label>ICON (emoji)</label>
+      <input type="text" id="custom-model-icon" placeholder="e.g. &#128202;" maxlength="4" style="width:80px;">
+      <label>DESCRIPTION</label>
+      <textarea id="custom-model-desc" placeholder="What does this model do?"></textarea>
+      <div class="model-add-modal-actions">
+        <button class="modal-btn-cancel" onclick="closeAddModelModal()">CANCEL</button>
+        <button class="modal-btn-add" onclick="confirmAddCustomModel()">ADD MODEL</button>
       </div>
-
-      <div style="background:#111;border:1px solid #222;border-radius:12px;padding:24px;margin-bottom:20px;text-align:center;">
-        <div style="font-size:11px;color:#555;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:8px;">Overall Record</div>
-        <div id="profile-record"
-          style="font-size:36px;font-weight:700;color:#4ade80;letter-spacing:0.05em;">
-          0-0
-        </div>
-      </div>
-
-      <button onclick="window._signOut()"
-        style="width:100%;background:#1a1a1a;color:#888;border:1px solid #333;border-radius:8px;padding:12px;font-size:13px;font-family:monospace;cursor:pointer;letter-spacing:0.05em;">
-        Sign out
-      </button>
     </div>
   </div>
 
@@ -3443,8 +3769,6 @@ function switchTab(name) {
   const activePanel = document.getElementById('tab-'+name);
   if (activeTab) activeTab.classList.add('active');
   if (activePanel) activePanel.classList.add('active');
-  const profilePanel = document.getElementById('profile-panel');
-  if (profilePanel) profilePanel.style.display = name === 'profile' ? 'block' : 'none';
   localStorage.setItem('pickledger_tab', name);
   if (name === 'search') {
     setTimeout(() => document.getElementById('search-input').focus(), 50);
@@ -6346,7 +6670,8 @@ syncWithServer().catch(() => setSyncStatus('offline'));
 loadCanonicalRankingsState().then(() => render()).catch(() => {});
 loadNbaPropsGames();
 const savedTab = localStorage.getItem('pickledger_tab') || 'home';
-if (savedTab !== 'home') switchTab(savedTab);
+if (savedTab === 'profile') { localStorage.setItem('pickledger_tab', 'home'); }
+else if (savedTab !== 'home') switchTab(savedTab);
 render();
 if (missingStartTimesCount() > 0) {
   refreshAutoGrades(true);
@@ -6421,6 +6746,106 @@ window.addEventListener('firestorePicksLoaded', function(e) {
     console.warn('[Firestore] listener handler error:', err);
   }
 });
+</script>
+
+<script>
+// ── Profile dropdown toggle ──
+(function() {
+  const widget = document.getElementById('header-profile-widget');
+  const trigger = document.getElementById('header-profile-trigger');
+  if (!trigger || !widget) return;
+  trigger.addEventListener('click', function(e) {
+    e.stopPropagation();
+    widget.classList.toggle('open');
+  });
+  document.addEventListener('click', function(e) {
+    if (!widget.contains(e.target)) widget.classList.remove('open');
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') widget.classList.remove('open');
+  });
+})();
+
+// ── Custom Model Management ──
+(function() {
+  const STORAGE_KEY = 'pickledger_custom_models';
+
+  function loadCustomModels() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+    catch { return []; }
+  }
+
+  function saveCustomModels(models) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(models));
+  }
+
+  function renderCustomModels() {
+    const anchor = document.getElementById('custom-models-anchor');
+    if (!anchor) return;
+    // Remove any previously rendered custom model cards
+    document.querySelectorAll('.custom-model-card').forEach(el => el.remove());
+    const models = loadCustomModels();
+    models.forEach(function(m, idx) {
+      const card = document.createElement('div');
+      card.className = 'model-card custom-model-card';
+      card.id = 'model-card-custom-' + idx;
+      card.innerHTML =
+        '<button class="model-card-remove" onclick="removeCustomModel(' + idx + ')" title="Remove model">&times;</button>' +
+        '<div class="model-card-icon">' + (m.icon || '&#128202;') + '</div>' +
+        '<div class="model-card-title">' + escapeHtml(m.name) + '</div>' +
+        '<div class="model-card-desc">' + escapeHtml(m.desc || 'Custom model — no integration yet.') + '</div>' +
+        '<button class="model-run-btn" disabled>NO INTEGRATION</button>' +
+        '<div class="model-status"></div>';
+      anchor.parentNode.insertBefore(card, anchor);
+    });
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  window.openAddModelModal = function() {
+    document.getElementById('model-add-modal-overlay').classList.add('visible');
+    document.getElementById('custom-model-name').value = '';
+    document.getElementById('custom-model-icon').value = '';
+    document.getElementById('custom-model-desc').value = '';
+    setTimeout(function() { document.getElementById('custom-model-name').focus(); }, 100);
+  };
+
+  window.closeAddModelModal = function() {
+    document.getElementById('model-add-modal-overlay').classList.remove('visible');
+  };
+
+  window.confirmAddCustomModel = function() {
+    const name = document.getElementById('custom-model-name').value.trim();
+    const icon = document.getElementById('custom-model-icon').value.trim() || '\u{1F4CA}';
+    const desc = document.getElementById('custom-model-desc').value.trim();
+    if (!name) {
+      document.getElementById('custom-model-name').style.borderColor = 'var(--danger)';
+      return;
+    }
+    const models = loadCustomModels();
+    models.push({ name: name, icon: icon, desc: desc });
+    saveCustomModels(models);
+    renderCustomModels();
+    closeAddModelModal();
+  };
+
+  window.removeCustomModel = function(idx) {
+    const models = loadCustomModels();
+    const removed = models[idx];
+    if (!removed) return;
+    if (!confirm('Remove "' + removed.name + '" from your models?')) return;
+    models.splice(idx, 1);
+    saveCustomModels(models);
+    renderCustomModels();
+  };
+
+  // Initial render on page load
+  renderCustomModels();
+})();
 </script>
 </body>
 </html>
