@@ -2086,13 +2086,6 @@
         </div>
         <div class="model-chooser-dropdown" id="model-chooser-dropdown"></div>
       </div>
-      <!-- NBA date picker — compact inline -->
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-        <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.8px;">NBA DATE</span>
-        <input type="date" id="nba-model-date" class="model-date-input" style="min-width:140px;">
-        <button class="model-run-btn model-inline-btn" type="button" onclick="setNbaModelDateOffset(0)" style="padding:8px 10px;font-size:12px;">TODAY</button>
-        <button class="model-run-btn model-inline-btn" type="button" onclick="setNbaModelDateOffset(-1)" style="padding:8px 10px;font-size:12px;">YESTERDAY</button>
-      </div>
     </div>
     <div class="model-status" id="status-nba-compare" style="margin-bottom:12px;"></div>
     <div class="models-grid">
@@ -5217,28 +5210,13 @@ function _shiftIsoDate(dateStr, offsetDays) {
   return `${base.getFullYear()}-${mm}-${dd}`;
 }
 
-function initializeNbaModelDate() {
-  const input = document.getElementById('nba-model-date');
-  if (input && !input.value) {
-    input.value = _getTodayIsoDate();
-  }
-}
+function initializeNbaModelDate() {}
 
 function getSelectedNbaModelDate() {
-  const input = document.getElementById('nba-model-date');
-  const raw = String(input && input.value ? input.value : '').trim();
-  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) return raw;
-  const today = _getTodayIsoDate();
-  if (input) input.value = today;
-  return today;
+  return _getTodayIsoDate();
 }
 
-function setNbaModelDateOffset(offsetDays) {
-  const input = document.getElementById('nba-model-date');
-  if (!input) return;
-  const nextDate = _shiftIsoDate(getSelectedNbaModelDate(), offsetDays);
-  input.value = nextDate;
-}
+function setNbaModelDateOffset() {}
 
 function formatModelRunDate(dateStr) {
   const raw = String(dateStr || '').trim();
