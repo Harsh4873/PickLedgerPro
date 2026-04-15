@@ -940,178 +940,184 @@
     box-shadow: 0 12px 32px rgba(15,25,40,0.12);
   }
 
-  /* ── Custom Model Management ── */
-  .model-card-remove {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    background: rgba(255,69,96,0.1);
-    border: 1px solid rgba(255,69,96,0.25);
-    color: var(--danger);
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
+  /* ── Model Chooser Dropdown ── */
+  .model-chooser-bar {
     display: flex;
     align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.2s, background 0.2s;
-    line-height: 1;
-  }
-  .model-card:hover .model-card-remove {
-    opacity: 1;
-  }
-  .model-card-remove:hover {
-    background: rgba(255,69,96,0.25);
-    border-color: var(--danger);
-  }
-  .model-card { position: relative; }
-  .model-add-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    min-height: 200px;
-    background: var(--card);
-    border: 2px dashed var(--border);
-    border-radius: 18px;
-    padding: 24px;
-    cursor: pointer;
-    transition: border-color 0.25s, background 0.25s, transform 0.2s;
-  }
-  .model-add-card:hover {
-    border-color: var(--accent);
-    background: rgba(0,229,160,0.04);
-    transform: translateY(-2px);
-  }
-  .model-add-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    border: 2px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 26px;
-    color: var(--muted);
-    transition: border-color 0.25s, color 0.25s;
-  }
-  .model-add-card:hover .model-add-icon {
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-  .model-add-label {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 18px;
-    letter-spacing: 1.2px;
-    color: var(--muted);
-    transition: color 0.25s;
-  }
-  .model-add-card:hover .model-add-label {
-    color: var(--accent);
-  }
-  /* Modal for adding custom model */
-  .model-add-modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.65);
-    z-index: 200;
-    align-items: center;
-    justify-content: center;
-  }
-  .model-add-modal-overlay.visible {
-    display: flex;
-  }
-  .model-add-modal {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 32px;
-    width: 380px;
-    max-width: 90vw;
-    box-shadow: 0 24px 60px rgba(0,0,0,0.4);
-    animation: modalSlideIn 0.25s ease;
-  }
-  @keyframes modalSlideIn {
-    from { opacity: 0; transform: translateY(16px) scale(0.96); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-  }
-  .model-add-modal h3 {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 24px;
-    letter-spacing: 1.2px;
-    color: var(--text);
+    justify-content: space-between;
+    gap: 14px;
     margin-bottom: 20px;
+    flex-wrap: wrap;
   }
-  .model-add-modal label {
-    display: block;
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 0.8px;
-    margin-bottom: 6px;
-    margin-top: 14px;
+  .model-chooser-wrap {
+    position: relative;
   }
-  .model-add-modal label:first-of-type { margin-top: 0; }
-  .model-add-modal input,
-  .model-add-modal textarea {
-    width: 100%;
-    padding: 10px 12px;
-    background: var(--surface);
+  .model-chooser-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px 9px 14px;
+    background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    color: var(--text);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    user-select: none;
+  }
+  .model-chooser-trigger:hover {
+    border-color: var(--accent);
+  }
+  .model-chooser-trigger.open {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+  .model-chooser-icon {
+    font-size: 16px;
+  }
+  .model-chooser-label {
     font-family: 'DM Mono', monospace;
     font-size: 12px;
-    outline: none;
-    transition: border-color 0.2s;
+    color: var(--text);
+    letter-spacing: 0.5px;
   }
-  .model-add-modal input:focus,
-  .model-add-modal textarea:focus {
-    border-color: var(--accent);
+  .model-chooser-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--bg);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
   }
-  .model-add-modal textarea {
-    resize: vertical;
-    min-height: 64px;
-  }
-  .model-add-modal-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 22px;
-  }
-  .model-add-modal-actions button {
-    flex: 1;
-    padding: 11px;
-    border-radius: 10px;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 15px;
-    letter-spacing: 1.2px;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .modal-btn-cancel {
-    background: transparent;
-    border: 1px solid var(--border);
+  .model-chooser-caret {
+    font-size: 8px;
     color: var(--muted);
+    transition: transform 0.2s;
+    margin-left: 2px;
   }
-  .modal-btn-cancel:hover { border-color: var(--text); color: var(--text); }
-  .modal-btn-add {
+  .model-chooser-trigger.open .model-chooser-caret {
+    transform: rotate(180deg);
+  }
+  .model-chooser-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    min-width: 320px;
+    max-height: 420px;
+    overflow-y: auto;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 8px;
+    box-shadow: 0 20px 48px rgba(0,0,0,0.35);
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 100;
+  }
+  .model-chooser-dropdown.open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+  }
+  .model-chooser-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.15s;
+    user-select: none;
+  }
+  .model-chooser-item:hover {
+    background: rgba(255,255,255,0.04);
+  }
+  .model-chooser-item-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+    width: 32px;
+    text-align: center;
+  }
+  .model-chooser-item-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .model-chooser-item-name {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .model-chooser-item-desc {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .model-chooser-cb {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    border: 2px solid var(--border);
     background: transparent;
-    border: 1px solid var(--accent);
-    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.15s, background 0.15s;
+    pointer-events: none;
   }
-  .modal-btn-add:hover { background: var(--accent); color: var(--bg); }
-  body[data-theme="light"] .model-add-modal {
+  .model-chooser-item.selected .model-chooser-cb {
+    border-color: var(--accent);
+    background: var(--accent);
+  }
+  .model-chooser-cb-check {
+    display: none;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--bg);
+    line-height: 1;
+  }
+  .model-chooser-item.selected .model-chooser-cb-check {
+    display: block;
+  }
+  .model-chooser-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 6px 8px;
+  }
+  .model-chooser-section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1.2px;
+    padding: 8px 12px 4px;
+    text-transform: uppercase;
+  }
+  body[data-theme="light"] .model-chooser-trigger {
+    background: #fff;
+  }
+  body[data-theme="light"] .model-chooser-dropdown {
     background: #fff;
     box-shadow: 0 12px 32px rgba(15,25,40,0.12);
   }
-  body[data-theme="light"] .model-add-modal-overlay {
-    background: rgba(0,0,0,0.35);
+  body[data-theme="light"] .model-chooser-item:hover {
+    background: rgba(0,0,0,0.03);
+  }
+  .model-card.model-hidden {
+    display: none;
   }
 
   @media (max-width: 700px) {
@@ -2070,13 +2076,23 @@
 
   <!-- MODELS TAB -->
   <div id="tab-models" class="tab-content">
-    <div class="section-title clean-title">Run Prediction Models</div>
-    <!-- Date picker for NBA models (moved from comparison panel) -->
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap;">
-      <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:0.8px;">NBA SLATE DATE</span>
-      <input type="date" id="nba-model-date" class="model-date-input">
-      <button class="model-run-btn model-inline-btn" type="button" onclick="setNbaModelDateOffset(0)">TODAY</button>
-      <button class="model-run-btn model-inline-btn" type="button" onclick="setNbaModelDateOffset(-1)">YESTERDAY</button>
+    <div class="model-chooser-bar">
+      <div class="model-chooser-wrap" id="model-chooser-wrap">
+        <div class="model-chooser-trigger" id="model-chooser-trigger">
+          <span class="model-chooser-icon">&#9881;</span>
+          <span class="model-chooser-label">Choose Models</span>
+          <span class="model-chooser-count" id="model-chooser-count">0</span>
+          <span class="model-chooser-caret">&#9660;</span>
+        </div>
+        <div class="model-chooser-dropdown" id="model-chooser-dropdown"></div>
+      </div>
+      <!-- NBA date picker — compact inline -->
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:0.8px;">NBA DATE</span>
+        <input type="date" id="nba-model-date" class="model-date-input" style="min-width:140px;">
+        <button class="model-run-btn model-inline-btn" type="button" onclick="setNbaModelDateOffset(0)" style="padding:8px 10px;font-size:12px;">TODAY</button>
+        <button class="model-run-btn model-inline-btn" type="button" onclick="setNbaModelDateOffset(-1)" style="padding:8px 10px;font-size:12px;">YESTERDAY</button>
+      </div>
     </div>
     <div class="model-status" id="status-nba-compare" style="margin-bottom:12px;"></div>
     <div class="models-grid">
@@ -2148,13 +2164,6 @@
         <button class="model-run-btn" disabled>COMING SOON</button>
         <div class="model-status" id="status-cannon-analytics"></div>
       </div>
-      <!-- Custom user models injected here -->
-      <div id="custom-models-anchor" style="display:none;"></div>
-      <!-- Add model card -->
-      <div class="model-add-card" onclick="openAddModelModal()" title="Add a custom model">
-        <div class="model-add-icon">+</div>
-        <div class="model-add-label">ADD MODEL</div>
-      </div>
     </div>
     <div id="model-results-section" style="display:none;">
       <div class="section-title clean-title" style="margin-top:24px">Model Results</div>
@@ -2177,22 +2186,6 @@
     </div>
   </div>
 
-  <!-- Add Model Modal -->
-  <div class="model-add-modal-overlay" id="model-add-modal-overlay" onclick="if(event.target===this)closeAddModelModal()">
-    <div class="model-add-modal">
-      <h3>Add Custom Model</h3>
-      <label>MODEL NAME</label>
-      <input type="text" id="custom-model-name" placeholder="e.g. My Edge Model" maxlength="40">
-      <label>ICON (emoji)</label>
-      <input type="text" id="custom-model-icon" placeholder="e.g. &#128202;" maxlength="4" style="width:80px;">
-      <label>DESCRIPTION</label>
-      <textarea id="custom-model-desc" placeholder="What does this model do?"></textarea>
-      <div class="model-add-modal-actions">
-        <button class="modal-btn-cancel" onclick="closeAddModelModal()">CANCEL</button>
-        <button class="modal-btn-add" onclick="confirmAddCustomModel()">ADD MODEL</button>
-      </div>
-    </div>
-  </div>
 
 </div>
 
@@ -6766,85 +6759,113 @@ window.addEventListener('firestorePicksLoaded', function(e) {
   });
 })();
 
-// ── Custom Model Management ──
+// ── Model Chooser ──
 (function() {
-  const STORAGE_KEY = 'pickledger_custom_models';
+  const STORAGE_KEY = 'pickledger_visible_models';
+  const ALL_MODELS = [
+    { id: 'model-card-mlb',              icon: '\u26BE', name: 'MLB Model',                     desc: 'Pitcher-based MLB predictions' },
+    { id: 'model-card-ipl',              icon: '\u{1F3DF}', name: 'IPL Model',                  desc: 'Cached IPL winner + fantasy XI' },
+    { id: 'model-card-nba-new',          icon: '\u{1F3C0}', name: 'NBA New',                    desc: 'Refined NBA spread + calibration' },
+    { id: 'model-card-nba-old',          icon: '\u{1F4DC}', name: 'NBA Model',                  desc: 'Legacy NBA confidence path' },
+    { id: 'model-card-nba-props',        icon: '\u{1F3AF}', name: 'NBA Props Model',            desc: 'Player props with Kelly sizing' },
+    { id: 'model-card-sportytrader',     icon: '\u{1F3C0}', name: 'SportyTrader Feed',          desc: 'NBA + MLB scraper feed' },
+    { id: 'model-card-sportsgambler',    icon: '\u{1F3B1}', name: 'SportsGambler Feed',         desc: 'NBA + MLB scraper feed' },
+    { id: 'model-card-cannon-analytics', icon: '\u{1F4E1}', name: 'Cannon Analytics',           desc: 'Custom analytics — coming soon' },
+  ];
 
-  function loadCustomModels() {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-    catch { return []; }
+  // Default: show all
+  function getVisible() {
+    try {
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      if (Array.isArray(stored)) return new Set(stored);
+    } catch {}
+    return new Set(ALL_MODELS.map(m => m.id));
   }
 
-  function saveCustomModels(models) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(models));
+  function saveVisible(set) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify([...set]));
   }
 
-  function renderCustomModels() {
-    const anchor = document.getElementById('custom-models-anchor');
-    if (!anchor) return;
-    // Remove any previously rendered custom model cards
-    document.querySelectorAll('.custom-model-card').forEach(el => el.remove());
-    const models = loadCustomModels();
-    models.forEach(function(m, idx) {
-      const card = document.createElement('div');
-      card.className = 'model-card custom-model-card';
-      card.id = 'model-card-custom-' + idx;
-      card.innerHTML =
-        '<button class="model-card-remove" onclick="removeCustomModel(' + idx + ')" title="Remove model">&times;</button>' +
-        '<div class="model-card-icon">' + (m.icon || '&#128202;') + '</div>' +
-        '<div class="model-card-title">' + escapeHtml(m.name) + '</div>' +
-        '<div class="model-card-desc">' + escapeHtml(m.desc || 'Custom model — no integration yet.') + '</div>' +
-        '<button class="model-run-btn" disabled>NO INTEGRATION</button>' +
-        '<div class="model-status"></div>';
-      anchor.parentNode.insertBefore(card, anchor);
+  function applyVisibility(visibleSet) {
+    ALL_MODELS.forEach(function(m) {
+      const card = document.getElementById(m.id);
+      if (!card) return;
+      if (visibleSet.has(m.id)) {
+        card.classList.remove('model-hidden');
+      } else {
+        card.classList.add('model-hidden');
+      }
+    });
+    const countEl = document.getElementById('model-chooser-count');
+    if (countEl) countEl.textContent = visibleSet.size;
+  }
+
+  function buildDropdown(visibleSet) {
+    const dd = document.getElementById('model-chooser-dropdown');
+    if (!dd) return;
+    dd.innerHTML = '<div class="model-chooser-section-label">AVAILABLE MODELS</div>' +
+      ALL_MODELS.map(function(m) {
+        const sel = visibleSet.has(m.id) ? ' selected' : '';
+        return '<div class="model-chooser-item' + sel + '" data-model-id="' + m.id + '">' +
+          '<span class="model-chooser-item-icon">' + m.icon + '</span>' +
+          '<div class="model-chooser-item-info">' +
+            '<div class="model-chooser-item-name">' + m.name + '</div>' +
+            '<div class="model-chooser-item-desc">' + m.desc + '</div>' +
+          '</div>' +
+          '<div class="model-chooser-cb"><span class="model-chooser-cb-check">\u2713</span></div>' +
+        '</div>';
+      }).join('');
+  }
+
+  // Init
+  var visible = getVisible();
+  applyVisibility(visible);
+  buildDropdown(visible);
+
+  // Toggle dropdown open/close
+  var trigger = document.getElementById('model-chooser-trigger');
+  var wrap = document.getElementById('model-chooser-wrap');
+  var dd = document.getElementById('model-chooser-dropdown');
+
+  if (trigger && dd) {
+    trigger.addEventListener('click', function(e) {
+      e.stopPropagation();
+      dd.classList.toggle('open');
+      trigger.classList.toggle('open');
+    });
+
+    // Click item to toggle
+    dd.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var item = e.target.closest('.model-chooser-item');
+      if (!item) return;
+      var id = item.getAttribute('data-model-id');
+      if (!id) return;
+      if (visible.has(id)) {
+        visible.delete(id);
+        item.classList.remove('selected');
+      } else {
+        visible.add(id);
+        item.classList.add('selected');
+      }
+      saveVisible(visible);
+      applyVisibility(visible);
+    });
+
+    // Close on outside click
+    document.addEventListener('click', function(e) {
+      if (wrap && !wrap.contains(e.target)) {
+        dd.classList.remove('open');
+        trigger.classList.remove('open');
+      }
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        dd.classList.remove('open');
+        trigger.classList.remove('open');
+      }
     });
   }
-
-  function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-  }
-
-  window.openAddModelModal = function() {
-    document.getElementById('model-add-modal-overlay').classList.add('visible');
-    document.getElementById('custom-model-name').value = '';
-    document.getElementById('custom-model-icon').value = '';
-    document.getElementById('custom-model-desc').value = '';
-    setTimeout(function() { document.getElementById('custom-model-name').focus(); }, 100);
-  };
-
-  window.closeAddModelModal = function() {
-    document.getElementById('model-add-modal-overlay').classList.remove('visible');
-  };
-
-  window.confirmAddCustomModel = function() {
-    const name = document.getElementById('custom-model-name').value.trim();
-    const icon = document.getElementById('custom-model-icon').value.trim() || '\u{1F4CA}';
-    const desc = document.getElementById('custom-model-desc').value.trim();
-    if (!name) {
-      document.getElementById('custom-model-name').style.borderColor = 'var(--danger)';
-      return;
-    }
-    const models = loadCustomModels();
-    models.push({ name: name, icon: icon, desc: desc });
-    saveCustomModels(models);
-    renderCustomModels();
-    closeAddModelModal();
-  };
-
-  window.removeCustomModel = function(idx) {
-    const models = loadCustomModels();
-    const removed = models[idx];
-    if (!removed) return;
-    if (!confirm('Remove "' + removed.name + '" from your models?')) return;
-    models.splice(idx, 1);
-    saveCustomModels(models);
-    renderCustomModels();
-  };
-
-  // Initial render on page load
-  renderCustomModels();
 })();
 </script>
 </body>
