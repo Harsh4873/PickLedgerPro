@@ -3541,6 +3541,7 @@ def _public_endpoints() -> list[str]:
         "/run-nba-model",
         "/run-nba-old-model",
         "/run-wnba-model",
+        "/api/run-wnba-model",
         "/refresh-nba-props-games",
         "/run-nba-props-model",
         "/run-mlb-model",
