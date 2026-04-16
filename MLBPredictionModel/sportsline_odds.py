@@ -580,6 +580,47 @@ def fetch_mlb_market_odds() -> dict[tuple[str, str], dict]:
     return result
 
 
+def get_today_mlb_odds() -> list[dict]:
+    """Return today's MLB odds in a flat list with uniform field names.
+
+    Each dict contains:
+        away_team, home_team, game_time,
+        ml_away, ml_home,            # American odds ints (or None)
+        total_line,                  # e.g. 8.5 (or None)
+        total_over_odds,             # American odds for the over
+        total_under_odds,            # Estimated mirror of over odds
+        spread_away, spread_home, spread_odds
+    """
+    try:
+        merged = fetch_all_odds("MLB")
+    except Exception:
+        return []
+
+    out: list[dict] = []
+    for row in merged or []:
+        over_odds = row.get("total_odds")
+        # SportsLine only supplies the over odds; mirror it for under estimate
+        if over_odds is not None:
+            under_odds = -over_odds if over_odds != 0 else -110
+        else:
+            under_odds = None
+
+        out.append({
+            "away_team": row.get("away_team"),
+            "home_team": row.get("home_team"),
+            "game_time": row.get("game_time"),
+            "ml_away": row.get("ml_away"),
+            "ml_home": row.get("ml_home"),
+            "total_line": row.get("total_line"),
+            "total_over_odds": over_odds,
+            "total_under_odds": under_odds,
+            "spread_away": row.get("spread_away"),
+            "spread_home": row.get("spread_home"),
+            "spread_odds": row.get("spread_odds"),
+        })
+    return out
+
+
 if __name__ == "__main__":
     mlb_odds = fetch_all_odds("MLB")
     if not _validate_market_rows("MLB"):

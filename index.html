@@ -603,6 +603,16 @@
   .model-status.running { color: var(--accent3); }
   .model-status.error { color: var(--danger); }
   .model-status.ok { color: var(--accent); }
+
+  /* Cannon daily table */
+  #cannon-daily-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  #cannon-daily-table th { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.8px; color: var(--muted); text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  #cannon-daily-table td { padding: 7px 6px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  #cannon-daily-table tbody tr:hover { background: rgba(0,229,160,0.04); }
+  .cannon-sp { color: var(--muted); font-size: 11px; max-width: 110px; overflow: hidden; text-overflow: ellipsis; }
+  .cannon-ev-pos { color: var(--win); font-weight: 600; }
+  .cannon-ev-neg { color: var(--danger); font-weight: 600; }
+  .model-status.ok { color: var(--accent); }
   .model-sport-select { display: flex; gap: 14px; margin-bottom: 12px; font-size: 12px; color: var(--muted); font-family: 'DM Mono', monospace; }
   .model-sport-select label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
   .model-sport-select input[type="checkbox"] { accent-color: var(--accent); }
@@ -2152,9 +2162,9 @@
       <div class="model-card" id="model-card-cannon-analytics">
         <div class="model-card-icon">&#128371;</div>
         <div class="model-card-title">Cannon Analytics</div>
-        <div class="model-card-desc">Custom analytics pipeline. Integration coming soon.</div>
+        <div class="model-card-desc">Daily MLB team projections merged with SportsLine odds. Moneyline + total picks with EV.</div>
         <span class="model-timestamp-badge" style="display:none;"></span>
-        <button class="model-run-btn" disabled>COMING SOON</button>
+        <button class="model-run-btn" id="btn-run-cannon" onclick="loadCannonDailyPicks()">LOAD CANNON PICKS</button>
         <div class="model-status" id="status-cannon-analytics"></div>
       </div>
       <div class="model-card" id="model-card-wnba">
@@ -2183,6 +2193,28 @@
       <div style="display:flex;gap:10px;margin-top:14px">
         <button class="model-run-btn" id="btn-add-selected" onclick="addSelectedPicksToLedger()" style="flex:1">ADD SELECTED PICKS TO LEDGER</button>
         <button class="model-run-btn" id="btn-add-picks" onclick="addModelPicksToLedger()" style="flex:1;opacity:0.7">ADD ALL BET PICKS TO LEDGER</button>
+      </div>
+    </div>
+
+    <!-- Cannon MLB Daily Projections -->
+    <div id="cannon-daily-section" style="display:none;">
+      <div class="section-title clean-title" style="margin-top:24px">Cannon MLB Daily Projections</div>
+      <div class="model-status" id="cannon-daily-meta"></div>
+      <div class="panel">
+        <div class="table-wrap">
+          <table id="cannon-daily-table">
+            <thead>
+              <tr>
+                <th>AWAY</th><th>SP</th><th>xR</th><th>xWin%</th>
+                <th>HOME</th><th>SP</th><th>xR</th><th>xWin%</th>
+                <th>TOTAL xR</th>
+                <th>ML PICK</th><th>FAIR</th><th>MARKET</th><th>ML EV%</th>
+                <th>O/U</th><th>LINE</th><th>ODDS</th><th>OU EV%</th>
+              </tr>
+            </thead>
+            <tbody id="cannon-daily-body"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -5470,6 +5502,7 @@ function _resetModelButton(model) {
     'nba-props': 'RUN PROPS MODEL',
     sportytrader: 'SYNC SPORTYTRADER NOW',
     sportsgambler: 'SYNC SPORTSGAMBLER NOW',
+    cannon: 'LOAD CANNON PICKS',
   };
   btn.textContent = labels[model] || 'RUN';
   if (model === 'sportytrader' || model === 'sportsgambler') {
@@ -5477,6 +5510,81 @@ function _resetModelButton(model) {
     return;
   }
   btn.disabled = false;
+}
+
+// ── Cannon MLB Daily Projections ──
+async function loadCannonDailyPicks() {
+  const btn = document.getElementById('btn-run-cannon');
+  const statusEl = document.getElementById('status-cannon-analytics');
+  const section = document.getElementById('cannon-daily-section');
+  const metaEl = document.getElementById('cannon-daily-meta');
+  const tbody = document.getElementById('cannon-daily-body');
+
+  if (btn) { btn.disabled = true; btn.textContent = 'LOADING...'; }
+  if (statusEl) { statusEl.textContent = 'Fetching Cannon daily picks...'; statusEl.className = 'model-status running'; }
+
+  try {
+    const resp = await fetch('./data/cannon_mlb_daily.json?t=' + Date.now());
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    const games = data.games || [];
+
+    if (!games.length) {
+      if (statusEl) { statusEl.textContent = 'No games found in Cannon data.'; statusEl.className = 'model-status'; }
+      if (btn) { btn.disabled = false; btn.textContent = 'LOAD CANNON PICKS'; }
+      return;
+    }
+
+    tbody.innerHTML = '';
+    games.forEach(function(r) {
+      var awayWinPct = r.cannon_away_xwin != null ? (r.cannon_away_xwin * 100).toFixed(1) + '%' : '-';
+      var homeWinPct = r.cannon_home_xwin != null ? (r.cannon_home_xwin * 100).toFixed(1) + '%' : '-';
+      var awayXr = r.cannon_away_xr != null ? r.cannon_away_xr.toFixed(2) : '-';
+      var homeXr = r.cannon_home_xr != null ? r.cannon_home_xr.toFixed(2) : '-';
+      var totalXr = r.cannon_total_xr != null ? r.cannon_total_xr.toFixed(2) : '-';
+
+      var mlPick = r.ml_pick_team || '-';
+      var mlFair = r.ml_fair_odds != null ? (r.ml_fair_odds > 0 ? '+' : '') + r.ml_fair_odds : '-';
+      var mlMarket = r.ml_market_odds != null ? (r.ml_market_odds > 0 ? '+' : '') + r.ml_market_odds : '-';
+      var mlEv = r.ml_edge_pct != null ? (r.ml_edge_pct * 100).toFixed(1) + '%' : '-';
+      var mlEvClass = r.ml_edge_pct != null ? (r.ml_edge_pct > 0 ? 'cannon-ev-pos' : 'cannon-ev-neg') : '';
+
+      var ouSide = r.total_pick_side ? r.total_pick_side.toUpperCase() : '-';
+      var ouLine = r.total_line != null ? r.total_line.toFixed(1) : '-';
+      var ouOdds = r.total_market_odds != null ? (r.total_market_odds > 0 ? '+' : '') + r.total_market_odds : '-';
+      var ouEv = r.total_edge_pct != null ? (r.total_edge_pct * 100).toFixed(1) + '%' : '-';
+      var ouEvClass = r.total_edge_pct != null ? (r.total_edge_pct > 0 ? 'cannon-ev-pos' : 'cannon-ev-neg') : '';
+
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' + (r.away_team || '') + '</td>' +
+        '<td class="cannon-sp">' + (r.away_sp || '') + '</td>' +
+        '<td>' + awayXr + '</td>' +
+        '<td>' + awayWinPct + '</td>' +
+        '<td>' + (r.home_team || '') + '</td>' +
+        '<td class="cannon-sp">' + (r.home_sp || '') + '</td>' +
+        '<td>' + homeXr + '</td>' +
+        '<td>' + homeWinPct + '</td>' +
+        '<td style="font-weight:600">' + totalXr + '</td>' +
+        '<td style="font-weight:600">' + mlPick + '</td>' +
+        '<td>' + mlFair + '</td>' +
+        '<td>' + mlMarket + '</td>' +
+        '<td class="' + mlEvClass + '">' + mlEv + '</td>' +
+        '<td style="font-weight:600">' + ouSide + '</td>' +
+        '<td>' + ouLine + '</td>' +
+        '<td>' + ouOdds + '</td>' +
+        '<td class="' + ouEvClass + '">' + ouEv + '</td>';
+      tbody.appendChild(tr);
+    });
+
+    section.style.display = 'block';
+    if (metaEl) { metaEl.textContent = 'As of ' + (data.as_of || 'today') + ' \u2022 ' + games.length + ' games'; metaEl.className = 'model-status ok'; }
+    if (statusEl) { statusEl.textContent = games.length + ' games loaded.'; statusEl.className = 'model-status ok'; }
+  } catch (e) {
+    if (statusEl) { statusEl.textContent = 'Error: ' + (e.message || e); statusEl.className = 'model-status error'; }
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'LOAD CANNON PICKS'; }
+  }
 }
 
 async function _runAsyncModelRequest(model, endpoint, body) {
@@ -6756,7 +6864,7 @@ window.addEventListener('firestorePicksLoaded', function(e) {
     { id: 'model-card-nba-props',        icon: '\u{1F3AF}', name: 'NBA Props Model',            desc: 'Player props with Kelly sizing' },
     { id: 'model-card-sportytrader',     icon: '\u{1F3C0}', name: 'SportyTrader Feed',          desc: 'NBA + MLB scraper feed' },
     { id: 'model-card-sportsgambler',    icon: '\u{1F3B1}', name: 'SportsGambler Feed',         desc: 'NBA + MLB scraper feed' },
-    { id: 'model-card-cannon-analytics', icon: '\u{1F4E1}', name: 'Cannon Analytics',           desc: 'Custom analytics — coming soon' },
+    { id: 'model-card-cannon-analytics', icon: '\u{1F4E1}', name: 'Cannon Analytics',           desc: 'MLB daily projections + EV picks' },
     { id: 'model-card-wnba',             icon: '\u{1F3C0}', name: 'WNBA Model',                 desc: 'WNBA predictions — coming soon' },
   ];
 
