@@ -211,7 +211,7 @@ def compute_contextual_adjustments(
     Components:
         + WNBA_HOME_ADVANTAGE                              (always)
         ± WNBA_REST_BONUS if rest diff ≥ 2 either way
-        − WNBA_B2B_PENALTY if away team is on a B2B
+        + WNBA_B2B_PENALTY if away team is on a B2B        (tired road team helps home)
         + (away_inj − home_inj) * WNBA_INJURY_SCALE        (away injuries help home)
         + (home_last5 − away_last5) * WNBA_FORM_WEIGHT     (recent form delta)
     """
@@ -237,8 +237,10 @@ def compute_contextual_adjustments(
 
     # Back-to-back penalty — only the road team is scored here; the home
     # team's schedule density is already folded into rest_diff above.
+    # The road team plays worse on a B2B, which widens the home margin, so
+    # the adjustment is additive on the home side.
     if context.get("away_is_b2b") is True:
-        adj -= WNBA_B2B_PENALTY
+        adj += WNBA_B2B_PENALTY
 
     # Injury differential. Away injuries help the home team.
     home_inj = context.get("home_injury_penalty")

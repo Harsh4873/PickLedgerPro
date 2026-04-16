@@ -35,6 +35,11 @@ from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
 try:
+    from config import RUN_WNBA
+except Exception:
+    RUN_WNBA = False
+
+try:
     import firebase_admin
     from firebase_admin import credentials, firestore
     _FIREBASE_ADMIN_AVAILABLE = True
@@ -255,6 +260,7 @@ PLAYWRIGHT_PROXY_CONFIGURED = bool(os.environ.get("PLAYWRIGHT_PROXY_SERVER", "")
 
 SPORT_TO_ESPNSLUG = {
     "NBA": ("basketball", "nba"),
+    "WNBA": ("basketball", "wnba"),
     "NHL": ("hockey", "nhl"),
     "MLB": ("baseball", "mlb"),
     "EPL": ("soccer", "eng.1"),
@@ -444,6 +450,7 @@ def _ensure_picks_table(conn: sqlite3.Connection) -> None:
         CREATE TABLE IF NOT EXISTS picks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             sport TEXT NOT NULL DEFAULT 'Other',
+            league TEXT DEFAULT 'NBA',
             source TEXT NOT NULL DEFAULT '',
             pick TEXT NOT NULL DEFAULT '',
             date TEXT NOT NULL DEFAULT '',
@@ -469,6 +476,10 @@ def _ensure_picks_table(conn: sqlite3.Connection) -> None:
         start_time_column is not None and bool(start_time_column["notnull"])
     )
     if not needs_migration:
+        try:
+            conn.execute("ALTER TABLE picks ADD COLUMN league TEXT DEFAULT 'NBA'")
+        except sqlite3.Error:
+            pass
         return
 
     conn.execute("ALTER TABLE picks RENAME TO picks_legacy")
@@ -477,6 +488,7 @@ def _ensure_picks_table(conn: sqlite3.Connection) -> None:
         CREATE TABLE picks (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             sport TEXT NOT NULL DEFAULT 'Other',
+            league TEXT DEFAULT 'NBA',
             source TEXT NOT NULL DEFAULT '',
             pick TEXT NOT NULL DEFAULT '',
             date TEXT NOT NULL DEFAULT '',
@@ -512,6 +524,10 @@ def _ensure_picks_table(conn: sqlite3.Connection) -> None:
         """
     )
     conn.execute("DROP TABLE picks_legacy")
+    try:
+        conn.execute("ALTER TABLE picks ADD COLUMN league TEXT DEFAULT 'NBA'")
+    except sqlite3.Error:
+        pass
 
 
 def _ensure_nba_props_games_table(conn: sqlite3.Connection) -> None:
@@ -577,11 +593,17 @@ def _sync_picks_table_from_state(
                 odds = int(float(raw_odds))
             except (TypeError, ValueError):
                 odds = None
+        sport_value = str(item.get("sport", "Other") or "Other")
+        league_value = str(
+            item.get("league")
+            or ("WNBA" if sport_value.strip().upper() == "WNBA" else "NBA")
+        ).strip() or "NBA"
         start_time_value = game_time_map.get(pick_id_str, item.get("start_time"))
         start_time = str(start_time_value).strip() if start_time_value not in {"", None} else None
         rows.append((
             pick_id,
-            str(item.get("sport", "Other") or "Other"),
+            sport_value,
+            league_value,
             str(item.get("source", "") or ""),
             str(item.get("pick", "") or ""),
             str(item.get("date", "") or ""),
@@ -599,8 +621,8 @@ def _sync_picks_table_from_state(
         conn.executemany(
             """
             INSERT INTO picks (
-                id, sport, source, pick, date, units, odds, result, notes, start_time, created_at, updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                id, sport, league, source, pick, date, units, odds, result, notes, start_time, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             rows,
         )
@@ -847,6 +869,10 @@ def _build_pick_log_entry(raw: dict[str, Any], pick_id: int | None = None) -> di
     entry = {
         "id": pick_id,
         "sport": str(raw.get("sport", "Other") or "Other"),
+        "league": str(
+            raw.get("league")
+            or ("WNBA" if str(raw.get("sport", "")).strip().upper() == "WNBA" else "NBA")
+        ).strip() or "NBA",
         "source": source_value,
         "game": str(raw.get("game", "") or ""),
         "pick": str(raw.get("pick", "") or ""),
@@ -1217,6 +1243,7 @@ def run_daily_model_caches_to_firestore(date_str: str | None = None) -> dict[str
     model_jobs: dict[str, tuple[Any, tuple[Any, ...]]] = {
         "nba": (run_nba_model, (date_iso, "new")),
         "nba_old": (run_nba_model, (date_iso, "old")),
+        "wnba": (run_wnba_model, (date_iso,)),
         "nba_props": (run_nba_props_model, (date_iso,)),
         "mlb": (run_mlb_model, (date_iso,)),
     }
@@ -1250,6 +1277,7 @@ def run_daily_model_caches_to_firestore(date_str: str | None = None) -> dict[str
         "models": results,
         "nba": results.get("nba", {}),
         "nba_old": results.get("nba_old", {}),
+        "wnba": results.get("wnba", {}),
         "nba_props": results.get("nba_props", {}),
         "mlb": results.get("mlb", {}),
         "ipl": results.get("ipl", {}),
@@ -1971,6 +1999,7 @@ def run_background_grade_all_users() -> dict[str, Any]:
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 NBA_MODEL_DIR = os.path.join(BASE_DIR, "NBAPredictionModel")
+WNBA_MODEL_DIR = os.path.join(BASE_DIR, "WNBAPredictionModel")
 MLB_MODEL_DIR = os.path.join(BASE_DIR, "MLBPredictionModel")
 NBA_PROPS_MODEL_DIR = os.path.join(BASE_DIR, "NBAPlayerBettingModel")
 IPL_MODEL_RUNNER = os.path.join(BASE_DIR, "ipl", "run_api.py")
@@ -2009,6 +2038,9 @@ def _resolve_python_bin(preferred_path: str) -> str:
     """Use model-specific venv if present; otherwise use current interpreter."""
     if os.path.exists(preferred_path):
         return preferred_path
+    shared_venv_python = os.path.join(BASE_DIR, ".venv", "bin", "python")
+    if os.path.exists(shared_venv_python):
+        return shared_venv_python
     return sys.executable
 
 
@@ -2310,6 +2342,98 @@ def _parse_nba_output(output: str, source_label: str = "NBA Model") -> list[dict
                     "home_team": home_team,
                 }
                 _append_unique(ou_pick)
+
+    return picks
+
+
+def _parse_wnba_output(output: str) -> list[dict[str, Any]]:
+    """Parse WNBA model output lines into the shared pick payload shape."""
+    picks: list[dict[str, Any]] = []
+    seen_matchups: set[str] = set()
+    decision_by_confidence = {
+        "HIGH": "BET",
+        "MEDIUM": "LEAN",
+        "LOW": "PASS",
+    }
+
+    for raw_line in output.splitlines():
+        line = str(raw_line or "").strip()
+        if not line.startswith("WNBA |"):
+            continue
+
+        parts = [part.strip() for part in line.split("|")]
+        if len(parts) < 6:
+            continue
+
+        matchup = parts[1]
+        if matchup in seen_matchups:
+            continue
+
+        matchup_m = re.match(r"^(.+?)\s*@\s*(.+)$", matchup)
+        win_pct_m = re.search(r"Home Win\s+([\d.]+)%", parts[2], flags=re.IGNORECASE)
+        margin_m = re.search(
+            r"Proj Margin:\s*(.+?)\s+([+-]?\d+(?:\.\d+)?)$",
+            parts[3],
+            flags=re.IGNORECASE,
+        )
+        total_m = re.search(r"Total:\s*(N/A|[\d.]+)", parts[4], flags=re.IGNORECASE)
+        conf_m = re.search(r"Conf:\s*(.+)$", parts[5], flags=re.IGNORECASE)
+        if not matchup_m or not win_pct_m or not margin_m or not conf_m:
+            continue
+
+        away_team = matchup_m.group(1).strip()
+        home_team = matchup_m.group(2).strip()
+
+        try:
+            home_win_probability = float(win_pct_m.group(1)) / 100.0
+        except (TypeError, ValueError):
+            continue
+
+        margin_team = margin_m.group(1).strip()
+        try:
+            margin_value = abs(float(margin_m.group(2)))
+        except (TypeError, ValueError):
+            margin_value = 0.0
+        signed_margin = margin_value if margin_team == home_team else -margin_value
+
+        projected_total = None
+        if total_m and total_m.group(1).upper() != "N/A":
+            try:
+                projected_total = float(total_m.group(1))
+            except (TypeError, ValueError):
+                projected_total = None
+
+        confidence_label = conf_m.group(1).strip().title()
+        favorite_team = home_team if home_win_probability >= 0.5 else away_team
+        favorite_probability = home_win_probability if favorite_team == home_team else (1.0 - home_win_probability)
+        decision = decision_by_confidence.get(confidence_label.upper(), "PASS")
+        notes = (
+            f"Proj Margin: {margin_team} {margin_value:+.1f} | "
+            f"Total: {parts[4].split(':', 1)[-1].strip()} | "
+            f"Conf: {confidence_label}"
+        )
+
+        picks.append({
+            "source": "WNBA Model",
+            "pick": f"{favorite_team} ML ({matchup})",
+            "sport": "WNBA",
+            "league": "WNBA",
+            "odds": None,
+            "units": 1,
+            "probability": round(favorite_probability, 4),
+            "decision": decision,
+            "team": favorite_team,
+            "away_team": away_team,
+            "home_team": home_team,
+            "game": matchup,
+            "matchup": matchup,
+            "model_prediction": round(signed_margin, 1),
+            "projected_total": projected_total,
+            "confidence": round(favorite_probability * 100, 1),
+            "confidence_label": confidence_label,
+            "notes": notes,
+        })
+        seen_matchups.add(matchup)
 
     return picks
 
@@ -3046,6 +3170,76 @@ def run_nba_props_model(
         return {"ok": False, "error": str(e)}
 
 
+def run_wnba_model(date_str: str | None = None) -> dict[str, Any]:
+    """Execute the WNBA model and return parsed picks."""
+    if not os.path.exists(WNBA_MODEL_DIR):
+        return {"ok": False, "error": "WNBA model directory not found"}
+
+    if not RUN_WNBA:
+        result = {
+            "ok": True,
+            "picks": [],
+            "raw_lines": 0,
+            "note": "No WNBA picks today — off-season or no edge found.",
+        }
+        _save_admin_picks_doc("wnba", result)
+        return result
+
+    python_bin = _resolve_python_bin(os.path.join(BASE_DIR, ".venv", "bin", "python"))
+    script = """
+from wnba_picks import generate_wnba_picks
+
+picks = generate_wnba_picks(echo=False) or []
+if picks:
+    for pick in picks:
+        line = str(pick.get("output_line", "")).strip()
+        if line:
+            print(line)
+else:
+    print("[WNBA] No picks generated today.")
+"""
+
+    try:
+        proc = _subprocess_run(
+            [python_bin, "-c", script],
+            cwd=WNBA_MODEL_DIR,
+            capture_output=True,
+            text=True,
+            timeout=240,
+        )
+        output = (proc.stdout or "") + (proc.stderr or "")
+        if proc.returncode != 0 or "Traceback (most recent call last)" in output or "ModuleNotFoundError" in output:
+            tail = " | ".join((output.strip().splitlines() or ["no output"])[-12:])
+            return {"ok": False, "error": f"WNBA model runtime failed ({tail})"}
+
+        picks = _parse_wnba_output(output)
+        if not picks:
+            note = "No WNBA picks today — off-season or no edge found."
+            if "[WNBA] No picks generated today." in output:
+                result = {
+                    "ok": True,
+                    "picks": [],
+                    "raw_lines": len(output.split("\n")),
+                    "note": note,
+                }
+                _save_admin_picks_doc("wnba", result)
+                return result
+            tail = " | ".join((output.strip().splitlines() or ["no output"])[-12:])
+            return {
+                "ok": False,
+                "error": f"WNBA parser found no predictions ({tail})",
+                "raw_lines": len(output.split("\n")),
+            }
+
+        result = {"ok": True, "picks": picks, "raw_lines": len(output.split("\n"))}
+        _save_admin_picks_doc("wnba", result)
+        return result
+    except subprocess.TimeoutExpired:
+        return {"ok": False, "error": "WNBA model timed out (4 min limit)"}
+    except Exception as exc:
+        return {"ok": False, "error": str(exc)}
+
+
 def run_mlb_model(date_str: str | None = None) -> dict[str, Any]:
     """Execute the MLB model and return parsed picks."""
     python_bin = _resolve_python_bin(os.path.join(MLB_MODEL_DIR, "venv", "bin", "python"))
@@ -3346,6 +3540,7 @@ def _public_endpoints() -> list[str]:
         "/run-sportsline-odds",
         "/run-nba-model",
         "/run-nba-old-model",
+        "/run-wnba-model",
         "/refresh-nba-props-games",
         "/run-nba-props-model",
         "/run-mlb-model",
@@ -3746,6 +3941,14 @@ class Handler(BaseHTTPRequestHandler):
                 result = run_nba_model(date_str, "old")
                 self._send_json(200, result)
 
+        elif path == "/run-wnba-model":
+            if async_mode:
+                job_id = _launch_job(run_wnba_model, date_str)
+                self._send_json(200, {"ok": True, "job_id": job_id, "status": "running"})
+            else:
+                result = run_wnba_model(date_str)
+                self._send_json(200, result)
+
         elif path == "/run-nba-props-model":
             if async_mode:
                 job_id = _launch_job(run_nba_props_model, date_str, game_id, game_label)
@@ -3813,6 +4016,14 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def main() -> None:
+    try:
+        with _ledger_db_connect() as conn:
+            _ensure_ledger_state_table(conn)
+            _ensure_picks_table(conn)
+            _ensure_nba_props_games_table(conn)
+    except sqlite3.Error as exc:
+        print(f"[DB] Schema init warning: {exc}")
+
     # Allow concurrent requests via threading
     import socketserver
     class ThreadedHTTPServer(socketserver.ThreadingMixIn, HTTPServer):

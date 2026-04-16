@@ -2170,14 +2170,14 @@
       <div class="model-card" id="model-card-wnba">
         <div class="model-card-icon">&#127936;</div>
         <div class="model-card-title">WNBA Model</div>
-        <div class="model-card-desc">WNBA prediction pipeline. Integration coming soon.</div>
-        <span class="model-timestamp-badge" style="display:none;"></span>
-        <button class="model-run-btn" disabled>COMING SOON</button>
+        <div class="model-card-desc">Run the WNBA prediction pipeline and load today&apos;s picks into the shared model results table.</div>
+        <span data-model-timestamp="wnba" class="model-timestamp-badge" style="display:none;"></span>
+        <button class="model-run-btn" id="btn-run-wnba" onclick="runModel('wnba')">RUN WNBA MODEL</button>
         <div class="model-status" id="status-wnba"></div>
       </div>
     </div>
     <div id="model-results-section" style="display:none;">
-      <div class="section-title clean-title" style="margin-top:24px">Model Results</div>
+      <div class="section-title clean-title" id="model-results-title" style="margin-top:24px">Model Results</div>
       <div class="model-status" id="model-results-meta"></div>
       <div class="panel" id="ipl-model-results-panel" style="display:none;">
         <div id="ipl-prediction-root"></div>
@@ -2253,6 +2253,7 @@ const MODEL_FIREBASE_KEY_ALIASES = {
   'nba-old': ['nba_old', 'nba-old', 'nba'],
   'nba-new': ['nba', 'nba_new', 'nba-new', 'nba_new_model', 'nbaNew'],
   'nba-props': ['nba_props', 'nba-props', 'props'],
+  wnba: ['wnba'],
   mlb: ['mlb'],
   ipl: ['ipl'],
   sportytrader: ['sportytrader'],
@@ -5276,6 +5277,12 @@ function setModelResultsMeta(msg, state) {
   el.className = 'model-status' + (state ? ' ' + state : '');
 }
 
+function setModelResultsTitle(title) {
+  const el = document.getElementById('model-results-title');
+  if (!el) return;
+  el.textContent = String(title || 'Model Results').trim() || 'Model Results';
+}
+
 function showToast(message, durationMs = 2800) {
   const text = String(message || '').trim();
   if (!text) return;
@@ -5426,7 +5433,7 @@ async function loadModelTimestamps() {
     const data = typeof snap.data === 'function' ? snap.data() : null;
     if (!data || typeof data !== 'object') return;
 
-    for (const key of ['nba', 'nba_new', 'mlb', 'ipl', 'props']) {
+    for (const key of ['nba', 'nba_new', 'wnba', 'mlb', 'ipl', 'props']) {
       const rawTs = data[`${key}_ts`];
       if (!rawTs) continue;
       const badge = document.querySelector(`[data-model-timestamp="${key}"]`);
@@ -5500,6 +5507,7 @@ function _resetModelButton(model) {
     'nba-new': 'RUN NBA NEW',
     'nba-old': 'RUN NBA MODEL',
     'nba-props': 'RUN PROPS MODEL',
+    wnba: 'RUN WNBA MODEL',
     sportytrader: 'SYNC SPORTYTRADER NOW',
     sportsgambler: 'SYNC SPORTSGAMBLER NOW',
     cannon: 'LOAD CANNON PICKS',
@@ -5732,6 +5740,7 @@ function renderIplResults(result, options = {}) {
   if (!section || !iplPanel || !target) return;
 
   section.style.display = 'block';
+  setModelResultsTitle(options.title || 'Model Results');
   iplPanel.style.display = 'block';
   if (tablePanel) tablePanel.style.display = 'none';
   if (addSelectedBtn) addSelectedBtn.style.display = 'none';
@@ -6412,6 +6421,11 @@ async function runModel(model) {
     body.fallbackModelKey = 'mlb';
     body.fallbackDateStr = body.date;
   }
+  if (model === 'wnba') {
+    endpoint = '/run-wnba-model';
+    body.fallbackModelKey = 'wnba';
+    body.fallbackDateStr = body.date;
+  }
   if (model === 'nba-props') {
     endpoint = '/run-nba-props-model';
     body.fallbackModelKey = 'props';
@@ -6437,7 +6451,13 @@ async function runModel(model) {
     );
     _clearNbaComparisonResults();
     pendingModelPicks = picks;
-    renderModelResults(picks, { meta: '' });
+    renderModelResults(picks, model === 'wnba'
+      ? {
+          meta: '',
+          title: 'WNBA Picks',
+          emptyMessage: 'No WNBA picks today — off-season or no edge found.',
+        }
+      : { meta: '' });
     loadModelTimestamps();
   } catch (e) {
     setModelStatus(model, `Error: ${String(e && e.message ? e.message : e)}`, 'error');
@@ -6454,14 +6474,44 @@ function renderModelResults(picks, options = {}) {
   const addSelectedBtn = document.getElementById('btn-add-selected');
   const addAllBtn = document.getElementById('btn-add-picks');
   const iplRoot = document.getElementById('ipl-prediction-root');
+  const title = String(options && options.title || 'Model Results').trim() || 'Model Results';
+  const emptyMessage = String(options && options.emptyMessage || '').trim();
   if (!picks.length) {
-    section.style.display = 'none';
-    setModelResultsMeta('', '');
+    pendingModelPicks = [];
     pendingIplPrediction = null;
     if (iplRoot) iplRoot.innerHTML = '';
+    if (!emptyMessage) {
+      section.style.display = 'none';
+      setModelResultsTitle('Model Results');
+      setModelResultsMeta('', '');
+      return;
+    }
+    section.style.display = 'block';
+    setModelResultsTitle(title);
+    if (iplPanel) iplPanel.style.display = 'none';
+    if (tablePanel) tablePanel.style.display = 'block';
+    if (Object.prototype.hasOwnProperty.call(options, 'meta')) {
+      setModelResultsMeta(options.meta, options.metaState || '');
+    } else {
+      setModelResultsMeta('', '');
+    }
+    if (tbody) {
+      tbody.innerHTML = `<tr class="model-result-pass-row" style="opacity:0.7"><td colspan="11" style="text-align:center;padding:18px 12px;">${emptyMessage}</td></tr>`;
+    }
+    if (addSelectedBtn) {
+      addSelectedBtn.style.display = '';
+      addSelectedBtn.disabled = true;
+    }
+    if (addAllBtn) {
+      addAllBtn.style.display = '';
+      addAllBtn.disabled = true;
+      addAllBtn.textContent = 'ADD ALL BET PICKS TO LEDGER';
+    }
+    updateModelSelectAll();
     return;
   }
   section.style.display = 'block';
+  setModelResultsTitle(title);
   if (iplPanel) iplPanel.style.display = 'none';
   if (tablePanel) tablePanel.style.display = 'block';
   if (addSelectedBtn) addSelectedBtn.style.display = '';
@@ -6474,14 +6524,16 @@ function renderModelResults(picks, options = {}) {
     'NBA MODEL': 0,
     NBANEW: 1,
     'NBA NEW': 1,
-    'MLB MODEL': 2,
-    'CANNON ANALYTICS': 3,
+    'WNBA MODEL': 2,
+    'MLB MODEL': 3,
+    'CANNON ANALYTICS': 4,
   };
   const sourceDisplayLabels = {
     NBAOLD: 'NBA Model',
     'NBA MODEL': 'NBA Model',
     NBANEW: 'NBA New',
     'NBA NEW': 'NBA New',
+    'WNBA MODEL': 'WNBA Model',
     'MLB MODEL': 'MLB Model',
     'CANNON ANALYTICS': 'Cannon Analytics',
   };
@@ -6646,6 +6698,7 @@ function _appendModelPicksToLedger(candidates) {
       source,
       pick: pickText,
       sport: String(p.sport || 'Other'),
+      league: String(p.league || (String(p.sport || '').toUpperCase() === 'WNBA' ? 'WNBA' : '')).trim(),
       units: Number(p.units) || 1,
       odds: normalizeOddsValue(p.odds),
       assumed_odds: normalizeOddsValue(p.assumed_odds),
@@ -6901,7 +6954,7 @@ window.addEventListener('firestorePicksLoaded', function(e) {
     { id: 'model-card-sportytrader',     icon: '\u{1F3C0}', name: 'SportyTrader Feed',          desc: 'NBA + MLB scraper feed' },
     { id: 'model-card-sportsgambler',    icon: '\u{1F3B1}', name: 'SportsGambler Feed',         desc: 'NBA + MLB scraper feed' },
     { id: 'model-card-cannon-analytics', icon: '\u{1F4E1}', name: 'Cannon Analytics',           desc: 'MLB daily projections + EV picks' },
-    { id: 'model-card-wnba',             icon: '\u{1F3C0}', name: 'WNBA Model',                 desc: 'WNBA predictions — coming soon' },
+    { id: 'model-card-wnba',             icon: '\u{1F3C0}', name: 'WNBA Model',                 desc: 'Live WNBA picks and off-season placeholder support' },
   ];
 
   // Default: show all
