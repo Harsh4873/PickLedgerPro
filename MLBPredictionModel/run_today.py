@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import sys
 from datetime import datetime
 
@@ -7,6 +8,7 @@ from calibration import apply_moneyline_calibration
 from date_utils import get_mlb_slate_date
 from live_data import build_live_dataframe
 from market_mechanics import calculate_edge, check_minimum_threshold, remove_vig
+from model_variants import VALID_MLB_MODEL_VARIANTS
 from moneyline_model import predict_home_win_probability
 from prediction_logging import append_prediction_rows, build_prediction_log_rows
 from probability_layers import predict_total_runs
@@ -14,11 +16,30 @@ from sportsline_odds import fetch_mlb_market_odds_for_date
 from totals_model import predict_totals
 
 
-def _parse_date(argv: list[str]) -> datetime.date:
-    if len(argv) <= 1:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Run the MLB model for a selected date and variant.")
+    parser.add_argument(
+        "legacy_date",
+        nargs="?",
+        default="",
+        help="Optional legacy date arg in MM/DD/YYYY or YYYY-MM-DD format.",
+    )
+    parser.add_argument("--date", default="", help="Target date in YYYY-MM-DD or MM/DD/YYYY format.")
+    parser.add_argument(
+        "--variant",
+        choices=VALID_MLB_MODEL_VARIANTS,
+        default="old",
+        help="Model variant to run.",
+    )
+    parser.add_argument("--no-log", action="store_true", help="Disable local prediction logging.")
+    return parser.parse_args(argv[1:] if argv else None)
+
+
+def _parse_date(raw_value: str) -> datetime.date:
+    raw = str(raw_value or "").strip()
+    if not raw:
         return get_mlb_slate_date()
 
-    raw = argv[1]
     for fmt in ("%Y-%m-%d", "%m/%d/%Y"):
         try:
             return datetime.strptime(raw, fmt).date()
@@ -35,9 +56,9 @@ def _prob_to_american(probability: float) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
-    argv = argv or sys.argv
+    args = parse_args(argv or sys.argv)
     try:
-        target_date = _parse_date(argv)
+        target_date = _parse_date(args.date or args.legacy_date)
     except ValueError as exc:
         print(str(exc), file=sys.stderr)
         return 1
@@ -51,10 +72,10 @@ def main(argv: list[str] | None = None) -> int:
             print(f"No MLB games found for {target_date.isoformat()}.")
             return 0
 
-        predictions = predict_home_win_probability(live_frame)
-        predictions = apply_moneyline_calibration(predictions)
+        predictions = predict_home_win_probability(live_frame, variant=args.variant)
+        predictions = apply_moneyline_calibration(predictions, variant=args.variant)
         try:
-            predictions = predict_totals(predictions)
+            predictions = predict_totals(predictions, variant=args.variant)
         except FileNotFoundError:
             predictions = predictions.copy()
             predictions["predicted_total_runs"] = predictions.apply(
@@ -68,7 +89,10 @@ def main(argv: list[str] | None = None) -> int:
         print(f"MLB live inference failed: {exc}", file=sys.stderr)
         return 1
 
-    print(f"MLB Prediction Model - Games for {target_date.isoformat()}")
+    variant_label = "MLBOLD" if args.variant == "old" else "MLBNEW"
+    model_name = "MLB OLD" if args.variant == "old" else "MLB NEW"
+
+    print(f"MLB Prediction Model - {variant_label} - Games for {target_date.isoformat()}")
     print("=" * 60)
     print(f"Found {len(predictions)} games.\n")
 
@@ -80,8 +104,16 @@ def main(argv: list[str] | None = None) -> int:
         row["market_ml_away"] = mo.get("ml_away")
         row["market_ml_home"] = mo.get("ml_home")
         row["market_total_line"] = mo.get("total_line")
+        row["totals_line"] = mo.get("total_line")
 
-    append_prediction_rows(build_prediction_log_rows(prediction_rows))
+    if not args.no_log:
+        append_prediction_rows(
+            build_prediction_log_rows(
+                prediction_rows,
+                model_name=model_name,
+                model_variant=args.variant,
+            )
+        )
 
     for row in prediction_rows:
         home_prob = float(row.get("calibrated_home_win_probability", row["raw_home_win_probability"]))

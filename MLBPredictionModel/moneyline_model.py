@@ -23,10 +23,10 @@ from feature_engineering import (
     select_training_rows,
 )
 from historical_data import DATASET_PATH, build_historical_dataset
+from model_variants import ARTIFACT_DIR, get_mlb_model_artifacts
 
 
 BASE_DIR = Path(__file__).resolve().parent
-ARTIFACT_DIR = BASE_DIR / "artifacts"
 MODEL_PATH = ARTIFACT_DIR / "mlb_moneyline_model.joblib"
 METADATA_PATH = ARTIFACT_DIR / "mlb_moneyline_model_metadata.json"
 
@@ -173,17 +173,20 @@ def train_moneyline_model(
     return {"pipeline": pipeline, "metadata": metadata}
 
 
-def load_moneyline_model() -> dict[str, Any]:
-    if not MODEL_PATH.exists():
+def load_moneyline_model(variant: str | None = None) -> dict[str, Any]:
+    model_path = get_mlb_model_artifacts(variant)["moneyline"]
+    if not model_path.exists():
+        variant_note = f" for variant={variant!r}" if variant else ""
         raise FileNotFoundError(
-            "Missing MLB moneyline model artifact. Run "
+            "Missing MLB moneyline model artifact"
+            f"{variant_note}. Run "
             "`venv/bin/python train_moneyline_model.py` inside MLBPredictionModel first."
         )
-    return joblib.load(MODEL_PATH)
+    return joblib.load(model_path)
 
 
-def predict_home_win_probability(frame: pd.DataFrame) -> pd.DataFrame:
-    artifact = load_moneyline_model()
+def predict_home_win_probability(frame: pd.DataFrame, variant: str | None = None) -> pd.DataFrame:
+    artifact = load_moneyline_model(variant=variant)
     pipeline: Pipeline = artifact["pipeline"]
     metadata = artifact["metadata"]
     prepared = ensure_feature_frame(frame)

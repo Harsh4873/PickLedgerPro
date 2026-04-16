@@ -1245,7 +1245,8 @@ def run_daily_model_caches_to_firestore(date_str: str | None = None) -> dict[str
         "nba_old": (run_nba_model, (date_iso, "old")),
         "wnba": (run_wnba_model, (date_iso,)),
         "nba_props": (run_nba_props_model, (date_iso,)),
-        "mlb": (run_mlb_model, (date_iso,)),
+        "mlb_old": (run_mlb_model, (date_iso, "old")),
+        "mlb_new": (run_mlb_model, (date_iso, "new")),
     }
     if IPL_AVAILABLE:
         model_jobs["ipl"] = (run_ipl_model, (None, None, None, None, None, LEDGER_DB_FILE))
@@ -1279,7 +1280,9 @@ def run_daily_model_caches_to_firestore(date_str: str | None = None) -> dict[str
         "nba_old": results.get("nba_old", {}),
         "wnba": results.get("wnba", {}),
         "nba_props": results.get("nba_props", {}),
-        "mlb": results.get("mlb", {}),
+        "mlb": results.get("mlb_old", {}),
+        "mlb_old": results.get("mlb_old", {}),
+        "mlb_new": results.get("mlb_new", {}),
         "ipl": results.get("ipl", {}),
         "props_games": props_games,
     }
@@ -2613,7 +2616,7 @@ def _shorten_mlb_name(full_name: str) -> str:
     return parts[-1] if parts else full_name
 
 
-def _parse_mlb_output(output: str) -> list[dict[str, Any]]:
+def _parse_mlb_output(output: str, source_label: str = "MLB Model") -> list[dict[str, Any]]:
     """Parse MLB model stdout into pick dicts."""
     picks: list[dict[str, Any]] = []
 
@@ -2661,7 +2664,7 @@ def _parse_mlb_output(output: str) -> list[dict[str, Any]]:
                     _k = max((_b * _prob - _q) / _b, 0.0)
                     _kf = round(_k * 0.25 * 100, 2)
                     ou_pick = {
-                        "source": "MLB Model",
+                        "source": source_label,
                         "pick": pick_label,
                         "sport": league,
                         "odds": _odds_price,
@@ -2720,7 +2723,7 @@ def _parse_mlb_output(output: str) -> list[dict[str, Any]]:
             decision = "BET" if bet_prob >= 0.55 else "PASS"
 
             picks.append({
-                "source": "MLB Model",
+                "source": source_label,
                 "pick": f"{bet_team} ML ({matchup})",
                 "sport": "MLB",
                 "odds": ml_away if bet_team == short_a else ml_home,
@@ -2764,7 +2767,7 @@ def _parse_mlb_output(output: str) -> list[dict[str, Any]]:
             ml_home, ml_away = _sl_get_ml(current_home, current_away, "MLB")
 
             picks.append({
-                "source": "MLB Model",
+                "source": source_label,
                 "pick": f"{winner} ML ({matchup})",
                 "sport": "MLB",
                 "odds": ml_home if winner == _shorten_mlb_name(current_home) else ml_away,
@@ -2800,7 +2803,7 @@ def _parse_mlb_output(output: str) -> list[dict[str, Any]]:
                     _k = max((_b * _prob - _q) / _b, 0.0)
                     _kf = round(_k * 0.25 * 100, 2)
                     ou_pick = {
-                        "source": "MLB Model",
+                        "source": source_label,
                         "pick": pick_label,
                         "sport": league,
                         "odds": _odds_price,
@@ -2984,6 +2987,14 @@ def _nba_model_extra_args(date_str: str | None = None, variant: str = "new") -> 
     target_iso, _ = _parse_model_date_arg(date_str)
     args = ["--date", target_iso, "--variant", variant]
     if variant != "new" or target_iso != datetime.now().strftime("%Y-%m-%d"):
+        args.append("--no-log")
+    return args
+
+
+def _mlb_model_extra_args(date_str: str | None = None, variant: str = "old") -> list[str]:
+    target_iso, _ = _parse_model_date_arg(date_str)
+    args = ["--date", target_iso, "--variant", variant]
+    if target_iso != datetime.now().strftime("%Y-%m-%d"):
         args.append("--no-log")
     return args
 
@@ -3240,16 +3251,20 @@ else:
         return {"ok": False, "error": str(exc)}
 
 
-def run_mlb_model(date_str: str | None = None) -> dict[str, Any]:
-    """Execute the MLB model and return parsed picks."""
+def run_mlb_model(date_str: str | None = None, variant: str = "old") -> dict[str, Any]:
+    """Execute an MLB model variant and return parsed picks."""
     python_bin = _resolve_python_bin(os.path.join(MLB_MODEL_DIR, "venv", "bin", "python"))
-
-    extra = []
-    if date_str:
-        extra = [date_str]
+    source_label = "MLB NEW" if variant == "new" else "MLB OLD"
+    cache_key = "mlb_new" if variant == "new" else "mlb_old"
 
     try:
-        output = _run_script(python_bin, "run_today.py", MLB_MODEL_DIR, timeout=300, extra_args=extra)
+        output = _run_script(
+            python_bin,
+            "run_today.py",
+            MLB_MODEL_DIR,
+            timeout=300,
+            extra_args=_mlb_model_extra_args(date_str, variant),
+        )
         if (
             "Traceback (most recent call last)" in output
             or "ModuleNotFoundError" in output
@@ -3257,30 +3272,38 @@ def run_mlb_model(date_str: str | None = None) -> dict[str, Any]:
             or "FileNotFoundError" in output
         ):
             tail = " | ".join((output.strip().splitlines() or ["no output"])[-12:])
-            return {"ok": False, "error": f"MLB model runtime failed ({tail})"}
+            return {"ok": False, "error": f"{source_label} runtime failed ({tail})"}
 
-        picks = _parse_mlb_output(output)
+        picks = _parse_mlb_output(output, source_label=source_label)
         if not picks:
             if "No MLB games found for" in output:
                 result = {
                     "ok": True,
                     "picks": [],
                     "raw_lines": len(output.split("\n")),
-                    "note": "No MLB games found for requested date",
+                    "note": f"No MLB games found for requested date ({source_label})",
                 }
-                _save_admin_picks_doc("mlb", result)
+                if variant == "new":
+                    _save_admin_picks_doc("mlb_new", result)
+                else:
+                    _save_admin_picks_doc("mlb", result)
+                    _save_admin_picks_doc("mlb_old", result)
                 return result
             tail = " | ".join((output.strip().splitlines() or ["no output"])[-12:])
             return {
                 "ok": False,
-                "error": f"MLB parser found no predictions ({tail})",
+                "error": f"{source_label} parser found no predictions ({tail})",
                 "raw_lines": len(output.split("\n")),
             }
         result = {"ok": True, "picks": picks, "raw_lines": len(output.split("\n"))}
-        _save_admin_picks_doc("mlb", result)
+        if variant == "new":
+            _save_admin_picks_doc("mlb_new", result)
+        else:
+            _save_admin_picks_doc("mlb", result)
+            _save_admin_picks_doc(cache_key, result)
         return result
     except subprocess.TimeoutExpired:
-        return {"ok": False, "error": "MLB model timed out (5 min limit)"}
+        return {"ok": False, "error": f"{source_label} timed out (5 min limit)"}
     except Exception as e:
         return {"ok": False, "error": str(e)}
 
@@ -3545,6 +3568,7 @@ def _public_endpoints() -> list[str]:
         "/refresh-nba-props-games",
         "/run-nba-props-model",
         "/run-mlb-model",
+        "/run-mlb-new-model",
         "/api/ipl",
         "/ask-opus",
         "/job-status?id=<id>",
@@ -3960,10 +3984,18 @@ class Handler(BaseHTTPRequestHandler):
 
         elif path == "/run-mlb-model":
             if async_mode:
-                job_id = _launch_job(run_mlb_model, date_str)
+                job_id = _launch_job(run_mlb_model, date_str, "old")
                 self._send_json(200, {"ok": True, "job_id": job_id, "status": "running"})
             else:
-                result = run_mlb_model(date_str)
+                result = run_mlb_model(date_str, "old")
+                self._send_json(200, result)
+
+        elif path == "/run-mlb-new-model":
+            if async_mode:
+                job_id = _launch_job(run_mlb_model, date_str, "new")
+                self._send_json(200, {"ok": True, "job_id": job_id, "status": "running"})
+            else:
+                result = run_mlb_model(date_str, "new")
                 self._send_json(200, result)
 
         elif path == "/run-sportytrader":

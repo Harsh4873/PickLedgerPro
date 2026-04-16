@@ -17,6 +17,8 @@ TOTALS_CONFIDENCE_SIGMOID_SCALE = 1.25
 
 LOG_FIELDS = [
     "game_id",
+    "model_name",
+    "model_variant",
     "run_date",
     "game_date",
     "away_team",
@@ -111,16 +113,17 @@ def _ensure_log_schema() -> None:
             writer.writerow(row)
 
 
-def existing_prediction_keys() -> set[tuple[str, str]]:
+def existing_prediction_keys() -> set[tuple[str, str, str]]:
     ensure_log_dir()
     _ensure_log_schema()
-    keys: set[tuple[str, str]] = set()
+    keys: set[tuple[str, str, str]] = set()
     for row in _read_existing_log_rows():
         normalized = _normalize_log_row(row)
         game_id = str(normalized.get("game_id", "")).strip()
+        model_variant = str(normalized.get("model_variant", "")).strip().lower()
         run_date = str(normalized.get("run_date", "")).strip()
-        if game_id and run_date:
-            keys.add((game_id, run_date))
+        if game_id and run_date and model_variant:
+            keys.add((game_id, run_date, model_variant))
     return keys
 
 
@@ -138,7 +141,12 @@ def append_prediction_rows(rows: Iterable[dict[str, object]]) -> Path:
     return PREDICTION_LOG_PATH
 
 
-def build_prediction_log_rows(predictions: list[dict[str, object]]) -> list[dict[str, object]]:
+def build_prediction_log_rows(
+    predictions: list[dict[str, object]],
+    *,
+    model_name: str = "",
+    model_variant: str = "",
+) -> list[dict[str, object]]:
     timestamp = datetime.now(timezone.utc).isoformat()
     run_date = timestamp[:10]
     rows: list[dict[str, object]] = []
@@ -150,6 +158,8 @@ def build_prediction_log_rows(predictions: list[dict[str, object]]) -> list[dict
         rows.append(
             {
                 "game_id": prediction.get("game_pk", ""),
+                "model_name": prediction.get("model_name", model_name),
+                "model_variant": prediction.get("model_variant", model_variant),
                 "run_date": run_date,
                 "game_date": prediction.get("game_date", ""),
                 "away_team": prediction.get("away_team", ""),

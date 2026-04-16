@@ -2098,14 +2098,23 @@
       </div>
     </div>
     <div class="model-status" id="status-nba-compare" style="margin-bottom:12px;"></div>
+    <div class="model-status" id="status-mlb-compare" style="margin-bottom:12px;"></div>
     <div class="models-grid">
       <div class="model-card" id="model-card-mlb">
         <div class="model-card-icon">&#9918;</div>
         <div class="model-card-title">MLB Model</div>
-        <div class="model-card-desc">Run MLB prediction pipeline for today's games. Uses statsapi for real schedules + pitcher-based probability layers.</div>
+        <div class="model-card-desc">Runs the champion MLB pipeline for today's games. Uses the legacy 2023-24 artifact set so MLB OLD stays the betting default while the challenger is tracked separately.</div>
         <span data-model-timestamp="mlb" class="model-timestamp-badge" style="display:none;"></span>
         <button class="model-run-btn" id="btn-run-mlb" onclick="runModel('mlb')">RUN MLB MODEL</button>
         <div class="model-status" id="status-mlb"></div>
+      </div>
+      <div class="model-card" id="model-card-mlb-new">
+        <div class="model-card-icon">&#9918;</div>
+        <div class="model-card-title">MLB New</div>
+        <div class="model-card-desc">Runs the 2024-25 challenger MLB artifacts side-by-side against the champion so you can compare live ROI before promoting it.</div>
+        <span data-model-timestamp="mlb_new" class="model-timestamp-badge" style="display:none;"></span>
+        <button class="model-run-btn" id="btn-run-mlb-new" onclick="runModel('mlb-new')">RUN MLB NEW</button>
+        <div class="model-status" id="status-mlb-new"></div>
       </div>
       <div class="model-card" id="model-card-ipl">
         <div class="model-card-icon">&#127951;</div>
@@ -2254,7 +2263,8 @@ const MODEL_FIREBASE_KEY_ALIASES = {
   'nba-new': ['nba', 'nba_new', 'nba-new', 'nba_new_model', 'nbaNew'],
   'nba-props': ['nba_props', 'nba-props', 'props'],
   wnba: ['wnba'],
-  mlb: ['mlb'],
+  mlb: ['mlb', 'mlb_old', 'mlb-old'],
+  'mlb-new': ['mlb_new', 'mlb-new', 'mlbNew'],
   ipl: ['ipl'],
   sportytrader: ['sportytrader'],
   sportsgambler: ['sportsgambler'],
@@ -5214,11 +5224,21 @@ const NBA_MODEL_SOURCE_LABELS = {
   'nba-old': 'NBA Model',
   'nba-new': 'NBA New',
 };
+const MLB_COMPARISON_MODELS = new Set(['mlb', 'mlb-new']);
+const MLB_MODEL_SOURCE_LABELS = {
+  mlb: 'MLB Model',
+  'mlb-new': 'MLB New',
+};
 let pendingNbaComparisonPicks = {
   'nba-old': [],
   'nba-new': [],
 };
 let pendingNbaComparisonDate = '';
+let pendingMlbComparisonPicks = {
+  mlb: [],
+  'mlb-new': [],
+};
+let pendingMlbComparisonDate = '';
 
 function setModelStatus(model, msg, state) {
   const el = document.getElementById('status-' + model);
@@ -5433,7 +5453,7 @@ async function loadModelTimestamps() {
     const data = typeof snap.data === 'function' ? snap.data() : null;
     if (!data || typeof data !== 'object') return;
 
-    for (const key of ['nba', 'nba_new', 'wnba', 'mlb', 'ipl', 'props']) {
+    for (const key of ['nba', 'nba_new', 'wnba', 'mlb', 'mlb_new', 'ipl', 'props']) {
       const rawTs = data[`${key}_ts`];
       if (!rawTs) continue;
       const badge = document.querySelector(`[data-model-timestamp="${key}"]`);
@@ -5459,6 +5479,37 @@ async function loadModelTimestamps() {
 document.addEventListener('DOMContentLoaded', () => {
   loadModelTimestamps();
 });
+
+function _resetMlbComparisonState(dateStr = '') {
+  pendingMlbComparisonPicks = {
+    mlb: [],
+    'mlb-new': [],
+  };
+  pendingMlbComparisonDate = dateStr;
+}
+
+function _storeMlbComparisonPicks(model, picks, dateStr) {
+  if (!MLB_COMPARISON_MODELS.has(model)) return;
+  if (pendingMlbComparisonDate && pendingMlbComparisonDate !== dateStr) {
+    _resetMlbComparisonState(dateStr);
+  } else if (!pendingMlbComparisonDate) {
+    pendingMlbComparisonDate = dateStr;
+  }
+  pendingMlbComparisonPicks[model] = Array.isArray(picks) ? picks : [];
+  const combined = ['mlb', 'mlb-new'].flatMap(key => pendingMlbComparisonPicks[key] || []);
+  const loaded = ['mlb', 'mlb-new'].filter(key => (pendingMlbComparisonPicks[key] || []).length > 0);
+  const label = formatModelRunDate(pendingMlbComparisonDate || dateStr);
+  const summary = loaded.length === 2
+    ? `Showing MLB Model + MLB New for ${label}`
+    : `Showing ${MLB_MODEL_SOURCE_LABELS[model]} for ${label}. Run the other model to compare.`;
+  pendingModelPicks = combined;
+  renderModelResults(combined, { meta: summary, metaState: 'ok' });
+}
+
+function _clearMlbComparisonResults() {
+  _resetMlbComparisonState('');
+  setModelStatus('mlb-compare', '', '');
+}
 
 function _resetNbaComparisonState(dateStr = '') {
   pendingNbaComparisonPicks = {
@@ -5504,6 +5555,7 @@ function _resetModelButton(model) {
   const labels = {
     ipl: 'RUN IPL MODEL',
     mlb: 'RUN MLB MODEL',
+    'mlb-new': 'RUN MLB NEW',
     'nba-new': 'RUN NBA NEW',
     'nba-old': 'RUN NBA MODEL',
     'nba-props': 'RUN PROPS MODEL',
@@ -5793,6 +5845,41 @@ async function _runNbaVariantModel(model, dateStr) {
   return picks;
 }
 
+async function _runMlbVariantModel(model, dateStr) {
+  const label = formatModelRunDate(dateStr);
+  setModelStatus(
+    model,
+    isAdminModelRunnerUser()
+      ? `Running ${MLB_MODEL_SOURCE_LABELS[model]} for ${label}...`
+      : `Loading ${MLB_MODEL_SOURCE_LABELS[model]} for ${label} from Firebase...`,
+    'running'
+  );
+  const result = await _runAsyncModelRequest(
+    model,
+    model === 'mlb-new' ? '/run-mlb-new-model' : '/run-mlb-model',
+    {
+      async: true,
+      date: dateStr,
+      fallbackModelKey: model === 'mlb-new' ? 'mlb_new' : 'mlb',
+      fallbackDateStr: dateStr,
+    }
+  );
+  const picks = _extractModelPicks(result);
+  const note = String(result && result.note || '').trim();
+  if (result && result.source === 'firebase_cache') {
+    showToast('Loaded from Firebase cache');
+  }
+  setModelStatus(
+    model,
+    note || (result && result.source === 'firebase_cache'
+      ? `Loaded ${picks.length} cached prediction(s) for ${label}.`
+      : `Done. ${picks.length} prediction(s) returned for ${label}.`),
+    'ok'
+  );
+  loadModelTimestamps();
+  return picks;
+}
+
 async function _refreshSportsLineOdds() {
   if (!isAdminModelRunnerUser()) return;
   const backendHealthy = await checkAdminLocalBackendHealth();
@@ -5820,6 +5907,7 @@ async function runNbaModelComparison() {
   const btn = document.getElementById('btn-run-nba-compare');
   const dateStr = getSelectedNbaModelDate();
   const label = formatModelRunDate(dateStr);
+  _clearMlbComparisonResults();
   if (btn) {
     btn.disabled = true;
     btn.textContent = 'RUNNING BOTH...';
@@ -6247,6 +6335,7 @@ async function runModel(model) {
   if (NBA_COMPARISON_MODELS.has(model)) {
     const dateStr = getSelectedNbaModelDate();
     const label = formatModelRunDate(dateStr);
+    _clearMlbComparisonResults();
     try {
       const picks = await _runNbaVariantModel(model, dateStr);
       _storeNbaComparisonPicks(model, picks, dateStr);
@@ -6254,6 +6343,27 @@ async function runModel(model) {
       setModelStatus(
         'nba-compare',
         hasBoth ? `Showing NBA Model + NBA New for ${label}.` : `Showing ${NBA_MODEL_SOURCE_LABELS[model]} for ${label}.`,
+        'ok'
+      );
+    } catch (e) {
+      setModelStatus(model, `Error: ${String(e && e.message ? e.message : e)}`, 'error');
+    } finally {
+      _resetModelButton(model);
+    }
+    return;
+  }
+
+  if (MLB_COMPARISON_MODELS.has(model)) {
+    const dateStr = _getTodayIsoDate();
+    const label = formatModelRunDate(dateStr);
+    _clearNbaComparisonResults();
+    try {
+      const picks = await _runMlbVariantModel(model, dateStr);
+      _storeMlbComparisonPicks(model, picks, dateStr);
+      const hasBoth = ['mlb', 'mlb-new'].every(key => (pendingMlbComparisonPicks[key] || []).length > 0);
+      setModelStatus(
+        'mlb-compare',
+        hasBoth ? `Showing MLB Model + MLB New for ${label}.` : `Showing ${MLB_MODEL_SOURCE_LABELS[model]} for ${label}.`,
         'ok'
       );
     } catch (e) {
@@ -6279,6 +6389,8 @@ async function runModel(model) {
           : `Showing IPL live model for ${String(payload.match || '').trim() || 'current match'}`,
         metaState: 'ok',
       });
+      _clearMlbComparisonResults();
+      _clearNbaComparisonResults();
       const playerCount = Array.isArray(payload.selected_players) ? payload.selected_players.length : 0;
       setModelStatus(
         model,
@@ -6304,6 +6416,7 @@ async function runModel(model) {
       setModelStatus(model, 'Trying live SportyTrader sync...', 'running');
       const synced = await syncSportyTraderFromServer();
       _clearNbaComparisonResults();
+      _clearMlbComparisonResults();
       pendingModelPicks = synced.picks;
       renderModelResults(synced.picks, { meta: '' });
       saveSportyTraderCachedFeed({ picks: synced.picks, meta: synced.meta });
@@ -6314,6 +6427,7 @@ async function runModel(model) {
       try {
         const loaded = await loadSportyTraderManualFeed();
         _clearNbaComparisonResults();
+        _clearMlbComparisonResults();
         pendingModelPicks = loaded.picks;
         renderModelResults(loaded.picks, { meta: '' });
         const meta = {
@@ -6334,6 +6448,7 @@ async function runModel(model) {
         const cached = getSportyTraderCachedFeed();
         if (cached && Array.isArray(cached.picks) && cached.picks.length) {
           _clearNbaComparisonResults();
+          _clearMlbComparisonResults();
           pendingModelPicks = cached.picks;
           renderModelResults(cached.picks, { meta: '' });
           setSportyTraderSyncMeta({ ...(cached.meta || {}), from: 'browser-cache' });
@@ -6360,6 +6475,7 @@ async function runModel(model) {
       setModelStatus(model, 'Trying live SportsGambler sync...', 'running');
       const synced = await syncSportsgamblerFromServer();
       _clearNbaComparisonResults();
+      _clearMlbComparisonResults();
       pendingModelPicks = synced.picks;
       renderModelResults(synced.picks, { meta: '' });
       saveSportsgamblerCachedFeed({ picks: synced.picks, meta: synced.meta });
@@ -6370,6 +6486,7 @@ async function runModel(model) {
       try {
         const loaded = await loadSportsgamblerManualFeed();
         _clearNbaComparisonResults();
+        _clearMlbComparisonResults();
         pendingModelPicks = loaded.picks;
         renderModelResults(loaded.picks, { meta: '' });
         const meta = {
@@ -6390,6 +6507,7 @@ async function runModel(model) {
         const cached = getSportsgamblerCachedFeed();
         if (cached && Array.isArray(cached.picks) && cached.picks.length) {
           _clearNbaComparisonResults();
+          _clearMlbComparisonResults();
           pendingModelPicks = cached.picks;
           renderModelResults(cached.picks, { meta: '' });
           setSportsgamblerSyncMeta({ ...(cached.meta || {}), from: 'browser-cache' });
@@ -6450,6 +6568,7 @@ async function runModel(model) {
       'ok'
     );
     _clearNbaComparisonResults();
+    _clearMlbComparisonResults();
     pendingModelPicks = picks;
     renderModelResults(picks, model === 'wnba'
       ? {
@@ -6526,7 +6645,9 @@ function renderModelResults(picks, options = {}) {
     'NBA NEW': 1,
     'WNBA MODEL': 2,
     'MLB MODEL': 3,
-    'CANNON ANALYTICS': 4,
+    'MLB OLD': 3,
+    'MLB NEW': 4,
+    'CANNON ANALYTICS': 5,
   };
   const sourceDisplayLabels = {
     NBAOLD: 'NBA Model',
@@ -6535,6 +6656,8 @@ function renderModelResults(picks, options = {}) {
     'NBA NEW': 'NBA New',
     'WNBA MODEL': 'WNBA Model',
     'MLB MODEL': 'MLB Model',
+    'MLB OLD': 'MLB Model',
+    'MLB NEW': 'MLB New',
     'CANNON ANALYTICS': 'Cannon Analytics',
   };
   const sorted = picks.map((pick, index) => ({ pick, index })).sort((a, b) => {
@@ -6947,6 +7070,7 @@ window.addEventListener('firestorePicksLoaded', function(e) {
   const STORAGE_KEY = 'pickledger_visible_models';
   const ALL_MODELS = [
     { id: 'model-card-mlb',              icon: '\u26BE', name: 'MLB Model',                     desc: 'Pitcher-based MLB predictions' },
+    { id: 'model-card-mlb-new',          icon: '\u26BE', name: 'MLB New',                       desc: '2024-25 MLB challenger artifacts' },
     { id: 'model-card-ipl',              icon: '\u{1F3DF}', name: 'IPL Model',                  desc: 'Cached IPL winner + fantasy XI' },
     { id: 'model-card-nba-new',          icon: '\u{1F3C0}', name: 'NBA New',                    desc: 'Refined NBA spread + calibration' },
     { id: 'model-card-nba-old',          icon: '\u{1F4DC}', name: 'NBA Model',                  desc: 'Legacy NBA confidence path' },

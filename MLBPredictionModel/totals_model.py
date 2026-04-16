@@ -16,11 +16,11 @@ from sklearn.preprocessing import OrdinalEncoder
 
 from feature_engineering import ensure_feature_frame
 from historical_data import DATASET_PATH
+from model_variants import ARTIFACT_DIR, get_mlb_model_artifacts
 from probability_layers import predict_total_runs as heuristic_total_runs
 
 
 BASE_DIR = Path(__file__).resolve().parent
-ARTIFACT_DIR = BASE_DIR / "artifacts"
 MODEL_PATH = ARTIFACT_DIR / "mlb_totals_model.joblib"
 METADATA_PATH = ARTIFACT_DIR / "mlb_totals_model_metadata.json"
 INFERENCE_BLEND_WEIGHT_MODEL = 0.65
@@ -233,17 +233,20 @@ def train_totals_model(dataset_path: Path = DATASET_PATH) -> dict[str, Any]:
     return {"pipeline": pipeline, "metadata": metadata}
 
 
-def load_totals_model() -> dict[str, Any]:
-    if not MODEL_PATH.exists():
+def load_totals_model(variant: str | None = None) -> dict[str, Any]:
+    model_path = get_mlb_model_artifacts(variant)["totals"]
+    if not model_path.exists():
+        variant_note = f" for variant={variant!r}" if variant else ""
         raise FileNotFoundError(
-            "Missing MLB totals model artifact. Run "
+            "Missing MLB totals model artifact"
+            f"{variant_note}. Run "
             "`venv/bin/python train_totals_model.py` inside MLBPredictionModel first."
         )
-    return joblib.load(MODEL_PATH)
+    return joblib.load(model_path)
 
 
-def predict_totals(frame: pd.DataFrame) -> pd.DataFrame:
-    artifact = load_totals_model()
+def predict_totals(frame: pd.DataFrame, variant: str | None = None) -> pd.DataFrame:
+    artifact = load_totals_model(variant=variant)
     pipeline: Pipeline = artifact["pipeline"]
     metadata = artifact["metadata"]
     prepared = add_totals_features(frame)

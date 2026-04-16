@@ -10,8 +10,8 @@ import pandas as pd
 from sklearn.isotonic import IsotonicRegression
 
 from feature_engineering import select_training_rows
+from model_variants import ARTIFACT_DIR, get_mlb_model_artifacts
 from moneyline_model import (
-    ARTIFACT_DIR,
     blend_probabilities,
     chronological_split,
     evaluate_probabilities,
@@ -73,14 +73,15 @@ def train_moneyline_calibration(dataset_path: Path) -> dict[str, Any]:
     return {"metadata": metadata}
 
 
-def load_calibration_artifact() -> dict[str, Any] | None:
-    if not CALIBRATION_PATH.exists():
+def load_calibration_artifact(variant: str | None = None) -> dict[str, Any] | None:
+    calibration_path = get_mlb_model_artifacts(variant)["calibration"]
+    if not calibration_path.exists():
         return None
-    return joblib.load(CALIBRATION_PATH)
+    return joblib.load(calibration_path)
 
 
-def apply_moneyline_calibration(frame: pd.DataFrame) -> pd.DataFrame:
-    artifact = load_calibration_artifact()
+def apply_moneyline_calibration(frame: pd.DataFrame, variant: str | None = None) -> pd.DataFrame:
+    artifact = load_calibration_artifact(variant=variant)
     out = frame.copy()
     raw_probabilities = out["raw_home_win_probability"].to_numpy()
 
