@@ -269,3 +269,114 @@ def build_cannon_daily_picks(edge_threshold: float = 0.0) -> list[dict[str, Any]
         )
 
     return out
+
+
+# ---------------------------------------------------------------------------
+# Pick-row helpers (matching frontend BET/LEAN/PASS thresholds)
+# ---------------------------------------------------------------------------
+
+def _quarter_kelly_pct(p: float, american_odds: int, max_pct: float = 5.0) -> float | None:
+    """Quarter-Kelly fraction as a percentage, capped at *max_pct*."""
+    try:
+        dec = american_to_decimal(american_odds)
+        b = dec - 1.0
+        if b <= 0:
+            return None
+        full_kelly = (b * p - (1.0 - p)) / b
+        if full_kelly <= 0:
+            return None
+        return min(full_kelly * 0.25 * 100, max_pct)
+    except Exception:
+        return None
+
+
+def _pick_decision(edge_pct: float) -> str:
+    """BET / LEAN / PASS — mirrors the frontend constants
+    ``MODEL_RESULTS_BET_EDGE_PCT = 5`` and ``MODEL_RESULTS_LEAN_EDGE_PCT = 3``.
+    """
+    if edge_pct >= 5.0:
+        return "BET"
+    elif edge_pct >= 3.0:
+        return "LEAN"
+    return "PASS"
+
+
+# ---------------------------------------------------------------------------
+# Flat pick-row builder (same schema the Model Results table expects)
+# ---------------------------------------------------------------------------
+
+def build_cannon_pick_rows(
+    games: list[dict[str, Any]] | None = None,
+    edge_threshold: float = 0.0,
+) -> list[dict[str, Any]]:
+    """Return one row per ML / total pick, formatted for the frontend
+    Model Results table (source, pick, sport, odds, probability, edge,
+    model_prediction, kelly_pct, decision ���).
+
+    Pass *games* directly (output of ``build_cannon_daily_picks``) to
+    avoid a redundant SportsLine fetch.
+    """
+    if games is None:
+        games = build_cannon_daily_picks(edge_threshold=edge_threshold)
+    rows: list[dict[str, Any]] = []
+
+    for g in games:
+        away = g["away_team"]
+        home = g["home_team"]
+        matchup = f"{away} vs {home}"
+
+        # ---------- Moneyline row ----------
+        if g.get("ml_pick_team") and g.get("ml_market_odds") is not None:
+            p = (
+                g["cannon_away_xwin"]
+                if g["ml_pick_side"] == "away"
+                else g["cannon_home_xwin"]
+            )
+            odds = g["ml_market_odds"]
+            edge_pct = round((g.get("ml_edge_pct") or 0.0) * 100, 1)
+            kelly = _quarter_kelly_pct(p, odds)
+            decision = _pick_decision(edge_pct)
+            rows.append(
+                {
+                    "source": "Cannon Analytics",
+                    "pick": f"{g['ml_pick_team']} ML ({matchup})",
+                    "matchup": matchup,
+                    "sport": "MLB",
+                    "odds": odds,
+                    "probability": round(p, 4),
+                    "edge": edge_pct,
+                    "model_prediction": None,
+                    "kelly_pct": round(kelly, 2) if kelly else None,
+                    "decision": decision,
+                    "away_team": away,
+                    "home_team": home,
+                }
+            )
+
+        # ---------- Total (O/U) row ----------
+        if g.get("total_pick_side") and g.get("total_market_odds") is not None:
+            p_total = 0.55
+            odds = g["total_market_odds"]
+            edge_pct = round((g.get("total_edge_pct") or 0.0) * 100, 1)
+            kelly = _quarter_kelly_pct(p_total, odds)
+            decision = _pick_decision(edge_pct)
+            side = g["total_pick_side"].capitalize()
+            line = g.get("total_line", "")
+            rows.append(
+                {
+                    "source": "Cannon Analytics",
+                    "pick": f"{side} {line} ({matchup})",
+                    "matchup": matchup,
+                    "sport": "MLB",
+                    "odds": odds,
+                    "probability": round(p_total, 4),
+                    "edge": edge_pct,
+                    "model_prediction": g["cannon_total_xr"],
+                    "kelly_pct": round(kelly, 2) if kelly else None,
+                    "decision": decision,
+                    "away_team": away,
+                    "home_team": home,
+                }
+            )
+
+    return rows

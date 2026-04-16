@@ -5513,6 +5513,13 @@ function _resetModelButton(model) {
 }
 
 // ── Cannon MLB Daily Projections ──
+
+function _cannonMlVerdict(edgePct) {
+  if (edgePct >= 5.0) return 'BET';
+  if (edgePct >= 3.0) return 'LEAN';
+  return 'PASS';
+}
+
 async function loadCannonDailyPicks() {
   const btn = document.getElementById('btn-run-cannon');
   const statusEl = document.getElementById('status-cannon-analytics');
@@ -5535,6 +5542,7 @@ async function loadCannonDailyPicks() {
       return;
     }
 
+    // ── Render the Cannon games table (with BET/LEAN/PASS badges) ──
     tbody.innerHTML = '';
     games.forEach(function(r) {
       var awayWinPct = r.cannon_away_xwin != null ? (r.cannon_away_xwin * 100).toFixed(1) + '%' : '-';
@@ -5546,14 +5554,20 @@ async function loadCannonDailyPicks() {
       var mlPick = r.ml_pick_team || '-';
       var mlFair = r.ml_fair_odds != null ? (r.ml_fair_odds > 0 ? '+' : '') + r.ml_fair_odds : '-';
       var mlMarket = r.ml_market_odds != null ? (r.ml_market_odds > 0 ? '+' : '') + r.ml_market_odds : '-';
-      var mlEv = r.ml_edge_pct != null ? (r.ml_edge_pct * 100).toFixed(1) + '%' : '-';
-      var mlEvClass = r.ml_edge_pct != null ? (r.ml_edge_pct > 0 ? 'cannon-ev-pos' : 'cannon-ev-neg') : '';
+      var mlEvRaw = r.ml_edge_pct != null ? r.ml_edge_pct * 100 : null;
+      var mlEv = mlEvRaw != null ? mlEvRaw.toFixed(1) + '%' : '-';
+      var mlEvClass = mlEvRaw != null ? (mlEvRaw > 0 ? 'cannon-ev-pos' : 'cannon-ev-neg') : '';
+      var mlVerdict = mlEvRaw != null && r.ml_pick_team ? _cannonMlVerdict(mlEvRaw) : null;
+      var mlBadge = mlVerdict ? ' <span class="kelly-badge ' + mlVerdict + '" style="font-size:10px;padding:1px 6px">' + mlVerdict + '</span>' : '';
 
       var ouSide = r.total_pick_side ? r.total_pick_side.toUpperCase() : '-';
       var ouLine = r.total_line != null ? r.total_line.toFixed(1) : '-';
       var ouOdds = r.total_market_odds != null ? (r.total_market_odds > 0 ? '+' : '') + r.total_market_odds : '-';
-      var ouEv = r.total_edge_pct != null ? (r.total_edge_pct * 100).toFixed(1) + '%' : '-';
-      var ouEvClass = r.total_edge_pct != null ? (r.total_edge_pct > 0 ? 'cannon-ev-pos' : 'cannon-ev-neg') : '';
+      var ouEvRaw = r.total_edge_pct != null ? r.total_edge_pct * 100 : null;
+      var ouEv = ouEvRaw != null ? ouEvRaw.toFixed(1) + '%' : '-';
+      var ouEvClass = ouEvRaw != null ? (ouEvRaw > 0 ? 'cannon-ev-pos' : 'cannon-ev-neg') : '';
+      var ouVerdict = ouEvRaw != null && r.total_pick_side ? _cannonMlVerdict(ouEvRaw) : null;
+      var ouBadge = ouVerdict ? ' <span class="kelly-badge ' + ouVerdict + '" style="font-size:10px;padding:1px 6px">' + ouVerdict + '</span>' : '';
 
       var tr = document.createElement('tr');
       tr.innerHTML =
@@ -5566,11 +5580,11 @@ async function loadCannonDailyPicks() {
         '<td>' + homeXr + '</td>' +
         '<td>' + homeWinPct + '</td>' +
         '<td style="font-weight:600">' + totalXr + '</td>' +
-        '<td style="font-weight:600">' + mlPick + '</td>' +
+        '<td style="font-weight:600">' + mlPick + mlBadge + '</td>' +
         '<td>' + mlFair + '</td>' +
         '<td>' + mlMarket + '</td>' +
         '<td class="' + mlEvClass + '">' + mlEv + '</td>' +
-        '<td style="font-weight:600">' + ouSide + '</td>' +
+        '<td style="font-weight:600">' + ouSide + ouBadge + '</td>' +
         '<td>' + ouLine + '</td>' +
         '<td>' + ouOdds + '</td>' +
         '<td class="' + ouEvClass + '">' + ouEv + '</td>';
@@ -5579,7 +5593,25 @@ async function loadCannonDailyPicks() {
 
     section.style.display = 'block';
     if (metaEl) { metaEl.textContent = 'As of ' + (data.as_of || 'today') + ' \u2022 ' + games.length + ' games'; metaEl.className = 'model-status ok'; }
-    if (statusEl) { statusEl.textContent = games.length + ' games loaded.'; statusEl.className = 'model-status ok'; }
+
+    // ── Inject Cannon pick rows into the shared Model Results table ──
+    var cannonPicks = data.picks || [];
+    if (cannonPicks.length) {
+      // Remove any existing Cannon Analytics picks, then merge
+      var filtered = pendingModelPicks.filter(function(p) {
+        return String(p.source || '').toUpperCase() !== 'CANNON ANALYTICS';
+      });
+      var combined = filtered.concat(cannonPicks);
+      pendingModelPicks = combined;
+      renderModelResults(combined, { meta: '', metaState: 'ok' });
+    }
+
+    var pickCount = cannonPicks.length;
+    if (statusEl) {
+      statusEl.textContent = games.length + ' games loaded.' +
+        (pickCount ? ' ' + pickCount + ' picks injected into Model Results.' : '');
+      statusEl.className = 'model-status ok';
+    }
   } catch (e) {
     if (statusEl) { statusEl.textContent = 'Error: ' + (e.message || e); statusEl.className = 'model-status error'; }
   } finally {
@@ -6442,12 +6474,16 @@ function renderModelResults(picks, options = {}) {
     'NBA MODEL': 0,
     NBANEW: 1,
     'NBA NEW': 1,
+    'MLB MODEL': 2,
+    'CANNON ANALYTICS': 3,
   };
   const sourceDisplayLabels = {
     NBAOLD: 'NBA Model',
     'NBA MODEL': 'NBA Model',
     NBANEW: 'NBA New',
     'NBA NEW': 'NBA New',
+    'MLB MODEL': 'MLB Model',
+    'CANNON ANALYTICS': 'Cannon Analytics',
   };
   const sorted = picks.map((pick, index) => ({ pick, index })).sort((a, b) => {
     const aSource = String(a.pick.source || '').toUpperCase();
