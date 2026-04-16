@@ -7,6 +7,7 @@ from typing import Any
 import pandas as pd
 import statsapi
 
+from date_utils import get_mlb_slate_date
 from historical_data import (
     TeamHistoryRecord,
     compute_estimated_fip,
@@ -275,7 +276,7 @@ def build_live_dataframe(
     target_date: date | None = None,
     market_odds_map: dict[tuple[str, str], dict] | None = None,
 ) -> pd.DataFrame:
-    target_date = target_date or date.today()
+    target_date = target_date or get_mlb_slate_date()
     season = _season_for_date(target_date)
     previous_season = season - 1
 

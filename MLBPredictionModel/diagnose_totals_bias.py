@@ -5,13 +5,14 @@ from datetime import datetime
 
 import statsapi
 
+from date_utils import get_mlb_slate_date
 from live_data import build_live_dataframe
 from totals_model import load_totals_model, predict_totals, select_totals_feature_frame
 
 
 def _parse_date(argv: list[str]) -> datetime.date:
     if len(argv) <= 1:
-        return datetime.now().date()
+        return get_mlb_slate_date()
 
     raw = argv[1]
     for fmt in ("%Y-%m-%d", "%m/%d/%Y"):

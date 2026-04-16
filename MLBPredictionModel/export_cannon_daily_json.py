@@ -1,20 +1,24 @@
 """Export Cannon + SportsLine daily picks to a JSON file for the frontend."""
 
 import json
-from datetime import date
 from pathlib import Path
 
 from MLBPredictionModel.cannon_daily_adapter import (
     build_cannon_daily_picks,
     build_cannon_pick_rows,
 )
+from MLBPredictionModel.date_utils import get_mlb_slate_date
 
 
 def main() -> None:
-    rows = build_cannon_daily_picks(edge_threshold=0.0)
-    picks = build_cannon_pick_rows(games=rows)
+    slate_date = get_mlb_slate_date()
+    print(f"[export_cannon_daily_json] Exporting Cannon for slate_date={slate_date}")
+
+    rows = build_cannon_daily_picks(slate_date=slate_date, edge_threshold=0.0)
+    picks = build_cannon_pick_rows(games=rows, slate_date=slate_date, edge_threshold=0.0)
     out = {
-        "as_of": date.today().isoformat(),
+        "as_of": slate_date.isoformat(),
+        "slate_date": slate_date.isoformat(),
         "games": rows,
         "picks": picks,
     }

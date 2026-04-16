@@ -7,10 +7,12 @@ returned as a list of dicts ready for JSON serialization.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import date
 from typing import Any, Optional
 
 from MLBPredictionModel.cannon_analytics import fetch_cannon_game_projections_raw
 from MLBPredictionModel import sportsline_odds
+from MLBPredictionModel.date_utils import get_mlb_slate_date
 
 
 # ---------------------------------------------------------------------------
@@ -132,20 +134,66 @@ def _last_word(s: str) -> str:
     return parts[-1] if parts else ""
 
 
+def _team_matches(left: str, right: str) -> bool:
+    left_norm = _norm(left)
+    right_norm = _norm(right)
+    if not left_norm or not right_norm:
+        return False
+    return (
+        left_norm == right_norm
+        or left_norm in right_norm
+        or right_norm in left_norm
+        or _last_word(left_norm) == _last_word(right_norm)
+    )
+
+
+def _filter_cannon_games_for_slate_date(
+    games: list[CannonGameRow],
+    slate_date: date,
+) -> list[CannonGameRow]:
+    scheduled_games = sportsline_odds.get_mlb_schedule_games_for_date(slate_date)
+    if not scheduled_games:
+        print(
+            f"[cannon_daily_adapter] No official MLB schedule rows found for slate_date={slate_date}; "
+            f"returning {len(games)} Cannon games without filtering."
+        )
+        return games
+
+    filtered_games = [
+        game
+        for game in games
+        if any(
+            _team_matches(game.away_team, away_team)
+            and _team_matches(game.home_team, home_team)
+            for away_team, home_team in scheduled_games
+        )
+    ]
+    print(
+        f"[cannon_daily_adapter] Schedule filter for slate_date={slate_date}: "
+        f"kept={len(filtered_games)} cannon_games={len(games)} official_games={len(scheduled_games)}"
+    )
+    return filtered_games
+
+
 # ---------------------------------------------------------------------------
 # Main builder
 # ---------------------------------------------------------------------------
 
-def build_cannon_daily_picks(edge_threshold: float = 0.0) -> list[dict[str, Any]]:
+def build_cannon_daily_picks(
+    slate_date: date | None = None,
+    edge_threshold: float = 0.0,
+) -> list[dict[str, Any]]:
     """Merge Cannon daily game projections with SportsLine odds.
 
     Computes a moneyline pick and a totals pick per game (with EV).
     Returns a list of dicts ready to be dumped to JSON for the frontend.
     """
+    slate_date = slate_date or get_mlb_slate_date()
+    print(f"[cannon_daily_adapter] Building Cannon daily picks for slate_date={slate_date}")
     raw_cannon = fetch_cannon_game_projections_raw()
-    cannon_games = _normalize_cannon_games(raw_cannon)
+    cannon_games = _filter_cannon_games_for_slate_date(_normalize_cannon_games(raw_cannon), slate_date)
 
-    sportsline_games = sportsline_odds.get_today_mlb_odds()
+    sportsline_games = sportsline_odds.get_mlb_odds_for_date(slate_date)
 
     # Index SportsLine games by (away_last_word, home_last_word)
     sl_index: dict[tuple[str, str], dict] = {}
@@ -307,6 +355,7 @@ def _pick_decision(edge_pct: float) -> str:
 
 def build_cannon_pick_rows(
     games: list[dict[str, Any]] | None = None,
+    slate_date: date | None = None,
     edge_threshold: float = 0.0,
 ) -> list[dict[str, Any]]:
     """Return one row per ML / total pick, formatted for the frontend
@@ -317,7 +366,7 @@ def build_cannon_pick_rows(
     avoid a redundant SportsLine fetch.
     """
     if games is None:
-        games = build_cannon_daily_picks(edge_threshold=edge_threshold)
+        games = build_cannon_daily_picks(slate_date=slate_date, edge_threshold=edge_threshold)
     rows: list[dict[str, Any]] = []
 
     for g in games:

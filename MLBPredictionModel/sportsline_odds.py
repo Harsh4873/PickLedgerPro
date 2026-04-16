@@ -3,11 +3,17 @@ import random
 import re
 import sqlite3
 import time
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
+from functools import lru_cache
 from pathlib import Path
 
 import requests
 from bs4 import BeautifulSoup
+
+try:
+    from MLBPredictionModel.date_utils import get_mlb_slate_date
+except ModuleNotFoundError:
+    from date_utils import get_mlb_slate_date
 
 
 SL_NBA_SPREAD = "https://www.sportsline.com/nba/odds/picks-against-the-spread/"
@@ -17,6 +23,7 @@ SL_NBA_ML = "https://www.sportsline.com/nba/odds/money-line/"
 SL_MLB_SPREAD = "https://www.sportsline.com/mlb/odds/picks-against-the-spread/"
 SL_MLB_TOTAL = "https://www.sportsline.com/mlb/odds/over-under/"
 SL_MLB_ML = "https://www.sportsline.com/mlb/odds/money-line/"
+MLB_SCHEDULE_URL = "https://statsapi.mlb.com/api/v1/schedule"
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
@@ -448,6 +455,98 @@ def fetch_all_odds(league: str) -> list[dict[str, object | None]]:
     return merged_games
 
 
+def _schedule_date(target_date: date) -> str:
+    return target_date.strftime("%Y-%m-%d")
+
+
+@lru_cache(maxsize=16)
+def get_mlb_schedule_games_for_date(slate_date: date) -> list[tuple[str, str]]:
+    params = {
+        "sportId": 1,
+        "startDate": _schedule_date(slate_date),
+        "endDate": _schedule_date(slate_date),
+    }
+    try:
+        response = requests.get(MLB_SCHEDULE_URL, params=params, timeout=30)
+        response.raise_for_status()
+        payload = response.json()
+    except requests.RequestException as exc:
+        print(f"[sportsline_odds] Failed to load MLB schedule for slate_date={slate_date}: {exc}")
+        return []
+    except ValueError as exc:
+        print(f"[sportsline_odds] Failed to decode MLB schedule for slate_date={slate_date}: {exc}")
+        return []
+
+    scheduled_games: list[tuple[str, str]] = []
+    for slate in payload.get("dates", []):
+        for game in slate.get("games", []):
+            if str(game.get("gameType", "")).upper() != "R":
+                continue
+            away_team = _clean_text((((game.get("teams") or {}).get("away") or {}).get("team") or {}).get("name"))
+            home_team = _clean_text((((game.get("teams") or {}).get("home") or {}).get("team") or {}).get("name"))
+            if away_team and home_team:
+                scheduled_games.append((away_team, home_team))
+    return scheduled_games
+
+
+def _filter_mlb_games_for_date(
+    games: list[dict[str, object | None]],
+    slate_date: date,
+) -> list[dict[str, object | None]]:
+    scheduled_games = get_mlb_schedule_games_for_date(slate_date)
+    if not scheduled_games:
+        print(
+            f"[sportsline_odds] No official MLB schedule rows found for slate_date={slate_date}; "
+            f"returning {len(games)} scraped games without filtering."
+        )
+        return games
+
+    filtered_games = [
+        row
+        for row in games
+        if any(
+            _team_matches(row.get("away_team"), away_team)
+            and _team_matches(row.get("home_team"), home_team)
+            for away_team, home_team in scheduled_games
+        )
+    ]
+    print(
+        f"[sportsline_odds] Schedule filter for slate_date={slate_date}: "
+        f"kept={len(filtered_games)} scraped_games={len(games)} official_games={len(scheduled_games)}"
+    )
+    return filtered_games
+
+
+def _normalize_mlb_odds_rows(
+    merged: list[dict[str, object | None]],
+) -> list[dict[str, object | None]]:
+    out: list[dict[str, object | None]] = []
+    for row in merged or []:
+        over_odds = row.get("total_odds")
+        # SportsLine only supplies the over odds; mirror it for under estimate
+        if over_odds is not None:
+            under_odds = -over_odds if over_odds != 0 else -110
+        else:
+            under_odds = None
+
+        out.append(
+            {
+                "away_team": row.get("away_team"),
+                "home_team": row.get("home_team"),
+                "game_time": row.get("game_time"),
+                "ml_away": row.get("ml_away"),
+                "ml_home": row.get("ml_home"),
+                "total_line": row.get("total_line"),
+                "total_over_odds": over_odds,
+                "total_under_odds": under_odds,
+                "spread_away": row.get("spread_away"),
+                "spread_home": row.get("spread_home"),
+                "spread_odds": row.get("spread_odds"),
+            }
+        )
+    return out
+
+
 def _get_db_path() -> Path:
     here = Path(__file__).resolve().parent
     candidates = [
@@ -552,20 +651,21 @@ def _print_recent_rows() -> None:
         print(row)
 
 
-def fetch_mlb_market_odds() -> dict[tuple[str, str], dict]:
+def fetch_mlb_market_odds_for_date(slate_date: date) -> dict[tuple[str, str], dict]:
     """Return MLB market odds keyed by (away_last_word, home_last_word).
 
     Each value is a dict with keys: ml_away, ml_home, total_line, spread_away.
     Safe by construction: any scrape failure yields an empty dict rather than
     raising so callers can degrade gracefully when SportsLine is unreachable.
     """
+    print(f"[sportsline_odds] Fetching MLB market odds for slate_date={slate_date}")
     try:
         merged = fetch_all_odds("MLB")
     except Exception:
         return {}
 
     result: dict[tuple[str, str], dict] = {}
-    for row in merged or []:
+    for row in _filter_mlb_games_for_date(merged or [], slate_date):
         away_key = _last_word(row.get("away_team"))
         home_key = _last_word(row.get("home_team"))
         if not away_key or not home_key:
@@ -580,8 +680,12 @@ def fetch_mlb_market_odds() -> dict[tuple[str, str], dict]:
     return result
 
 
-def get_today_mlb_odds() -> list[dict]:
-    """Return today's MLB odds in a flat list with uniform field names.
+def fetch_mlb_market_odds() -> dict[tuple[str, str], dict]:
+    return fetch_mlb_market_odds_for_date(get_mlb_slate_date())
+
+
+def get_mlb_odds_for_date(slate_date: date) -> list[dict[str, object | None]]:
+    """Return MLB odds for *slate_date* in a flat list with uniform field names.
 
     Each dict contains:
         away_team, home_team, game_time,
@@ -591,34 +695,18 @@ def get_today_mlb_odds() -> list[dict]:
         total_under_odds,            # Estimated mirror of over odds
         spread_away, spread_home, spread_odds
     """
+    print(f"[sportsline_odds] Fetching MLB odds for slate_date={slate_date}")
     try:
         merged = fetch_all_odds("MLB")
     except Exception:
         return []
 
-    out: list[dict] = []
-    for row in merged or []:
-        over_odds = row.get("total_odds")
-        # SportsLine only supplies the over odds; mirror it for under estimate
-        if over_odds is not None:
-            under_odds = -over_odds if over_odds != 0 else -110
-        else:
-            under_odds = None
+    filtered_games = _filter_mlb_games_for_date(merged or [], slate_date)
+    return _normalize_mlb_odds_rows(filtered_games)
 
-        out.append({
-            "away_team": row.get("away_team"),
-            "home_team": row.get("home_team"),
-            "game_time": row.get("game_time"),
-            "ml_away": row.get("ml_away"),
-            "ml_home": row.get("ml_home"),
-            "total_line": row.get("total_line"),
-            "total_over_odds": over_odds,
-            "total_under_odds": under_odds,
-            "spread_away": row.get("spread_away"),
-            "spread_home": row.get("spread_home"),
-            "spread_odds": row.get("spread_odds"),
-        })
-    return out
+
+def get_today_mlb_odds() -> list[dict[str, object | None]]:
+    return get_mlb_odds_for_date(get_mlb_slate_date())
 
 
 if __name__ == "__main__":

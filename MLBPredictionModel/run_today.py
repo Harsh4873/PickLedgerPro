@@ -4,18 +4,19 @@ import sys
 from datetime import datetime
 
 from calibration import apply_moneyline_calibration
+from date_utils import get_mlb_slate_date
 from live_data import build_live_dataframe
 from market_mechanics import calculate_edge, check_minimum_threshold, remove_vig
 from moneyline_model import predict_home_win_probability
 from prediction_logging import append_prediction_rows, build_prediction_log_rows
 from probability_layers import predict_total_runs
-from sportsline_odds import fetch_mlb_market_odds
+from sportsline_odds import fetch_mlb_market_odds_for_date
 from totals_model import predict_totals
 
 
 def _parse_date(argv: list[str]) -> datetime.date:
     if len(argv) <= 1:
-        return datetime.now().date()
+        return get_mlb_slate_date()
 
     raw = argv[1]
     for fmt in ("%Y-%m-%d", "%m/%d/%Y"):
@@ -44,7 +45,7 @@ def main(argv: list[str] | None = None) -> int:
     try:
         # Fetch market odds once and reuse: they feed the totals model as an
         # input feature (market_total_line) AND gate ML/OU edge calculation.
-        market_odds_map = fetch_mlb_market_odds()
+        market_odds_map = fetch_mlb_market_odds_for_date(target_date)
         live_frame = build_live_dataframe(target_date, market_odds_map=market_odds_map)
         if live_frame.empty:
             print(f"No MLB games found for {target_date.isoformat()}.")
