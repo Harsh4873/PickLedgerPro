@@ -5221,13 +5221,13 @@ let pendingIplPrediction = null;
 const MODEL_BACKEND_TIMEOUT_MS = 15000;
 const NBA_COMPARISON_MODELS = new Set(['nba-old', 'nba-new']);
 const NBA_MODEL_SOURCE_LABELS = {
-  'nba-old': 'NBA Model',
-  'nba-new': 'NBA New',
+  'nba-old': 'NBA OLD',
+  'nba-new': 'NBA NEW',
 };
 const MLB_COMPARISON_MODELS = new Set(['mlb', 'mlb-new']);
 const MLB_MODEL_SOURCE_LABELS = {
-  mlb: 'MLB Model',
-  'mlb-new': 'MLB New',
+  mlb: 'MLB OLD',
+  'mlb-new': 'MLB NEW',
 };
 let pendingNbaComparisonPicks = {
   'nba-old': [],
@@ -5380,6 +5380,14 @@ function _extractModelPicks(result) {
   return [];
 }
 
+// Firebase caches some picks with legacy labels like "MLB Model" / "NBA Model".
+// When we pull picks for a specific variant bucket (mlb-new, nba-old, …), force
+// the source field to that variant's label so the UI never collapses OLD/NEW.
+function _relabelPicksForVariant(picks, variantLabel) {
+  if (!Array.isArray(picks) || !variantLabel) return picks || [];
+  return picks.map(p => (p && typeof p === 'object') ? { ...p, source: variantLabel } : p);
+}
+
 async function getAdminPicksFromFirebase(modelKey, options = {}) {
   const db = window._firebaseDb;
   const docFn = window._firebaseDoc;
@@ -5500,7 +5508,7 @@ function _storeMlbComparisonPicks(model, picks, dateStr) {
   const loaded = ['mlb', 'mlb-new'].filter(key => (pendingMlbComparisonPicks[key] || []).length > 0);
   const label = formatModelRunDate(pendingMlbComparisonDate || dateStr);
   const summary = loaded.length === 2
-    ? `Showing MLB Model + MLB New for ${label}`
+    ? `Showing MLB OLD + MLB NEW for ${label}`
     : `Showing ${MLB_MODEL_SOURCE_LABELS[model]} for ${label}. Run the other model to compare.`;
   pendingModelPicks = combined;
   renderModelResults(combined, { meta: summary, metaState: 'ok' });
@@ -5531,7 +5539,7 @@ function _storeNbaComparisonPicks(model, picks, dateStr) {
   const loaded = ['nba-old', 'nba-new'].filter(key => (pendingNbaComparisonPicks[key] || []).length > 0);
   const label = formatModelRunDate(pendingNbaComparisonDate || dateStr);
   const summary = loaded.length === 2
-    ? `Showing NBA Model + NBA New for ${label}`
+    ? `Showing NBA OLD + NBA NEW for ${label}`
     : `Showing ${NBA_MODEL_SOURCE_LABELS[model]} for ${label}. Run the other model to compare.`;
   pendingModelPicks = combined;
   renderModelResults(combined, { meta: summary, metaState: 'ok' });
@@ -5829,7 +5837,7 @@ async function _runNbaVariantModel(model, dateStr) {
       fallbackDateStr: dateStr,
     }
   );
-  const picks = _extractModelPicks(result);
+  const picks = _relabelPicksForVariant(_extractModelPicks(result), NBA_MODEL_SOURCE_LABELS[model]);
   const note = String(result && result.note || '').trim();
   if (result && result.source === 'firebase_cache') {
     showToast('Loaded from Firebase cache');
@@ -5864,7 +5872,7 @@ async function _runMlbVariantModel(model, dateStr) {
       fallbackDateStr: dateStr,
     }
   );
-  const picks = _extractModelPicks(result);
+  const picks = _relabelPicksForVariant(_extractModelPicks(result), MLB_MODEL_SOURCE_LABELS[model]);
   const note = String(result && result.note || '').trim();
   if (result && result.source === 'firebase_cache') {
     showToast('Loaded from Firebase cache');
@@ -5915,7 +5923,7 @@ async function runNbaModelComparison() {
   _setModelButtonRunning('nba-old');
   _setModelButtonRunning('nba-new');
   _resetNbaComparisonState(dateStr);
-  setModelStatus('nba-compare', `Running NBA Model + NBA New for ${label}...`, 'running');
+  setModelStatus('nba-compare', `Running NBA OLD + NBA NEW for ${label}...`, 'running');
 
   try {
     const [oldPicksResult, newPicksResult] = await Promise.allSettled([
@@ -6342,7 +6350,7 @@ async function runModel(model) {
       const hasBoth = ['nba-old', 'nba-new'].every(key => (pendingNbaComparisonPicks[key] || []).length > 0);
       setModelStatus(
         'nba-compare',
-        hasBoth ? `Showing NBA Model + NBA New for ${label}.` : `Showing ${NBA_MODEL_SOURCE_LABELS[model]} for ${label}.`,
+        hasBoth ? `Showing NBA OLD + NBA NEW for ${label}.` : `Showing ${NBA_MODEL_SOURCE_LABELS[model]} for ${label}.`,
         'ok'
       );
     } catch (e) {
@@ -6363,7 +6371,7 @@ async function runModel(model) {
       const hasBoth = ['mlb', 'mlb-new'].every(key => (pendingMlbComparisonPicks[key] || []).length > 0);
       setModelStatus(
         'mlb-compare',
-        hasBoth ? `Showing MLB Model + MLB New for ${label}.` : `Showing ${MLB_MODEL_SOURCE_LABELS[model]} for ${label}.`,
+        hasBoth ? `Showing MLB OLD + MLB NEW for ${label}.` : `Showing ${MLB_MODEL_SOURCE_LABELS[model]} for ${label}.`,
         'ok'
       );
     } catch (e) {
@@ -6649,15 +6657,21 @@ function renderModelResults(picks, options = {}) {
     'MLB NEW': 4,
     'CANNON ANALYTICS': 5,
   };
+  // Keep backend variants distinct: OLD vs NEW must not collapse.
+  // 'NBA MODEL' / 'MLB MODEL' are the legacy single-model labels and are
+  // treated as the OLD variant.
   const sourceDisplayLabels = {
-    NBAOLD: 'NBA Model',
-    'NBA MODEL': 'NBA Model',
-    NBANEW: 'NBA New',
-    'NBA NEW': 'NBA New',
+    NBAOLD: 'NBA OLD',
+    'NBA OLD': 'NBA OLD',
+    'NBA MODEL': 'NBA OLD',
+    NBANEW: 'NBA NEW',
+    'NBA NEW': 'NBA NEW',
     'WNBA MODEL': 'WNBA Model',
-    'MLB MODEL': 'MLB Model',
-    'MLB OLD': 'MLB Model',
-    'MLB NEW': 'MLB New',
+    'MLB MODEL': 'MLB OLD',
+    'MLB OLD': 'MLB OLD',
+    MLBOLD: 'MLB OLD',
+    'MLB NEW': 'MLB NEW',
+    MLBNEW: 'MLB NEW',
     'CANNON ANALYTICS': 'Cannon Analytics',
   };
   const sorted = picks.map((pick, index) => ({ pick, index })).sort((a, b) => {
