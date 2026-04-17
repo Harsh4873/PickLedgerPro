@@ -2103,7 +2103,7 @@
       <div class="model-card" id="model-card-mlb">
         <div class="model-card-icon">&#9918;</div>
         <div class="model-card-title">MLB Model</div>
-        <div class="model-card-desc">Runs the champion MLB pipeline for today's games. Uses the legacy 2023-24 artifact set so MLB OLD stays the betting default while the challenger is tracked separately.</div>
+        <div class="model-card-desc">Runs the champion MLB pipeline for today's games. Uses the legacy 2023-24 artifact set so the MLB Model stays the betting default while the challenger is tracked separately.</div>
         <span data-model-timestamp="mlb" class="model-timestamp-badge" style="display:none;"></span>
         <button class="model-run-btn" id="btn-run-mlb" onclick="runModel('mlb')">RUN MLB MODEL</button>
         <div class="model-status" id="status-mlb"></div>
@@ -5226,7 +5226,7 @@ const NBA_MODEL_SOURCE_LABELS = {
 };
 const MLB_COMPARISON_MODELS = new Set(['mlb', 'mlb-new']);
 const MLB_MODEL_SOURCE_LABELS = {
-  mlb: 'MLB OLD',
+  mlb: 'MLB Model',
   'mlb-new': 'MLB NEW',
 };
 let pendingNbaComparisonPicks = {
@@ -5508,7 +5508,7 @@ function _storeMlbComparisonPicks(model, picks, dateStr) {
   const loaded = ['mlb', 'mlb-new'].filter(key => (pendingMlbComparisonPicks[key] || []).length > 0);
   const label = formatModelRunDate(pendingMlbComparisonDate || dateStr);
   const summary = loaded.length === 2
-    ? `Showing MLB OLD + MLB NEW for ${label}`
+    ? `Showing MLB Model + MLB NEW for ${label}`
     : `Showing ${MLB_MODEL_SOURCE_LABELS[model]} for ${label}. Run the other model to compare.`;
   pendingModelPicks = combined;
   renderModelResults(combined, { meta: summary, metaState: 'ok' });
@@ -5660,7 +5660,22 @@ async function loadCannonDailyPicks() {
     });
 
     section.style.display = 'block';
-    if (metaEl) { metaEl.textContent = 'As of ' + (data.as_of || 'today') + ' \u2022 ' + games.length + ' games'; metaEl.className = 'model-status ok'; }
+    if (metaEl) {
+      // Freshness check: if the JSON's slate_date is older than today (in the
+      // user's local time), flag it as stale so the scheduled refresh workflow
+      // gets noticed if it ever misses a run.
+      var todayStr = (function() {
+        var d = new Date();
+        var mm = String(d.getMonth() + 1).padStart(2, '0');
+        var dd = String(d.getDate()).padStart(2, '0');
+        return d.getFullYear() + '-' + mm + '-' + dd;
+      })();
+      var asOf = data.as_of || 'today';
+      var stale = data.as_of && data.as_of < todayStr;
+      metaEl.textContent = 'As of ' + asOf + ' \u2022 ' + games.length + ' games' +
+        (stale ? ' \u2022 stale (today is ' + todayStr + ')' : '');
+      metaEl.className = 'model-status ' + (stale ? 'error' : 'ok');
+    }
 
     // ── Inject Cannon pick rows into the shared Model Results table ──
     var cannonPicks = data.picks || [];
@@ -6371,7 +6386,7 @@ async function runModel(model) {
       const hasBoth = ['mlb', 'mlb-new'].every(key => (pendingMlbComparisonPicks[key] || []).length > 0);
       setModelStatus(
         'mlb-compare',
-        hasBoth ? `Showing MLB OLD + MLB NEW for ${label}.` : `Showing ${MLB_MODEL_SOURCE_LABELS[model]} for ${label}.`,
+        hasBoth ? `Showing MLB Model + MLB NEW for ${label}.` : `Showing ${MLB_MODEL_SOURCE_LABELS[model]} for ${label}.`,
         'ok'
       );
     } catch (e) {
@@ -6653,13 +6668,12 @@ function renderModelResults(picks, options = {}) {
     'NBA NEW': 1,
     'WNBA MODEL': 2,
     'MLB MODEL': 3,
-    'MLB OLD': 3,
     'MLB NEW': 4,
     'CANNON ANALYTICS': 5,
   };
-  // Keep backend variants distinct: OLD vs NEW must not collapse.
-  // 'NBA MODEL' / 'MLB MODEL' are the legacy single-model labels and are
-  // treated as the OLD variant.
+  // Keep backend variants distinct so they do not collapse.
+  // 'MLB MODEL' is the single champion label; 'MLB NEW' is the challenger.
+  // 'NBA MODEL' is the legacy single-model label and is treated as the OLD variant.
   const sourceDisplayLabels = {
     NBAOLD: 'NBA OLD',
     'NBA OLD': 'NBA OLD',
@@ -6667,9 +6681,7 @@ function renderModelResults(picks, options = {}) {
     NBANEW: 'NBA NEW',
     'NBA NEW': 'NBA NEW',
     'WNBA MODEL': 'WNBA Model',
-    'MLB MODEL': 'MLB OLD',
-    'MLB OLD': 'MLB OLD',
-    MLBOLD: 'MLB OLD',
+    'MLB MODEL': 'MLB Model',
     'MLB NEW': 'MLB NEW',
     MLBNEW: 'MLB NEW',
     'CANNON ANALYTICS': 'Cannon Analytics',

@@ -1,0 +1,61 @@
+name: Cannon MLB Daily Refresh
+
+# Regenerates data/cannon_mlb_daily.json every morning with TODAY's slate so
+# GitHub Pages always serves fresh Cannon projections + SportsLine odds.
+#
+# The export script reads "today" from MLBPredictionModel.date_utils.get_mlb_slate_date()
+# (America/Chicago), so the cron just needs to fire after the Cannon backend
+# publishes its daily batch. Runs at 14:00 UTC (~09:00 CT) and again at
+# 19:00 UTC (~14:00 CT) as a safety net, plus on-demand via workflow_dispatch.
+
+on:
+  schedule:
+    # 14:00 UTC = 09:00 CT (CDT) — after Cannon publishes the daily slate
+    - cron: "0 14 * * *"
+    # 19:00 UTC = 14:00 CT — safety-net refresh before most first pitches
+    - cron: "0 19 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cannon-daily-refresh
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PICKLEDGER_MLB_TIMEZONE: America/Chicago
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r MLBPredictionModel/requirements.txt
+          pip install beautifulsoup4
+
+      - name: Regenerate Cannon daily JSON
+        run: python -m MLBPredictionModel.export_cannon_daily_json
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- data/cannon_mlb_daily.json; then
+            echo "No change in data/cannon_mlb_daily.json — skipping commit."
+            exit 0
+          fi
+          SLATE=$(python -c "import json; print(json.load(open('data/cannon_mlb_daily.json'))['slate_date'])")
+          git add data/cannon_mlb_daily.json
+          git commit -m "chore(mlb): refresh Cannon daily JSON for ${SLATE}"
+          git push
