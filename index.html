@@ -549,6 +549,429 @@
   .source-record-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--accent3); letter-spacing: 0.5px; }
   .source-record-value { margin-top: 4px; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text); line-height: 1.4; }
 
+  /* ── DAILY TAB ── */
+  .daily-hero {
+    position: relative;
+    background:
+      radial-gradient(1200px 400px at 0% -10%, rgba(0,229,160,0.18), transparent 55%),
+      radial-gradient(900px 420px at 100% -20%, rgba(77,166,255,0.16), transparent 60%),
+      linear-gradient(160deg, rgba(0,229,160,0.05), rgba(77,166,255,0.04) 55%, rgba(255,215,0,0.04));
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    padding: 26px 28px 24px;
+    margin-bottom: 22px;
+    overflow: hidden;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.12);
+  }
+  .daily-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 50%, transparent 100%);
+    transform: translateX(-100%);
+    animation: dailyShimmer 7s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes dailyShimmer { 0% { transform: translateX(-100%); } 55%, 100% { transform: translateX(100%); } }
+  .daily-hero-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; flex-wrap: wrap; position: relative; z-index: 1; }
+  .daily-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .daily-eyebrow-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin-right: 8px;
+    vertical-align: middle;
+    box-shadow: 0 0 0 0 rgba(0,229,160,0.65);
+    animation: daily-pulse 2s infinite;
+  }
+  @keyframes daily-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(0,229,160,0.55); }
+    70% { box-shadow: 0 0 0 12px rgba(0,229,160,0); }
+    100% { box-shadow: 0 0 0 0 rgba(0,229,160,0); }
+  }
+  .daily-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 56px;
+    letter-spacing: 2px;
+    line-height: 1;
+    color: var(--text);
+    background: linear-gradient(95deg, var(--text) 20%, var(--accent) 70%, var(--accent3) 110%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .daily-sub {
+    margin-top: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    color: var(--muted);
+  }
+  .daily-clock-wrap { text-align: right; min-width: 200px; }
+  .daily-clock-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; }
+  .daily-clock { font-family: 'Bebas Neue', sans-serif; font-size: 42px; letter-spacing: 2px; color: var(--accent); line-height: 1; }
+  .daily-countdown { margin-top: 4px; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--accent3); letter-spacing: 0.7px; }
+
+  .daily-stats-strip {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin-top: 22px;
+    position: relative;
+    z-index: 1;
+  }
+  .daily-stat {
+    background: rgba(0,0,0,0.18);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 14px;
+    padding: 14px 16px;
+    transition: transform 0.22s, border-color 0.22s, background-color 0.22s;
+  }
+  body[data-theme="light"] .daily-stat { background: rgba(255,255,255,0.72); border-color: var(--border); }
+  .daily-stat:hover { transform: translateY(-2px); border-color: rgba(0,229,160,0.3); }
+  .daily-stat-val { font-family: 'Bebas Neue', sans-serif; font-size: 36px; line-height: 0.95; color: var(--text); }
+  .daily-stat-val.positive { color: var(--win); }
+  .daily-stat-val.negative { color: var(--loss); }
+  .daily-stat-val.neutral  { color: var(--push); }
+  .daily-stat-val.accent   { color: var(--accent); }
+  .daily-stat-val.accent3  { color: var(--accent3); }
+  .daily-stat-label { margin-top: 6px; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+
+  .daily-section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; margin: 28px 0 12px; flex-wrap: wrap; }
+  .daily-section-title { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 1.8px; color: var(--text); }
+  .daily-section-sub { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.6px; }
+
+  .daily-podium {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .daily-podium-card {
+    position: relative;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 20px 20px 18px;
+    background: linear-gradient(160deg, rgba(77,166,255,0.07), transparent 70%), var(--card);
+    overflow: hidden;
+    transition: transform 0.22s, border-color 0.22s, box-shadow 0.22s;
+  }
+  .daily-podium-card:hover { transform: translateY(-3px); box-shadow: 0 20px 44px rgba(0,0,0,0.18); border-color: var(--accent); }
+  .daily-podium-card.gold    { border-color: rgba(255,215,0,0.55); background: linear-gradient(160deg, rgba(255,215,0,0.14), rgba(255,215,0,0.02) 70%), var(--card); }
+  .daily-podium-card.silver  { border-color: rgba(192,192,192,0.45); background: linear-gradient(160deg, rgba(200,200,200,0.10), transparent 70%), var(--card); }
+  .daily-podium-card.bronze  { border-color: rgba(205,127,50,0.45); background: linear-gradient(160deg, rgba(205,127,50,0.12), transparent 70%), var(--card); }
+  .daily-podium-rank {
+    position: absolute;
+    bottom: -18px;
+    right: 8px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 140px;
+    line-height: 1;
+    color: var(--border);
+    user-select: none;
+    pointer-events: none;
+    letter-spacing: -4px;
+  }
+  .daily-podium-card.gold .daily-podium-rank    { color: rgba(255,215,0,0.18); }
+  .daily-podium-card.silver .daily-podium-rank  { color: rgba(192,192,192,0.2); }
+  .daily-podium-card.bronze .daily-podium-rank  { color: rgba(205,127,50,0.22); }
+  .daily-podium-medal {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.2px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.05);
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .daily-podium-card.gold .daily-podium-medal   { background: rgba(255,215,0,0.14); color: var(--gold); }
+  .daily-podium-card.silver .daily-podium-medal { background: rgba(192,192,192,0.12); color: #a8a8a8; }
+  .daily-podium-card.bronze .daily-podium-medal { background: rgba(205,127,50,0.14); color: #cd7f32; }
+  .daily-podium-source {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 1px;
+    color: var(--text);
+    line-height: 1.1;
+    word-break: break-word;
+    position: relative;
+    z-index: 1;
+  }
+  .daily-podium-score {
+    margin-top: 12px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 44px;
+    line-height: 1;
+    color: var(--accent);
+    position: relative;
+    z-index: 1;
+  }
+  .daily-podium-score.positive { color: var(--win); }
+  .daily-podium-score.negative { color: var(--loss); }
+  .daily-podium-score.neutral  { color: var(--push); }
+  .daily-podium-metrics {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+  }
+  .daily-podium-chip {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: rgba(77,166,255,0.1);
+    color: var(--accent3);
+    letter-spacing: 0.5px;
+  }
+  .daily-podium-chip.win { background: rgba(0,229,160,0.12); color: var(--win); }
+  .daily-podium-chip.loss { background: rgba(255,69,96,0.12); color: var(--loss); }
+  .daily-podium-chip.pending { background: rgba(255,215,0,0.12); color: var(--push); }
+
+  .daily-ranking-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 26px;
+  }
+  .daily-ranking-row {
+    display: grid;
+    grid-template-columns: 42px 1.5fr 1fr 1fr 1fr 1fr;
+    gap: 10px;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    transition: transform 0.2s, border-color 0.2s, background-color 0.2s;
+  }
+  .daily-ranking-row:hover { transform: translateX(3px); border-color: var(--accent); }
+  .daily-ranking-row.header {
+    background: transparent;
+    border: none;
+    padding: 2px 16px 2px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.4px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .daily-ranking-row.header:hover { transform: none; border: none; }
+  .daily-ranking-rank {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--muted);
+    text-align: center;
+    line-height: 1;
+  }
+  .daily-ranking-row.rank-1 .daily-ranking-rank { color: var(--gold); }
+  .daily-ranking-row.rank-2 .daily-ranking-rank { color: #b8b8b8; }
+  .daily-ranking-row.rank-3 .daily-ranking-rank { color: #cd7f32; }
+  .daily-ranking-source {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 0.8px;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .daily-ranking-metric {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--text);
+    letter-spacing: 0.4px;
+  }
+  .daily-ranking-metric.muted { color: var(--muted); }
+  .daily-ranking-metric.positive { color: var(--win); }
+  .daily-ranking-metric.negative { color: var(--loss); }
+  .daily-ranking-metric.pending  { color: var(--push); }
+  .daily-ranking-bar-wrap {
+    position: relative;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .daily-ranking-bar-fill {
+    position: absolute;
+    top: 0; left: 0; bottom: 0;
+    background: linear-gradient(90deg, var(--accent3), var(--accent));
+    border-radius: 3px;
+    transition: width 0.6s ease;
+  }
+
+  .daily-slate-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 16px;
+  }
+  .daily-slate-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 18px 18px 14px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.22s, border-color 0.22s, box-shadow 0.22s;
+  }
+  .daily-slate-card:hover { transform: translateY(-3px); box-shadow: 0 20px 40px rgba(0,0,0,0.14); border-color: var(--accent3); }
+  .daily-slate-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent3), var(--accent));
+    opacity: 0.55;
+  }
+  .daily-slate-card.decided-win::before   { background: linear-gradient(90deg, var(--win), rgba(0,229,160,0.3)); opacity: 0.9; }
+  .daily-slate-card.decided-loss::before  { background: linear-gradient(90deg, var(--loss), rgba(255,69,96,0.3)); opacity: 0.9; }
+  .daily-slate-card.decided-mixed::before { background: linear-gradient(90deg, var(--accent3), var(--push)); opacity: 0.9; }
+
+  .daily-slate-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .daily-slate-game { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 0.8px; color: var(--text); line-height: 1.15; }
+  .daily-slate-meta { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 0.8px; margin-top: 4px; }
+  .daily-slate-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: rgba(77,166,255,0.1);
+    color: var(--accent3);
+    white-space: nowrap;
+  }
+  .daily-slate-badge.win    { background: rgba(0,229,160,0.14); color: var(--win); border-color: rgba(0,229,160,0.3); }
+  .daily-slate-badge.loss   { background: rgba(255,69,96,0.14); color: var(--loss); border-color: rgba(255,69,96,0.3); }
+  .daily-slate-badge.mixed  { background: rgba(255,215,0,0.14); color: var(--push); border-color: rgba(255,215,0,0.3); }
+  .daily-slate-badge.live   { background: rgba(0,229,160,0.12); color: var(--accent); border-color: rgba(0,229,160,0.3); }
+
+  .daily-slate-picks { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .daily-slate-pick {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    gap: 10px;
+    align-items: center;
+    padding: 10px 12px;
+    background: rgba(0,0,0,0.18);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: 12px;
+    transition: background-color 0.2s, border-color 0.2s;
+  }
+  body[data-theme="light"] .daily-slate-pick { background: rgba(255,255,255,0.7); border-color: var(--border); }
+  .daily-slate-pick.result-win  { border-color: rgba(0,229,160,0.35); background: linear-gradient(90deg, rgba(0,229,160,0.08), transparent 70%); }
+  .daily-slate-pick.result-loss { border-color: rgba(255,69,96,0.35); background: linear-gradient(90deg, rgba(255,69,96,0.08), transparent 70%); }
+  .daily-slate-pick.result-push { border-color: rgba(255,215,0,0.3); background: linear-gradient(90deg, rgba(255,215,0,0.06), transparent 70%); }
+  .daily-slate-source {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: rgba(77,166,255,0.14);
+    color: var(--accent3);
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .daily-slate-text { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text); line-height: 1.35; }
+  .daily-slate-odds { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); letter-spacing: 0.4px; }
+  .daily-slate-result {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 4px 9px;
+    border-radius: 8px;
+    letter-spacing: 0.6px;
+    white-space: nowrap;
+  }
+  .daily-slate-result.pending { background: rgba(255,215,0,0.1); color: var(--push); }
+  .daily-slate-result.win     { background: rgba(0,229,160,0.15); color: var(--win); }
+  .daily-slate-result.loss    { background: rgba(255,69,96,0.15); color: var(--loss); }
+  .daily-slate-result.push    { background: rgba(255,215,0,0.18); color: var(--push); }
+
+  .daily-slate-footer {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+  .daily-slate-pl.positive { color: var(--win); }
+  .daily-slate-pl.negative { color: var(--loss); }
+  .daily-slate-pl.neutral  { color: var(--push); }
+
+  .daily-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 28px 0 10px;
+  }
+
+  .daily-empty {
+    text-align: center;
+    padding: 60px 30px;
+    border: 1px dashed var(--border);
+    border-radius: 18px;
+    background: radial-gradient(600px 200px at 50% 0%, rgba(0,229,160,0.06), transparent 70%);
+  }
+  .daily-empty-icon { font-size: 38px; margin-bottom: 10px; }
+  .daily-empty-title { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 1.2px; color: var(--text); margin-bottom: 6px; }
+  .daily-empty-sub { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); letter-spacing: 0.6px; }
+
+  body[data-theme="light"] .daily-hero {
+    background:
+      radial-gradient(1200px 400px at 0% -10%, rgba(11,157,116,0.14), transparent 55%),
+      radial-gradient(900px 420px at 100% -20%, rgba(37,99,235,0.12), transparent 60%),
+      linear-gradient(160deg, #ffffff, #f7f9fc 60%);
+    box-shadow: 0 6px 22px rgba(15,25,40,0.06);
+  }
+  body[data-theme="light"] .daily-title {
+    font-family: 'Fraunces', serif;
+    font-size: 64px;
+    font-weight: 700;
+    letter-spacing: -1.5px;
+  }
+  body[data-theme="light"] .daily-slate-card,
+  body[data-theme="light"] .daily-podium-card,
+  body[data-theme="light"] .daily-ranking-row {
+    background: #ffffff;
+    border-color: var(--border);
+  }
+  body[data-theme="light"] .daily-slate-pick { background: #f7f9fc; }
+  body[data-theme="light"] .daily-stat { background: rgba(255,255,255,0.9); }
+  body[data-theme="light"] .daily-clock { color: var(--accent); }
+  body[data-theme="light"] .daily-eyebrow { color: var(--accent); }
+
+  @media (max-width: 720px) {
+    .daily-title { font-size: 40px; }
+    .daily-clock { font-size: 30px; }
+    .daily-hero { padding: 20px; }
+    .daily-ranking-row { grid-template-columns: 36px 1.4fr 1fr 1fr; }
+    .daily-ranking-row .daily-ranking-hide-sm { display: none; }
+  }
+
   /* Search */
   .search-wrap { position: relative; margin-bottom: 28px; }
   .search-input { width: 100%; padding: 16px 20px 16px 48px; background: var(--card); border: 2px solid var(--border); border-radius: 16px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 16px; outline: none; transition: border-color 0.25s, box-shadow 0.25s, background-color 0.3s; }
@@ -2009,7 +2432,7 @@
     <button class="tab" onclick="switchTab('search')">SEARCH</button>
     <button class="tab" onclick="switchTab('rankings')">RANKINGS</button>
     <button class="tab" onclick="switchTab('trends')">TRENDS</button>
-    <button class="tab" onclick="switchTab('parlays')">PARLAYS</button>
+    <button class="tab" onclick="switchTab('daily')">DAILY</button>
     <button class="tab" onclick="switchTab('models')">MODELS</button>
   </div>
 
@@ -2080,8 +2503,8 @@
     <div id="trends-container"></div>
   </div>
 
-  <div id="tab-parlays" class="tab-content">
-    <div id="parlays-container"></div>
+  <div id="tab-daily" class="tab-content">
+    <div id="daily-container"></div>
   </div>
 
   <!-- MODELS TAB -->
@@ -4628,62 +5051,359 @@ function _getParlaySuggestions() {
   }
 }
 
-function renderParlays() {
-  const container = document.getElementById('parlays-container');
-  if (!container) return;
-  try {
-    const { candidates, combos, error } = _getParlaySuggestions();
-    if (error) throw error;
+// ── Daily tab ──
+// Today's slate: live picks, daily source ranking, rollover on day change.
+let _dailyRolloverDay = null;  // YYYY-MM-DD string marker
+let _dailyClockTimerId = null;
 
-    if (candidates.length < 3 || !combos.length) {
-      const bestAvailable = [...candidates]
-        .sort((a, b) => (b.prob || 0) - (a.prob || 0))
-        .map(p => `${p.parts.playerName} ${p.parts.propWord} ${p.parts.direction} ${p.probDisplay}`)
-        .join(', ');
-      container.innerHTML = `
-        <div class="section-title clean-title">Parlay Suggestions</div>
-        <div class="parlay-subtitle">Tier 1: reb 61-74% | Tier 2 fill: ast 65-74%</div>
-        <div class="empty-state">⚠️ Thin slate — ${candidates.length} candidates only. Best available: ${bestAvailable || 'None'}</div>
-      `;
+function _dailyDayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function _dailyFormatLongDate() {
+  return new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+}
+
+function _dailyFormatClock() {
+  return new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit' });
+}
+
+function _dailyCountdownToMidnight() {
+  const now = new Date();
+  const midnight = new Date(now);
+  midnight.setHours(24, 0, 0, 0);
+  const ms = midnight - now;
+  if (ms <= 0) return 'rolling over…';
+  const totalSec = Math.floor(ms / 1000);
+  const hh = Math.floor(totalSec / 3600);
+  const mm = Math.floor((totalSec % 3600) / 60);
+  const ss = totalSec % 60;
+  return `${hh}h ${String(mm).padStart(2, '0')}m ${String(ss).padStart(2, '0')}s TO ROLLOVER`;
+}
+
+function _dailyTickClock() {
+  const clock = document.getElementById('daily-clock-time');
+  const cd = document.getElementById('daily-countdown');
+  if (clock) clock.textContent = _dailyFormatClock();
+  if (cd) cd.textContent = _dailyCountdownToMidnight();
+
+  // Detect day rollover.
+  const currentDay = _dailyDayKey();
+  if (_dailyRolloverDay && currentDay !== _dailyRolloverDay) {
+    _dailyRolloverDay = currentDay;
+    try { renderDaily(); } catch (e) { /* noop */ }
+  }
+}
+
+function _dailyStartClockTimer() {
+  if (_dailyClockTimerId) return;
+  _dailyClockTimerId = setInterval(_dailyTickClock, 1000);
+}
+
+function _dailyScoreSource(stats) {
+  // Composite daily score (0-100ish): heavily rewards net units + accuracy, nudges for volume.
+  if (!stats.decided) {
+    // pending-only source: show pick volume as a faint signal
+    return Math.min(25, stats.pending * 3);
+  }
+  const accPart = stats.acc * 55;                       // 0-55
+  const unitsPart = Math.max(-25, Math.min(40, stats.netUnits * 6));  // -25..40
+  const volumePart = Math.min(10, Math.log2(1 + stats.count) * 3);    // 0-10
+  const pushPenalty = stats.pushes > 0 ? -1 : 0;
+  return Math.max(0, Math.round(accPart + unitsPart + volumePart + pushPenalty));
+}
+
+function _dailyBuildSourceRanking(picks) {
+  const bySource = {};
+  picks.forEach(p => {
+    const key = getRankingSourceKey(p) || 'Unknown';
+    if (!bySource[key]) bySource[key] = { source: key, count: 0, wins: 0, losses: 0, pushes: 0, pending: 0, netUnits: 0, units: 0 };
+    const bucket = bySource[key];
+    bucket.count += 1;
+    if (p.result === 'win') bucket.wins += 1;
+    else if (p.result === 'loss') bucket.losses += 1;
+    else if (p.result === 'push') bucket.pushes += 1;
+    else bucket.pending += 1;
+    bucket.netUnits += Number(p.pl) || 0;
+    if (p.result !== 'push' && p.result !== 'pending') bucket.units += Number(p.units) || 0;
+  });
+  const list = Object.values(bySource).map(s => {
+    const decided = s.wins + s.losses;
+    const acc = decided > 0 ? s.wins / decided : 0;
+    const roi = s.units > 0 ? s.netUnits / s.units : 0;
+    const score = _dailyScoreSource({ ...s, decided, acc });
+    return { ...s, decided, acc, roi, score };
+  });
+  list.sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    if (b.netUnits !== a.netUnits) return b.netUnits - a.netUnits;
+    if (b.acc !== a.acc) return b.acc - a.acc;
+    return b.count - a.count;
+  });
+  return list;
+}
+
+function _dailySourcePastSummary(source, allPicks) {
+  // quick past stats from the non-today decided picks
+  const past = allPicks.filter(p => p.source === source && !isTodayPickDateLabel(p.date) && (p.result === 'win' || p.result === 'loss'));
+  const w = past.filter(p => p.result === 'win').length;
+  const l = past.filter(p => p.result === 'loss').length;
+  const total = w + l;
+  if (!total) return 'No prior record';
+  return `${w}-${l} overall (${((w / total) * 100).toFixed(0)}% all-time)`;
+}
+
+function _dailyGroupByGame(picks) {
+  const groups = {};
+  picks.forEach(p => {
+    const label = deriveGameLabel(p, picks) || p.pick || `Pick ${p.id}`;
+    const key = `${p.sport || 'OTHER'}::${label}`;
+    if (!groups[key]) groups[key] = { key, sport: p.sport || 'OTHER', label, picks: [] };
+    groups[key].picks.push(p);
+  });
+  return Object.values(groups).sort((a, b) => {
+    // sort: active/pending first, then by sport, then alpha
+    const aPending = a.picks.some(p => p.result === 'pending');
+    const bPending = b.picks.some(p => p.result === 'pending');
+    if (aPending !== bPending) return aPending ? -1 : 1;
+    if (a.sport !== b.sport) return a.sport.localeCompare(b.sport);
+    return a.label.localeCompare(b.label);
+  });
+}
+
+function _dailyGroupVerdict(picks) {
+  const results = picks.map(p => p.result);
+  const hasWin = results.includes('win');
+  const hasLoss = results.includes('loss');
+  const hasPending = results.includes('pending');
+  if (hasPending) return { key: 'live', label: hasWin || hasLoss ? 'IN PROGRESS' : 'PENDING' };
+  if (hasWin && !hasLoss) return { key: 'win', label: 'ALL HIT' };
+  if (hasLoss && !hasWin) return { key: 'loss', label: 'ALL MISS' };
+  if (hasWin && hasLoss) return { key: 'mixed', label: 'MIXED' };
+  return { key: 'live', label: 'SETTLED' };
+}
+
+function _dailyEscape(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function renderDaily() {
+  const container = document.getElementById('daily-container');
+  if (!container) return;
+  _dailyRolloverDay = _dailyDayKey();
+
+  try {
+    const allPicks = getPicks();
+    const todayLabel = formatTodayPickDateLabel();
+    const todayPicks = allPicks.filter(p => isTodayPickDateLabel(p.date));
+
+    // Hero aggregates
+    const total = todayPicks.length;
+    const wins = todayPicks.filter(p => p.result === 'win').length;
+    const losses = todayPicks.filter(p => p.result === 'loss').length;
+    const pushes = todayPicks.filter(p => p.result === 'push').length;
+    const pending = todayPicks.filter(p => p.result === 'pending').length;
+    const decided = wins + losses;
+    const acc = decided > 0 ? ((wins / decided) * 100).toFixed(1) + '%' : '—';
+    const netUnits = todayPicks.reduce((s, p) => s + (Number(p.pl) || 0), 0);
+    const risked = todayPicks.filter(p => p.result !== 'push' && p.result !== 'pending').reduce((s, p) => s + (Number(p.units) || 0), 0);
+    const roi = risked > 0 ? ((netUnits / risked) * 100).toFixed(1) + '%' : '—';
+    const netUnitsStr = (netUnits >= 0 ? '+' : '') + netUnits.toFixed(2) + 'u';
+    const netClass = netUnits > 0 ? 'positive' : netUnits < 0 ? 'negative' : 'neutral';
+    const roiClass = roi === '—' ? 'neutral' : (parseFloat(roi) >= 0 ? 'positive' : 'negative');
+
+    const heroHtml = `
+      <div class="daily-hero">
+        <div class="daily-hero-row">
+          <div>
+            <div class="daily-eyebrow"><span class="daily-eyebrow-dot"></span>Today's Slate · ${_dailyEscape(todayLabel)}</div>
+            <div class="daily-title">${_dailyEscape(_dailyFormatLongDate())}</div>
+            <div class="daily-sub">Live picks, live scores, fresh slate at midnight local.</div>
+          </div>
+          <div class="daily-clock-wrap">
+            <div class="daily-clock-label">LOCAL TIME</div>
+            <div class="daily-clock" id="daily-clock-time">${_dailyEscape(_dailyFormatClock())}</div>
+            <div class="daily-countdown" id="daily-countdown">${_dailyEscape(_dailyCountdownToMidnight())}</div>
+          </div>
+        </div>
+        <div class="daily-stats-strip">
+          <div class="daily-stat"><div class="daily-stat-val">${total}</div><div class="daily-stat-label">Picks Today</div></div>
+          <div class="daily-stat"><div class="daily-stat-val accent3">${pending}</div><div class="daily-stat-label">Pending</div></div>
+          <div class="daily-stat"><div class="daily-stat-val positive">${wins}</div><div class="daily-stat-label">Wins</div></div>
+          <div class="daily-stat"><div class="daily-stat-val negative">${losses}</div><div class="daily-stat-label">Losses</div></div>
+          <div class="daily-stat"><div class="daily-stat-val ${pushes > 0 ? 'neutral' : ''}">${pushes}</div><div class="daily-stat-label">Pushes</div></div>
+          <div class="daily-stat"><div class="daily-stat-val ${decided ? (wins >= losses ? 'positive' : 'negative') : ''}">${acc}</div><div class="daily-stat-label">Hit Rate</div></div>
+          <div class="daily-stat"><div class="daily-stat-val ${netClass}">${netUnitsStr}</div><div class="daily-stat-label">Net Units</div></div>
+          <div class="daily-stat"><div class="daily-stat-val ${roiClass}">${roi}</div><div class="daily-stat-label">ROI Today</div></div>
+        </div>
+      </div>`;
+
+    _dailyStartClockTimer();
+
+    if (!todayPicks.length) {
+      container.innerHTML = heroHtml + `
+        <div class="daily-empty">
+          <div class="daily-empty-icon">📭</div>
+          <div class="daily-empty-title">No picks logged for ${_dailyEscape(todayLabel)} yet</div>
+          <div class="daily-empty-sub">When picks get added to the ledger today they'll show up here instantly — ranked, scored, and live.</div>
+        </div>`;
       return;
     }
 
-    const cards = combos.map((combo, idx) => {
-      const correlatedLeg = combo.legs.find(leg => combo.gameCounts[leg.gameKey] === 2) || null;
-      const legsHtml = combo.legs.map((leg, legIdx) => {
-        const propShort = leg.parts.propWord === 'assists' ? 'ast' : leg.parts.propWord === 'rebounds' ? 'reb' : leg.parts.propWord;
-        return `
-          <div class="parlay-leg">
-            <div class="parlay-leg-main">Leg ${legIdx + 1}: ${leg.parts.playerName} | ${propShort} ${leg.parts.direction} ${leg.parts.line.toFixed(1)}</div>
-            <div class="parlay-leg-meta">${leg.probDisplay} | ${leg.gameLabel}</div>
-          </div>
-        `;
-      }).join('');
+    // Daily source ranking
+    const ranking = _dailyBuildSourceRanking(todayPicks);
+    const maxScore = Math.max(1, ...ranking.map(r => r.score));
+
+    const podium = ranking.slice(0, 3);
+    const podiumClass = ['gold', 'silver', 'bronze'];
+    const podiumMedal = ['🥇 #1 TODAY', '🥈 #2 TODAY', '🥉 #3 TODAY'];
+
+    const podiumHtml = podium.length ? `
+      <div class="daily-section-head">
+        <div class="daily-section-title">Daily Leaderboard · Pick Label Podium</div>
+        <div class="daily-section-sub">Scoring: accuracy × units × volume · resets at midnight local</div>
+      </div>
+      <div class="daily-podium">
+        ${podium.map((r, idx) => {
+          const recordParts = [];
+          if (r.wins) recordParts.push(`<span class="daily-podium-chip win">${r.wins}W</span>`);
+          if (r.losses) recordParts.push(`<span class="daily-podium-chip loss">${r.losses}L</span>`);
+          if (r.pushes) recordParts.push(`<span class="daily-podium-chip">${r.pushes}P</span>`);
+          if (r.pending) recordParts.push(`<span class="daily-podium-chip pending">${r.pending} pending</span>`);
+          const uStr = (r.netUnits >= 0 ? '+' : '') + r.netUnits.toFixed(2) + 'u';
+          const scoreClass = r.netUnits > 0 ? 'positive' : r.netUnits < 0 ? 'negative' : 'neutral';
+          return `
+          <div class="daily-podium-card ${podiumClass[idx]}">
+            <div class="daily-podium-medal">${podiumMedal[idx]}</div>
+            <div class="daily-podium-source">${_dailyEscape(r.source)}</div>
+            <div class="daily-podium-score ${scoreClass}">${r.score}<span style="font-size:14px;font-family:'DM Mono',monospace;letter-spacing:1px;margin-left:6px;color:var(--muted)">PTS</span></div>
+            <div class="daily-podium-metrics">
+              <span class="daily-podium-chip">${r.count} pick${r.count === 1 ? '' : 's'}</span>
+              ${recordParts.join('')}
+              <span class="daily-podium-chip ${r.netUnits >= 0 ? 'win' : 'loss'}">${uStr}</span>
+            </div>
+            <div class="daily-podium-rank">${idx + 1}</div>
+          </div>`;
+        }).join('')}
+      </div>` : '';
+
+    const rankingHeader = `
+      <div class="daily-ranking-row header daily-ranking-header-row">
+        <span>#</span>
+        <span>Source</span>
+        <span class="daily-ranking-hide-sm">Record</span>
+        <span>Units</span>
+        <span class="daily-ranking-hide-sm">Hit %</span>
+        <span>Score</span>
+      </div>`;
+
+    const rankingRows = ranking.map((r, idx) => {
+      const rank = idx + 1;
+      const rankClass = rank <= 3 ? `rank-${rank}` : '';
+      const record = [`${r.wins}-${r.losses}`, r.pushes ? `-${r.pushes}` : '', r.pending ? ` · ${r.pending}P` : ''].join('');
+      const uStr = (r.netUnits >= 0 ? '+' : '') + r.netUnits.toFixed(2) + 'u';
+      const uClass = r.netUnits > 0 ? 'positive' : r.netUnits < 0 ? 'negative' : 'muted';
+      const accStr = r.decided ? (r.acc * 100).toFixed(0) + '%' : '—';
+      const accClass = !r.decided ? 'muted' : r.acc >= 0.55 ? 'positive' : r.acc < 0.4 ? 'negative' : '';
+      const barPct = Math.max(6, Math.round((r.score / maxScore) * 100));
       return `
-        <div class="parlay-card">
-          <div class="parlay-header">
-            <div class="parlay-title">COMBO ${idx + 1}</div>
-            <div class="parlay-meta">Combined Prob: ${(combo.combinedProb * 100).toFixed(1)}%<br>Fair Odds: ${_formatFairAmericanOdds(combo.combinedProb)}</div>
-          </div>
-          ${legsHtml}
-          ${correlatedLeg ? `<div class="parlay-warn">⚠️ 2 legs from same game (${correlatedLeg.gameLabel})</div>` : ''}
-        </div>
-      `;
+        <div class="daily-ranking-row ${rankClass}" data-source="${_dailyEscape(r.source)}" title="${_dailyEscape(r.source)} — ${_dailyEscape(_dailySourcePastSummary(r.source, allPicks))}" onclick="_dailyJumpToSourceFromEl(this)" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();_dailyJumpToSourceFromEl(this);}">
+          <span class="daily-ranking-rank">${rank}</span>
+          <span class="daily-ranking-source">${_dailyEscape(r.source)}</span>
+          <span class="daily-ranking-metric daily-ranking-hide-sm">${record}</span>
+          <span class="daily-ranking-metric ${uClass}">${uStr}</span>
+          <span class="daily-ranking-metric ${accClass} daily-ranking-hide-sm">${accStr}</span>
+          <span class="daily-ranking-metric">
+            <div class="daily-ranking-bar-wrap"><div class="daily-ranking-bar-fill" style="width:${barPct}%"></div></div>
+            <div style="margin-top:4px;font-size:11px;color:var(--muted)">${r.score}</div>
+          </span>
+        </div>`;
     }).join('');
 
-    container.innerHTML = `
-      <div class="section-title clean-title">Parlay Suggestions</div>
-      <div class="parlay-subtitle">Tier 1: reb 61-74% | Tier 2 fill: ast 65-74%</div>
-      <div class="parlay-grid">${cards}</div>
-      <div class="parlay-footnote">Top 3 combos sorted by combined probability.</div>
-    `;
+    const rankingHtml = ranking.length > 3 ? `
+      <div class="daily-section-head">
+        <div class="daily-section-title">Full Ranking · All Sources Today</div>
+        <div class="daily-section-sub">Click a row to filter the pick log by that source</div>
+      </div>
+      <div class="daily-ranking-list">
+        ${rankingHeader}
+        ${rankingRows}
+      </div>` : '';
+
+    // Today's slate grouped by game
+    const groups = _dailyGroupByGame(todayPicks);
+    const slateHtml = `
+      <div class="daily-section-head">
+        <div class="daily-section-title">Today's Slate · ${groups.length} Game${groups.length === 1 ? '' : 's'}</div>
+        <div class="daily-section-sub">Pending games bubble to the top · results update as they come in</div>
+      </div>
+      <div class="daily-slate-grid">
+        ${groups.map(g => {
+          const verdict = _dailyGroupVerdict(g.picks);
+          const groupPL = g.picks.reduce((s, p) => s + (Number(p.pl) || 0), 0);
+          const groupPLStr = (groupPL >= 0 ? '+' : '') + groupPL.toFixed(2) + 'u';
+          const groupPLClass = groupPL > 0 ? 'positive' : groupPL < 0 ? 'negative' : 'neutral';
+          const pendingCount = g.picks.filter(p => p.result === 'pending').length;
+          const groupDecided = g.picks.filter(p => p.result !== 'pending').length;
+          const startIso = g.picks.map(p => p.start_time).filter(Boolean).sort()[0] || null;
+          const startLabel = startIso ? formatStartLabel(startIso) : (pendingCount ? 'TBD' : 'Done');
+          return `
+            <div class="daily-slate-card decided-${verdict.key}">
+              <div class="daily-slate-head">
+                <div>
+                  <div class="daily-slate-game">${_dailyEscape(g.label)}</div>
+                  <div class="daily-slate-meta">${_dailyEscape(g.sport)} · ${_dailyEscape(startLabel)} · ${g.picks.length} pick${g.picks.length === 1 ? '' : 's'}</div>
+                </div>
+                <div class="daily-slate-badge ${verdict.key}">${verdict.label}</div>
+              </div>
+              <div class="daily-slate-picks">
+                ${g.picks.map(p => {
+                  const rClass = `result-${p.result}`;
+                  const oddsDisplay = formatOddsOrProbabilityDisplay(p.odds, p.probability);
+                  const plDisplay = p.result === 'pending' ? '—' : ((p.pl >= 0 ? '+' : '') + (Number(p.pl) || 0).toFixed(2) + 'u');
+                  const plClass = (Number(p.pl) || 0) > 0 ? 'positive' : (Number(p.pl) || 0) < 0 ? 'negative' : 'neutral';
+                  const resultLabel = p.result === 'pending' ? 'PENDING' : p.result.toUpperCase();
+                  return `
+                    <div class="daily-slate-pick ${rClass}">
+                      <span class="daily-slate-source" title="${_dailyEscape(p.source || '')}">${_dailyEscape(p.source || 'Unknown')}</span>
+                      <span class="daily-slate-text">${_dailyEscape(p.pick || '')}</span>
+                      <span class="daily-slate-odds">${_dailyEscape(oddsDisplay)}</span>
+                      <span class="daily-slate-result ${p.result}">${resultLabel}${p.result !== 'pending' ? ' · ' + `<span class="${plClass}">${_dailyEscape(plDisplay)}</span>` : ''}</span>
+                    </div>`;
+                }).join('')}
+              </div>
+              <div class="daily-slate-footer">
+                <span>${pendingCount ? `${pendingCount} live / ` : ''}${groupDecided} decided</span>
+                <span class="daily-slate-pl ${groupPLClass}">${groupPLStr}</span>
+              </div>
+            </div>`;
+        }).join('')}
+      </div>`;
+
+    container.innerHTML = heroHtml + podiumHtml + rankingHtml + `<div class="daily-divider"></div>` + slateHtml;
   } catch (err) {
-    console.error('Failed to render parlays tab:', err);
+    console.error('Failed to render daily tab:', err);
     container.innerHTML = `
-      <div class="section-title clean-title">Parlay Suggestions</div>
-      <div class="empty-state">Could not load parlay suggestions right now. Please refresh and try again.</div>
+      <div class="section-title clean-title">Daily</div>
+      <div class="empty-state">Could not load daily dashboard right now. Please refresh and try again.</div>
     `;
   }
+}
+
+function _dailyJumpToSourceFromEl(el) {
+  const source = el && el.getAttribute ? el.getAttribute('data-source') : null;
+  if (!source) return;
+  if (typeof activeFilter !== 'undefined') {
+    activeFilter = source;
+  }
+  switchTab('home');
+  if (typeof render === 'function') render();
 }
 
 function renderTrends() {
@@ -5203,7 +5923,7 @@ function render() {
 
   // Trends
   renderTrends();
-  renderParlays();
+  renderDaily();
 }
 
 function initTheme() {
@@ -6996,6 +7716,7 @@ loadCanonicalRankingsState().then(() => render()).catch(() => {});
 loadNbaPropsGames();
 const savedTab = localStorage.getItem('pickledger_tab') || 'home';
 if (savedTab === 'profile') { localStorage.setItem('pickledger_tab', 'home'); }
+else if (savedTab === 'parlays') { localStorage.setItem('pickledger_tab', 'daily'); switchTab('daily'); }
 else if (savedTab !== 'home') switchTab(savedTab);
 render();
 if (missingStartTimesCount() > 0) {
