@@ -166,19 +166,56 @@
   }
 
   /* Filter pills */
-  .filter-bar { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; align-items: center; position: relative; }
-  .filter-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); padding: 8px 16px; font-family: 'DM Mono', monospace; font-size: 14px; letter-spacing: 0.5px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-  .filter-btn:hover { border-color: var(--accent); color: var(--text); }
-  .filter-btn.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+  .filter-bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; position: relative; }
+  .filter-btn {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--muted);
+    padding: 10px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.8px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s, color 0.2s, background 0.2s, box-shadow 0.2s;
+    text-transform: uppercase;
+  }
+  .filter-btn:hover {
+    border-color: rgba(77,166,255,0.45);
+    color: var(--text);
+    transform: translateY(-1px);
+  }
+  .filter-btn.active {
+    background: linear-gradient(135deg, rgba(0,229,160,0.9), rgba(77,166,255,0.92));
+    color: #04131a;
+    border-color: transparent;
+    box-shadow: 0 12px 24px rgba(0,229,160,0.18);
+  }
   .filter-more-wrap { position: relative; display: inline-block; }
-  .filter-more-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--surface); border: 1px solid var(--border); color: var(--muted); font-size: 20px; font-family: 'DM Sans', sans-serif; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; line-height: 1; }
-  .filter-more-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .filter-more-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 22px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s, border-color 0.2s, color 0.2s, background 0.2s;
+    line-height: 1;
+  }
+  .filter-more-btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
   .filter-more-btn.has-selection { border-color: var(--accent); color: var(--accent); background: rgba(0,229,160,0.08); }
   body[data-theme="light"] .filter-more-btn.has-selection { background: rgba(0,168,112,0.08); }
-  .filter-dropdown { display: none; position: absolute; top: calc(100% + 6px); right: 0; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 6px; min-width: 180px; z-index: 100; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+  .filter-dropdown { display: none; position: absolute; top: calc(100% + 8px); right: 0; background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 10px; min-width: 220px; z-index: 100; box-shadow: 0 18px 40px rgba(0,0,0,0.28); }
   body[data-theme="light"] .filter-dropdown { box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
-  .filter-dropdown.open { display: flex; flex-direction: column; gap: 2px; }
-  .filter-dropdown .filter-btn { text-align: left; border-radius: 4px; width: 100%; }
+  .filter-dropdown.open { display: flex; flex-direction: column; gap: 6px; }
+  .filter-dropdown .filter-btn { text-align: left; width: 100%; justify-content: flex-start; }
 
   .section-title { font-family: 'Bebas Neue', sans-serif; font-size: 34px; letter-spacing: 1.8px; color: var(--muted); margin-bottom: 18px; }
   .panel { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 28px; margin-bottom: 34px; transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s, transform 0.25s; }
@@ -279,179 +316,511 @@
   .log-pick-main { font-weight: 600; line-height: 1.25; }
   .log-pick-sub { margin-top: 4px; font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; line-height: 1.35; }
 
-  /* === Pick Log Feed (Home tab) === */
-  .pick-feed { display: flex; flex-direction: column; gap: 0; }
-  .pick-feed-empty { text-align: center; padding: 50px 20px; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 13px; }
-
-  /* Game header */
-  .game-header {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-    padding: 20px 4px 10px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 0;
+  /* === Home tab === */
+  .home-shell { display: flex; flex-direction: column; gap: 18px; }
+  .home-hero {
+    position: relative;
+    overflow: hidden;
+    padding: 26px;
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    background:
+      radial-gradient(900px 280px at 0% 0%, rgba(0,229,160,0.16), transparent 60%),
+      radial-gradient(900px 320px at 100% 0%, rgba(77,166,255,0.14), transparent 60%),
+      linear-gradient(160deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)),
+      var(--card);
   }
-  .game-header:first-child { padding-top: 6px; }
-  .game-header-title {
+  .home-hero::before {
+    content: '';
+    position: absolute;
+    inset: auto -20% -55% auto;
+    width: 420px;
+    height: 420px;
+    background: radial-gradient(circle, rgba(255,215,0,0.08), transparent 62%);
+    pointer-events: none;
+  }
+  .home-hero-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+  }
+  .home-hero-copy { max-width: 760px; }
+  .home-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1.3px;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  .home-eyebrow::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--accent);
+    box-shadow: 0 0 14px rgba(0,229,160,0.75);
+  }
+  .home-title {
+    margin-top: 10px;
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 24px;
+    font-size: 56px;
+    letter-spacing: 1.5px;
+    line-height: 0.96;
+    color: var(--text);
+  }
+  .home-sub {
+    margin-top: 10px;
+    max-width: 720px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+  .home-hero-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+    min-width: 220px;
+    position: relative;
+    z-index: 1;
+  }
+  .home-hero-chips {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .home-hero-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(0,229,160,0.28);
+    background: rgba(0,229,160,0.1);
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+  }
+  .home-hero-chip.muted {
+    border-color: var(--border);
+    background: rgba(255,255,255,0.04);
+    color: var(--muted);
+  }
+  .home-toggle-btn {
+    min-height: 46px;
+    padding: 0 18px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.05);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.9px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s, color 0.2s, background 0.2s, box-shadow 0.2s;
+  }
+  .home-toggle-btn:hover {
+    transform: translateY(-1px);
+    border-color: var(--accent);
+  }
+  .home-toggle-btn.is-settled {
+    border-color: rgba(77,166,255,0.38);
+    background: rgba(77,166,255,0.12);
+    color: var(--accent3);
+    box-shadow: 0 12px 24px rgba(77,166,255,0.14);
+  }
+  .home-summary-grid {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-top: 18px;
+  }
+  .home-summary-card {
+    padding: 16px 16px 14px;
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(8,12,18,0.42);
+    backdrop-filter: blur(12px);
+  }
+  .home-summary-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 34px;
+    letter-spacing: 1px;
+    line-height: 0.96;
+    color: var(--text);
+  }
+  .home-summary-value.small { font-size: 24px; letter-spacing: 0.8px; }
+  .home-summary-label {
+    margin-top: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .home-filter-shell {
+    padding: 18px 20px;
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    background: linear-gradient(180deg, rgba(77,166,255,0.06), transparent 70%), var(--card);
+  }
+  .home-filter-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .home-filter-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 30px;
     letter-spacing: 1.2px;
     color: var(--text);
     line-height: 1;
   }
-  .game-header-meta {
+  .home-filter-sub {
+    margin-top: 5px;
     font-family: 'DM Mono', monospace;
     font-size: 11px;
-    color: var(--muted);
-    letter-spacing: 0.3px;
-  }
-
-  /* Individual pick bubble */
-  .pick-bubble {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 14px 16px;
-    margin: 0;
-    border-bottom: 1px solid rgba(128,128,128,0.08);
-    transition: background-color 0.2s, transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s;
-    flex-wrap: wrap;
-    cursor: default;
-  }
-  .pick-bubble:last-child { border-bottom: none; }
-  .pick-bubble:hover, .pick-bubble.hover-active, .pick-bubble:focus-within {
-    background: var(--surface);
-    transform: scale(1.06) translateY(-2px);
-    box-shadow: 0 16px 40px rgba(0,0,0,0.18), 0 4px 12px rgba(0,0,0,0.12);
-    z-index: 20;
-    position: relative;
-    border-radius: 12px;
-  }
-  .pick-bubble-source {
-    font-family: 'DM Mono', monospace;
-    font-size: 14px;
     letter-spacing: 0.5px;
-    font-weight: 400;
-    padding: 6px 14px;
-    border-radius: 20px;
-    background: rgba(77,166,255,0.14);
-    color: var(--accent3);
-    white-space: nowrap;
-    flex-shrink: 0;
-    min-width: 90px;
+    color: var(--muted);
+  }
+  .home-feed-panel {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin-bottom: 0;
+    box-shadow: none;
+  }
+  .pick-feed { display: flex; flex-direction: column; gap: 26px; }
+  .pick-feed-empty {
+    padding: 54px 20px;
     text-align: center;
-  }
-  .pick-bubble-pick {
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--text);
-    letter-spacing: -0.2px;
-    flex: 1;
-    min-width: 180px;
-  }
-  .pick-bubble-odds {
+    border: 1px dashed var(--border);
+    border-radius: 24px;
+    background: linear-gradient(180deg, rgba(77,166,255,0.05), transparent 65%), var(--card);
+    color: var(--muted);
     font-family: 'DM Mono', monospace;
     font-size: 13px;
-    font-weight: 600;
-    color: var(--text);
-    white-space: nowrap;
+    letter-spacing: 0.3px;
   }
-  .pick-bubble-result {
-    flex-shrink: 0;
-  }
-  .pick-bubble-sport {
+  .home-empty-kicker {
     font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.4px;
-    padding: 5px 10px;
-    border-radius: 999px;
-    background: rgba(255,255,255,0.06);
-    color: var(--muted);
-    white-space: nowrap;
+    font-size: 10px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--accent);
   }
-  .pick-bubble-sport.is-ipl {
-    background: rgba(255,215,0,0.14);
-    color: #f6c453;
-  }
-  .pick-bubble-pl {
+  .home-empty-title {
+    margin-top: 10px;
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 18px;
-    letter-spacing: 0.5px;
-    min-width: 42px;
-    text-align: right;
-    flex-shrink: 0;
-  }
-  /* Game block wrapper */
-  .game-block {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    margin-bottom: 14px;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-  .game-block:hover {
-    border-color: rgba(77,166,255,0.25);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-  }
-  .game-block-header {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-    padding: 16px 20px 12px;
-    background: linear-gradient(90deg, rgba(77,166,255,0.10) 0%, transparent 60%);
-    border-bottom: 1px solid var(--border);
-  }
-  .game-block-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px;
-    letter-spacing: 1.4px;
+    font-size: 34px;
+    letter-spacing: 1.1px;
     color: var(--text);
     line-height: 1;
   }
-  .game-block-meta {
-    font-family: 'DM Mono', monospace;
-    font-size: 15px;
-    font-weight: 400;
+  .home-empty-sub {
+    max-width: 560px;
+    margin: 10px auto 0;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
     color: var(--muted);
-    letter-spacing: 0.3px;
   }
-  .game-block-picks {
-    padding: 4px 4px;
+  .home-feed-section { display: flex; flex-direction: column; gap: 14px; }
+  .home-feed-section-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .home-feed-section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 34px;
+    letter-spacing: 1.2px;
+    color: var(--text);
+    line-height: 1;
+  }
+  .home-feed-section-meta {
+    margin-top: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+  }
+  .home-feed-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 18px;
+  }
+  .home-game-card {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 18px;
+    border-radius: 22px;
+    border: 1px solid var(--border);
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.03), transparent 45%),
+      var(--card);
+    transition: transform 0.22s, border-color 0.22s, box-shadow 0.22s;
+  }
+  .home-game-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(77,166,255,0.38);
+    box-shadow: 0 22px 44px rgba(0,0,0,0.18);
+  }
+  .home-game-card::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 4px;
+    opacity: 0.95;
+  }
+  .home-game-card.status-live::before  { background: linear-gradient(90deg, var(--accent3), var(--accent)); }
+  .home-game-card.status-win::before   { background: linear-gradient(90deg, var(--win), rgba(0,229,160,0.25)); }
+  .home-game-card.status-loss::before  { background: linear-gradient(90deg, var(--loss), rgba(255,69,96,0.25)); }
+  .home-game-card.status-mixed::before { background: linear-gradient(90deg, var(--push), var(--accent3)); }
+  .home-game-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .home-game-kicker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .home-sport-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 8px 13px;
+    border-radius: 999px;
+    border: 1px solid rgba(77,166,255,0.28);
+    background: rgba(77,166,255,0.12);
+    color: #dbeafe;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .home-sport-pill.is-ipl {
+    border-color: rgba(255,215,0,0.32);
+    background: rgba(255,215,0,0.14);
+    color: #ffe38f;
+  }
+  .home-status-pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 34px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.03);
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+  }
+  .home-status-pill.live  { border-color: rgba(77,166,255,0.32); color: var(--accent3); background: rgba(77,166,255,0.1); }
+  .home-status-pill.win   { border-color: rgba(0,229,160,0.3); color: var(--win); background: rgba(0,229,160,0.1); }
+  .home-status-pill.loss  { border-color: rgba(255,69,96,0.3); color: var(--loss); background: rgba(255,69,96,0.1); }
+  .home-status-pill.mixed { border-color: rgba(255,215,0,0.28); color: var(--push); background: rgba(255,215,0,0.1); }
+  .home-game-title {
+    margin-top: 10px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 30px;
+    letter-spacing: 0.9px;
+    line-height: 1.03;
+    color: var(--text);
+  }
+  .home-game-meta {
+    margin-top: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.4px;
+  }
+  .home-game-pl {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 0.8px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .home-game-caption {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.9px;
+    color: var(--muted);
+    text-transform: uppercase;
+    text-align: right;
+  }
+  .home-game-picks { display: flex; flex-direction: column; gap: 10px; }
+  .home-pick-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 14px;
+    align-items: start;
+    padding: 15px;
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,0.08);
+    background: rgba(8,12,18,0.46);
+  }
+  .home-pick-card.result-win  { border-color: rgba(0,229,160,0.28); background: linear-gradient(90deg, rgba(0,229,160,0.08), transparent 80%); }
+  .home-pick-card.result-loss { border-color: rgba(255,69,96,0.28); background: linear-gradient(90deg, rgba(255,69,96,0.08), transparent 80%); }
+  .home-pick-card.result-push { border-color: rgba(255,215,0,0.24); background: linear-gradient(90deg, rgba(255,215,0,0.07), transparent 80%); }
+  .home-pick-main { min-width: 0; }
+  .home-pick-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .home-pick-source,
+  .home-pick-odds,
+  .home-pick-units {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .home-pick-source {
+    background: rgba(77,166,255,0.12);
+    color: var(--accent3);
+    border: 1px solid rgba(77,166,255,0.2);
+  }
+  .home-pick-odds {
+    background: rgba(255,255,255,0.06);
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+  .home-pick-units {
+    background: rgba(0,229,160,0.1);
+    color: var(--accent);
+    border: 1px solid rgba(0,229,160,0.16);
+  }
+  .home-pick-text {
+    margin-top: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--text);
+  }
+  .home-pick-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    min-width: 150px;
+  }
+  .home-pick-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 30px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    background: rgba(255,255,255,0.05);
+  }
+  .home-pick-status.pending { border-color: rgba(255,215,0,0.25); color: var(--push); background: rgba(255,215,0,0.08); }
+  .home-pick-status.win     { border-color: rgba(0,229,160,0.28); color: var(--win); background: rgba(0,229,160,0.12); }
+  .home-pick-status.loss    { border-color: rgba(255,69,96,0.28); color: var(--loss); background: rgba(255,69,96,0.12); }
+  .home-pick-status.push    { border-color: rgba(255,215,0,0.28); color: var(--push); background: rgba(255,215,0,0.12); }
+  .home-pick-pl {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    letter-spacing: 0.8px;
+    line-height: 1;
+  }
+  .home-pick-control { width: 100%; display: flex; justify-content: flex-end; }
+  .home-pick-card .kelly-wrap {
+    grid-column: 1 / -1;
+    margin-top: -2px;
   }
 
-  /* Light mode pick feed overrides */
-  body[data-theme="light"] .game-block {
-    background: #ffffff;
+  /* Light mode Home overrides */
+  body[data-theme="light"] .home-hero {
+    background:
+      radial-gradient(900px 280px at 0% 0%, rgba(0,168,112,0.12), transparent 60%),
+      radial-gradient(900px 320px at 100% 0%, rgba(37,99,235,0.10), transparent 60%),
+      linear-gradient(180deg, #ffffff, #f7fafc);
+    box-shadow: 0 16px 40px rgba(15,25,40,0.08);
+  }
+  body[data-theme="light"] .home-eyebrow { color: var(--accent); }
+  body[data-theme="light"] .home-summary-card,
+  body[data-theme="light"] .home-pick-card {
+    background: rgba(255,255,255,0.84);
     border-color: var(--border);
-    box-shadow: 0 1px 6px rgba(15,25,40,0.05);
   }
-  body[data-theme="light"] .game-block:hover {
-    border-color: rgba(37,99,235,0.3);
-    box-shadow: 0 10px 30px rgba(15,25,40,0.1);
+  body[data-theme="light"] .home-filter-shell,
+  body[data-theme="light"] .home-game-card {
+    background: linear-gradient(180deg, rgba(37,99,235,0.06), transparent 70%), #ffffff;
+    box-shadow: 0 12px 28px rgba(15,25,40,0.08);
   }
-  body[data-theme="light"] .game-block-header {
-    background: linear-gradient(90deg, rgba(37,99,235,0.07) 0%, transparent 60%);
-    border-bottom-color: var(--border);
+  body[data-theme="light"] .home-game-card:hover {
+    box-shadow: 0 18px 34px rgba(15,25,40,0.12);
   }
-  body[data-theme="light"] .pick-bubble:hover, 
-  body[data-theme="light"] .pick-bubble.hover-active,
-  body[data-theme="light"] .pick-bubble:focus-within {
-    background: #ffffff;
-    box-shadow: 0 20px 50px rgba(15,25,40,0.15), 0 8px 16px rgba(15,25,40,0.08);
+  body[data-theme="light"] .home-hero-chip.muted,
+  body[data-theme="light"] .home-toggle-btn,
+  body[data-theme="light"] .filter-btn,
+  body[data-theme="light"] .filter-more-btn {
+    background: rgba(255,255,255,0.9);
   }
-  body[data-theme="light"] .pick-bubble-source {
-    background: rgba(37,99,235,0.10);
-    color: var(--accent3);
+  body[data-theme="light"] .home-sport-pill {
+    background: rgba(37,99,235,0.08);
+    color: #1d4ed8;
+    border-color: rgba(37,99,235,0.18);
   }
-  body[data-theme="light"] .pick-bubble-sport {
-    background: rgba(15,23,42,0.06);
-    color: #4b5563;
-  }
-  body[data-theme="light"] .pick-bubble-sport.is-ipl {
-    background: rgba(245,158,11,0.15);
+  body[data-theme="light"] .home-sport-pill.is-ipl {
+    background: rgba(245,158,11,0.13);
     color: #b45309;
+    border-color: rgba(245,158,11,0.2);
+  }
+  body[data-theme="light"] .home-pick-odds {
+    background: rgba(15,23,42,0.04);
+    border-color: rgba(15,23,42,0.06);
+  }
+  body[data-theme="light"] .pick-feed-empty {
+    background: linear-gradient(180deg, rgba(37,99,235,0.04), transparent 65%), #ffffff;
   }
 
   .log-date-text,
@@ -467,7 +836,21 @@
   .badge-push { background: rgba(255,215,0,0.18); color: var(--push); }
   .badge-pending { background: rgba(77,166,255,0.15); color: var(--accent3); }
   .badge-source { background: rgba(77,166,255,0.14); color: var(--accent3); font-size: 10px; }
-  .result-select { background: var(--surface); border: 1px solid var(--border); color: var(--accent3); padding: 4px 8px; border-radius: 8px; font-size: 11px; font-family: 'DM Mono', monospace; cursor: pointer; transition: border-color 0.2s; }
+  .result-select {
+    min-width: 132px;
+    min-height: 36px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--accent3);
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+  }
   .result-select:hover { border-color: var(--accent); }
 
   .empty-state { text-align: center; padding: 40px; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 13px; }
@@ -965,6 +1348,19 @@
   body[data-theme="light"] .daily-eyebrow { color: var(--accent); }
 
   @media (max-width: 720px) {
+    .home-title { font-size: 40px; }
+    .home-hero { padding: 20px; }
+    .home-hero-actions { width: 100%; align-items: flex-start; }
+    .home-hero-chips { justify-content: flex-start; }
+    .home-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .home-filter-shell { padding: 16px; }
+    .home-feed-grid { grid-template-columns: 1fr; }
+    .home-game-top { flex-direction: column; }
+    .home-game-caption { text-align: left; }
+    .home-pick-card { grid-template-columns: 1fr; }
+    .home-pick-actions { width: 100%; align-items: stretch; min-width: 0; }
+    .home-pick-control { justify-content: stretch; }
+    .home-pick-control .result-select { width: 100%; }
     .daily-title { font-size: 40px; }
     .daily-clock { font-size: 30px; }
     .daily-hero { padding: 20px; }
@@ -2438,27 +2834,38 @@
 
   <!-- HOME TAB -->
   <div id="tab-home" class="tab-content active">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
-      <div class="section-title clean-title" style="margin-bottom:0">Pick Log</div>
-      <button id="settled-toggle-btn" onclick="toggleShowSettled()" style="background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-weight:600;padding:8px 16px;font-family:'DM Mono',monospace;font-size:14px;letter-spacing:0.5px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">SHOW SETTLED</button>
-    </div>
-    <div class="filter-bar" id="filter-bar"></div>
-    <div id="settled-stats-panel" style="display:none;margin-bottom:20px;"></div>
-    <div class="panel">
-      <div id="pick-feed" class="pick-feed"></div>
-      <script>
-      (function() {
-        const feed = document.getElementById('pick-feed');
-        feed.addEventListener('mouseover', function(e) {
-          const bubble = e.target.closest('.pick-bubble');
-          if (bubble) bubble.classList.add('hover-active');
-        });
-        feed.addEventListener('mouseout', function(e) {
-          const bubble = e.target.closest('.pick-bubble');
-          if (bubble) bubble.classList.remove('hover-active');
-        });
-      })();
-      </script>
+    <div class="home-shell">
+      <div class="home-hero">
+        <div class="home-hero-row">
+          <div class="home-hero-copy">
+            <div class="home-eyebrow" id="home-eyebrow">LIVE BOARD</div>
+            <div class="home-title" id="home-title">Today&rsquo;s Slate, cleaned up</div>
+            <div class="home-sub" id="home-sub">Big matchup cards, bigger sport labels, and a calmer way to scan everything that matters.</div>
+          </div>
+          <div class="home-hero-actions">
+            <div class="home-hero-chips">
+              <span class="home-hero-chip" id="home-mode-chip">PENDING VIEW</span>
+              <span class="home-hero-chip muted" id="home-filter-chip">ALL SOURCES</span>
+            </div>
+            <button id="settled-toggle-btn" class="home-toggle-btn" onclick="toggleShowSettled()">SHOW SETTLED</button>
+          </div>
+        </div>
+        <div class="home-summary-grid" id="home-summary-grid"></div>
+      </div>
+
+      <div class="home-filter-shell">
+        <div class="home-filter-head">
+          <div>
+            <div class="home-filter-title">Filter The Board</div>
+            <div class="home-filter-sub">Jump by sport or source without compressing the feed.</div>
+          </div>
+        </div>
+        <div class="filter-bar" id="filter-bar"></div>
+      </div>
+
+      <div class="panel home-feed-panel">
+        <div id="pick-feed" class="pick-feed"></div>
+      </div>
     </div>
   </div>
 
@@ -3405,17 +3812,15 @@ async function refreshAutoGrades(silent = false) {
 
 function toggleShowSettled() {
   showSettled = !showSettled;
-  const btn = document.getElementById('settled-toggle-btn');
-  if (showSettled) {
-    btn.style.color = 'var(--accent3)';
-    btn.style.borderColor = 'var(--accent3)';
-    btn.textContent = 'SHOW PENDING';
-  } else {
-    btn.style.color = 'var(--muted)';
-    btn.style.borderColor = 'var(--border)';
-    btn.textContent = 'SHOW SETTLED';
-  }
+  syncHomeSettledToggleButton();
   render();
+}
+
+function syncHomeSettledToggleButton() {
+  const btn = document.getElementById('settled-toggle-btn');
+  if (!btn) return;
+  btn.textContent = showSettled ? 'SHOW PENDING' : 'SHOW SETTLED';
+  btn.classList.toggle('is-settled', showSettled);
 }
 
 function calcPL(u,r) {
@@ -3736,6 +4141,13 @@ function getSourcePastRecordLines(source, picks = getPicks()) {
 function jumpToSource(source) {
   activeFilter = source;
   switchTab('home');
+  render();
+}
+
+function setActiveFilterFromEl(el) {
+  const nextFilter = String(el && el.getAttribute('data-filter') || 'ALL');
+  activeFilter = nextFilter;
+  closeMoreFilters();
   render();
 }
 
@@ -5716,19 +6128,20 @@ function render() {
   if (![...PRIMARY_SPORTS, ...moreFilters].includes(activeFilter)) activeFilter = 'ALL';
   const moreHasActive = moreFilters.includes(activeFilter);
   let filterHtml = PRIMARY_SPORTS.map(f=>
-    `<button class="filter-btn ${activeFilter===f?'active':''}" onclick="activeFilter='${f}';render()">${f}</button>`
+    `<button class="filter-btn ${activeFilter===f?'active':''}" data-filter="${_dailyEscape(f)}" onclick="setActiveFilterFromEl(this)">${_dailyEscape(f)}</button>`
   ).join('');
   if (moreFilters.length) {
     filterHtml += `<div class="filter-more-wrap"><button class="filter-more-btn ${moreHasActive?'has-selection':''}" onclick="toggleMoreFilters(event)" title="More filters">+</button>`;
     filterHtml += `<div class="filter-dropdown" id="filter-dropdown">`;
     filterHtml += moreFilters.map(f=>
-      `<button class="filter-btn ${activeFilter===f?'active':''}" onclick="activeFilter='${f}';closeMoreFilters();render()">${f}</button>`
+      `<button class="filter-btn ${activeFilter===f?'active':''}" data-filter="${_dailyEscape(f)}" onclick="setActiveFilterFromEl(this)">${_dailyEscape(f)}</button>`
     ).join('');
     filterHtml += `</div></div>`;
   }
   document.getElementById('filter-bar').innerHTML = filterHtml;
+  syncHomeSettledToggleButton();
 
-  // Table (Home tab)
+  // Home feed
   let filtered=picks;
   if(activeFilter!=='ALL') filtered=picks.filter(p=>p.sport===activeFilter||p.source===activeFilter||getRankingSourceKey(p)===activeFilter);
   // settled mode: show only win/loss/push; default: show only pending
@@ -5776,127 +6189,250 @@ function render() {
     return a.id-b.id;
   });
 
-  // Settled mini-stats panel
-  const settledPanel = document.getElementById('settled-stats-panel');
-  if (showSettled) {
-    const sp = filtered; // already filtered to settled + activeFilter scope
-    const sw=sp.filter(p=>p.result==='win').length, sl=sp.filter(p=>p.result==='loss').length;
-    const spu=sp.filter(p=>p.result==='push').length;
-    const sd=sw+sl, sacc=sd>0?(sw/sd*100).toFixed(1)+'%':'—';
-    const snu=sp.reduce((s,p)=>s+p.pl,0);
-    const stw=sp.filter(p=>p.result!=='push').reduce((s,p)=>s+p.units,0);
-    const sroi=stw>0?((snu/stw)*100).toFixed(1)+'%':'—';
-    const snuf=snu;
-    const filterLabel = activeFilter==='ALL'?'ALL SOURCES':activeFilter.toUpperCase();
-    settledPanel.style.display='block';
-    settledPanel.innerHTML=`
-      <div class="section-title clean-title" style="font-size:14px;margin-bottom:10px">Settled — ${filterLabel}</div>
-      <div class="stats-grid" style="margin-bottom:0">
-        <div class="stat-box"><div class="stat-box-val positive">${sw}</div><div class="stat-box-label">WINS</div></div>
-        <div class="stat-box"><div class="stat-box-val negative">${sl}</div><div class="stat-box-label">LOSSES</div></div>
-        <div class="stat-box"><div class="stat-box-val neutral">${spu}</div><div class="stat-box-label">PUSHES</div></div>
-        <div class="stat-box"><div class="stat-box-val ${sacc!=='—'?(parseFloat(sacc)>=50?'positive':'negative'):'neutral'}">${sacc}</div><div class="stat-box-label">WIN RATE</div></div>
-        <div class="stat-box"><div class="stat-box-val ${snuf>0?'positive':snuf<0?'negative':'neutral'}">${snuf>=0?'+':''}${snu}u</div><div class="stat-box-label">NET UNITS</div></div>
-        <div class="stat-box"><div class="stat-box-val ${sroi!=='—'?(parseFloat(sroi)>=0?'positive':'negative'):'neutral'}">${sroi}</div><div class="stat-box-label">ROI</div></div>
-      </div>`;
-  } else {
-    settledPanel.style.display='none';
+  const formatUnitsCompact = (value) => {
+    const num = Number(value);
+    if (!Number.isFinite(num)) return '0';
+    return Number.isInteger(num) ? String(num) : num.toFixed(2).replace(/\.?0+$/, '');
+  };
+
+  const visibleWins = filtered.filter(p=>p.result==='win').length;
+  const visibleLosses = filtered.filter(p=>p.result==='loss').length;
+  const visiblePushes = filtered.filter(p=>p.result==='push').length;
+  const visibleDecided = visibleWins + visibleLosses;
+  const visibleNet = filtered.reduce((sum, p) => sum + p.pl, 0);
+  const visibleRisk = filtered.filter(p => p.result !== 'pending' && p.result !== 'push').reduce((sum, p) => sum + p.units, 0);
+  const visibleRoi = visibleRisk > 0 ? ((visibleNet / visibleRisk) * 100).toFixed(1) + '%' : '—';
+  const visibleGames = new Set(detailed.map(p => p.gameKey)).size;
+  const visibleSources = new Set(filtered.map(p => getRankingSourceKey(p))).size;
+  const visibleSports = [...new Set(filtered.map(p => String(p.sport || 'OTHER').toUpperCase()))];
+  const nextStartIso = detailed
+    .filter(p => Number.isFinite(p.fromIso))
+    .sort((a, b) => a.fromIso - b.fromIso)[0]?.startIso || '';
+
+  const filterLabel = activeFilter === 'ALL' ? 'All Sources' : String(activeFilter || 'All Sources');
+  const modeLabel = showSettled ? 'SETTLED VIEW' : 'LIVE VIEW';
+  const headlineLabel = showSettled ? 'RESULTS REPLAY' : 'LIVE BOARD';
+  const titleEl = document.getElementById('home-title');
+  const eyebrowEl = document.getElementById('home-eyebrow');
+  const subEl = document.getElementById('home-sub');
+  const modeChipEl = document.getElementById('home-mode-chip');
+  const filterChipEl = document.getElementById('home-filter-chip');
+  const summaryGridEl = document.getElementById('home-summary-grid');
+  if (eyebrowEl) eyebrowEl.textContent = headlineLabel;
+  if (titleEl) titleEl.textContent = showSettled ? `${filterLabel} settled, without the clutter` : `${filterLabel} board, matchup first`;
+  if (subEl) subEl.textContent = showSettled
+    ? 'Closed picks are grouped by matchup so the record, units, and grading controls are easier to read at a glance.'
+    : 'Pending picks are grouped by matchup with larger sport tags, cleaner source chips, and less noise between games.';
+  if (modeChipEl) modeChipEl.textContent = modeLabel;
+  if (filterChipEl) filterChipEl.textContent = activeFilter === 'ALL' ? 'ALL SOURCES' : String(activeFilter);
+  if (summaryGridEl) {
+    const summaryCards = showSettled
+      ? [
+          { value: filtered.length, label: 'Settled Picks' },
+          { value: visibleGames, label: 'Matchups' },
+          { value: `${visibleWins}-${visibleLosses}${visiblePushes ? '-' + visiblePushes : ''}`, label: 'Record', className: 'small' },
+          { value: `${visibleNet >= 0 ? '+' : ''}${formatUnitsCompact(visibleNet)}u`, label: 'Net Units', className: visibleNet > 0 ? 'positive' : visibleNet < 0 ? 'negative' : 'neutral' },
+          { value: visibleRoi, label: 'ROI', className: visibleRoi !== '—' ? (parseFloat(visibleRoi) >= 0 ? 'positive' : 'negative') : 'neutral' },
+        ]
+      : [
+          { value: filtered.length, label: 'Open Picks' },
+          { value: visibleGames, label: 'Matchups' },
+          { value: visibleSources, label: 'Pick Labels' },
+          { value: nextStartIso ? formatStartLabel(nextStartIso) : 'TBD', label: 'Next Start', className: 'small' },
+          { value: visibleSports.length || 0, label: 'Sports In View' },
+        ];
+    summaryGridEl.innerHTML = summaryCards.map(card => `
+      <div class="home-summary-card">
+        <div class="home-summary-value ${card.className || ''}">${_dailyEscape(card.value)}</div>
+        <div class="home-summary-label">${_dailyEscape(card.label)}</div>
+      </div>
+    `).join('');
   }
 
   const feed = document.getElementById('pick-feed');
   if(!detailed.length) {
-    const msg = showSettled ? 'No settled picks for this filter yet' : 'No pending picks — click SHOW SETTLED to see results';
-    feed.innerHTML=`<div class="pick-feed-empty">${msg}</div>`;
+    const emptyTitle = showSettled
+      ? `No settled picks in ${filterLabel} yet`
+      : `Nothing open in ${filterLabel} right now`;
+    const emptySub = showSettled
+      ? 'As results get graded they will land here as matchup cards with record, units, and source breakdowns.'
+      : 'The board will populate automatically when new picks hit the ledger. If you want the recap view, flip over to settled picks.';
+    feed.innerHTML = `
+      <div class="pick-feed-empty">
+        <div class="home-empty-kicker">${showSettled ? 'Settled View' : 'Live Board'}</div>
+        <div class="home-empty-title">${_dailyEscape(emptyTitle)}</div>
+        <div class="home-empty-sub">${_dailyEscape(emptySub)}</div>
+      </div>`;
   }
   else {
-    const blocks = [];
-    let lastGameKey = '';
-    let currentBubbles = [];
-    function flushBlock(gameTitle, gameMeta) {
-      if (!currentBubbles.length) return;
-      blocks.push(`<div class="game-block">
-        <div class="game-block-header">
-          <span class="game-block-title">${gameTitle}</span>
-          <span class="game-block-meta">${gameMeta}</span>
-        </div>
-        <div class="game-block-picks">${currentBubbles.join('')}</div>
-      </div>`);
-      currentBubbles = [];
-    }
-    let currentTitle = '', currentMeta = '';
-    detailed.forEach((p, idx) => {
-      if (p.gameKey !== lastGameKey) {
-        if (lastGameKey) flushBlock(currentTitle, currentMeta);
-        currentTitle = p.gameLabel || p.pick;
-        currentMeta = `${p.sport} &bull; ${p.date} &bull; ${formatStartLabel(p.startIso)}`;
-        lastGameKey = p.gameKey;
+    const gameMap = new Map();
+    detailed.forEach((p) => {
+      if (!gameMap.has(p.gameKey)) {
+        gameMap.set(p.gameKey, {
+          key: p.gameKey,
+          sport: p.sport || 'OTHER',
+          label: p.gameLabel || p.pick,
+          date: p.date,
+          startIso: p.startIso,
+          sortTs: p.sortTs,
+          picks: [],
+        });
       }
-      const pc = p.pl>0 ? 'positive' : p.pl<0 ? 'negative' : 'neutral';
-      const ps = p.result==='pending' ? '&mdash;' : (p.pl>=0?'+':'')+p.pl+'u';
-      const res = renderPickResultControl(p);
-      const plHtml = showSettled ? `<span class="pick-bubble-pl ${pc}">${ps}</span>` : '';
-      const sourceUpper = String(p.source || '').toUpperCase();
-      const isNbaNewPick = sourceUpper.includes('NBANEW') || sourceUpper.includes('NBA NEW');
-      const sportBadgeClass = isIplPick(p) ? 'pick-bubble-sport is-ipl' : 'pick-bubble-sport';
-      currentBubbles.push(`<div class="pick-bubble">
-        <span class="pick-bubble-source">${getRankingSourceKey(p)}</span>
-        <span class="${sportBadgeClass}">${getSportBadgeText(p.sport)}</span>
-        <span class="pick-bubble-pick">${p.pick}</span>
-        <span class="pick-bubble-odds">${formatOddsOrProbabilityDisplay(p.odds, p.probability)}</span>
-        <span class="pick-bubble-result">${res}</span>
-        ${plHtml}
-        ${isNbaNewPick && p.kelly_edge ? (() => {
-          const ke = p.kelly_edge;
-          const v  = ke.verdict || 'PASS';
-          const verdictLabel = {
-            BET: '🔥 Bet',
-            LEAN: '~ Lean',
-            PASS: '— Pass',
-            FADE: '✗ Fade',
-            NO_LINE: '— No Line',
-            ERROR: '— Error',
-            NO_MODEL_SPREAD: '— No Spread'
-          }[v] || v;
-
-          const edgeRow = (ke.edge_pct != null) ? `
-            <div class="kelly-details">
-              <span>
-                <div class="kd-label">Edge</div>
-                <div class="kd-val">${ke.edge_pct}%</div>
-              </span>
-              <span>
-                <div class="kd-label">Model P</div>
-                <div class="kd-val">${ke.model_prob}%</div>
-              </span>
-              <span>
-                <div class="kd-label">Market P</div>
-                <div class="kd-val">${ke.market_prob}%</div>
-              </span>
-              <span>
-                <div class="kd-label">Kelly Stake</div>
-                <div class="kd-val">${ke.kelly_frac_pct}%</div>
-              </span>
-              <span>
-                <div class="kd-label">Bet Side</div>
-                <div class="kd-val">${ke.bet_side || '—'}</div>
-              </span>
-              ${ke.vegas_spread != null ? `
-              <span>
-                <div class="kd-label">Vegas Line</div>
-                <div class="kd-val">${ke.vegas_spread > 0 ? '+' : ''}${ke.vegas_spread}</div>
-              </span>` : ''}
-            </div>` : '';
-
-          return `
-            <div class="kelly-wrap">
-              <div class="kelly-badge ${v}">${verdictLabel}</div>
-              ${edgeRow}
-            </div>`;
-        })() : ''}
-      </div>`);
+      gameMap.get(p.gameKey).picks.push(p);
     });
-    flushBlock(currentTitle, currentMeta);
-    feed.innerHTML = blocks.join('');
+
+    const sectionMap = new Map();
+    [...gameMap.values()].forEach((game) => {
+      const sportKey = String(game.sport || 'OTHER').toUpperCase();
+      if (!sectionMap.has(sportKey)) {
+        sectionMap.set(sportKey, {
+          sport: sportKey,
+          games: [],
+          sortTs: game.sortTs,
+        });
+      }
+      const section = sectionMap.get(sportKey);
+      section.games.push(game);
+      if (game.sortTs < section.sortTs) section.sortTs = game.sortTs;
+    });
+
+    const sections = [...sectionMap.values()].sort((a, b) => {
+      if (a.sortTs !== b.sortTs) return a.sortTs - b.sortTs;
+      return a.sport.localeCompare(b.sport);
+    });
+
+    feed.innerHTML = sections.map(section => {
+      const sectionPickCount = section.games.reduce((sum, game) => sum + game.picks.length, 0);
+      const sectionMeta = `${sectionPickCount} pick${sectionPickCount === 1 ? '' : 's'} across ${section.games.length} matchup${section.games.length === 1 ? '' : 's'}`;
+      return `
+        <section class="home-feed-section">
+          <div class="home-feed-section-head">
+            <div>
+              <div class="home-feed-section-title">${_dailyEscape(getSportBadgeText(section.sport))}</div>
+              <div class="home-feed-section-meta">${_dailyEscape(sectionMeta)}</div>
+            </div>
+          </div>
+          <div class="home-feed-grid">
+            ${section.games.map(game => {
+              const verdict = _dailyGroupVerdict(game.picks);
+              const statusKey = verdict.key === 'live' ? 'live' : verdict.key;
+              const sourceList = [...new Set(game.picks.map(p => getRankingSourceKey(p)))];
+              const pendingCount = game.picks.filter(p => p.result === 'pending').length;
+              const wins = game.picks.filter(p => p.result === 'win').length;
+              const losses = game.picks.filter(p => p.result === 'loss').length;
+              const pushes = game.picks.filter(p => p.result === 'push').length;
+              const groupUnits = game.picks.reduce((sum, p) => sum + Number(p.units || 0), 0);
+              const groupNet = game.picks.reduce((sum, p) => sum + p.pl, 0);
+              const groupPlClass = groupNet > 0 ? 'positive' : groupNet < 0 ? 'negative' : 'neutral';
+              const groupPlLabel = showSettled ? `${groupNet >= 0 ? '+' : ''}${formatUnitsCompact(groupNet)}u` : `${formatUnitsCompact(groupUnits)}u risk`;
+              const groupCaption = showSettled
+                ? `${wins}W${losses ? ` · ${losses}L` : ''}${pushes ? ` · ${pushes}P` : ''}`
+                : `${pendingCount} open pick${pendingCount === 1 ? '' : 's'} · ${sourceList.length} label${sourceList.length === 1 ? '' : 's'}`;
+              const gameMeta = [game.date, formatStartLabel(game.startIso), `${game.picks.length} pick${game.picks.length === 1 ? '' : 's'}`].filter(Boolean).join(' · ');
+              const sportPillClass = isIplPick({ sport: game.sport }) ? 'home-sport-pill is-ipl' : 'home-sport-pill';
+              const statusText = showSettled
+                ? (verdict.key === 'live' ? 'SETTLED' : verdict.label)
+                : 'OPEN';
+              return `
+                <article class="home-game-card status-${statusKey}">
+                  <div class="home-game-top">
+                    <div>
+                      <div class="home-game-kicker">
+                        <span class="${sportPillClass}">${_dailyEscape(getSportBadgeText(game.sport))}</span>
+                        <span class="home-status-pill ${statusKey}">${_dailyEscape(statusText)}</span>
+                      </div>
+                      <div class="home-game-title">${_dailyEscape(game.label)}</div>
+                      <div class="home-game-meta">${_dailyEscape(gameMeta)}</div>
+                    </div>
+                    <div>
+                      <div class="home-game-pl ${groupPlClass}">${_dailyEscape(groupPlLabel)}</div>
+                      <div class="home-game-caption">${_dailyEscape(groupCaption)}</div>
+                    </div>
+                  </div>
+                  <div class="home-game-picks">
+                    ${game.picks.map(p => {
+                      const pc = p.pl > 0 ? 'positive' : p.pl < 0 ? 'negative' : 'neutral';
+                      const plDisplay = p.result === 'pending' ? `${formatUnitsCompact(p.units)}u risk` : `${p.pl >= 0 ? '+' : ''}${formatUnitsCompact(p.pl)}u`;
+                      const res = renderPickResultControl(p);
+                      const sourceUpper = String(p.source || '').toUpperCase();
+                      const isNbaNewPick = sourceUpper.includes('NBANEW') || sourceUpper.includes('NBA NEW');
+                      const resultLabel = {
+                        pending: 'Awaiting grade',
+                        win: 'Win',
+                        loss: 'Loss',
+                        push: 'Push',
+                      }[p.result] || 'Pending';
+                      return `
+                        <div class="home-pick-card result-${p.result}">
+                          <div class="home-pick-main">
+                            <div class="home-pick-head">
+                              <span class="home-pick-source">${_dailyEscape(getRankingSourceKey(p))}</span>
+                              <span class="home-pick-odds">${_dailyEscape(formatOddsOrProbabilityDisplay(p.odds, p.probability))}</span>
+                              <span class="home-pick-units">${_dailyEscape(formatUnitsCompact(p.units))}u</span>
+                            </div>
+                            <div class="home-pick-text">${_dailyEscape(p.pick || '')}</div>
+                          </div>
+                          <div class="home-pick-actions">
+                            <span class="home-pick-status ${p.result}">${_dailyEscape(resultLabel)}</span>
+                            <div class="home-pick-pl ${pc}">${_dailyEscape(plDisplay)}</div>
+                            <div class="home-pick-control">${res}</div>
+                          </div>
+                          ${isNbaNewPick && p.kelly_edge ? (() => {
+                            const ke = p.kelly_edge;
+                            const v  = ke.verdict || 'PASS';
+                            const verdictLabel = {
+                              BET: '🔥 Bet',
+                              LEAN: '~ Lean',
+                              PASS: '— Pass',
+                              FADE: '✗ Fade',
+                              NO_LINE: '— No Line',
+                              ERROR: '— Error',
+                              NO_MODEL_SPREAD: '— No Spread'
+                            }[v] || v;
+
+                            const edgeRow = (ke.edge_pct != null) ? `
+                              <div class="kelly-details">
+                                <span>
+                                  <div class="kd-label">Edge</div>
+                                  <div class="kd-val">${ke.edge_pct}%</div>
+                                </span>
+                                <span>
+                                  <div class="kd-label">Model P</div>
+                                  <div class="kd-val">${ke.model_prob}%</div>
+                                </span>
+                                <span>
+                                  <div class="kd-label">Market P</div>
+                                  <div class="kd-val">${ke.market_prob}%</div>
+                                </span>
+                                <span>
+                                  <div class="kd-label">Kelly Stake</div>
+                                  <div class="kd-val">${ke.kelly_frac_pct}%</div>
+                                </span>
+                                <span>
+                                  <div class="kd-label">Bet Side</div>
+                                  <div class="kd-val">${ke.bet_side || '—'}</div>
+                                </span>
+                                ${ke.vegas_spread != null ? `
+                                <span>
+                                  <div class="kd-label">Vegas Line</div>
+                                  <div class="kd-val">${ke.vegas_spread > 0 ? '+' : ''}${ke.vegas_spread}</div>
+                                </span>` : ''}
+                              </div>` : '';
+
+                            return `
+                              <div class="kelly-wrap">
+                                <div class="kelly-badge ${v}">${verdictLabel}</div>
+                                ${edgeRow}
+                              </div>`;
+                          })() : ''}
+                        </div>`;
+                    }).join('')}
+                  </div>
+                </article>`;
+            }).join('')}
+          </div>
+        </section>`;
+    }).join('');
   }
 
   // Overall stats
