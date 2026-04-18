@@ -486,6 +486,7 @@
     align-items: flex-end;
     justify-content: space-between;
     gap: 14px;
+    flex-wrap: wrap;
     margin-bottom: 14px;
   }
   .home-filter-title {
@@ -500,6 +501,274 @@
     font-family: 'DM Mono', monospace;
     font-size: 11px;
     letter-spacing: 0.5px;
+    color: var(--muted);
+  }
+  .home-date-wrap {
+    position: relative;
+    min-width: 320px;
+    margin-left: auto;
+  }
+  .home-date-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 14px 16px;
+    border-radius: 20px;
+    border: 1px solid rgba(77,166,255,0.22);
+    background:
+      radial-gradient(120% 140% at 0% 0%, rgba(77,166,255,0.12), transparent 60%),
+      linear-gradient(160deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)),
+      rgba(8,12,18,0.68);
+    color: var(--text);
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    text-align: left;
+    box-shadow: 0 16px 32px rgba(0,0,0,0.18);
+  }
+  .home-date-trigger:hover {
+    transform: translateY(-2px);
+    border-color: rgba(0,229,160,0.32);
+    box-shadow: 0 22px 38px rgba(0,0,0,0.22);
+  }
+  .home-date-trigger.is-open {
+    border-color: rgba(0,229,160,0.34);
+    box-shadow: 0 24px 44px rgba(0,0,0,0.26);
+  }
+  .home-date-trigger-copy {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .home-date-trigger-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .home-date-trigger-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 40px;
+    letter-spacing: 1.1px;
+    line-height: 0.95;
+    color: var(--text);
+  }
+  .home-date-trigger-meta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 32px;
+    padding: 7px 11px;
+    border-radius: 999px;
+    background: rgba(0,229,160,0.12);
+    border: 1px solid rgba(0,229,160,0.18);
+    color: var(--accent);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .home-date-trigger-caret {
+    flex: 0 0 auto;
+    color: var(--accent3);
+    font-size: 15px;
+    transition: transform 0.2s ease;
+  }
+  .home-date-trigger.is-open .home-date-trigger-caret {
+    transform: rotate(180deg);
+  }
+  .home-date-popover {
+    display: none;
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    width: min(360px, calc(100vw - 44px));
+    padding: 18px;
+    border-radius: 24px;
+    border: 1px solid var(--border);
+    background:
+      radial-gradient(140% 140% at 0% 0%, rgba(0,229,160,0.12), transparent 62%),
+      radial-gradient(120% 140% at 100% 0%, rgba(77,166,255,0.14), transparent 65%),
+      linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)),
+      var(--card);
+    box-shadow: 0 28px 56px rgba(0,0,0,0.32);
+    z-index: 130;
+  }
+  .home-date-popover.open { display: block; }
+  .home-date-popover-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .home-date-popover-copy {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .home-date-popover-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .home-date-popover-month {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 31px;
+    letter-spacing: 1px;
+    line-height: 1;
+    color: var(--text);
+  }
+  .home-date-nav-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .home-date-nav {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.04);
+    color: var(--text);
+    font-size: 18px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s, border-color 0.2s, color 0.2s, background 0.2s;
+  }
+  .home-date-nav:hover {
+    transform: translateY(-1px);
+    border-color: rgba(77,166,255,0.4);
+    color: var(--accent3);
+  }
+  .home-date-quick {
+    margin-top: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .home-date-quick-btn {
+    min-height: 34px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.04);
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s, color 0.2s, background 0.2s;
+  }
+  .home-date-quick-btn:hover {
+    transform: translateY(-1px);
+    border-color: rgba(0,229,160,0.28);
+    color: var(--text);
+  }
+  .home-date-quick-btn.active {
+    border-color: rgba(0,229,160,0.26);
+    background: rgba(0,229,160,0.1);
+    color: var(--accent);
+  }
+  .home-date-weekdays,
+  .home-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .home-date-weekdays {
+    margin-top: 16px;
+  }
+  .home-date-weekday {
+    text-align: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .home-calendar-grid {
+    margin-top: 10px;
+  }
+  .home-calendar-day {
+    min-height: 62px;
+    padding: 10px 8px 8px;
+    border-radius: 18px;
+    border: 1px solid rgba(255,255,255,0.07);
+    background: rgba(8,12,18,0.56);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    cursor: pointer;
+    transition: transform 0.18s, border-color 0.18s, background 0.18s, box-shadow 0.18s, opacity 0.18s;
+  }
+  .home-calendar-day:hover {
+    transform: translateY(-1px);
+    border-color: rgba(77,166,255,0.34);
+    background: rgba(15,23,42,0.72);
+  }
+  .home-calendar-day.is-outside {
+    opacity: 0.4;
+  }
+  .home-calendar-day.has-picks {
+    border-color: rgba(77,166,255,0.24);
+  }
+  .home-calendar-day.is-today {
+    box-shadow: inset 0 0 0 1px rgba(255,215,0,0.24);
+  }
+  .home-calendar-day.is-selected {
+    border-color: transparent;
+    background: linear-gradient(135deg, rgba(0,229,160,0.88), rgba(77,166,255,0.94));
+    color: #04131a;
+    box-shadow: 0 14px 28px rgba(0,229,160,0.24);
+    opacity: 1;
+  }
+  .home-calendar-day-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 25px;
+    letter-spacing: 0.8px;
+    line-height: 1;
+  }
+  .home-calendar-day-count {
+    align-self: flex-end;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 7px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    background: rgba(255,255,255,0.06);
+    color: var(--muted);
+  }
+  .home-calendar-day.has-picks .home-calendar-day-count {
+    background: rgba(77,166,255,0.16);
+    color: var(--accent3);
+  }
+  .home-calendar-day.is-selected .home-calendar-day-count {
+    background: rgba(4,19,26,0.16);
+    color: rgba(4,19,26,0.82);
+  }
+  .home-date-popover-foot {
+    margin-top: 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    line-height: 1.5;
     color: var(--muted);
   }
   .home-feed-panel {
@@ -796,6 +1065,36 @@
     background: linear-gradient(180deg, rgba(37,99,235,0.06), transparent 70%), #ffffff;
     box-shadow: 0 12px 28px rgba(15,25,40,0.08);
   }
+  body[data-theme="light"] .home-date-trigger,
+  body[data-theme="light"] .home-date-popover {
+    background:
+      radial-gradient(140% 140% at 0% 0%, rgba(0,168,112,0.08), transparent 62%),
+      radial-gradient(120% 140% at 100% 0%, rgba(37,99,235,0.08), transparent 64%),
+      #ffffff;
+    box-shadow: 0 18px 38px rgba(15,25,40,0.1);
+  }
+  body[data-theme="light"] .home-date-trigger {
+    border-color: rgba(37,99,235,0.14);
+  }
+  body[data-theme="light"] .home-date-trigger-meta {
+    background: rgba(0,168,112,0.08);
+    border-color: rgba(0,168,112,0.14);
+  }
+  body[data-theme="light"] .home-date-nav,
+  body[data-theme="light"] .home-date-quick-btn,
+  body[data-theme="light"] .home-calendar-day {
+    background: rgba(248,250,252,0.96);
+  }
+  body[data-theme="light"] .home-calendar-day {
+    border-color: rgba(15,25,40,0.08);
+  }
+  body[data-theme="light"] .home-calendar-day:hover {
+    background: rgba(239,246,255,0.98);
+  }
+  body[data-theme="light"] .home-calendar-day.has-picks .home-calendar-day-count {
+    background: rgba(37,99,235,0.12);
+    color: #1d4ed8;
+  }
   body[data-theme="light"] .home-game-card:hover {
     box-shadow: 0 18px 34px rgba(15,25,40,0.12);
   }
@@ -818,6 +1117,16 @@
   body[data-theme="light"] .home-pick-odds {
     background: rgba(15,23,42,0.04);
     border-color: rgba(15,23,42,0.06);
+  }
+  .home-hero-chip.date {
+    border-color: rgba(77,166,255,0.28);
+    background: rgba(77,166,255,0.11);
+    color: var(--accent3);
+  }
+  body[data-theme="light"] .home-hero-chip.date {
+    border-color: rgba(37,99,235,0.18);
+    background: rgba(37,99,235,0.09);
+    color: #1d4ed8;
   }
   body[data-theme="light"] .pick-feed-empty {
     background: linear-gradient(180deg, rgba(37,99,235,0.04), transparent 65%), #ffffff;
@@ -1959,6 +2268,14 @@
     #dow-overall-heatmap { gap: 10px; }
     .dow-day-card { min-width: calc(50% - 10px); padding: 18px 14px 14px; }
     .dow-table th, .dow-table td { padding: 8px; font-size: 12px; }
+    .home-date-wrap { width: 100%; min-width: 0; }
+    .home-date-trigger { min-width: 0; }
+    .home-date-trigger-value { font-size: 34px; }
+    .home-date-popover {
+      left: 0;
+      right: auto;
+      width: min(100%, 360px);
+    }
   }
 
   /* ── Kelly Edge Badge ─────────────────────────────────── */
@@ -2845,6 +3162,7 @@
           <div class="home-hero-actions">
             <div class="home-hero-chips">
               <span class="home-hero-chip" id="home-mode-chip">PENDING VIEW</span>
+              <span class="home-hero-chip date" id="home-date-chip">APR 17</span>
               <span class="home-hero-chip muted" id="home-filter-chip">ALL SOURCES</span>
             </div>
             <button id="settled-toggle-btn" class="home-toggle-btn" onclick="toggleShowSettled()">SHOW SETTLED</button>
@@ -2857,7 +3175,25 @@
         <div class="home-filter-head">
           <div>
             <div class="home-filter-title">Filter The Board</div>
-            <div class="home-filter-sub">Jump by sport or source without compressing the feed.</div>
+            <div class="home-filter-sub">Lock the board to one date, then slice it by sport or source.</div>
+          </div>
+          <div class="home-date-wrap" id="home-date-wrap">
+            <button
+              id="home-date-trigger"
+              class="home-date-trigger"
+              type="button"
+              onclick="toggleHomeDatePicker(event)"
+              aria-haspopup="dialog"
+              aria-expanded="false"
+            >
+              <span class="home-date-trigger-copy">
+                <span class="home-date-trigger-label">Board Date</span>
+                <span class="home-date-trigger-value" id="home-date-trigger-value">April 17</span>
+              </span>
+              <span class="home-date-trigger-meta" id="home-date-trigger-meta">Today</span>
+              <span class="home-date-trigger-caret">&#9662;</span>
+            </button>
+            <div id="home-date-popover" class="home-date-popover" role="dialog" aria-label="Select board date"></div>
           </div>
         </div>
         <div class="filter-bar" id="filter-bar"></div>
@@ -3074,10 +3410,14 @@ const ADDED_PICKS_KEY = `pickledger_added_picks_${STORAGE_VERSION}`;
 const DELETED_PICKS_KEY = `pickledger_deleted_pick_ids_${STORAGE_VERSION}`;
 const RESULTS_KEY = `pickledger_results_${STORAGE_VERSION}`;
 const GAME_TIMES_KEY = `pickledger_game_times_${STORAGE_VERSION}`;
+const HOME_DATE_STORAGE_KEY = `pickledger_home_date_${STORAGE_VERSION}`;
 const ONE_TIME_PROPS_CLEANUP_KEY = `pickledger_cleanup_nba_props_${STORAGE_VERSION}`;
 const RESET_CUTOFF_ISO = '2026-03-19T00:00:00.000Z';
 let activeFilter = 'ALL';
 let showSettled = false;
+let homeSelectedDateKey = '';
+let homeCalendarMonthKey = '';
+let homeCalendarOpen = false;
 const LOOPBACK_HOST_RE = /^(?:localhost|127(?:\.\d{1,3}){3}|0\.0\.0\.0)$/i;
 const PICKLEDGER_MODE = 'firebase_direct';
 const RANKINGS_OWNER_EMAIL = 'hdav4873@gmail.com';
@@ -3666,6 +4006,7 @@ async function pullLedgerStateIfNeeded(options = {}) {
 
 function toggleMoreFilters(e) {
   e.stopPropagation();
+  closeHomeDatePicker();
   const dd = document.getElementById('filter-dropdown');
   if (dd) dd.classList.toggle('open');
 }
@@ -3676,6 +4017,14 @@ function closeMoreFilters() {
 document.addEventListener('click', function(e) {
   const wrap = document.querySelector('.filter-more-wrap');
   if (wrap && !wrap.contains(e.target)) closeMoreFilters();
+  const dateWrap = document.getElementById('home-date-wrap');
+  if (dateWrap && !dateWrap.contains(e.target)) closeHomeDatePicker();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeMoreFilters();
+    closeHomeDatePicker();
+  }
 });
 
 function setRefreshStatus(msg, state) {
@@ -4077,20 +4426,274 @@ function missingStartTimesCount() {
   return getPicks().filter(p => p.result === 'pending' && supported.has(p.sport) && !times[String(p.id)]).length;
 }
 
-function parsePickDateLabel(d) {
-  const dt = new Date(`${d} ${new Date().getFullYear()} 00:00:00`);
-  return Number.isNaN(dt.getTime()) ? null : dt;
+function getLocalDateKey(dt) {
+  if (!(dt instanceof Date) || Number.isNaN(dt.getTime())) return '';
+  const year = dt.getFullYear();
+  const month = String(dt.getMonth() + 1).padStart(2, '0');
+  const day = String(dt.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function getLocalMonthKey(dt) {
+  if (!(dt instanceof Date) || Number.isNaN(dt.getTime())) return '';
+  return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function parseLocalDateKey(key) {
+  const match = String(key || '').trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return null;
+  const year = Number(match[1]);
+  const month = Number(match[2]) - 1;
+  const day = Number(match[3]);
+  const dt = new Date(year, month, day);
+  if (dt.getFullYear() !== year || dt.getMonth() !== month || dt.getDate() !== day) return null;
+  return dt;
+}
+
+function parseLocalMonthKey(key) {
+  const match = String(key || '').trim().match(/^(\d{4})-(\d{2})$/);
+  if (!match) return null;
+  const year = Number(match[1]);
+  const month = Number(match[2]) - 1;
+  const dt = new Date(year, month, 1);
+  if (dt.getFullYear() !== year || dt.getMonth() !== month) return null;
+  return dt;
+}
+
+function parsePickDateLabel(value) {
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime()) ? null : new Date(value.getFullYear(), value.getMonth(), value.getDate());
+  }
+  const raw = String(value || '').trim();
+  if (!raw) return null;
+
+  const isoMatch = raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (isoMatch) {
+    const dt = new Date(Number(isoMatch[1]), Number(isoMatch[2]) - 1, Number(isoMatch[3]));
+    return Number.isNaN(dt.getTime()) ? null : dt;
+  }
+
+  const slashMatch = raw.match(/^(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?$/);
+  if (slashMatch) {
+    let year = slashMatch[3] ? Number(slashMatch[3]) : new Date().getFullYear();
+    if (year < 100) year += 2000;
+    const dt = new Date(year, Number(slashMatch[1]) - 1, Number(slashMatch[2]));
+    return Number.isNaN(dt.getTime()) ? null : dt;
+  }
+
+  const currentYear = new Date().getFullYear();
+  const candidates = [`${raw} ${currentYear}`, `${raw}, ${currentYear}`, raw];
+  for (const candidate of candidates) {
+    const dt = new Date(candidate);
+    if (!Number.isNaN(dt.getTime())) {
+      return new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+    }
+  }
+  return null;
+}
+
+function getTodayDateKey() {
+  const now = new Date();
+  return getLocalDateKey(new Date(now.getFullYear(), now.getMonth(), now.getDate()));
+}
+
+function formatHomeDateKey(key, options = { month: 'short', day: 'numeric' }) {
+  const dt = parseLocalDateKey(key);
+  return dt ? dt.toLocaleDateString('en-US', options) : '';
+}
+
+function formatHomeMonthKey(key) {
+  const dt = parseLocalMonthKey(key);
+  return dt ? dt.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : '';
+}
+
+function getPickDateKey(value) {
+  const dt = parsePickDateLabel(value);
+  return dt ? getLocalDateKey(dt) : '';
+}
+
+function buildHomeDateEntries(list) {
+  const counts = new Map();
+  (Array.isArray(list) ? list : []).forEach((pick) => {
+    const key = getPickDateKey(pick && (pick.date || pick.game_date || pick.Date));
+    if (!key) return;
+    const next = counts.get(key) || { key, count: 0 };
+    next.count += 1;
+    counts.set(key, next);
+  });
+  return [...counts.values()].sort((a, b) => a.key.localeCompare(b.key));
+}
+
+function persistHomeSelectedDate() {
+  try {
+    localStorage.setItem(HOME_DATE_STORAGE_KEY, homeSelectedDateKey);
+  } catch {
+    // Ignore storage failures; the in-memory selection is enough.
+  }
+}
+
+function ensureHomeSelectedDate(list) {
+  const entries = buildHomeDateEntries(list);
+  const availableKeys = entries.map((entry) => entry.key);
+  const todayKey = getTodayDateKey();
+  let resetSelection = false;
+  if (!parseLocalDateKey(homeSelectedDateKey) || (availableKeys.length && !availableKeys.includes(homeSelectedDateKey))) {
+    homeSelectedDateKey = availableKeys.includes(todayKey)
+      ? todayKey
+      : (availableKeys[availableKeys.length - 1] || todayKey);
+    persistHomeSelectedDate();
+    resetSelection = true;
+  }
+  const selectedDate = parseLocalDateKey(homeSelectedDateKey) || parseLocalDateKey(todayKey) || new Date();
+  if (resetSelection || !parseLocalMonthKey(homeCalendarMonthKey)) {
+    homeCalendarMonthKey = getLocalMonthKey(selectedDate);
+  }
+  return { entries, availableKeys, todayKey };
+}
+
+function syncHomeDatePickerVisibility() {
+  const trigger = document.getElementById('home-date-trigger');
+  const popover = document.getElementById('home-date-popover');
+  if (trigger) {
+    trigger.classList.toggle('is-open', homeCalendarOpen);
+    trigger.setAttribute('aria-expanded', homeCalendarOpen ? 'true' : 'false');
+  }
+  if (popover) popover.classList.toggle('open', homeCalendarOpen);
+}
+
+function closeHomeDatePicker() {
+  if (!homeCalendarOpen) return;
+  homeCalendarOpen = false;
+  syncHomeDatePickerVisibility();
+}
+
+function toggleHomeDatePicker(event) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  closeMoreFilters();
+  homeCalendarOpen = !homeCalendarOpen;
+  syncHomeDatePickerVisibility();
+}
+
+function shiftHomeCalendarMonth(delta, event) {
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  const baseMonth = parseLocalMonthKey(homeCalendarMonthKey)
+    || parseLocalDateKey(homeSelectedDateKey)
+    || parseLocalDateKey(getTodayDateKey())
+    || new Date();
+  const nextMonth = new Date(baseMonth.getFullYear(), baseMonth.getMonth() + Number(delta || 0), 1);
+  homeCalendarMonthKey = getLocalMonthKey(nextMonth);
+  homeCalendarOpen = true;
+  render();
+}
+
+function setHomeSelectedDateFromKey(key) {
+  const dt = parseLocalDateKey(key);
+  if (!dt) return;
+  homeSelectedDateKey = getLocalDateKey(dt);
+  homeCalendarMonthKey = getLocalMonthKey(dt);
+  homeCalendarOpen = false;
+  persistHomeSelectedDate();
+  render();
+}
+
+function setHomeSelectedDateFromEl(el) {
+  const key = String(el && el.getAttribute('data-date-key') || '').trim();
+  if (!key) return;
+  setHomeSelectedDateFromKey(key);
+}
+
+function buildHomeCalendarPopoverHtml({ selectedDateKey, monthKey, todayKey, dateCounts, latestDateKey, modeLabel }) {
+  const selectedDate = parseLocalDateKey(selectedDateKey) || parseLocalDateKey(todayKey) || new Date();
+  const viewMonth = parseLocalMonthKey(monthKey) || new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
+  const monthStart = new Date(viewMonth.getFullYear(), viewMonth.getMonth(), 1);
+  const gridStart = new Date(monthStart.getFullYear(), monthStart.getMonth(), 1 - monthStart.getDay());
+  const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const selectedCount = Number(dateCounts.get(selectedDateKey) || 0);
+  const selectedLabel = formatHomeDateKey(selectedDateKey, { month: 'long', day: 'numeric' }) || formatTodayPickDateLabel();
+  const pickWord = selectedCount === 1 ? 'pick' : 'picks';
+  const quickButtons = [
+    `<button type="button" class="home-date-quick-btn ${selectedDateKey === todayKey ? 'active' : ''}" onclick="setHomeSelectedDateFromKey('${todayKey}')">Today</button>`,
+  ];
+  if (latestDateKey) {
+    quickButtons.push(
+      `<button type="button" class="home-date-quick-btn ${selectedDateKey === latestDateKey ? 'active' : ''}" onclick="setHomeSelectedDateFromKey('${latestDateKey}')">Latest Slate</button>`
+    );
+  }
+
+  const dayButtons = [];
+  for (let index = 0; index < 42; index += 1) {
+    const day = new Date(gridStart.getFullYear(), gridStart.getMonth(), gridStart.getDate() + index);
+    const key = getLocalDateKey(day);
+    const count = Number(dateCounts.get(key) || 0);
+    const classes = ['home-calendar-day'];
+    if (day.getMonth() !== monthStart.getMonth()) classes.push('is-outside');
+    if (key === todayKey) classes.push('is-today');
+    if (count > 0) classes.push('has-picks');
+    if (key === selectedDateKey) classes.push('is-selected');
+    const dayLabel = formatHomeDateKey(key, { month: 'long', day: 'numeric' });
+    const title = count > 0
+      ? `${dayLabel} · ${count} ${modeLabel} ${count === 1 ? 'pick' : 'picks'}`
+      : `${dayLabel} · No ${modeLabel} picks`;
+    dayButtons.push(`
+      <button
+        type="button"
+        class="${classes.join(' ')}"
+        data-date-key="${key}"
+        onclick="setHomeSelectedDateFromEl(this)"
+        title="${_dailyEscape(title)}"
+      >
+        <span class="home-calendar-day-num">${day.getDate()}</span>
+        <span class="home-calendar-day-count">${count > 0 ? count : '&middot;'}</span>
+      </button>
+    `);
+  }
+
+  return `
+    <div class="home-date-popover-top">
+      <div class="home-date-popover-copy">
+        <div class="home-date-popover-label">Calendar View</div>
+        <div class="home-date-popover-month">${_dailyEscape(formatHomeMonthKey(getLocalMonthKey(monthStart)))}</div>
+      </div>
+      <div class="home-date-nav-wrap">
+        <button type="button" class="home-date-nav" onclick="shiftHomeCalendarMonth(-1, event)" aria-label="Previous month">&#8249;</button>
+        <button type="button" class="home-date-nav" onclick="shiftHomeCalendarMonth(1, event)" aria-label="Next month">&#8250;</button>
+      </div>
+    </div>
+    <div class="home-date-quick">${quickButtons.join('')}</div>
+    <div class="home-date-weekdays">
+      ${weekdays.map((weekday) => `<div class="home-date-weekday">${weekday}</div>`).join('')}
+    </div>
+    <div class="home-calendar-grid">${dayButtons.join('')}</div>
+    <div class="home-date-popover-foot">
+      ${selectedCount > 0
+        ? `${selectedCount} ${modeLabel} ${pickWord} on ${_dailyEscape(selectedLabel)}.`
+        : `No ${modeLabel} picks on ${_dailyEscape(selectedLabel)} in the current view.`}
+    </div>
+  `;
+}
+
+try {
+  const storedHomeDateKey = localStorage.getItem(HOME_DATE_STORAGE_KEY) || '';
+  if (parseLocalDateKey(storedHomeDateKey)) {
+    homeSelectedDateKey = storedHomeDateKey;
+    homeCalendarMonthKey = getLocalMonthKey(parseLocalDateKey(storedHomeDateKey));
+  }
+} catch {
+  // Ignore storage access issues and fall back to today.
 }
 
 function isTodayPickDateLabel(d) {
-  const dt = parsePickDateLabel(d);
-  if (!dt) return false;
-  const now = new Date();
-  return dt.getMonth() === now.getMonth() && dt.getDate() === now.getDate();
+  return getPickDateKey(d) === getTodayDateKey();
 }
 
 function formatTodayPickDateLabel() {
-  return new Date().toLocaleString('en-US', { month: 'short', day: 'numeric' });
+  return formatHomeDateKey(getTodayDateKey());
 }
 
 function formatStartLabel(iso) {
@@ -4639,6 +5242,7 @@ function switchTab(name) {
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
   const activeTab = document.querySelector(`.tab[onclick*="${name}"]`);
   const activePanel = document.getElementById('tab-'+name);
+  if (name !== 'home') closeHomeDatePicker();
   if (activeTab) activeTab.classList.add('active');
   if (activePanel) activePanel.classList.add('active');
   localStorage.setItem('pickledger_tab', name);
@@ -6142,16 +6746,50 @@ function render() {
   syncHomeSettledToggleButton();
 
   // Home feed
-  let filtered=picks;
-  if(activeFilter!=='ALL') filtered=picks.filter(p=>p.sport===activeFilter||p.source===activeFilter||getRankingSourceKey(p)===activeFilter);
+  const { entries: allDateEntries, todayKey } = ensureHomeSelectedDate(picks);
+  let filteredByModeAndFilter = picks;
+  if(activeFilter!=='ALL') filteredByModeAndFilter=picks.filter(p=>p.sport===activeFilter||p.source===activeFilter||getRankingSourceKey(p)===activeFilter);
   // settled mode: show only win/loss/push; default: show only pending
-  if(showSettled) filtered=filtered.filter(p=>p.result!=='pending');
-  else filtered=filtered.filter(p=>p.result==='pending');
+  if(showSettled) filteredByModeAndFilter=filteredByModeAndFilter.filter(p=>p.result!=='pending');
+  else filteredByModeAndFilter=filteredByModeAndFilter.filter(p=>p.result==='pending');
+
+  const visibleDateEntries = buildHomeDateEntries(filteredByModeAndFilter);
+  const visibleDateCountMap = new Map(visibleDateEntries.map((entry) => [entry.key, entry.count]));
+  const latestVisibleDateKey = visibleDateEntries[visibleDateEntries.length - 1]?.key
+    || allDateEntries[allDateEntries.length - 1]?.key
+    || todayKey;
+  const selectedDateLabel = formatHomeDateKey(homeSelectedDateKey) || formatTodayPickDateLabel();
+  const selectedDateLong = formatHomeDateKey(homeSelectedDateKey, { month: 'long', day: 'numeric' }) || selectedDateLabel;
+  const selectedDateUpper = selectedDateLabel.toUpperCase();
+  const selectedDateCount = Number(visibleDateCountMap.get(homeSelectedDateKey) || 0);
+  const dateTriggerValueEl = document.getElementById('home-date-trigger-value');
+  const dateTriggerMetaEl = document.getElementById('home-date-trigger-meta');
+  const datePopoverEl = document.getElementById('home-date-popover');
+  if (dateTriggerValueEl) dateTriggerValueEl.textContent = selectedDateLong;
+  if (dateTriggerMetaEl) {
+    dateTriggerMetaEl.textContent = selectedDateCount > 0
+      ? `${selectedDateCount} ${showSettled ? 'settled' : 'open'} picks`
+      : `No ${showSettled ? 'settled' : 'open'} picks`;
+  }
+  if (datePopoverEl) {
+    datePopoverEl.innerHTML = buildHomeCalendarPopoverHtml({
+      selectedDateKey: homeSelectedDateKey,
+      monthKey: homeCalendarMonthKey || getLocalMonthKey(parseLocalDateKey(homeSelectedDateKey) || new Date()),
+      todayKey,
+      dateCounts: visibleDateCountMap,
+      latestDateKey: latestVisibleDateKey,
+      modeLabel: showSettled ? 'settled' : 'open',
+    });
+  }
+  syncHomeDatePickerVisibility();
+
+  let filtered = filteredByModeAndFilter.filter((pick) => getPickDateKey(pick.date || pick.game_date || pick.Date) === homeSelectedDateKey);
 
   const allGameStartIso = {};
   picks.forEach(p => {
     const gameLabel = deriveGameLabel(p, picks) || p.pick;
-    const key = `${p.sport}::${p.date}::${gameLabel || p.id}`;
+    const pickDateLabel = p.date || p.game_date || p.Date || '';
+    const key = `${p.sport}::${pickDateLabel}::${gameLabel || p.id}`;
     const iso = gameTimes[String(p.id)] || '';
     if (!iso) return;
     const nextTs = new Date(iso).getTime();
@@ -6165,11 +6803,12 @@ function render() {
 
   const detailedSeed = filtered.map(p => {
     const gameLabel = deriveGameLabel(p, picks) || p.pick;
-    const key = `${p.sport}::${p.date}::${gameLabel || p.id}`;
+    const pickDateLabel = p.date || p.game_date || p.Date || '';
+    const key = `${p.sport}::${pickDateLabel}::${gameLabel || p.id}`;
     const ownIso = gameTimes[String(p.id)] || '';
     const resolvedIso = allGameStartIso[key] || ownIso;
     const fromIso = resolvedIso ? new Date(resolvedIso).getTime() : NaN;
-    const fromDate = parsePickDateLabel(p.date);
+    const fromDate = parsePickDateLabel(pickDateLabel);
     const dayTs = fromDate ? fromDate.getTime() : Number.MAX_SAFE_INTEGER;
     return { ...p, gameKey:key, gameLabel, startIso:resolvedIso, fromIso, dayTs };
   });
@@ -6198,9 +6837,10 @@ function render() {
   const visibleWins = filtered.filter(p=>p.result==='win').length;
   const visibleLosses = filtered.filter(p=>p.result==='loss').length;
   const visiblePushes = filtered.filter(p=>p.result==='push').length;
-  const visibleDecided = visibleWins + visibleLosses;
   const visibleNet = filtered.reduce((sum, p) => sum + p.pl, 0);
-  const visibleRisk = filtered.filter(p => p.result !== 'pending' && p.result !== 'push').reduce((sum, p) => sum + p.units, 0);
+  const visibleRisk = filtered
+    .filter(p => p.result !== 'pending' && p.result !== 'push')
+    .reduce((sum, p) => sum + Number(p.units || 0), 0);
   const visibleRoi = visibleRisk > 0 ? ((visibleNet / visibleRisk) * 100).toFixed(1) + '%' : '—';
   const visibleGames = new Set(detailed.map(p => p.gameKey)).size;
   const visibleSources = new Set(filtered.map(p => getRankingSourceKey(p))).size;
@@ -6216,14 +6856,17 @@ function render() {
   const eyebrowEl = document.getElementById('home-eyebrow');
   const subEl = document.getElementById('home-sub');
   const modeChipEl = document.getElementById('home-mode-chip');
+  const dateChipEl = document.getElementById('home-date-chip');
   const filterChipEl = document.getElementById('home-filter-chip');
   const summaryGridEl = document.getElementById('home-summary-grid');
-  if (eyebrowEl) eyebrowEl.textContent = headlineLabel;
-  if (titleEl) titleEl.textContent = showSettled ? `${filterLabel} settled, without the clutter` : `${filterLabel} board, matchup first`;
+  const scopeCopy = activeFilter === 'ALL' ? 'all sources' : filterLabel;
+  if (eyebrowEl) eyebrowEl.textContent = `${headlineLabel} · ${selectedDateUpper}`;
+  if (titleEl) titleEl.textContent = showSettled ? `${selectedDateLong} settled, without the clutter` : `${selectedDateLong} board, matchup first`;
   if (subEl) subEl.textContent = showSettled
-    ? 'Closed picks are grouped by matchup so the record, units, and grading controls are easier to read at a glance.'
-    : 'Pending picks are grouped by matchup with larger sport tags, cleaner source chips, and less noise between games.';
+    ? `Showing ${scopeCopy} that already closed on ${selectedDateLong}, grouped by matchup so the recap stays readable.`
+    : `Showing ${scopeCopy} with open action on ${selectedDateLong}, grouped by matchup so the slate stays clean.`;
   if (modeChipEl) modeChipEl.textContent = modeLabel;
+  if (dateChipEl) dateChipEl.textContent = selectedDateUpper;
   if (filterChipEl) filterChipEl.textContent = activeFilter === 'ALL' ? 'ALL SOURCES' : String(activeFilter);
   if (summaryGridEl) {
     const summaryCards = showSettled
@@ -6252,14 +6895,14 @@ function render() {
   const feed = document.getElementById('pick-feed');
   if(!detailed.length) {
     const emptyTitle = showSettled
-      ? `No settled picks in ${filterLabel} yet`
-      : `Nothing open in ${filterLabel} right now`;
+      ? `No settled picks on ${selectedDateLong}`
+      : `No open picks on ${selectedDateLong}`;
     const emptySub = showSettled
-      ? 'As results get graded they will land here as matchup cards with record, units, and source breakdowns.'
-      : 'The board will populate automatically when new picks hit the ledger. If you want the recap view, flip over to settled picks.';
+      ? `${filterLabel} has nothing closed for this date. Try another day in the calendar or jump back to pending view.`
+      : `${filterLabel} has nothing open for this date. Try another day in the calendar or switch over to settled results.`;
     feed.innerHTML = `
       <div class="pick-feed-empty">
-        <div class="home-empty-kicker">${showSettled ? 'Settled View' : 'Live Board'}</div>
+        <div class="home-empty-kicker">${showSettled ? 'Settled View' : 'Live Board'} · ${_dailyEscape(selectedDateUpper)}</div>
         <div class="home-empty-title">${_dailyEscape(emptyTitle)}</div>
         <div class="home-empty-sub">${_dailyEscape(emptySub)}</div>
       </div>`;
