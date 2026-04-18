@@ -3569,6 +3569,7 @@ def _public_endpoints() -> list[str]:
         "/run-nba-props-model",
         "/run-mlb-model",
         "/run-mlb-new-model",
+        "/run-cannon-daily",
         "/api/ipl",
         "/ask-opus",
         "/job-status?id=<id>",
@@ -3611,6 +3612,77 @@ def run_sportsline_odds(league: str = "NBA") -> dict[str, Any]:
         return {"ok": False, "error": "SportsLine scraper timed out (120s)"}
     except Exception as exc:
         return {"ok": False, "error": str(exc)}
+
+
+def run_cannon_daily(date_str: str | None = None) -> dict[str, Any]:
+    """Scrape Cannon Analytics + SportsLine for the requested slate date and
+    rebuild ``data/cannon_mlb_daily.json`` in-place.
+
+    Returns the freshly built payload (same shape as the JSON file) so the
+    caller can use it immediately without a second disk read.
+
+    Designed to be invoked from the "LOAD CANNON PICKS" button: each click
+    hits the live Cannon + SportsLine endpoints for *today* instead of
+    serving the cached JSON from the scheduled GitHub workflow.
+    """
+    from datetime import date as _date
+
+    try:
+        # Imported lazily so unrelated endpoints don't pay the import cost.
+        from MLBPredictionModel.cannon_daily_adapter import (
+            build_cannon_daily_picks,
+            build_cannon_pick_rows,
+        )
+        from MLBPredictionModel.date_utils import get_mlb_slate_date
+    except Exception as exc:
+        return {"ok": False, "error": f"Cannon adapter import failed: {exc}"}
+
+    slate_date: _date | None = None
+    if date_str:
+        for fmt in ("%Y-%m-%d", "%m/%d/%Y"):
+            try:
+                slate_date = datetime.strptime(date_str, fmt).date()
+                break
+            except ValueError:
+                continue
+    if slate_date is None:
+        try:
+            slate_date = get_mlb_slate_date()
+        except Exception as exc:
+            return {"ok": False, "error": f"Failed to resolve slate date: {exc}"}
+
+    try:
+        games = build_cannon_daily_picks(slate_date=slate_date, edge_threshold=0.0)
+        picks = build_cannon_pick_rows(games=games, slate_date=slate_date, edge_threshold=0.0)
+    except Exception as exc:
+        return {"ok": False, "error": f"Cannon scrape failed: {exc}"}
+
+    payload = {
+        "as_of": slate_date.isoformat(),
+        "slate_date": slate_date.isoformat(),
+        "games": games,
+        "picks": picks,
+    }
+
+    # Persist to the static JSON so non-admin browsers eventually see the
+    # refreshed slate too (GitHub Pages will still serve the older copy until
+    # the scheduled workflow commits this, but a local admin at least keeps
+    # their on-disk copy current).
+    try:
+        out_path = os.path.join(BASE_DIR, "data", "cannon_mlb_daily.json")
+        os.makedirs(os.path.dirname(out_path), exist_ok=True)
+        with open(out_path, "w", encoding="utf-8") as fh:
+            json.dump(payload, fh, indent=2)
+    except Exception as exc:
+        # Non-fatal: the caller still gets the fresh payload in-response.
+        payload["write_warning"] = f"Failed to write cannon_mlb_daily.json: {exc}"
+
+    return {
+        "ok": True,
+        "note": f"Scraped Cannon + SportsLine for {slate_date.isoformat()} "
+                f"({len(games)} games, {len(picks)} picks).",
+        **payload,
+    }
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -3996,6 +4068,17 @@ class Handler(BaseHTTPRequestHandler):
                 self._send_json(200, {"ok": True, "job_id": job_id, "status": "running"})
             else:
                 result = run_mlb_model(date_str, "new")
+                self._send_json(200, result)
+
+        elif path == "/run-cannon-daily":
+            # Always scrape Cannon Analytics + SportsLine live for the given
+            # slate date (defaults to today in America/Chicago) so clicking
+            # "LOAD CANNON PICKS" never serves a stale cached JSON.
+            if async_mode:
+                job_id = _launch_job(run_cannon_daily, date_str)
+                self._send_json(200, {"ok": True, "job_id": job_id, "status": "running"})
+            else:
+                result = run_cannon_daily(date_str)
                 self._send_json(200, result)
 
         elif path == "/run-sportytrader":

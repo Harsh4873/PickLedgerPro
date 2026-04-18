@@ -7498,9 +7498,66 @@ async function loadCannonDailyPicks() {
   if (statusEl) { statusEl.textContent = 'Fetching Cannon daily picks...'; statusEl.className = 'model-status running'; }
 
   try {
-    const resp = await fetch('./data/cannon_mlb_daily.json?t=' + Date.now());
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    const data = await resp.json();
+    let data = null;
+    let liveSource = 'cache';
+
+    // Admin + local backend available: scrape Cannon Analytics + SportsLine
+    // LIVE for today's slate so each click pulls fresh data instead of the
+    // cached JSON produced by the scheduled GitHub workflow.
+    if (typeof isAdminModelRunnerUser === 'function' && isAdminModelRunnerUser()) {
+      let backendHealthy = false;
+      try {
+        backendHealthy = await checkAdminLocalBackendHealth();
+      } catch (_err) {
+        backendHealthy = false;
+      }
+      if (backendHealthy) {
+        try {
+          if (statusEl) { statusEl.textContent = 'Scraping Cannon Analytics live for today...'; statusEl.className = 'model-status running'; }
+          const todayIso = _getTodayIsoDate();
+          const launchResp = await fetch(`${ADMIN_BACKEND_URL}/run-cannon-daily`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ async: true, date: todayIso }),
+            signal: _createTimeoutSignal(MODEL_BACKEND_TIMEOUT_MS),
+          });
+          const launch = await launchResp.json().catch(() => ({}));
+          if (!launchResp.ok || !launch.ok) {
+            throw new Error(launch.error || `HTTP ${launchResp.status}`);
+          }
+          let fresh = launch;
+          if (launch.job_id) {
+            if (statusEl) { statusEl.textContent = 'Cannon scrape running — polling...'; statusEl.className = 'model-status running'; }
+            const job = await _pollJob(launch.job_id, 'cannon-analytics', ADMIN_BACKEND_URL, 180000);
+            if (!job || !job.ok) {
+              throw new Error((job && job.error) || 'Cannon scrape polling failed');
+            }
+            fresh = job;
+          }
+          if (!Array.isArray(fresh.games)) {
+            throw new Error('Live scrape returned no games payload');
+          }
+          data = fresh;
+          liveSource = 'live';
+        } catch (err) {
+          console.warn('[cannon] live scrape failed, falling back to cached JSON:', err);
+          if (statusEl) {
+            statusEl.textContent = 'Live scrape failed (' + (err.message || err) + ') — loading cached JSON...';
+            statusEl.className = 'model-status running';
+          }
+        }
+      }
+    }
+
+    // Fallback (non-admin users, or live scrape failed): read the static JSON
+    // produced by the scheduled GitHub Pages refresh workflow.
+    if (!data) {
+      const resp = await fetch('./data/cannon_mlb_daily.json?t=' + Date.now());
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      data = await resp.json();
+      liveSource = 'cache';
+    }
+
     const games = data.games || [];
 
     if (!games.length) {
@@ -7562,7 +7619,7 @@ async function loadCannonDailyPicks() {
     if (metaEl) {
       // Freshness check: if the JSON's slate_date is older than today (in the
       // user's local time), flag it as stale so the scheduled refresh workflow
-      // gets noticed if it ever misses a run.
+      // gets noticed if it ever misses a run. Live scrapes are never stale.
       var todayStr = (function() {
         var d = new Date();
         var mm = String(d.getMonth() + 1).padStart(2, '0');
@@ -7570,9 +7627,10 @@ async function loadCannonDailyPicks() {
         return d.getFullYear() + '-' + mm + '-' + dd;
       })();
       var asOf = data.as_of || 'today';
-      var stale = data.as_of && data.as_of < todayStr;
+      var isLive = liveSource === 'live';
+      var stale = !isLive && data.as_of && data.as_of < todayStr;
       metaEl.textContent = 'As of ' + asOf + ' \u2022 ' + games.length + ' games' +
-        (stale ? ' \u2022 stale (today is ' + todayStr + ')' : '');
+        (isLive ? ' \u2022 live' : (stale ? ' \u2022 stale (today is ' + todayStr + ')' : ''));
       metaEl.className = 'model-status ' + (stale ? 'error' : 'ok');
     }
 
@@ -7590,7 +7648,8 @@ async function loadCannonDailyPicks() {
 
     var pickCount = cannonPicks.length;
     if (statusEl) {
-      statusEl.textContent = games.length + ' games loaded.' +
+      var prefix = liveSource === 'live' ? 'Scraped live. ' : '';
+      statusEl.textContent = prefix + games.length + ' games loaded.' +
         (pickCount ? ' ' + pickCount + ' picks injected into Model Results.' : '');
       statusEl.className = 'model-status ok';
     }
