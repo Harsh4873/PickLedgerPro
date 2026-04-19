@@ -1258,6 +1258,220 @@
     .pulse-ekg-num { font-size: 52px; }
   }
 
+  /* Pick Log (grading) */
+  .pulse-log {
+    padding: 22px 24px;
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.005)), var(--card);
+  }
+  .pulse-log-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .pulse-log-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.3px;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  .pulse-log-title {
+    margin-top: 6px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 38px;
+    letter-spacing: 1.2px;
+    color: var(--text);
+    line-height: 1;
+  }
+  .pulse-log-sub {
+    margin-top: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+  }
+  .pulse-log-meta {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .pulse-log-meta-item {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .pulse-log-meta-item strong {
+    font-family: 'DM Mono', monospace;
+    font-size: 18px;
+    color: var(--text);
+    letter-spacing: 0.4px;
+  }
+  .pulse-log-meta-item strong.pending { color: var(--accent3); }
+  .pulse-log-meta-item strong.positive { color: var(--win); }
+  .pulse-log-meta-item strong.negative { color: var(--loss); }
+  .pulse-log-meta-item small {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .pulse-log-filters {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .pulse-log-filter-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .pulse-log-chip {
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.03);
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, color 0.2s;
+  }
+  .pulse-log-chip:hover {
+    border-color: rgba(0,229,160,0.32);
+    color: var(--text);
+  }
+  .pulse-log-chip.active {
+    border-color: var(--accent);
+    background: rgba(0,229,160,0.14);
+    color: var(--accent);
+  }
+  .pulse-log-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 560px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+  .pulse-log-rows::-webkit-scrollbar { width: 6px; }
+  .pulse-log-rows::-webkit-scrollbar-track { background: transparent; }
+  .pulse-log-rows::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+  }
+  .pulse-log-row {
+    display: grid;
+    grid-template-columns: 54px 1fr auto auto;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.04);
+    background: rgba(255,255,255,0.02);
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .pulse-log-row:hover {
+    border-color: rgba(0,229,160,0.22);
+    background: rgba(255,255,255,0.035);
+  }
+  .pulse-log-row.result-win { border-left: 3px solid var(--win); }
+  .pulse-log-row.result-loss { border-left: 3px solid var(--loss); }
+  .pulse-log-row.result-push { border-left: 3px solid var(--push); }
+  .pulse-log-row.result-pending { border-left: 3px solid var(--accent3); }
+  .pulse-log-sport {
+    align-self: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 4px 8px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 6px;
+    text-align: center;
+  }
+  .pulse-log-body { min-width: 0; }
+  .pulse-log-source {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.8px;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  .pulse-log-pick {
+    margin-top: 3px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.35;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .pulse-log-date {
+    margin-top: 3px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+  }
+  .pulse-log-pl {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: right;
+    min-width: 72px;
+    letter-spacing: 0.3px;
+  }
+  .pulse-log-pl.positive { color: var(--win); }
+  .pulse-log-pl.negative { color: var(--loss); }
+  .pulse-log-pl.neutral { color: var(--muted); }
+  .pulse-log-control .result-select { min-width: 108px; }
+  .pulse-log-empty {
+    padding: 36px 20px;
+    text-align: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    background: rgba(255,255,255,0.02);
+    border: 1px dashed rgba(255,255,255,0.08);
+    border-radius: 12px;
+  }
+  @media (max-width: 720px) {
+    .pulse-log { padding: 18px 16px; }
+    .pulse-log-title { font-size: 30px; }
+    .pulse-log-row {
+      grid-template-columns: 44px 1fr;
+      grid-template-rows: auto auto;
+      column-gap: 10px;
+      row-gap: 6px;
+    }
+    .pulse-log-pl, .pulse-log-control {
+      grid-column: 1 / -1;
+      justify-self: stretch;
+      text-align: left;
+    }
+    .pulse-log-control { justify-self: end; }
+    .pulse-log-pick { white-space: normal; }
+  }
+
   /* Light theme overrides */
   body[data-theme="light"] .pulse-vital {
     background:
@@ -3700,6 +3914,28 @@
           <div class="pulse-cta-link">TAP FOR LIVE SLATE &rarr;</div>
         </article>
       </section>
+
+      <section class="pulse-log">
+        <div class="pulse-log-head">
+          <div>
+            <div class="pulse-log-eyebrow">PICK LOG</div>
+            <div class="pulse-log-title">Grade &amp; Review</div>
+            <div class="pulse-log-sub">Mark pending picks W/L/P and scrub through the ledger.</div>
+          </div>
+          <div class="pulse-log-meta" id="pulse-log-meta"></div>
+        </div>
+        <div class="pulse-log-filters">
+          <div class="pulse-log-filter-group" id="pulse-log-range" role="tablist" aria-label="Date range">
+            <button type="button" class="pulse-log-chip active" data-pulse-range="pending" onclick="setPulseLogRange('pending')">PENDING</button>
+            <button type="button" class="pulse-log-chip" data-pulse-range="today" onclick="setPulseLogRange('today')">TODAY</button>
+            <button type="button" class="pulse-log-chip" data-pulse-range="7d" onclick="setPulseLogRange('7d')">7 DAYS</button>
+            <button type="button" class="pulse-log-chip" data-pulse-range="30d" onclick="setPulseLogRange('30d')">30 DAYS</button>
+            <button type="button" class="pulse-log-chip" data-pulse-range="all" onclick="setPulseLogRange('all')">ALL</button>
+          </div>
+          <div class="pulse-log-filter-group" id="pulse-log-sports" role="tablist" aria-label="Sport"></div>
+        </div>
+        <div class="pulse-log-rows" id="pulse-log-rows"></div>
+      </section>
     </div>
   </div>
 
@@ -3913,6 +4149,8 @@ const ONE_TIME_PROPS_CLEANUP_KEY = `pickledger_cleanup_nba_props_${STORAGE_VERSI
 const RESET_CUTOFF_ISO = '2026-03-19T00:00:00.000Z';
 let activeFilter = 'ALL';
 let showSettled = false;
+let pulseLogRange = 'pending';  // 'pending' | 'today' | '7d' | '30d' | 'all'
+let pulseLogSport = 'ALL';
 let homeSelectedDateKey = '';
 let homeCalendarMonthKey = '';
 let homeCalendarOpen = false;
@@ -7309,6 +7547,151 @@ function renderHomePulse() {
       ctaSubEl.textContent = `pending picks · ${sportSet.size} sport${sportSet.size === 1 ? '' : 's'}`;
     }
   }
+
+  // ── Pick Log (grading + history) ──
+  const logRowsEl = document.getElementById('pulse-log-rows');
+  const logSportsEl = document.getElementById('pulse-log-sports');
+  const logMetaEl = document.getElementById('pulse-log-meta');
+  const logRangeEl = document.getElementById('pulse-log-range');
+  if (logRowsEl && logSportsEl) {
+    // Reflect active range chip
+    if (logRangeEl) {
+      logRangeEl.querySelectorAll('.pulse-log-chip').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-pulse-range') === pulseLogRange);
+      });
+    }
+
+    // Range filter
+    let pool = picks.slice();
+    const todayDate = new Date(); todayDate.setHours(23, 59, 59, 999);
+    if (pulseLogRange === 'pending') {
+      pool = pool.filter(p => p.result === 'pending');
+    } else if (pulseLogRange === 'today') {
+      const todayKey = getTodayDateKey();
+      pool = pool.filter(p => getPickDateKey(p.date || p.game_date || p.Date) === todayKey);
+    } else if (pulseLogRange === '7d' || pulseLogRange === '30d') {
+      const days = pulseLogRange === '7d' ? 7 : 30;
+      const cutoff = new Date(); cutoff.setHours(0, 0, 0, 0);
+      cutoff.setDate(cutoff.getDate() - (days - 1));
+      pool = pool.filter(p => {
+        const d = parsePickDateLabel(p.date || p.game_date || p.Date);
+        return d && d >= cutoff && d <= todayDate;
+      });
+    }
+
+    // Dynamic sport chips (from the pool)
+    const sportSet = new Set(pool.map(p => String(p.sport || 'OTHER').toUpperCase()));
+    const sportsInView = ['ALL', ...[...sportSet].sort()];
+    if (!sportsInView.includes(pulseLogSport)) pulseLogSport = 'ALL';
+    logSportsEl.innerHTML = sportsInView.map(sp =>
+      `<button type="button" class="pulse-log-chip ${pulseLogSport === sp ? 'active' : ''}" onclick="setPulseLogSport('${_dailyEscape(sp).replace(/'/g, "\\'")}')">${_dailyEscape(sp)}</button>`
+    ).join('');
+
+    // Sport filter
+    let filtered = pool;
+    if (pulseLogSport !== 'ALL') {
+      filtered = pool.filter(p => String(p.sport || 'OTHER').toUpperCase() === pulseLogSport);
+    }
+
+    // Sort: pending first (earliest start), then decided most-recent-first
+    filtered.sort((a, b) => {
+      const aPending = a.result === 'pending';
+      const bPending = b.result === 'pending';
+      if (aPending !== bPending) return aPending ? -1 : 1;
+      const aDate = parsePickDateLabel(a.date || a.game_date || a.Date);
+      const bDate = parsePickDateLabel(b.date || b.game_date || b.Date);
+      if (aPending) {
+        const at = a.start_time ? new Date(a.start_time).getTime() : (aDate ? aDate.getTime() : Infinity);
+        const bt = b.start_time ? new Date(b.start_time).getTime() : (bDate ? bDate.getTime() : Infinity);
+        if (at !== bt) return at - bt;
+      } else {
+        const aT = aDate ? aDate.getTime() : 0;
+        const bT = bDate ? bDate.getTime() : 0;
+        if (aT !== bT) return bT - aT;
+      }
+      return (b.id || 0) - (a.id || 0);
+    });
+
+    // Cap for DOM sanity
+    const CAP = 400;
+    const visible = filtered.slice(0, CAP);
+
+    // Meta counters (based on the full filtered set, not just the capped slice)
+    const visPending = filtered.filter(p => p.result === 'pending').length;
+    const visWins = filtered.filter(p => p.result === 'win').length;
+    const visLosses = filtered.filter(p => p.result === 'loss').length;
+    const visPushes = filtered.filter(p => p.result === 'push').length;
+    const visNet = filtered
+      .filter(p => p.result !== 'pending')
+      .reduce((s, p) => s + (Number(p.pl) || 0), 0);
+    const netClass = visNet > 0 ? 'positive' : visNet < 0 ? 'negative' : '';
+    const netStr = `${visNet >= 0 ? '+' : ''}${visNet.toFixed(2)}u`;
+    const recordStr = `${visWins}-${visLosses}${visPushes ? '-' + visPushes : ''}`;
+    if (logMetaEl) {
+      logMetaEl.innerHTML = `
+        <span class="pulse-log-meta-item"><strong class="${visPending ? 'pending' : ''}">${visPending}</strong> <small>PENDING</small></span>
+        <span class="pulse-log-meta-item"><strong>${_dailyEscape(recordStr)}</strong> <small>RECORD</small></span>
+        <span class="pulse-log-meta-item"><strong class="${netClass}">${_dailyEscape(netStr)}</strong> <small>NET</small></span>
+      `;
+    }
+
+    if (!visible.length) {
+      const hint = pulseLogRange === 'pending'
+        ? 'No pending picks — everything is graded.'
+        : 'No picks match these filters.';
+      logRowsEl.innerHTML = `<div class="pulse-log-empty">${_dailyEscape(hint)}</div>`;
+    } else {
+      logRowsEl.innerHTML = visible.map(p => {
+        const sportKey = String(p.sport || 'OTHER').toUpperCase();
+        let source = p.source || 'Unknown';
+        try { if (typeof getRankingSourceKey === 'function') source = getRankingSourceKey(p) || source; }
+        catch (e) { /* noop */ }
+        let oddsDisplay = '';
+        try {
+          if (typeof formatOddsOrProbabilityDisplay === 'function') {
+            oddsDisplay = formatOddsOrProbabilityDisplay(p.odds, p.probability) || '';
+          } else if (p.odds != null) {
+            oddsDisplay = String(p.odds);
+          }
+        } catch (e) { /* noop */ }
+        const pl = Number(p.pl) || 0;
+        const isPending = p.result === 'pending';
+        const units = Number(p.units) || 0;
+        const plDisplay = isPending
+          ? `${units.toFixed(2)}u risk`
+          : `${pl >= 0 ? '+' : ''}${pl.toFixed(2)}u`;
+        const plCls = isPending ? 'neutral' : pl > 0 ? 'positive' : pl < 0 ? 'negative' : 'neutral';
+        const dateLabel = p.date || '';
+        const control = renderPickResultControl(p);
+        const metaBits = [dateLabel, oddsDisplay, `${units}u`].filter(Boolean).join(' · ');
+        return `
+          <div class="pulse-log-row result-${p.result}">
+            <span class="pulse-log-sport">${_dailyEscape(sportKey)}</span>
+            <div class="pulse-log-body">
+              <div class="pulse-log-source">${_dailyEscape(source)}</div>
+              <div class="pulse-log-pick" title="${_dailyEscape(p.pick || '')}">${_dailyEscape(p.pick || '')}</div>
+              <div class="pulse-log-date">${_dailyEscape(metaBits)}</div>
+            </div>
+            <div class="pulse-log-pl ${plCls}">${_dailyEscape(plDisplay)}</div>
+            <div class="pulse-log-control">${control}</div>
+          </div>`;
+      }).join('');
+    }
+  }
+}
+
+function setPulseLogRange(range) {
+  const allowed = ['pending', 'today', '7d', '30d', 'all'];
+  if (!allowed.includes(range)) return;
+  pulseLogRange = range;
+  // Reset sport filter when range changes, since available sports may shift
+  pulseLogSport = 'ALL';
+  renderHomePulse();
+}
+
+function setPulseLogSport(sport) {
+  pulseLogSport = String(sport || 'ALL');
+  renderHomePulse();
 }
 
 function renderTrends() {
