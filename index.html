@@ -2824,26 +2824,40 @@
     };
   }
 
-  function hasRecordSummaryData(record) {
-    const summary = normalizeRecordSummary(record);
-    return summary.wins > 0 || summary.losses > 0 || summary.pushes > 0;
-  }
+function hasRecordSummaryData(record) {
+  const summary = normalizeRecordSummary(record);
+  return summary.wins > 0 || summary.losses > 0 || summary.pushes > 0;
+}
 
-  function shouldPersistDerivedRecordSummary(canonicalRecord, derivedRecord) {
-    return !hasRecordSummaryData(canonicalRecord) && hasRecordSummaryData(derivedRecord);
-  }
+function getRecordSummaryTotal(record) {
+  const summary = normalizeRecordSummary(record);
+  return summary.wins + summary.losses + summary.pushes;
+}
 
-  function getPreferredDisplayedRecord(derivedRecord, canonicalRecord = window._userRecord) {
-    const normalizedCanonical = normalizeRecordSummary(canonicalRecord);
-    if (window._currentUser && hasRecordSummaryData(normalizedCanonical)) {
-      return normalizedCanonical;
-    }
-    const normalizedDerived = normalizeRecordSummary(derivedRecord);
-    if (hasRecordSummaryData(normalizedDerived)) {
+function shouldPersistDerivedRecordSummary(canonicalRecord, derivedRecord) {
+  return hasRecordSummaryData(derivedRecord) && (
+    !hasRecordSummaryData(canonicalRecord) ||
+    getRecordSummaryTotal(derivedRecord) > getRecordSummaryTotal(canonicalRecord)
+  );
+}
+
+function getPreferredDisplayedRecord(derivedRecord, canonicalRecord = window._userRecord) {
+  const normalizedCanonical = normalizeRecordSummary(canonicalRecord);
+  const normalizedDerived = normalizeRecordSummary(derivedRecord);
+  if (hasRecordSummaryData(normalizedDerived)) {
+    if (!hasRecordSummaryData(normalizedCanonical)) return normalizedDerived;
+    if (getRecordSummaryTotal(normalizedDerived) >= getRecordSummaryTotal(normalizedCanonical)) {
       return normalizedDerived;
     }
+  }
+  if (window._currentUser && hasRecordSummaryData(normalizedCanonical)) {
     return normalizedCanonical;
   }
+  if (hasRecordSummaryData(normalizedDerived)) {
+    return normalizedDerived;
+  }
+  return normalizedCanonical;
+}
 
   function syncVisibleUserRecord(record, options = {}) {
     const summary = normalizeRecordSummary(record);
@@ -2882,6 +2896,7 @@
   window.buildLedgerStateUrl = buildLedgerStateUrl;
   window.normalizeRecordSummary = normalizeRecordSummary;
   window.hasRecordSummaryData = hasRecordSummaryData;
+  window.getRecordSummaryTotal = getRecordSummaryTotal;
   window.shouldPersistDerivedRecordSummary = shouldPersistDerivedRecordSummary;
   window.getPreferredDisplayedRecord = getPreferredDisplayedRecord;
   window.syncVisibleUserRecord = syncVisibleUserRecord;
@@ -2991,9 +3006,12 @@
     try {
       const ref = doc(db, 'users', uid);
       const payload = picksData && typeof picksData === 'object' ? picksData : {};
-      const ledger = payload.ledger && typeof payload.ledger === 'object' ? payload.ledger : payload;
+      const migratedPayload = typeof migrateLedgerStateToStablePickKeys === 'function'
+        ? migrateLedgerStateToStablePickKeys(payload.ledger && typeof payload.ledger === 'object' ? payload.ledger : payload)
+        : payload;
+      const ledger = migratedPayload.ledger && typeof migratedPayload.ledger === 'object' ? migratedPayload.ledger : migratedPayload;
       const results = payload.results && typeof payload.results === 'object'
-        ? payload.results
+        ? (ledger.results && typeof ledger.results === 'object' ? ledger.results : payload.results)
         : (ledger.results && typeof ledger.results === 'object' ? ledger.results : {});
       const startTimes = payload.startTimes && typeof payload.startTimes === 'object'
         ? payload.startTimes
@@ -3003,7 +3021,7 @@
       const savedAt = String(payload.savedAt || ledger.savedAt || new Date().toISOString());
       await setDoc(ref, {
         ledger: { ...ledger, savedAt },
-        picks: Array.isArray(payload.picks) ? payload.picks : (Array.isArray(ledger.addedPicks) ? ledger.addedPicks : []),
+        picks: Array.isArray(ledger.addedPicks) ? ledger.addedPicks : (Array.isArray(payload.picks) ? payload.picks : []),
         results,
         startTimes,
         savedAt,
@@ -3055,11 +3073,14 @@
       if (!secondary) return primary;
 
       const picksById = new Map();
+      const pickOrder = [];
       const ingest = (pick) => {
         if (!pick || typeof pick !== 'object') return;
-        const rawId = pick.id != null ? String(pick.id) : '';
-        const key = rawId || `${pick.source || ''}::${pick.pick || ''}::${pick.date || ''}`;
+        const key = (typeof getStablePickKey === 'function' && getStablePickKey(pick))
+          || (pick.id != null ? String(pick.id) : '')
+          || `${pick.source || ''}::${pick.pick || ''}::${pick.date || ''}`;
         if (!key) return;
+        if (!picksById.has(key)) pickOrder.push(key);
         picksById.set(key, pick);
       };
       secondary.addedPicks.forEach(ingest);
@@ -3069,9 +3090,11 @@
         ...secondary.deletedPickIds,
         ...primary.deletedPickIds,
       ].map(v => String(v)))];
+      const migratedSecondary = migrateResultsToStablePickKeys(secondary.results || {}, [...picksById.values()]).results;
+      const migratedPrimary = migrateResultsToStablePickKeys(primary.results || {}, [...picksById.values()]).results;
       const mergedResults = {
-        ...(secondary.results || {}),
-        ...(primary.results || {}),
+        ...migratedSecondary,
+        ...migratedPrimary,
       };
       const mergedStartTimes = {
         ...(secondary.startTimes || {}),
@@ -3080,7 +3103,7 @@
       const primaryTs = Date.parse(primary.savedAt || primary.lastSynced || '') || 0;
       const secondaryTs = Date.parse(secondary.savedAt || secondary.lastSynced || '') || 0;
       return {
-        addedPicks: [...picksById.values()],
+        addedPicks: pickOrder.map((key) => picksById.get(key)).filter(Boolean),
         deletedPickIds: mergedDeletedIds,
         results: mergedResults,
         startTimes: mergedStartTimes,
@@ -3175,8 +3198,11 @@
             mergedState = mergeLedgerStates(next, mergedState);
           }
         }
-        await setDoc(primaryRef, buildUserDocLedgerPayload(mergedState), { merge: true });
-        return mergedState;
+        const migratedState = typeof migrateLedgerStateToStablePickKeys === 'function'
+          ? migrateLedgerStateToStablePickKeys(mergedState)
+          : mergedState;
+        await setDoc(primaryRef, buildUserDocLedgerPayload(migratedState), { merge: true });
+        return migratedState;
       }
       return null;
     } catch (e) {
@@ -3782,6 +3808,8 @@ const GAME_TIMES_KEY = `pickledger_game_times_${STORAGE_VERSION}`;
 const LEDGER_UPDATED_AT_KEY = `pickledger_ledger_updated_at_${STORAGE_VERSION}`;
 const HOME_DATE_STORAGE_KEY = `pickledger_home_date_${STORAGE_VERSION}`;
 const ONE_TIME_PROPS_CLEANUP_KEY = `pickledger_cleanup_nba_props_${STORAGE_VERSION}`;
+const STABLE_PICK_RESULT_KEY_PREFIX = 'stable:';
+const STABLE_PICK_KEY_MIGRATION_KEY = `pickledger_stable_pick_keys_${STORAGE_VERSION}`;
 const RESET_CUTOFF_ISO = '2026-03-19T00:00:00.000Z';
 let activeFilter = 'ALL';
 let showSettled = false;
@@ -3938,18 +3966,22 @@ function mergeLedgerStates(baseState, overlayState) {
   const order = [];
   const upsertPick = (pick, index) => {
     if (!pick || typeof pick !== 'object') return;
-    const key = pick.id != null
-      ? String(pick.id)
-      : `${pick.source || ''}::${pick.pick || ''}::${pick.date || ''}::${index}`;
+    const key = getStablePickKey(pick)
+      || (pick.id != null
+        ? String(pick.id)
+        : `${pick.source || ''}::${pick.pick || ''}::${pick.date || ''}::${index}`);
     if (!pickMap.has(key)) order.push(key);
     pickMap.set(key, pick);
   };
   base.addedPicks.forEach((pick, index) => upsertPick(pick, index));
   overlay.addedPicks.forEach((pick, index) => upsertPick(pick, base.addedPicks.length + index));
+  const mergedPicks = order.map((key) => pickMap.get(key)).filter(Boolean);
+  const baseResults = migrateResultsToStablePickKeys(base.results, [...PICKS, ...mergedPicks]).results;
+  const overlayResults = migrateResultsToStablePickKeys(overlay.results, [...PICKS, ...mergedPicks]).results;
   return {
-    addedPicks: order.map((key) => pickMap.get(key)).filter(Boolean),
+    addedPicks: mergedPicks,
     deletedPickIds: [...new Set([...base.deletedPickIds, ...overlay.deletedPickIds])],
-    results: { ...base.results, ...overlay.results },
+    results: { ...baseResults, ...overlayResults },
     gameTimes: { ...base.gameTimes, ...overlay.gameTimes },
     savedAt: getNewestLedgerSavedAt(base, overlay),
   };
@@ -4239,13 +4271,21 @@ function getAllLedgerPicks() {
 
 function _coerceLedgerState(state) {
   const source = state && typeof state === 'object' ? state : {};
+  const ledger = source.ledger && typeof source.ledger === 'object' ? source.ledger : source;
   const gameTimes = source.gameTimes && typeof source.gameTimes === 'object'
     ? { ...source.gameTimes }
-    : (source.startTimes && typeof source.startTimes === 'object' ? { ...source.startTimes } : {});
+    : (source.startTimes && typeof source.startTimes === 'object'
+      ? { ...source.startTimes }
+      : (ledger.gameTimes && typeof ledger.gameTimes === 'object'
+        ? { ...ledger.gameTimes }
+        : (ledger.startTimes && typeof ledger.startTimes === 'object' ? { ...ledger.startTimes } : {})));
+  const results = source.results && typeof source.results === 'object'
+    ? { ...source.results }
+    : (ledger.results && typeof ledger.results === 'object' ? { ...ledger.results } : {});
   return {
-    addedPicks: Array.isArray(source.addedPicks) ? source.addedPicks : [],
-    deletedPickIds: Array.isArray(source.deletedPickIds) ? source.deletedPickIds.map(v => String(v)) : [],
-    results: source.results && typeof source.results === 'object' ? { ...source.results } : {},
+    addedPicks: Array.isArray(ledger.addedPicks) ? ledger.addedPicks : [],
+    deletedPickIds: Array.isArray(ledger.deletedPickIds) ? ledger.deletedPickIds.map(v => String(v)) : [],
+    results,
     startTimes: gameTimes,
     gameTimes,
     savedAt: getLedgerSavedAt(source),
@@ -4263,7 +4303,7 @@ function getPicksFromLedgerState(state) {
   return [...PICKS, ...ledger.addedPicks]
     .filter(p => !deleted.has(String(p.id)))
     .map(p => {
-      const result = normalizeResultValue(ledger.results[String(p.id)] || p.result);
+      const result = getResultForPickFromMap(p, ledger.results);
       return { ...p, result, pl: calcPL(p.units, result) };
     });
 }
@@ -4312,6 +4352,7 @@ function shouldPreserveLocalLedgerState(localState, remoteState) {
 window.shouldPreserveLocalLedgerState = shouldPreserveLocalLedgerState;
 
 function buildLedgerStatePayload() {
+  migrateLocalResultKeysToStable({ schedule: false });
   const savedAt = getLocalLedgerSavedAt() || (hasMeaningfulLocalState() ? markLedgerLocalChanged() : new Date().toISOString());
   return {
     version: 1,
@@ -4336,19 +4377,20 @@ function clearLedgerLocalState() {
 function writeLedgerStateToLocalStorage(state, options = {}) {
   if (!state || typeof state !== 'object') return { hasAny: false };
   const mirrorResultsToServer = options.mirrorResultsToServer === true;
-  runOneTimeNbaPropsCleanup(state);
-  const ledger = state.ledger && typeof state.ledger === 'object' ? state.ledger : state;
+  const migratedState = migrateLedgerStateToStablePickKeys(state);
+  runOneTimeNbaPropsCleanup(migratedState);
+  const ledger = migratedState.ledger && typeof migratedState.ledger === 'object' ? migratedState.ledger : migratedState;
   const addedRaw = Array.isArray(ledger.addedPicks) ? ledger.addedPicks : [];
   const added = addedRaw;
   const deleted = Array.isArray(ledger.deletedPickIds) ? ledger.deletedPickIds.map(v => String(v)) : [];
-  const resultsRaw = (state.results && typeof state.results === 'object')
-    ? state.results
+  const resultsRaw = (migratedState.results && typeof migratedState.results === 'object')
+    ? migratedState.results
     : ((ledger.results && typeof ledger.results === 'object') ? ledger.results : {});
   const results = { ...resultsRaw };
-  const gameTimesRaw = (state.gameTimes && typeof state.gameTimes === 'object')
-    ? state.gameTimes
-    : ((state.startTimes && typeof state.startTimes === 'object')
-      ? state.startTimes
+  const gameTimesRaw = (migratedState.gameTimes && typeof migratedState.gameTimes === 'object')
+    ? migratedState.gameTimes
+    : ((migratedState.startTimes && typeof migratedState.startTimes === 'object')
+      ? migratedState.startTimes
       : ((ledger.gameTimes && typeof ledger.gameTimes === 'object')
         ? ledger.gameTimes
         : ((ledger.startTimes && typeof ledger.startTimes === 'object') ? ledger.startTimes : {})));
@@ -4363,7 +4405,7 @@ function writeLedgerStateToLocalStorage(state, options = {}) {
     Object.entries(results).forEach(([id, result]) => saveResultToServer(id, result));
   }
   localStorage.setItem(GAME_TIMES_KEY, JSON.stringify(gameTimes));
-  markLedgerLocalChanged(getLedgerSavedAt(state) || new Date().toISOString());
+  markLedgerLocalChanged(getLedgerSavedAt(migratedState) || new Date().toISOString());
   return { hasAny: true };
 }
 
@@ -4594,7 +4636,22 @@ async function refreshAutoGrades(silent = false) {
     } catch (syncErr) {
       console.warn('[StartTimeSync] live sync failed:', syncErr && syncErr.message ? syncErr.message : syncErr);
     }
-    if (liveSync && liveSync.ran && liveSync.synced > 0) {
+    let liveGrade = { graded: 0, skipped: 0, ran: false };
+    try {
+      liveGrade = await autoGradeOpenPicksForBoardDate(boardKey);
+      const todayKey = getTodayDateKey();
+      if (todayKey && todayKey !== boardKey) {
+        const todayGrade = await autoGradeOpenPicksForBoardDate(todayKey);
+        liveGrade = {
+          graded: (liveGrade.graded || 0) + (todayGrade.graded || 0),
+          skipped: (liveGrade.skipped || 0) + (todayGrade.skipped || 0),
+          ran: Boolean(liveGrade.ran || todayGrade.ran),
+        };
+      }
+    } catch (gradeErr) {
+      console.warn('[AutoGrade] live grade failed:', gradeErr && gradeErr.message ? gradeErr.message : gradeErr);
+    }
+    if (liveSync && liveSync.ran && (liveSync.synced > 0 || liveGrade.graded > 0)) {
       // Re-render so the freshly synced start times replace "TBD" immediately.
       if (typeof renderPickLog === 'function') renderPickLog();
       else if (typeof renderPicks === 'function') renderPicks();
@@ -4602,13 +4659,14 @@ async function refreshAutoGrades(silent = false) {
     }
 
     const boardLabel = formatBoardDateForStatus(liveSync && liveSync.dateKey ? liveSync.dateKey : boardKey);
+    const gradeText = liveGrade && liveGrade.graded > 0 ? `, auto-graded ${liveGrade.graded}` : '';
     let statusMsg;
     if (liveSync && liveSync.ran && liveSync.total > 0) {
-      statusMsg = `Loaded ${gradedCount} graded picks, synced ${liveSync.synced} of ${liveSync.total} start times for ${boardLabel}`;
+      statusMsg = `Loaded ${gradedCount} graded picks, synced ${liveSync.synced} of ${liveSync.total} start times${gradeText} for ${boardLabel}`;
     } else if (liveSync && liveSync.ran) {
-      statusMsg = `Loaded ${gradedCount} graded picks, no supported open picks for ${boardLabel}`;
+      statusMsg = `Loaded ${gradedCount} graded picks${gradeText}, no supported open picks for ${boardLabel}`;
     } else {
-      statusMsg = `Loaded ${gradedCount} graded picks`;
+      statusMsg = `Loaded ${gradedCount} graded picks${gradeText}`;
     }
     setRefreshStatus(statusMsg, 'ok');
   } catch (err) {
@@ -4658,6 +4716,331 @@ function normalizeNumericValue(value) {
 function normalizeOddsValue(value) {
   return normalizeNumericValue(value);
 }
+
+function stableHashString(value) {
+  const text = String(value || '');
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < text.length; i += 1) {
+    hash ^= text.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return (hash >>> 0).toString(36);
+}
+
+function normalizeStableToken(value) {
+  return String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[\u2013\u2014]/g, '-')
+    .replace(/[^a-z0-9.+\-@|:\/\s]/g, '')
+    .replace(/\s+/g, ' ');
+}
+
+function normalizeStableLine(value) {
+  const num = normalizeNumericValue(value);
+  if (num == null) return '';
+  return Number.isInteger(num) ? String(num) : String(num).replace(/0+$/, '').replace(/\.$/, '');
+}
+
+function normalizeStableTeamToken(team, sport) {
+  return normalizeStableToken(normalizeTeamForGameLabel(team, sport));
+}
+
+function getDateKeyInTimeZone(value, timeZone) {
+  const dt = value instanceof Date ? value : new Date(value);
+  if (!(dt instanceof Date) || Number.isNaN(dt.getTime())) return '';
+  const zone = String(timeZone || '').trim();
+  if (!zone) return getLocalDateKey(dt);
+  try {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: zone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).formatToParts(dt).reduce((acc, part) => {
+      if (part.type !== 'literal') acc[part.type] = part.value;
+      return acc;
+    }, {});
+    if (parts.year && parts.month && parts.day) {
+      return `${parts.year}-${parts.month}-${parts.day}`;
+    }
+  } catch {
+    return getLocalDateKey(dt);
+  }
+  return getLocalDateKey(dt);
+}
+
+function getLeagueLocalTimeZone(sport) {
+  const upper = String(sport || '').toUpperCase();
+  if (upper === 'MLB' || upper === 'NBA') return 'America/New_York';
+  return '';
+}
+
+function getLeagueLocalDateKeyFromIso(iso, sport) {
+  const value = String(iso || '').trim();
+  if (!value) return '';
+  return getDateKeyInTimeZone(value, getLeagueLocalTimeZone(sport));
+}
+
+function formatDateKeyForPickLabel(dateKey) {
+  const dt = parseLocalDateKey(dateKey);
+  if (!dt) return '';
+  return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function getPickGameDateKeyLocal(pick) {
+  const sport = String(pick && pick.sport || '').toUpperCase();
+  const startIso = String(pick && (pick.start_time || pick.startTime || pick.game_time || '') || '').trim();
+  const fromStart = getLeagueLocalDateKeyFromIso(startIso, sport);
+  if (fromStart) return fromStart;
+  return getPickDateKey(pick && (pick.game_date_key || pick.game_date || pick.Date || pick.date));
+}
+
+function getStablePickMarketParts(pick) {
+  const sport = String(pick && pick.sport || '').toUpperCase();
+  const pickText = String(pick && pick.pick || '').trim();
+  const head = pickText.split('(', 1)[0].trim();
+  const lower = head.toLowerCase().replace(/[\u2013\u2014]/g, '-').replace(/\s+/g, ' ').trim();
+  const teams = _pickAwayHomePair(pick || {});
+  const matchupKey = _matchupKeyFromTeams(teams.away, teams.home, sport);
+  const withGame = (side) => `${normalizeStableToken(side)}@${matchupKey || 'unknown-game'}`;
+
+  const mTotal = lower.match(/\b(over|under)\s+(\d+(?:\.\d+)?)\b/);
+  const hasTeamTg = lower.endsWith(' tg') && !/^(over|under)\b/.test(lower);
+  if (mTotal && !lower.includes('team total') && !hasTeamTg) {
+    return {
+      market: 'total',
+      line: normalizeStableLine(mTotal[2]),
+      selectedTeamOrSide: withGame(mTotal[1]),
+    };
+  }
+
+  const mTeamTotal = lower.match(/^(.*?)\s+team total\s+(over|under)\s+(\d+(?:\.\d+)?)/);
+  if (mTeamTotal) {
+    const team = normalizeStableTeamToken(mTeamTotal[1], sport);
+    return {
+      market: 'team_total',
+      line: normalizeStableLine(mTeamTotal[3]),
+      selectedTeamOrSide: withGame(`${team}:${mTeamTotal[2]}`),
+    };
+  }
+
+  const mTg = lower.match(/^(.*?)\s+(over|under)\s+(\d+(?:\.\d+)?)\s*tg\b/);
+  if (mTg) {
+    const team = normalizeStableTeamToken(mTg[1], sport);
+    return {
+      market: 'team_goals',
+      line: normalizeStableLine(mTg[3]),
+      selectedTeamOrSide: withGame(`${team}:${mTg[2]}`),
+    };
+  }
+
+  if (/^draw$/.test(lower)) {
+    return { market: 'draw', line: '', selectedTeamOrSide: withGame('draw') };
+  }
+
+  const mBtts = lower.match(/^btts\s+(yes|no)$/);
+  if (mBtts) {
+    return { market: 'btts', line: '', selectedTeamOrSide: withGame(mBtts[1]) };
+  }
+
+  const mSpread = head.match(/^(.*?)\s*([+-]\d+(?:\.\d+)?)\b/);
+  if (mSpread) {
+    return {
+      market: 'spread',
+      line: normalizeStableLine(mSpread[2]),
+      selectedTeamOrSide: withGame(normalizeStableTeamToken(mSpread[1], sport)),
+    };
+  }
+
+  const mMl = lower.match(/^(.*?)\s+ml\b/);
+  if (mMl) {
+    return {
+      market: 'moneyline',
+      line: '',
+      selectedTeamOrSide: withGame(normalizeStableTeamToken(mMl[1], sport)),
+    };
+  }
+
+  const fallbackTeam = head.replace(/\s*[+-]\d+(?:\.\d+)?\s*$/i, '').replace(/\s+ml\b/i, '').trim()
+    || String(pick && pick.team || '').trim();
+  return {
+    market: normalizeStableToken(pick && (pick.market || pick.decision) || 'moneyline'),
+    line: normalizeStableLine(pick && (pick.market_line ?? pick.line)),
+    selectedTeamOrSide: fallbackTeam
+      ? withGame(normalizeStableTeamToken(fallbackTeam, sport))
+      : withGame(normalizeStableToken(head || pickText || 'unknown-side')),
+  };
+}
+
+function getStablePickKey(pick) {
+  if (!pick || typeof pick !== 'object') return '';
+  const sport = String(pick.sport || '').toUpperCase();
+  const market = getStablePickMarketParts(pick);
+  const tuple = [
+    normalizeStableToken(pick.source || ''),
+    sport,
+    getPickGameDateKeyLocal(pick),
+    normalizeStableToken(market.market),
+    normalizeStableLine(market.line),
+    normalizeStableToken(market.selectedTeamOrSide),
+  ];
+  return `${STABLE_PICK_RESULT_KEY_PREFIX}${stableHashString(JSON.stringify(tuple))}`;
+}
+
+function getLegacyResultKeysForPick(pick, index = 0) {
+  const keys = [];
+  const pushKey = (value) => {
+    const key = String(value || '').trim();
+    if (key && !keys.includes(key)) keys.push(key);
+  };
+  pushKey(getStablePickKey(pick));
+  pushKey(pick && pick.id);
+  pushKey(`${pick && pick.source || ''}::${pick && pick.pick || ''}::${pick && pick.date || ''}`);
+  pushKey(`${pick && pick.source || ''}::${pick && pick.pick || ''}::${pick && pick.date || ''}::${index}`);
+  return keys;
+}
+
+function normalizeResultEntry(raw) {
+  const value = raw && typeof raw === 'object'
+    ? (raw.result ?? raw.outcome ?? raw.grade ?? raw.status ?? raw.value)
+    : raw;
+  const result = normalizeResultValue(value);
+  const tsValue = raw && typeof raw === 'object'
+    ? (raw.gradedAt || raw.graded_at || raw.gradedTimestamp || raw.updatedAt || raw.updated_at || raw.savedAt || raw.saved_at || raw.ts)
+    : null;
+  const gradedAtMs = Date.parse(String(tsValue || '')) || 0;
+  return { result, gradedAtMs };
+}
+
+function chooseResultEntry(existing, incoming) {
+  if (!existing) return incoming;
+  if (!incoming) return existing;
+  if (existing.result === incoming.result) {
+    if (existing.gradedAtMs && incoming.gradedAtMs) {
+      return incoming.gradedAtMs < existing.gradedAtMs ? incoming : existing;
+    }
+    return existing;
+  }
+  if (existing.result === 'pending' && incoming.result !== 'pending') return incoming;
+  if (incoming.result === 'pending' && existing.result !== 'pending') return existing;
+  if (existing.gradedAtMs && incoming.gradedAtMs) {
+    return incoming.gradedAtMs < existing.gradedAtMs ? incoming : existing;
+  }
+  if (!existing.gradedAtMs && incoming.gradedAtMs) return incoming;
+  return existing;
+}
+
+function migrateResultsToStablePickKeys(results, picks) {
+  const source = results && typeof results === 'object' ? results : {};
+  const list = Array.isArray(picks) ? picks : [];
+  const lookup = new Map();
+  list.forEach((pick, index) => {
+    getLegacyResultKeysForPick(pick, index).forEach((key) => lookup.set(key, pick));
+  });
+
+  const migrated = new Map();
+  const orphans = {};
+  let changed = false;
+  const mergeInto = (key, raw) => {
+    const entry = normalizeResultEntry(raw);
+    const current = migrated.get(key);
+    migrated.set(key, chooseResultEntry(current, entry));
+  };
+
+  Object.entries(source).forEach(([rawKey, rawValue]) => {
+    const key = String(rawKey);
+    const pick = lookup.get(key);
+    if (pick) {
+      const stableKey = getStablePickKey(pick);
+      if (stableKey) {
+        if (stableKey !== key) changed = true;
+        mergeInto(stableKey, rawValue);
+        return;
+      }
+    }
+    if (key.startsWith(STABLE_PICK_RESULT_KEY_PREFIX)) {
+      mergeInto(key, rawValue);
+    } else {
+      orphans[key] = rawValue;
+    }
+  });
+
+  list.forEach((pick) => {
+    const embedded = normalizeResultValue(pick && pick.result);
+    if (embedded === 'pending') return;
+    const stableKey = getStablePickKey(pick);
+    if (stableKey) mergeInto(stableKey, embedded);
+  });
+
+  const out = {};
+  migrated.forEach((entry, key) => {
+    out[key] = entry.result;
+  });
+  Object.entries(orphans).forEach(([key, value]) => {
+    out[key] = value;
+  });
+  return { results: out, changed };
+}
+
+function getResultForPickFromMap(pick, results) {
+  const source = results && typeof results === 'object' ? results : {};
+  const keys = getLegacyResultKeysForPick(pick);
+  let sawPending = false;
+  for (const key of keys) {
+    if (!Object.prototype.hasOwnProperty.call(source, key)) continue;
+    const result = normalizeResultEntry(source[key]).result;
+    if (result !== 'pending') return result;
+    sawPending = true;
+  }
+  return sawPending ? 'pending' : normalizeResultValue(pick && pick.result);
+}
+
+function pruneResultAliasesForPick(results, pick, keepKey) {
+  if (!results || typeof results !== 'object' || !pick) return results;
+  getLegacyResultKeysForPick(pick).forEach((key) => {
+    if (key && key !== keepKey && Object.prototype.hasOwnProperty.call(results, key)) {
+      delete results[key];
+    }
+  });
+  return results;
+}
+
+function migrateLedgerStateToStablePickKeys(state) {
+  const ledger = _coerceLedgerState(state);
+  const allPicks = [...PICKS, ...ledger.addedPicks].filter((p) => (
+    !ledger.deletedPickIds.includes(String(p && p.id))
+  ));
+  const migrated = migrateResultsToStablePickKeys(ledger.results, allPicks);
+  return {
+    ...ledger,
+    results: migrated.results,
+    startTimes: ledger.startTimes,
+    gameTimes: ledger.gameTimes,
+  };
+}
+
+function migrateLocalResultKeysToStable(options = {}) {
+  let rawResults = {};
+  try {
+    rawResults = JSON.parse(localStorage.getItem(RESULTS_KEY) || '{}');
+  } catch {
+    rawResults = {};
+  }
+  const migrated = migrateResultsToStablePickKeys(rawResults, getAllLedgerPicks());
+  if (migrated.changed || options.force) {
+    localStorage.setItem(RESULTS_KEY, JSON.stringify(migrated.results));
+    markLedgerLocalChanged();
+    if (options.schedule !== false && typeof scheduleLedgerStateSync === 'function') scheduleLedgerStateSync();
+  }
+  try {
+    localStorage.setItem(STABLE_PICK_KEY_MIGRATION_KEY, '1');
+  } catch {
+    // The migration is idempotent; inability to set the marker is non-fatal.
+  }
+  return migrated;
+}
+
 function formatOddsDisplay(odds) {
   const num = normalizeOddsValue(odds);
   if (num == null) return '—';
@@ -4835,8 +5218,15 @@ function deletePick(id) {
   saveAddedPicks(keptAdded);
 
   const results = getResults();
-  if (Object.prototype.hasOwnProperty.call(results, idStr)) {
-    delete results[idStr];
+  const resultKeys = previousPick ? getLegacyResultKeysForPick(previousPick) : [idStr];
+  let removedResult = false;
+  resultKeys.forEach((key) => {
+    if (Object.prototype.hasOwnProperty.call(results, key)) {
+      delete results[key];
+      removedResult = true;
+    }
+  });
+  if (removedResult) {
     saveResultToServer(idStr, 'deleted');
     localStorage.setItem(RESULTS_KEY, JSON.stringify(results));
   }
@@ -4872,7 +5262,10 @@ function setResult(id,r) {
   const previousResult = normalizeResultValue(previousPick && previousPick.result);
   const nextResult = normalizeResultValue(r);
   const o=getResults();
-  o[id]=nextResult;
+  const stableKey = previousPick ? getStablePickKey(previousPick) : '';
+  const resultKey = stableKey || idStr;
+  pruneResultAliasesForPick(o, previousPick, resultKey);
+  o[resultKey]=nextResult;
   localStorage.setItem(RESULTS_KEY,JSON.stringify(o));
   markLedgerLocalChanged();
   if (previousResult !== nextResult) {
@@ -5230,7 +5623,7 @@ function setActiveFilterFromEl(el) {
 function getPicks() {
   const ov = getResults();
   return getAllLedgerPicks().map(p => {
-    const r = normalizeResultValue(ov[p.id] || p.result);
+    const r = getResultForPickFromMap(p, ov);
     return { ...p, result: r, pl: calcPL(p.units, r) };
   });
 }
@@ -5880,9 +6273,9 @@ function extractGameKey(pickText, sport) {
     const parts = inside.split(/\s+(?:vs|@)\s+/i).map(t => t.trim()).filter(Boolean);
     if (parts.length !== 2) return inside;
     if (String(sport || '').toUpperCase() === 'MLB') {
-      return parts.map(t => normalizeMLBTeam(t)).sort((a, b) => a.localeCompare(b)).join(' vs ');
+      return parts.map(t => normalizeMLBTeam(t)).join(' vs ');
     }
-    return parts.sort((a,b) => a.localeCompare(b)).join(' vs ');
+    return parts.join(' vs ');
   }
   return inside;
 }
@@ -5984,12 +6377,12 @@ function normalizeTeamForGameLabel(name, sport) {
 function matchupLabelFromTeams(teamA, teamB, sport) {
   const parts = [teamA, teamB].map(team => normalizeTeamForGameLabel(team, sport)).filter(Boolean);
   if (parts.length !== 2) return '';
-  return parts.sort((a, b) => a.localeCompare(b)).join(' vs ');
+  return `${parts[0]} vs ${parts[1]}`;
 }
 
 function deriveGameLabel(p, allPicks) {
   const sport = String(p && p.sport || '').toUpperCase();
-  const explicit = String(p && (p.matchup || p.game || p._gameKey) || '').trim();
+  const explicit = String(p && (p.matchup || p.game) || '').trim();
   if (/\s+(?:vs|@)\s+/i.test(explicit)) {
     const explicitParts = explicit.split(/\s+(?:vs|@)\s+/i).map(s => s.trim()).filter(Boolean);
     const explicitLabel = matchupLabelFromTeams(explicitParts[0], explicitParts[1], sport);
@@ -6004,7 +6397,19 @@ function deriveGameLabel(p, allPicks) {
     if (extractedLabel) return extractedLabel;
     return extracted;
   }
+  const fallbackKey = String(p && p._gameKey || '').trim();
+  if (fallbackKey) return fallbackKey;
   return inferNbaPropsMatchupLabel(p, allPicks || getPicks()) || '';
+}
+
+function deriveGameGroupKey(p, allPicks) {
+  const sport = String(p && p.sport || 'OTHER').toUpperCase();
+  const dateKey = getPickGameDateKeyLocal(p) || getPickDateKey(p && (p.date || p.game_date || p.Date)) || '';
+  const teams = _pickAwayHomePair(p || {});
+  const matchupKey = _matchupKeyFromTeams(teams.away, teams.home, sport);
+  if (matchupKey) return `${sport}::${dateKey}::${matchupKey}`;
+  const label = deriveGameLabel(p, allPicks || []);
+  return `${sport}::${dateKey}::${normalizeStableToken(label || (p && p.id) || '')}`;
 }
 
 const NBA_OPP_ABBR_TO_TEAM_NAMES = {
@@ -6061,6 +6466,25 @@ const ESPN_SPORT_ENDPOINTS = {
 };
 
 let _lastStartTimeSyncForBoard = { dateKey: '', synced: 0, total: 0, unmatched: 0, ran: false };
+const _espnScoreboardCache = new Map();
+const ESPN_FINAL_STATUS_NAMES = new Set(['STATUS_FINAL', 'STATUS_FULL_TIME']);
+const ESPN_VOID_STATUS_NAMES = new Set(['STATUS_POSTPONED', 'STATUS_SUSPENDED', 'STATUS_CANCELED', 'STATUS_CANCELLED']);
+const TEAM_ABBREVIATION_ALIASES_JS = {
+  WAS: ['WSH'],
+  WSH: ['WAS'],
+  NOP: ['NO'],
+  NO: ['NOP'],
+  GSW: ['GS'],
+  GS: ['GSW'],
+  PHX: ['PHO'],
+  PHO: ['PHX'],
+  SAS: ['SA'],
+  SA: ['SAS'],
+  NYK: ['NY'],
+  NY: ['NYK'],
+  BKN: ['BRK'],
+  BRK: ['BKN'],
+};
 
 function _boardDateKeyToYyyymmdd(dateKey) {
   const dt = parseLocalDateKey(dateKey);
@@ -6069,6 +6493,20 @@ function _boardDateKeyToYyyymmdd(dateKey) {
   const m = String(dt.getMonth() + 1).padStart(2, '0');
   const d = String(dt.getDate()).padStart(2, '0');
   return `${y}${m}${d}`;
+}
+
+function _pickShouldJoinEspnBoardDate(pick, boardDateKey) {
+  const key = String(boardDateKey || '').trim();
+  const pickKey = getPickDateKey(pick && (pick.date || pick.game_date || pick.Date));
+  if (!key || !pickKey) return pickKey === key;
+  if (pickKey === key) return true;
+  const sport = String(pick && pick.sport || '').toUpperCase();
+  if (sport !== 'MLB' && sport !== 'NBA') return false;
+  const boardDt = parseLocalDateKey(key);
+  const pickDt = parseLocalDateKey(pickKey);
+  if (!boardDt || !pickDt) return false;
+  const diffDays = Math.abs(boardDt.getTime() - pickDt.getTime()) / 86400000;
+  return diffDays <= 1;
 }
 
 // Canonical, direction-agnostic matchup key used on BOTH sides of the join:
@@ -6102,30 +6540,426 @@ function _pickAwayHomePair(pick) {
 }
 
 async function _fetchEspnScoreboard(sport, league, yyyymmdd) {
+  const cacheKey = `${sport}/${league}/${yyyymmdd}`;
+  if (_espnScoreboardCache.has(cacheKey)) return _espnScoreboardCache.get(cacheKey);
   const url = `https://site.api.espn.com/apis/site/v2/sports/${sport}/${league}/scoreboard?dates=${yyyymmdd}`;
   const resp = await fetch(url, { cache: 'no-store', signal: _createTimeoutSignal(8000) });
   if (!resp.ok) throw new Error(`ESPN ${sport}/${league} ${yyyymmdd} -> HTTP ${resp.status}`);
-  return resp.json();
+  const payload = await resp.json();
+  _espnScoreboardCache.set(cacheKey, payload);
+  return payload;
 }
 
-function _buildEspnStartTimeIndex(payload, sport) {
-  const out = new Map();
+function _espnCompetitorName(comp) {
+  const team = comp && comp.team ? comp.team : {};
+  return String(team.displayName || team.shortDisplayName || team.name || team.abbreviation || '').trim();
+}
+
+function _espnCompetitorFields(comp) {
+  const team = comp && comp.team ? comp.team : {};
+  return [
+    team.displayName,
+    team.shortDisplayName,
+    team.name,
+    team.abbreviation,
+  ].map(v => String(v || '').trim()).filter(Boolean);
+}
+
+function _teamCodeAliasesJs(value) {
+  const code = String(value || '').replace(/[^A-Za-z]/g, '').toUpperCase();
+  if (!code) return new Set();
+  return new Set([code, ...(TEAM_ABBREVIATION_ALIASES_JS[code] || [])]);
+}
+
+function _setsOverlap(a, b) {
+  for (const value of a) {
+    if (b.has(value)) return true;
+  }
+  return false;
+}
+
+function _teamMatchesEspnCompetitor(teamText, comp, sport) {
+  const normalizedTeam = normalizeStableTeamToken(teamText, sport);
+  if (!normalizedTeam) return false;
+
+  const compCodeAliases = _teamCodeAliasesJs(comp && comp.team && comp.team.abbreviation);
+  if (_setsOverlap(_teamCodeAliasesJs(teamText), compCodeAliases)) return true;
+
+  for (const field of _espnCompetitorFields(comp)) {
+    const normalizedField = normalizeStableTeamToken(field, sport);
+    if (normalizedTeam === normalizedField) return true;
+    if (normalizedTeam.length > 3 && normalizedField.includes(normalizedTeam)) return true;
+    if (normalizedField.length > 2 && normalizedTeam.includes(normalizedField)) return true;
+  }
+
+  const tokens = normalizedTeam.split(' ').filter(Boolean);
+  const last = tokens[tokens.length - 1] || '';
+  if (last.length >= 3) {
+    for (const field of _espnCompetitorFields(comp)) {
+      const fieldTokens = normalizeStableTeamToken(field, sport).split(' ').filter(Boolean);
+      if (fieldTokens.includes(last)) return true;
+    }
+  }
+
+  return false;
+}
+
+function _buildEspnGameIndex(payload, sport) {
+  const games = [];
   const events = Array.isArray(payload && payload.events) ? payload.events : [];
   events.forEach((event) => {
     const comp = (event && event.competitions && event.competitions[0]) || null;
     if (!comp) return;
     const competitors = Array.isArray(comp.competitors) ? comp.competitors : [];
     if (competitors.length !== 2) return;
-    const [c0, c1] = competitors;
-    const n0 = c0 && c0.team ? (c0.team.displayName || c0.team.shortDisplayName || c0.team.name || '') : '';
-    const n1 = c1 && c1.team ? (c1.team.displayName || c1.team.shortDisplayName || c1.team.name || '') : '';
-    const iso = String(comp.date || event.date || '').trim();
-    if (!iso || !n0 || !n1) return;
-    const key = _matchupKeyFromTeams(n0, n1, sport);
-    if (!key) return;
-    out.set(key, iso);
+    const parsed = competitors.map((competitor) => {
+      const score = Number(competitor && competitor.score);
+      return {
+        raw: competitor,
+        score: Number.isFinite(score) ? score : 0,
+        homeAway: String(competitor && competitor.homeAway || '').toLowerCase(),
+      };
+    });
+    const away = parsed.find(c => c.homeAway === 'away') || parsed[0];
+    const home = parsed.find(c => c.homeAway === 'home') || parsed[1];
+    const awayName = _espnCompetitorName(away.raw);
+    const homeName = _espnCompetitorName(home.raw);
+    const status = comp.status && comp.status.type ? comp.status.type : {};
+    const statusName = String(status.name || status.type || '').toUpperCase();
+    const statusState = String(status.state || '').toUpperCase();
+    const statusDescription = String(status.description || status.detail || status.shortDetail || statusName || '').trim();
+    const startTime = String(comp.date || event.date || '').trim();
+    const matchKey = _matchupKeyFromTeams(awayName, homeName, sport);
+    games.push({
+      competitors: parsed,
+      away,
+      home,
+      awayName,
+      homeName,
+      label: matchupLabelFromTeams(awayName, homeName, sport),
+      matchKey,
+      startTime,
+      eventId: String(event && event.id || ''),
+      statusName,
+      statusState,
+      statusDescription,
+      completed: Boolean(status.completed),
+    });
+  });
+  return games;
+}
+
+function _buildEspnStartTimeIndex(payload, sport) {
+  const out = new Map();
+  _buildEspnGameIndex(payload, sport).forEach((game) => {
+    if (game.matchKey && game.startTime) out.set(game.matchKey, game.startTime);
   });
   return out;
+}
+
+function _findEspnGameForPick(games, pick) {
+  const sport = String(pick && pick.sport || '').toUpperCase();
+  const teams = _pickAwayHomePair(pick || {});
+  const matchKey = _matchupKeyFromTeams(teams.away, teams.home, sport);
+  if (matchKey) {
+    const matched = games.find(game => game.matchKey === matchKey);
+    if (matched) return matched;
+  }
+
+  const matchup = String(pick && pick.pick || '').match(/\(([^)]+)\)/);
+  if (!matchup) return null;
+  const parts = matchup[1].split(/\s+(?:vs|@)\s+/i).map(s => s.trim()).filter(Boolean);
+  if (parts.length !== 2) return null;
+  return games.find((game) => {
+    const [a, b] = parts;
+    const direct = _teamMatchesEspnCompetitor(a, game.competitors[0].raw, sport)
+      && _teamMatchesEspnCompetitor(b, game.competitors[1].raw, sport);
+    const reverse = _teamMatchesEspnCompetitor(a, game.competitors[1].raw, sport)
+      && _teamMatchesEspnCompetitor(b, game.competitors[0].raw, sport);
+    return direct || reverse;
+  }) || null;
+}
+
+function _resolveTeamScoreForAutoGrade(game, teamText, pick) {
+  const sport = String(pick && pick.sport || '').toUpperCase();
+  for (let idx = 0; idx < game.competitors.length; idx += 1) {
+    const competitor = game.competitors[idx];
+    if (_teamMatchesEspnCompetitor(teamText, competitor.raw, sport)) {
+      const opponent = game.competitors[1 - idx];
+      return [competitor.score, opponent.score];
+    }
+  }
+  return null;
+}
+
+function _autoGradeGameIsFinal(game) {
+  return Boolean(game && (game.completed || ESPN_FINAL_STATUS_NAMES.has(game.statusName)));
+}
+
+function _autoGradeGameIsVoid(game) {
+  return Boolean(game && ESPN_VOID_STATUS_NAMES.has(game.statusName));
+}
+
+function _autoGradeResultCode(result) {
+  return { win: 'W', loss: 'L', push: 'P' }[normalizeResultValue(result)] || 'P';
+}
+
+function gradePickFromEspnGame(pick, game) {
+  const pickText = String(pick && pick.pick || '');
+  const head = pickText.split('(', 1)[0].trim();
+  const lower = head.toLowerCase();
+
+  const totalPoints = game.competitors[0].score + game.competitors[1].score;
+
+  // Full-game totals (Over/Under X)
+  const mTotal = lower.match(/\b(over|under)\s+(\d+(?:\.\d+)?)\b/);
+  // Skip if "team total" or team-prefixed TG (e.g. "senators over 3 tg"),
+  // but allow game-level TG (e.g. "over 5.5 tg" where over/under is first word)
+  const hasTeamTg = lower.endsWith(' tg') && !/^(over|under)\b/.test(lower);
+  if (mTotal && !lower.includes('team total') && !hasTeamTg) {
+    const side = mTotal[1];
+    const line = Number(mTotal[2]);
+    if (totalPoints === line) return 'push';
+    if (side === 'over') return totalPoints > line ? 'win' : 'loss';
+    return totalPoints < line ? 'win' : 'loss';
+  }
+
+  // Team total over/under, e.g. "Korea Team Total Over 9.5"
+  const mTeamTotal = lower.match(/^(.*?)\s+team total\s+(over|under)\s+(\d+(?:\.\d+)?)/);
+  if (mTeamTotal) {
+    const teamLabel = mTeamTotal[1].trim();
+    const side = mTeamTotal[2];
+    const line = Number(mTeamTotal[3]);
+    const resolved = _resolveTeamScoreForAutoGrade(game, teamLabel, pick);
+    if (resolved === null) return 'pending';
+    const teamScore = resolved[0];
+    if (teamScore === line) return 'push';
+    if (side === 'over') return teamScore > line ? 'win' : 'loss';
+    return teamScore < line ? 'win' : 'loss';
+  }
+
+  // Team goals shorthand, e.g. "Senators Over 3 TG"
+  const mTg = lower.match(/^(.*?)\s+(over|under)\s+(\d+(?:\.\d+)?)\s*tg\b/);
+  if (mTg) {
+    const teamLabel = mTg[1].trim();
+    const side = mTg[2];
+    const line = Number(mTg[3]);
+    const resolved = _resolveTeamScoreForAutoGrade(game, teamLabel, pick);
+    if (resolved === null) return 'pending';
+    const teamScore = resolved[0];
+    if (teamScore === line) return 'push';
+    if (side === 'over') return teamScore > line ? 'win' : 'loss';
+    return teamScore < line ? 'win' : 'loss';
+  }
+
+  // Skip 1H / partial-game markets for now.
+  if (/\b1h\b|first half|period/.test(lower)) {
+    return 'pending';
+  }
+
+  // Draw pick (soccer): "Draw (Team A vs Team B)"
+  if (/^draw$/.test(lower)) {
+    const c0 = game.competitors[0].score;
+    const c1 = game.competitors[1].score;
+    return c0 === c1 ? 'win' : 'loss';
+  }
+
+  // Both Teams to Score: "BTTS Yes" or "BTTS No"
+  const mBtts = lower.match(/^btts\s+(yes|no)$/);
+  if (mBtts) {
+    const c0 = game.competitors[0].score;
+    const c1 = game.competitors[1].score;
+    const bothScored = c0 > 0 && c1 > 0;
+    const side = mBtts[1];
+    if (side === 'yes') return bothScored ? 'win' : 'loss';
+    return !bothScored ? 'win' : 'loss';
+  }
+
+  // Spread / run line / puck line, e.g. "Knicks -11.5"
+  const mSpread = head.match(/^(.*?)\s*([+-]\d+(?:\.\d+)?)\b/);
+  if (mSpread) {
+    const teamLabel = mSpread[1].trim();
+    const spread = Number(mSpread[2]);
+    if (!Number.isFinite(spread)) return 'pending';
+    const resolved = _resolveTeamScoreForAutoGrade(game, teamLabel, pick);
+    if (resolved === null) return 'pending';
+    const [teamScore, oppScore] = resolved;
+    const adj = teamScore + spread;
+    if (Math.abs(adj - oppScore) < 1e-9) return 'push';
+    return adj > oppScore ? 'win' : 'loss';
+  }
+
+  // Moneyline explicit: "Team ML"
+  const mMl = lower.match(/^(.*?)\s+ml\b/);
+  if (mMl) {
+    const teamLabel = mMl[1].trim();
+    const resolved = _resolveTeamScoreForAutoGrade(game, teamLabel, pick);
+    if (resolved === null) return 'pending';
+    const [teamScore, oppScore] = resolved;
+    if (teamScore === oppScore) return 'push';
+    return teamScore > oppScore ? 'win' : 'loss';
+  }
+
+  // Fallback: treat leading team label as winner pick.
+  const fallbackTeam = head.replace(/\s*[+-]\d+(?:\.\d+)?\s*$/i, '').trim();
+  if (fallbackTeam) {
+    const resolved = _resolveTeamScoreForAutoGrade(game, fallbackTeam, pick);
+    if (resolved === null) return 'pending';
+    const [teamScore, oppScore] = resolved;
+    if (teamScore === oppScore) return 'push';
+    return teamScore > oppScore ? 'win' : 'loss';
+  }
+
+  return 'pending';
+}
+
+function _applyEspnScheduleMatchToOpenPick(pick, game, addedById, gameTimes) {
+  if (!pick || !game) return false;
+  const idStr = String(pick.id);
+  const added = addedById.get(idStr);
+  let mutatedAdded = false;
+  if (game.startTime) {
+    gameTimes[idStr] = game.startTime;
+  }
+  if (!added || normalizeResultValue(pick.result) !== 'pending') return false;
+
+  if (game.startTime && added.start_time !== game.startTime) {
+    added.start_time = game.startTime;
+    mutatedAdded = true;
+  }
+  if (game.awayName && added.away_team !== game.awayName) {
+    added.away_team = game.awayName;
+    mutatedAdded = true;
+  }
+  if (game.homeName && added.home_team !== game.homeName) {
+    added.home_team = game.homeName;
+    mutatedAdded = true;
+  }
+  if (game.label && (added.matchup !== game.label || added.game !== game.label)) {
+    added.matchup = game.label;
+    added.game = game.label;
+    mutatedAdded = true;
+  }
+
+  const espnDateKey = getLeagueLocalDateKeyFromIso(game.startTime, pick.sport);
+  const storedDateRaw = String(added.date || pick.date || pick.game_date || pick.Date || '').trim();
+  const storedDateKey = getPickDateKey(storedDateRaw);
+  if (espnDateKey && storedDateKey && espnDateKey !== storedDateKey) {
+    console.log(`[DateFix] ${pick.source || '?'} ${game.label || deriveGameLabel(pick) || '?'} stored=${storedDateKey} espn=${espnDateKey}`);
+    const nextDateLabel = formatDateKeyForPickLabel(espnDateKey);
+    if (nextDateLabel && added.date !== nextDateLabel) {
+      added.date = nextDateLabel;
+      mutatedAdded = true;
+    }
+  }
+
+  return mutatedAdded;
+}
+
+async function autoGradeOpenPicksForBoardDate(boardDateKey) {
+  const key = String(boardDateKey || '').trim();
+  if (!key) return { dateKey: key, graded: 0, skipped: 0, ran: false };
+  const yyyymmdd = _boardDateKeyToYyyymmdd(key);
+  if (!yyyymmdd) return { dateKey: key, graded: 0, skipped: 0, ran: false };
+
+  const picks = typeof getPicks === 'function' ? getPicks() : [];
+  const openPicks = picks.filter((p) => (
+    p && normalizeResultValue(p.result) === 'pending' &&
+    _pickShouldJoinEspnBoardDate(p, key) &&
+    ESPN_SPORT_ENDPOINTS[String(p.sport || '').toUpperCase()]
+  ));
+  const bySport = new Map();
+  openPicks.forEach((p) => {
+    const sport = String(p.sport || '').toUpperCase();
+    if (!bySport.has(sport)) bySport.set(sport, []);
+    bySport.get(sport).push(p);
+  });
+  if (!bySport.size) return { dateKey: key, graded: 0, skipped: 0, ran: true };
+
+  const addedPicks = typeof getAddedPicks === 'function' ? getAddedPicks() : [];
+  const addedById = new Map(addedPicks.map((p) => [String(p.id), p]));
+  const gameTimes = getGameTimes();
+  let mutatedAdded = false;
+  let graded = 0;
+  let skipped = 0;
+
+  for (const [sport, picksForSport] of bySport.entries()) {
+    const endpoint = ESPN_SPORT_ENDPOINTS[sport];
+    let games = [];
+    try {
+      const payload = await _fetchEspnScoreboard(endpoint.sport, endpoint.league, yyyymmdd);
+      games = _buildEspnGameIndex(payload, sport);
+    } catch (err) {
+      picksForSport.forEach((p) => {
+        skipped += 1;
+        console.warn(`[AutoGrade] skipped: fetch failed ${p.source || '?'} ${sport} ${deriveGameLabel(p) || p.pick || '?'} -> ${err && err.message ? err.message : err}`);
+      });
+      continue;
+    }
+
+    picksForSport.forEach((p) => {
+      const game = _findEspnGameForPick(games, p);
+      const matchup = game && game.label ? game.label : (deriveGameLabel(p, picks) || p.pick || '?');
+      const market = getStablePickMarketParts(p).market || 'market';
+      if (!game) {
+        skipped += 1;
+        const storedKey = getPickDateKey(p.date || p.game_date || p.Date);
+        const reason = storedKey === key ? 'unmatched' : 'date-probe no match';
+        console.warn(`[AutoGrade] skipped: ${reason} ${p.source || '?'} ${sport} ${matchup} ${market}`);
+        return;
+      }
+
+      const scheduleChanged = _applyEspnScheduleMatchToOpenPick(p, game, addedById, gameTimes);
+      if (scheduleChanged) {
+        mutatedAdded = true;
+        try {
+          localStorage.setItem(ADDED_PICKS_KEY, JSON.stringify(addedPicks));
+        } catch {
+          console.warn('[AutoGrade] failed to stage ESPN matchup/date fixes before grading');
+        }
+      }
+      if (_autoGradeGameIsVoid(game)) {
+        setResult(p.id, 'push');
+        graded += 1;
+        console.log(`[AutoGrade] graded ${p.source || '?'} ${sport} ${matchup} ${market} \u2192 P`);
+        return;
+      }
+      if (!_autoGradeGameIsFinal(game)) {
+        skipped += 1;
+        console.log(`[AutoGrade] skipped: non-final ${p.source || '?'} ${sport} ${matchup} status=${game.statusName || game.statusDescription || 'unknown'}`);
+        return;
+      }
+
+      const result = gradePickFromEspnGame(p, game);
+      if (result === 'win' || result === 'loss' || result === 'push') {
+        setResult(p.id, result);
+        graded += 1;
+        console.log(`[AutoGrade] graded ${p.source || '?'} ${sport} ${matchup} ${market} \u2192 ${_autoGradeResultCode(result)}`);
+      } else {
+        skipped += 1;
+        console.log(`[AutoGrade] skipped: unsupported ${p.source || '?'} ${sport} ${matchup} ${market}`);
+      }
+    });
+  }
+
+  try {
+    localStorage.setItem(GAME_TIMES_KEY, JSON.stringify(gameTimes));
+  } catch {
+    console.warn('[AutoGrade] failed to persist gameTimes to localStorage');
+  }
+  if (mutatedAdded) {
+    try {
+      saveAddedPicks(addedPicks);
+    } catch (err) {
+      console.warn(`[AutoGrade] failed to persist ESPN matchup/date fixes: ${err && err.message ? err.message : err}`);
+    }
+  }
+  if (graded > 0 || mutatedAdded) {
+    markLedgerLocalChanged();
+    if (typeof scheduleLedgerStateSync === 'function') scheduleLedgerStateSync();
+  }
+
+  return { dateKey: key, graded, skipped, ran: true };
 }
 
 async function syncStartTimesForBoardDate(boardDateKey) {
@@ -6138,7 +6972,7 @@ async function syncStartTimesForBoardDate(boardDateKey) {
 
   const picks = typeof getPicks === 'function' ? getPicks() : [];
   const todaysPicks = picks.filter((p) => (
-    p && p.result === 'pending' && getPickDateKey(p.date || p.game_date || p.Date) === key
+    p && p.result === 'pending' && _pickShouldJoinEspnBoardDate(p, key)
   ));
   const bySport = new Map();
   todaysPicks.forEach((p) => {
@@ -6171,10 +7005,10 @@ async function syncStartTimesForBoardDate(boardDateKey) {
   for (const [sport, picksForSport] of bySport.entries()) {
     total += picksForSport.length;
     const endpoint = ESPN_SPORT_ENDPOINTS[sport];
-    let index;
+    let games;
     try {
       const payload = await _fetchEspnScoreboard(endpoint.sport, endpoint.league, yyyymmdd);
-      index = _buildEspnStartTimeIndex(payload, sport);
+      games = _buildEspnGameIndex(payload, sport);
     } catch (err) {
       console.warn(`[StartTimeSync] ${sport} ${yyyymmdd}: schedule fetch failed -> ${err && err.message ? err.message : err}`);
       unmatched += picksForSport.length;
@@ -6187,15 +7021,9 @@ async function syncStartTimesForBoardDate(boardDateKey) {
 
     picksForSport.forEach((p) => {
       const teams = _pickAwayHomePair(p);
-      const matchKey = _matchupKeyFromTeams(teams.away, teams.home, sport);
-      const iso = matchKey ? index.get(matchKey) : '';
-      if (iso) {
-        gameTimes[String(p.id)] = iso;
-        const added = addedById.get(String(p.id));
-        if (added && added.start_time !== iso) {
-          added.start_time = iso;
-          mutatedAdded = true;
-        }
+      const game = _findEspnGameForPick(games, p);
+      if (game && game.startTime) {
+        mutatedAdded = _applyEspnScheduleMatchToOpenPick(p, game, addedById, gameTimes) || mutatedAdded;
         synced += 1;
       } else {
         unmatched += 1;
@@ -6218,7 +7046,7 @@ async function syncStartTimesForBoardDate(boardDateKey) {
       console.warn(`[StartTimeSync] failed to persist start_time on added picks: ${err && err.message ? err.message : err}`);
     }
   }
-  if (synced > 0) {
+  if (synced > 0 || mutatedAdded) {
     markLedgerLocalChanged();
     if (typeof scheduleLedgerStateSync === 'function') {
       // Propagate the fresh gameTimes to Firestore so the grader picks up
@@ -7616,8 +8444,7 @@ function render() {
   const allGameStartIso = {};
   picks.forEach(p => {
     const gameLabel = deriveGameLabel(p, picks) || p.pick;
-    const pickDateLabel = p.date || p.game_date || p.Date || '';
-    const key = `${p.sport}::${pickDateLabel}::${gameLabel || p.id}`;
+    const key = deriveGameGroupKey(p, picks) || `${p.sport}::${gameLabel || p.id}`;
     const iso = gameTimes[String(p.id)] || '';
     if (!iso) return;
     const nextTs = new Date(iso).getTime();
@@ -7632,7 +8459,7 @@ function render() {
   const detailedSeed = filtered.map(p => {
     const gameLabel = deriveGameLabel(p, picks) || p.pick;
     const pickDateLabel = p.date || p.game_date || p.Date || '';
-    const key = `${p.sport}::${pickDateLabel}::${gameLabel || p.id}`;
+    const key = deriveGameGroupKey(p, picks) || `${p.sport}::${gameLabel || p.id}`;
     const ownIso = gameTimes[String(p.id)] || '';
     const resolvedIso = allGameStartIso[key] || ownIso;
     const fromIso = resolvedIso ? new Date(resolvedIso).getTime() : NaN;
@@ -9516,6 +10343,12 @@ function _marketKey(pickText) {
 }
 
 function _isDuplicatePick(existingPick, newPick, dateStr) {
+  const existingStableKey = getStablePickKey(existingPick);
+  const newStableKey = getStablePickKey({ ...newPick, date: dateStr });
+  if (existingStableKey && newStableKey && existingStableKey === newStableKey) {
+    return true;
+  }
+
   // Same source, same date is the first filter
   if (existingPick.source !== newPick.source) return false;
   if (existingPick.date !== dateStr) return false;
@@ -9601,8 +10434,10 @@ function _appendModelPicksToLedger(candidates) {
       game: p.game || p.matchup || '',
       confidence: p.confidence ?? null,
     };
+    const espnDateKey = getLeagueLocalDateKeyFromIso(shaped.start_time, shaped.sport);
+    const entryDateStr = formatDateKeyForPickLabel(espnDateKey) || dateStr;
 
-    const isDup = [...activeLedgerPicks, ...newEntries].some(ep => _isDuplicatePick(ep, shaped, dateStr));
+    const isDup = [...activeLedgerPicks, ...newEntries].some(ep => _isDuplicatePick(ep, shaped, entryDateStr));
     if (isDup) {
       skippedDuplicates++;
       return;
@@ -9610,7 +10445,7 @@ function _appendModelPicksToLedger(candidates) {
 
     newEntries.push({
       id: maxId + 1 + added,
-      date: dateStr,
+      date: entryDateStr,
       source: shaped.source,
       pick: shaped.pick,
       sport: shaped.sport,
@@ -9726,6 +10561,11 @@ initPickLogFilterCleanup();
 refreshAdminLiveControls();
 initDayOfWeekChartRendering();
 window.dispatchEvent(new Event('pickledger:helpers-ready'));
+try {
+  migrateLocalResultKeysToStable({ schedule: false });
+} catch (err) {
+  console.warn('[StableKey] local result-key migration failed:', err && err.message ? err.message : err);
+}
 syncWithServer().catch(() => setSyncStatus('offline'));
 loadCanonicalRankingsState().then(() => render()).catch(() => {});
 loadNbaPropsGames();
@@ -9744,11 +10584,22 @@ render();
   try {
     const boardKey = homeSelectedDateKey || getTodayDateKey();
     const result = await syncStartTimesForBoardDate(boardKey);
+    let gradeResult = await autoGradeOpenPicksForBoardDate(boardKey);
+    const todayKey = getTodayDateKey();
+    if (todayKey && todayKey !== boardKey) {
+      const todayGrade = await autoGradeOpenPicksForBoardDate(todayKey);
+      gradeResult = {
+        graded: (gradeResult.graded || 0) + (todayGrade.graded || 0),
+        skipped: (gradeResult.skipped || 0) + (todayGrade.skipped || 0),
+        ran: Boolean(gradeResult.ran || todayGrade.ran),
+      };
+    }
     if (result && result.ran) {
-      if (result.synced > 0) render();
+      if (result.synced > 0 || gradeResult.graded > 0) render();
       const boardLabel = formatBoardDateForStatus(result.dateKey || boardKey);
       if (result.total > 0) {
-        setRefreshStatus(`Synced ${result.synced} of ${result.total} start times for ${boardLabel}`, 'ok');
+        const gradeText = gradeResult.graded > 0 ? `, auto-graded ${gradeResult.graded}` : '';
+        setRefreshStatus(`Synced ${result.synced} of ${result.total} start times${gradeText} for ${boardLabel}`, 'ok');
       }
     }
   } catch (err) {
