@@ -4586,8 +4586,31 @@ async function refreshAutoGrades(silent = false) {
       renderSearch();
     }
 
-    const syncedTimes = Object.keys(startTimes).length;
-    setRefreshStatus(`Loaded ${Object.keys(graded).length} graded picks, synced ${syncedTimes} start times`, 'ok');
+    const gradedCount = Object.keys(graded).length;
+    const boardKey = homeSelectedDateKey || getTodayDateKey();
+    let liveSync = { dateKey: boardKey, synced: 0, total: 0, unmatched: 0, ran: false };
+    try {
+      liveSync = await syncStartTimesForBoardDate(boardKey);
+    } catch (syncErr) {
+      console.warn('[StartTimeSync] live sync failed:', syncErr && syncErr.message ? syncErr.message : syncErr);
+    }
+    if (liveSync && liveSync.ran && liveSync.synced > 0) {
+      // Re-render so the freshly synced start times replace "TBD" immediately.
+      if (typeof renderPickLog === 'function') renderPickLog();
+      else if (typeof renderPicks === 'function') renderPicks();
+      else render();
+    }
+
+    const boardLabel = formatBoardDateForStatus(liveSync && liveSync.dateKey ? liveSync.dateKey : boardKey);
+    let statusMsg;
+    if (liveSync && liveSync.ran && liveSync.total > 0) {
+      statusMsg = `Loaded ${gradedCount} graded picks, synced ${liveSync.synced} of ${liveSync.total} start times for ${boardLabel}`;
+    } else if (liveSync && liveSync.ran) {
+      statusMsg = `Loaded ${gradedCount} graded picks, no supported open picks for ${boardLabel}`;
+    } else {
+      statusMsg = `Loaded ${gradedCount} graded picks`;
+    }
+    setRefreshStatus(statusMsg, 'ok');
   } catch (err) {
     if (!silent) {
       const message = String(err && err.message ? err.message : err);
@@ -5043,6 +5066,13 @@ function setHomeSelectedDateFromKey(key) {
   homeCalendarOpen = false;
   persistHomeSelectedDate();
   render();
+  // Switching the board date also re-runs the schedule fetch for that day
+  // so the Next Start tile and card times reflect the newly selected slate.
+  if (typeof syncStartTimesForBoardDate === 'function') {
+    syncStartTimesForBoardDate(homeSelectedDateKey).then((result) => {
+      if (result && result.ran && result.synced > 0) render();
+    }).catch(() => {});
+  }
 }
 
 function setHomeSelectedDateFromEl(el) {
@@ -6012,6 +6042,199 @@ function inferNbaPropsMatchupLabel(p, allPicks) {
     }
   });
   return best;
+}
+
+// ── Start-time sync (ESPN public scoreboard) ───────────────────────────────
+// The Live Board shows "TBD" whenever `gameTimes[pickId]` is empty. The
+// backend grader (pickgrader_server.py) fills this map authoritatively when
+// it runs, but on GitHub Pages the backend is not running continuously, so
+// new MLB/NBA picks land on the board with no start time until an admin
+// fires the grader. This client-side mirror hits ESPN's public scoreboard
+// for the selected board date and populates `gameTimes` directly, using
+// the same team-normalizers the rest of the code uses so the join key stays
+// consistent across schedules, picks, and the grader's own matcher.
+
+const ESPN_SPORT_ENDPOINTS = {
+  MLB: { sport: 'baseball', league: 'mlb' },
+  NBA: { sport: 'basketball', league: 'nba' },
+  NHL: { sport: 'hockey', league: 'nhl' },
+};
+
+let _lastStartTimeSyncForBoard = { dateKey: '', synced: 0, total: 0, unmatched: 0, ran: false };
+
+function _boardDateKeyToYyyymmdd(dateKey) {
+  const dt = parseLocalDateKey(dateKey);
+  if (!dt) return '';
+  const y = dt.getFullYear();
+  const m = String(dt.getMonth() + 1).padStart(2, '0');
+  const d = String(dt.getDate()).padStart(2, '0');
+  return `${y}${m}${d}`;
+}
+
+// Canonical, direction-agnostic matchup key used on BOTH sides of the join:
+// ESPN competitors and the pick's (away, home) pair both normalize through
+// the same `normalizeTeamForGameLabel(sport)` before being sorted. This is
+// the single shared helper — no ad-hoc string fixes per source.
+function _matchupKeyFromTeams(teamA, teamB, sport) {
+  const upper = String(sport || '').toUpperCase();
+  const a = String(normalizeTeamForGameLabel(teamA, upper) || '').toLowerCase();
+  const b = String(normalizeTeamForGameLabel(teamB, upper) || '').toLowerCase();
+  if (!a || !b) return '';
+  return [a, b].sort().join('|');
+}
+
+function _pickAwayHomePair(pick) {
+  const sport = String(pick && pick.sport || '').toUpperCase();
+  const away = String(pick && pick.away_team || '').trim();
+  const home = String(pick && pick.home_team || '').trim();
+  if (away && home) return { away, home, sport };
+  const matchup = String(pick && (pick.matchup || pick.game) || '').trim();
+  if (matchup) {
+    const parts = matchup.split(/\s+(?:vs|@)\s+/i).map(s => s.trim()).filter(Boolean);
+    if (parts.length === 2) return { away: parts[0], home: parts[1], sport };
+  }
+  const extracted = extractGameKey(pick && pick.pick, sport);
+  if (extracted) {
+    const parts = String(extracted).split(/\s+(?:vs|@)\s+/i).map(s => s.trim()).filter(Boolean);
+    if (parts.length === 2) return { away: parts[0], home: parts[1], sport };
+  }
+  return { away: '', home: '', sport };
+}
+
+async function _fetchEspnScoreboard(sport, league, yyyymmdd) {
+  const url = `https://site.api.espn.com/apis/site/v2/sports/${sport}/${league}/scoreboard?dates=${yyyymmdd}`;
+  const resp = await fetch(url, { cache: 'no-store', signal: _createTimeoutSignal(8000) });
+  if (!resp.ok) throw new Error(`ESPN ${sport}/${league} ${yyyymmdd} -> HTTP ${resp.status}`);
+  return resp.json();
+}
+
+function _buildEspnStartTimeIndex(payload, sport) {
+  const out = new Map();
+  const events = Array.isArray(payload && payload.events) ? payload.events : [];
+  events.forEach((event) => {
+    const comp = (event && event.competitions && event.competitions[0]) || null;
+    if (!comp) return;
+    const competitors = Array.isArray(comp.competitors) ? comp.competitors : [];
+    if (competitors.length !== 2) return;
+    const [c0, c1] = competitors;
+    const n0 = c0 && c0.team ? (c0.team.displayName || c0.team.shortDisplayName || c0.team.name || '') : '';
+    const n1 = c1 && c1.team ? (c1.team.displayName || c1.team.shortDisplayName || c1.team.name || '') : '';
+    const iso = String(comp.date || event.date || '').trim();
+    if (!iso || !n0 || !n1) return;
+    const key = _matchupKeyFromTeams(n0, n1, sport);
+    if (!key) return;
+    out.set(key, iso);
+  });
+  return out;
+}
+
+async function syncStartTimesForBoardDate(boardDateKey) {
+  const key = String(boardDateKey || '').trim();
+  const emptyResult = { dateKey: key, synced: 0, total: 0, unmatched: 0, ran: false };
+  if (!key) {
+    _lastStartTimeSyncForBoard = emptyResult;
+    return emptyResult;
+  }
+
+  const picks = typeof getPicks === 'function' ? getPicks() : [];
+  const todaysPicks = picks.filter((p) => (
+    p && p.result === 'pending' && getPickDateKey(p.date || p.game_date || p.Date) === key
+  ));
+  const bySport = new Map();
+  todaysPicks.forEach((p) => {
+    const sport = String(p.sport || '').toUpperCase();
+    if (!ESPN_SPORT_ENDPOINTS[sport]) return;
+    if (!bySport.has(sport)) bySport.set(sport, []);
+    bySport.get(sport).push(p);
+  });
+
+  if (!bySport.size) {
+    const result = { dateKey: key, synced: 0, total: 0, unmatched: 0, ran: true };
+    _lastStartTimeSyncForBoard = result;
+    return result;
+  }
+
+  const yyyymmdd = _boardDateKeyToYyyymmdd(key);
+  if (!yyyymmdd) {
+    _lastStartTimeSyncForBoard = emptyResult;
+    return emptyResult;
+  }
+
+  const gameTimes = getGameTimes();
+  const addedPicks = typeof getAddedPicks === 'function' ? getAddedPicks() : [];
+  const addedById = new Map(addedPicks.map((p) => [String(p.id), p]));
+  let synced = 0;
+  let unmatched = 0;
+  let total = 0;
+  let mutatedAdded = false;
+
+  for (const [sport, picksForSport] of bySport.entries()) {
+    total += picksForSport.length;
+    const endpoint = ESPN_SPORT_ENDPOINTS[sport];
+    let index;
+    try {
+      const payload = await _fetchEspnScoreboard(endpoint.sport, endpoint.league, yyyymmdd);
+      index = _buildEspnStartTimeIndex(payload, sport);
+    } catch (err) {
+      console.warn(`[StartTimeSync] ${sport} ${yyyymmdd}: schedule fetch failed -> ${err && err.message ? err.message : err}`);
+      unmatched += picksForSport.length;
+      picksForSport.forEach((p) => {
+        const teams = _pickAwayHomePair(p);
+        console.warn(`[StartTimeSync] unmatched pick (fetch failed): source=${p.source || '?'} sport=${sport} matchup="${teams.away || '?'} @ ${teams.home || '?'}" date=${key} id=${p.id}`);
+      });
+      continue;
+    }
+
+    picksForSport.forEach((p) => {
+      const teams = _pickAwayHomePair(p);
+      const matchKey = _matchupKeyFromTeams(teams.away, teams.home, sport);
+      const iso = matchKey ? index.get(matchKey) : '';
+      if (iso) {
+        gameTimes[String(p.id)] = iso;
+        const added = addedById.get(String(p.id));
+        if (added && added.start_time !== iso) {
+          added.start_time = iso;
+          mutatedAdded = true;
+        }
+        synced += 1;
+      } else {
+        unmatched += 1;
+        console.warn(`[StartTimeSync] unmatched pick: source=${p.source || '?'} sport=${sport} matchup="${teams.away || '?'} @ ${teams.home || '?'}" date=${key} id=${p.id}`);
+      }
+    });
+  }
+
+  try {
+    localStorage.setItem(GAME_TIMES_KEY, JSON.stringify(gameTimes));
+  } catch {
+    // localStorage quota issues should never silently drop the sync; log it
+    // so a future miss is debuggable rather than invisible.
+    console.warn('[StartTimeSync] failed to persist gameTimes to localStorage');
+  }
+  if (mutatedAdded) {
+    try {
+      saveAddedPicks(addedPicks);
+    } catch (err) {
+      console.warn(`[StartTimeSync] failed to persist start_time on added picks: ${err && err.message ? err.message : err}`);
+    }
+  }
+  if (synced > 0) {
+    markLedgerLocalChanged();
+    if (typeof scheduleLedgerStateSync === 'function') {
+      // Propagate the fresh gameTimes to Firestore so the grader picks up
+      // the same start_time column it already expects via the sync payload.
+      scheduleLedgerStateSync();
+    }
+  }
+
+  const result = { dateKey: key, synced, total, unmatched, ran: true };
+  _lastStartTimeSyncForBoard = result;
+  return result;
+}
+
+function formatBoardDateForStatus(dateKey) {
+  const label = formatHomeDateKey(dateKey, { month: 'short', day: 'numeric' });
+  return label || String(dateKey || '');
 }
 
 function highlightText(text, query) {
@@ -9511,7 +9734,32 @@ if (savedTab === 'profile') { localStorage.setItem('pickledger_tab', 'home'); }
 else if (savedTab === 'parlays') { localStorage.setItem('pickledger_tab', 'daily'); switchTab('daily'); }
 else if (savedTab !== 'home') switchTab(savedTab);
 render();
+// Always mirror the selected board date's start times from ESPN on boot so
+// GitHub Pages users see real "Apr 19 · 7:05 PM" times without waiting for
+// an admin grader run. `refreshAutoGrades(true)` also fires this sync after
+// loading Firebase graded results, but the standalone boot call shaves the
+// extra Firebase round-trip off the first paint when we only need the
+// schedule. Runs silently; unmatched picks are console-logged.
+(async () => {
+  try {
+    const boardKey = homeSelectedDateKey || getTodayDateKey();
+    const result = await syncStartTimesForBoardDate(boardKey);
+    if (result && result.ran) {
+      if (result.synced > 0) render();
+      const boardLabel = formatBoardDateForStatus(result.dateKey || boardKey);
+      if (result.total > 0) {
+        setRefreshStatus(`Synced ${result.synced} of ${result.total} start times for ${boardLabel}`, 'ok');
+      }
+    }
+  } catch (err) {
+    console.warn('[StartTimeSync] boot sync failed:', err && err.message ? err.message : err);
+  }
+})();
 if (missingStartTimesCount() > 0) {
+  // Kicks off a Firebase refresh which also re-runs the schedule sync. The
+  // ESPN response is fast and idempotent (same ISO rewritten into the same
+  // gameTimes key), so the double-call is safe and keeps historical start
+  // times hydrated alongside today's slate.
   refreshAutoGrades(true);
 }
 (async () => {
