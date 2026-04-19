@@ -2778,6 +2778,7 @@
     const startTimes = source.startTimes && typeof source.startTimes === 'object'
       ? source.startTimes
       : (source.gameTimes && typeof source.gameTimes === 'object' ? source.gameTimes : {});
+    const savedAt = String(source.savedAt || source.lastSynced || new Date().toISOString());
     return {
       ledger: {
         addedPicks,
@@ -2785,10 +2786,13 @@
         results,
         startTimes,
         gameTimes: startTimes,
+        savedAt,
       },
       picks: addedPicks,
       results,
       startTimes,
+      savedAt,
+      lastSynced: savedAt,
     };
   }
 
@@ -2996,12 +3000,14 @@
         : (ledger.startTimes && typeof ledger.startTimes === 'object'
           ? ledger.startTimes
           : (ledger.gameTimes && typeof ledger.gameTimes === 'object' ? ledger.gameTimes : {}));
+      const savedAt = String(payload.savedAt || ledger.savedAt || new Date().toISOString());
       await setDoc(ref, {
-        ledger,
+        ledger: { ...ledger, savedAt },
         picks: Array.isArray(payload.picks) ? payload.picks : (Array.isArray(ledger.addedPicks) ? ledger.addedPicks : []),
         results,
         startTimes,
-        lastSynced: new Date().toISOString(),
+        savedAt,
+        lastSynced: savedAt,
       }, { merge: true });
     } catch (e) {
       console.warn('[Firestore] saveUserPicks failed:', e.message);
@@ -3032,12 +3038,14 @@
       const deletedPickIds = Array.isArray(ledger.deletedPickIds)
         ? ledger.deletedPickIds.map(v => String(v))
         : [];
+      const savedAt = data.savedAt || data.lastSynced || ledger.savedAt || ledger.lastSynced || null;
       return {
         addedPicks,
         deletedPickIds,
         results,
         startTimes,
         gameTimes: startTimes,
+        savedAt,
       };
     };
     const mergeLedgerStates = (preferredState, fallbackState) => {
@@ -3069,14 +3077,20 @@
         ...(secondary.startTimes || {}),
         ...(primary.startTimes || {}),
       };
+      const primaryTs = Date.parse(primary.savedAt || primary.lastSynced || '') || 0;
+      const secondaryTs = Date.parse(secondary.savedAt || secondary.lastSynced || '') || 0;
       return {
         addedPicks: [...picksById.values()],
         deletedPickIds: mergedDeletedIds,
         results: mergedResults,
         startTimes: mergedStartTimes,
         gameTimes: mergedStartTimes,
+        savedAt: primaryTs >= secondaryTs ? primary.savedAt : secondary.savedAt,
       };
     };
+    const ledgerTimestamp = (state) => (
+      Date.parse(state && (state.savedAt || state.lastSynced) || '') || 0
+    );
     const hasMeaningfulLedgerState = (state) => {
       const normalized = state && typeof state === 'object'
         ? state
@@ -3091,12 +3105,16 @@
     try {
       const primaryRef = doc(db, 'users', uid);
       const candidateIds = getFirestoreUserDocCandidates(uid);
+      const states = [];
       for (const candidateId of candidateIds) {
         let topLevelState = null;
         try {
           const snap = await getDoc(doc(db, 'users', candidateId));
           const data = snap.exists() ? (snap.data() || {}) : {};
           topLevelState = normalizeLegacyLedgerState(data);
+          if (hasMeaningfulLedgerState(topLevelState)) {
+            states.push({ state: topLevelState, candidateId, kind: 'top-level' });
+          }
         } catch (e) {
           console.warn(`[Firestore] top-level ledger read failed for ${candidateId}:`, e.message);
         }
@@ -3105,12 +3123,6 @@
           const legacyRef = doc(db, 'users', candidateId, 'data', 'ledger');
           const legacySnap = await getDoc(legacyRef);
           if (!legacySnap.exists()) {
-            if (hasMeaningfulLedgerState(topLevelState)) {
-              if (candidateId !== uid) {
-                await setDoc(primaryRef, buildUserDocLedgerPayload(topLevelState), { merge: true });
-              }
-              return topLevelState;
-            }
             continue;
           }
           const legacyRaw = legacySnap.data() || {};
@@ -3127,27 +3139,44 @@
               legacyPayload = { ...legacyRaw, picks: [] };
             }
           }
-          const mergedState = mergeLedgerStates(topLevelState, normalizeLegacyLedgerState(legacyPayload));
-          if (!hasMeaningfulLedgerState(mergedState)) {
-            if (hasMeaningfulLedgerState(topLevelState)) {
-              if (candidateId !== uid) {
-                await setDoc(primaryRef, buildUserDocLedgerPayload(topLevelState), { merge: true });
-              }
-              return topLevelState;
-            }
-            continue;
+          const legacyState = normalizeLegacyLedgerState(legacyPayload);
+          if (hasMeaningfulLedgerState(legacyState)) {
+            states.push({ state: legacyState, candidateId, kind: 'legacy' });
           }
-          await setDoc(primaryRef, buildUserDocLedgerPayload(mergedState), { merge: true });
-          return mergedState;
         } catch (e) {
           console.warn(`[Firestore] legacy ledger read failed for ${candidateId}:`, e.message);
-          if (hasMeaningfulLedgerState(topLevelState)) {
-            if (candidateId !== uid) {
-              await setDoc(primaryRef, buildUserDocLedgerPayload(topLevelState), { merge: true });
-            }
-            return topLevelState;
+        }
+      }
+      if (states.length) {
+        states.sort((a, b) => ledgerTimestamp(b.state) - ledgerTimestamp(a.state));
+        let mergedState = states[0].state;
+        for (let i = 1; i < states.length; i += 1) {
+          const next = states[i].state;
+          const mergedDeletedIds = [...new Set([
+            ...(next.deletedPickIds || []),
+            ...(mergedState.deletedPickIds || []),
+          ].map(v => String(v)))];
+          const mergedResults = {
+            ...(next.results || {}),
+            ...(mergedState.results || {}),
+          };
+          const mergedStartTimes = {
+            ...(next.startTimes || next.gameTimes || {}),
+            ...(mergedState.startTimes || mergedState.gameTimes || {}),
+          };
+          mergedState = {
+            ...mergedState,
+            deletedPickIds: mergedDeletedIds,
+            results: mergedResults,
+            startTimes: mergedStartTimes,
+            gameTimes: mergedStartTimes,
+          };
+          if (!mergedState.addedPicks.length && !mergedState.deletedPickIds.length && Array.isArray(next.addedPicks) && next.addedPicks.length) {
+            mergedState = mergeLedgerStates(next, mergedState);
           }
         }
+        await setDoc(primaryRef, buildUserDocLedgerPayload(mergedState), { merge: true });
+        return mergedState;
       }
       return null;
     } catch (e) {
@@ -3268,13 +3297,35 @@
       window._userRecord = record;
       updateProfilePanel(user, record);
 
+      const localBeforeRemote = typeof window._buildLedgerStatePayload === 'function'
+        ? window._buildLedgerStatePayload()
+        : null;
+      const hadLocalLedgerState = typeof window._hasMeaningfulLocalState === 'function'
+        ? window._hasMeaningfulLocalState()
+        : false;
       const userPicks = await window._loadUserPicks(user.uid);
       if (currentGeneration !== window._authStateGeneration) return;
       let localLedgerLoaded = false;
       if (userPicks !== null) {
-        window._applyUserLedgerState(userPicks);
+        const shouldKeepLocal = hadLocalLedgerState && (
+          typeof window.shouldPreserveLocalLedgerState !== 'function' ||
+          window.shouldPreserveLocalLedgerState(localBeforeRemote, userPicks)
+        );
+        const mergedForThisBrowser = shouldKeepLocal && typeof window.mergeLedgerStates === 'function'
+          ? window.mergeLedgerStates(userPicks, localBeforeRemote)
+          : userPicks;
+        window._applyUserLedgerState(mergedForThisBrowser);
         localLedgerLoaded = hasMeaningfulLocalState();
+        if (shouldKeepLocal && localLedgerLoaded && typeof window.pushLedgerState === 'function') {
+          window.pushLedgerState(true).catch(() => {});
+        }
         console.log('[Firestore] Loaded user ledger state, reloading app state');
+      } else if (hadLocalLedgerState) {
+        localLedgerLoaded = true;
+        if (typeof window.pushLedgerState === 'function') {
+          window.pushLedgerState(true).catch(() => {});
+        }
+        console.log('[Auth] Preserved local ledger state and pushed it to Firestore');
       } else {
         window._clearLedgerLocalState();
         const restored = await pullLedgerStateIfNeeded({ uid: user.uid, expectedGeneration: currentGeneration });
@@ -3750,6 +3801,7 @@ const ADDED_PICKS_KEY = `pickledger_added_picks_${STORAGE_VERSION}`;
 const DELETED_PICKS_KEY = `pickledger_deleted_pick_ids_${STORAGE_VERSION}`;
 const RESULTS_KEY = `pickledger_results_${STORAGE_VERSION}`;
 const GAME_TIMES_KEY = `pickledger_game_times_${STORAGE_VERSION}`;
+const LEDGER_UPDATED_AT_KEY = `pickledger_ledger_updated_at_${STORAGE_VERSION}`;
 const HOME_DATE_STORAGE_KEY = `pickledger_home_date_${STORAGE_VERSION}`;
 const ONE_TIME_PROPS_CLEANUP_KEY = `pickledger_cleanup_nba_props_${STORAGE_VERSION}`;
 const RESET_CUTOFF_ISO = '2026-03-19T00:00:00.000Z';
@@ -3921,8 +3973,11 @@ function mergeLedgerStates(baseState, overlayState) {
     deletedPickIds: [...new Set([...base.deletedPickIds, ...overlay.deletedPickIds])],
     results: { ...base.results, ...overlay.results },
     gameTimes: { ...base.gameTimes, ...overlay.gameTimes },
+    savedAt: getNewestLedgerSavedAt(base, overlay),
   };
 }
+
+window.mergeLedgerStates = mergeLedgerStates;
 
 async function loadAdminHistoricalRankingsState() {
   if (!isRankingsOwnerUser()) return null;
@@ -4139,6 +4194,7 @@ function getAddedPicks() {
 
 function saveAddedPicks(list) {
   localStorage.setItem(ADDED_PICKS_KEY, JSON.stringify(list));
+  markLedgerLocalChanged();
   scheduleLedgerStateSync();
 }
 
@@ -4154,12 +4210,48 @@ function getDeletedPickIds() {
 
 function saveDeletedPickIds(ids) {
   localStorage.setItem(DELETED_PICKS_KEY, JSON.stringify(ids));
+  markLedgerLocalChanged();
   scheduleLedgerStateSync();
 }
 
 function runOneTimeNbaPropsCleanup(state) {
   localStorage.setItem(ONE_TIME_PROPS_CLEANUP_KEY, '1');
   return 0;
+}
+
+function getLedgerSavedAt(state) {
+  const source = state && typeof state === 'object' ? state : {};
+  const ledger = source.ledger && typeof source.ledger === 'object' ? source.ledger : source;
+  const value = source.savedAt || source.lastSynced || ledger.savedAt || ledger.lastSynced || '';
+  return String(value || '').trim();
+}
+
+function getLedgerSavedAtMs(state) {
+  return Date.parse(getLedgerSavedAt(state)) || 0;
+}
+
+function getNewestLedgerSavedAt(a, b) {
+  const aValue = getLedgerSavedAt(a);
+  const bValue = getLedgerSavedAt(b);
+  return getLedgerSavedAtMs(a) >= getLedgerSavedAtMs(b) ? aValue : bValue;
+}
+
+function getLocalLedgerSavedAt() {
+  try {
+    return String(localStorage.getItem(LEDGER_UPDATED_AT_KEY) || '').trim();
+  } catch {
+    return '';
+  }
+}
+
+function markLedgerLocalChanged(savedAt = new Date().toISOString()) {
+  const value = String(savedAt || new Date().toISOString());
+  try {
+    localStorage.setItem(LEDGER_UPDATED_AT_KEY, value);
+  } catch {
+    // Local ledger still exists in memory if storage metadata cannot be written.
+  }
+  return value;
 }
 
 function getAllLedgerPicks() {
@@ -4169,11 +4261,16 @@ function getAllLedgerPicks() {
 
 function _coerceLedgerState(state) {
   const source = state && typeof state === 'object' ? state : {};
+  const gameTimes = source.gameTimes && typeof source.gameTimes === 'object'
+    ? { ...source.gameTimes }
+    : (source.startTimes && typeof source.startTimes === 'object' ? { ...source.startTimes } : {});
   return {
     addedPicks: Array.isArray(source.addedPicks) ? source.addedPicks : [],
     deletedPickIds: Array.isArray(source.deletedPickIds) ? source.deletedPickIds.map(v => String(v)) : [],
     results: source.results && typeof source.results === 'object' ? { ...source.results } : {},
-    gameTimes: source.gameTimes && typeof source.gameTimes === 'object' ? { ...source.gameTimes } : {},
+    startTimes: gameTimes,
+    gameTimes,
+    savedAt: getLedgerSavedAt(source),
   };
 }
 
@@ -4226,10 +4323,21 @@ function hasMeaningfulLocalState() {
 
 window._hasMeaningfulLocalState = hasMeaningfulLocalState;
 
+function shouldPreserveLocalLedgerState(localState, remoteState) {
+  const localTs = getLedgerSavedAtMs(localState);
+  const remoteTs = getLedgerSavedAtMs(remoteState);
+  if (!remoteTs) return true;
+  if (!localTs) return true;
+  return localTs >= remoteTs;
+}
+
+window.shouldPreserveLocalLedgerState = shouldPreserveLocalLedgerState;
+
 function buildLedgerStatePayload() {
+  const savedAt = getLocalLedgerSavedAt() || (hasMeaningfulLocalState() ? markLedgerLocalChanged() : new Date().toISOString());
   return {
     version: 1,
-    savedAt: new Date().toISOString(),
+    savedAt,
     addedPicks: getAddedPicks(),
     deletedPickIds: getDeletedPickIds(),
     results: getResults(),
@@ -4244,6 +4352,7 @@ function clearLedgerLocalState() {
   localStorage.removeItem(DELETED_PICKS_KEY);
   localStorage.removeItem(RESULTS_KEY);
   localStorage.removeItem(GAME_TIMES_KEY);
+  localStorage.removeItem(LEDGER_UPDATED_AT_KEY);
 }
 
 function writeLedgerStateToLocalStorage(state, options = {}) {
@@ -4276,6 +4385,7 @@ function writeLedgerStateToLocalStorage(state, options = {}) {
     Object.entries(results).forEach(([id, result]) => saveResultToServer(id, result));
   }
   localStorage.setItem(GAME_TIMES_KEY, JSON.stringify(gameTimes));
+  markLedgerLocalChanged(getLedgerSavedAt(state) || new Date().toISOString());
   return { hasAny: true };
 }
 
@@ -4309,7 +4419,9 @@ async function pushLedgerState(force = false) {
   }
 }
 
-function scheduleLedgerStateSync() {
+window.pushLedgerState = pushLedgerState;
+
+function scheduleLedgerStateSync(delayMs = 250) {
   if (ledgerStateSyncTimer) {
     clearTimeout(ledgerStateSyncTimer);
   }
@@ -4321,8 +4433,18 @@ function scheduleLedgerStateSync() {
         window._saveUserRecordSummary(window._userUid, derivedRecord);
       }
     }
-  }, 1200);
+  }, Math.max(0, Number(delayMs) || 0));
 }
+
+function flushLedgerStateBeforeUnload() {
+  if (!hasMeaningfulLocalState() || !window._userUid) return;
+  pushLedgerState(true).catch(() => {});
+}
+
+window.addEventListener('pagehide', flushLedgerStateBeforeUnload);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') flushLedgerStateBeforeUnload();
+});
 
 async function pullLedgerStateIfNeeded(options = {}) {
   const uid = window.getLedgerSyncUid ? window.getLedgerSyncUid(options.uid) : '';
@@ -4751,6 +4873,7 @@ function setResult(id,r) {
   const o=getResults();
   o[id]=nextResult;
   localStorage.setItem(RESULTS_KEY,JSON.stringify(o));
+  markLedgerLocalChanged();
   if (previousResult !== nextResult) {
     window.syncVisibleUserRecord(
       window.applyRecordOutcomeTransition(window._userRecord, previousResult, nextResult),
