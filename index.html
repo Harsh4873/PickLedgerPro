@@ -1165,6 +1165,110 @@
     text-align: right;
   }
   .home-game-picks { display: flex; flex-direction: column; gap: 10px; }
+
+  /* Compact pulse-log style rows for the home pick feed.
+     Mirrors .pulse-log-row visuals so the "live board" picks read
+     the same way as the bottom Grade & Review log. */
+  .home-feed-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .home-feed-row {
+    display: grid;
+    grid-template-columns: 54px 1fr auto auto;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.04);
+    background: rgba(255,255,255,0.02);
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .home-feed-row:hover {
+    border-color: rgba(0,229,160,0.22);
+    background: rgba(255,255,255,0.035);
+  }
+  .home-feed-row.result-win     { border-left: 3px solid var(--win); }
+  .home-feed-row.result-loss    { border-left: 3px solid var(--loss); }
+  .home-feed-row.result-push    { border-left: 3px solid var(--push); }
+  .home-feed-row.result-pending { border-left: 3px solid var(--accent3); }
+  .home-feed-row-sport {
+    align-self: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 4px 8px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 6px;
+    text-align: center;
+  }
+  .home-feed-row-body { min-width: 0; }
+  .home-feed-row-source {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.8px;
+    color: var(--accent);
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .home-feed-row-pick {
+    margin-top: 3px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.35;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .home-feed-row-meta {
+    margin-top: 3px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+  }
+  .home-feed-row-pl {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: right;
+    min-width: 84px;
+    letter-spacing: 0.3px;
+  }
+  .home-feed-row-pl.positive { color: var(--win); }
+  .home-feed-row-pl.negative { color: var(--loss); }
+  .home-feed-row-pl.neutral  { color: var(--muted); }
+  .home-feed-row-control .result-select { min-width: 108px; }
+  .home-row-kelly {
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 9px;
+    letter-spacing: 0.4px;
+  }
+  @media (max-width: 720px) {
+    .home-feed-row {
+      grid-template-columns: 44px 1fr;
+      grid-template-rows: auto auto;
+      column-gap: 10px;
+      row-gap: 6px;
+    }
+    .home-feed-row-pl,
+    .home-feed-row-control {
+      grid-column: 1 / -1;
+      justify-self: stretch;
+      text-align: left;
+    }
+    .home-feed-row-control { justify-self: end; }
+    .home-feed-row-pick { white-space: normal; }
+  }
+
   .home-pick-card {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
@@ -7349,8 +7453,70 @@ function render() {
     });
 
     feed.innerHTML = sections.map(section => {
-      const sectionPickCount = section.games.reduce((sum, game) => sum + game.picks.length, 0);
-      const sectionMeta = `${sectionPickCount} pick${sectionPickCount === 1 ? '' : 's'} across ${section.games.length} matchup${section.games.length === 1 ? '' : 's'}`;
+      // Flatten all picks within this sport so we render compact rows
+      // (pulse-log style) instead of heavy per-matchup cards. We still
+      // group by matchup using a thin sub-header so the slate stays
+      // readable, but each pick line is a clean grade-able row.
+      const flatPicks = section.games.flatMap(g => g.picks.map(p => ({
+        ...p,
+        _gameLabel: g.label,
+        _gameDate: g.date,
+        _gameStartIso: g.startIso,
+      })));
+      flatPicks.sort((a, b) => {
+        const at = a.sortTs || 0;
+        const bt = b.sortTs || 0;
+        if (at !== bt) return at - bt;
+        return String(a.pick || '').localeCompare(String(b.pick || ''));
+      });
+
+      const sectionPickCount = flatPicks.length;
+      const sectionMeta = `${sectionPickCount} pick${sectionPickCount === 1 ? '' : 's'} · ${section.games.length} matchup${section.games.length === 1 ? '' : 's'}`;
+
+      const rowsHtml = flatPicks.map(p => {
+        const sportKey = String(p.sport || section.sport || 'OTHER').toUpperCase();
+        const source = getRankingSourceKey(p) || (p.source || 'Unknown');
+        const oddsDisplay = formatOddsOrProbabilityDisplay(p.odds, p.probability) || '';
+        const isPending = p.result === 'pending';
+        const units = Number(p.units) || 0;
+        const pl = Number(p.pl) || 0;
+        const plDisplay = isPending
+          ? `${formatUnitsCompact(units)}u risk`
+          : `${pl >= 0 ? '+' : ''}${formatUnitsCompact(pl)}u`;
+        const plCls = isPending ? 'neutral' : pl > 0 ? 'positive' : pl < 0 ? 'negative' : 'neutral';
+        const control = renderPickResultControl(p);
+        const dateLabel = p._gameDate || p.date || '';
+        const startLabel = formatStartLabel(p._gameStartIso);
+        const metaBits = [dateLabel, oddsDisplay, `${formatUnitsCompact(units)}u`, startLabel].filter(Boolean).join(' · ');
+        const sourceUpper = String(p.source || '').toUpperCase();
+        const isNbaNewPick = sourceUpper.includes('NBANEW') || sourceUpper.includes('NBA NEW');
+        const kellyHtml = (isNbaNewPick && p.kelly_edge) ? (() => {
+          const ke = p.kelly_edge;
+          const v  = ke.verdict || 'PASS';
+          const verdictLabel = {
+            BET: '🔥 Bet',
+            LEAN: '~ Lean',
+            PASS: '— Pass',
+            FADE: '✗ Fade',
+            NO_LINE: '— No Line',
+            ERROR: '— Error',
+            NO_MODEL_SPREAD: '— No Spread'
+          }[v] || v;
+          return `<span class="home-row-kelly kelly-badge ${v}">${verdictLabel}${ke.edge_pct != null ? ` · ${ke.edge_pct}%` : ''}</span>`;
+        })() : '';
+        return `
+          <div class="home-feed-row result-${p.result}">
+            <span class="home-feed-row-sport">${_dailyEscape(sportKey)}</span>
+            <div class="home-feed-row-body">
+              <div class="home-feed-row-source">${_dailyEscape(source)}${kellyHtml}</div>
+              <div class="home-feed-row-pick" title="${_dailyEscape(p.pick || '')}">${_dailyEscape(p.pick || '')}</div>
+              <div class="home-feed-row-meta">${_dailyEscape(metaBits)}</div>
+            </div>
+            <div class="home-feed-row-pl ${plCls}">${_dailyEscape(plDisplay)}</div>
+            <div class="home-feed-row-control">${control}</div>
+          </div>`;
+      }).join('');
+
       return `
         <section class="home-feed-section">
           <div class="home-feed-section-head">
@@ -7359,125 +7525,7 @@ function render() {
               <div class="home-feed-section-meta">${_dailyEscape(sectionMeta)}</div>
             </div>
           </div>
-          <div class="home-feed-grid">
-            ${section.games.map(game => {
-              const verdict = _dailyGroupVerdict(game.picks);
-              const statusKey = verdict.key === 'live' ? 'live' : verdict.key;
-              const sourceList = [...new Set(game.picks.map(p => getRankingSourceKey(p)))];
-              const pendingCount = game.picks.filter(p => p.result === 'pending').length;
-              const wins = game.picks.filter(p => p.result === 'win').length;
-              const losses = game.picks.filter(p => p.result === 'loss').length;
-              const pushes = game.picks.filter(p => p.result === 'push').length;
-              const groupUnits = game.picks.reduce((sum, p) => sum + Number(p.units || 0), 0);
-              const groupNet = game.picks.reduce((sum, p) => sum + p.pl, 0);
-              const groupPlClass = groupNet > 0 ? 'positive' : groupNet < 0 ? 'negative' : 'neutral';
-              const groupPlLabel = showSettled ? `${groupNet >= 0 ? '+' : ''}${formatUnitsCompact(groupNet)}u` : `${formatUnitsCompact(groupUnits)}u risk`;
-              const groupCaption = showSettled
-                ? `${wins}W${losses ? ` · ${losses}L` : ''}${pushes ? ` · ${pushes}P` : ''}`
-                : `${pendingCount} open pick${pendingCount === 1 ? '' : 's'} · ${sourceList.length} label${sourceList.length === 1 ? '' : 's'}`;
-              const gameMeta = [game.date, formatStartLabel(game.startIso), `${game.picks.length} pick${game.picks.length === 1 ? '' : 's'}`].filter(Boolean).join(' · ');
-              const sportPillClass = isIplPick({ sport: game.sport }) ? 'home-sport-pill is-ipl' : 'home-sport-pill';
-              const statusText = showSettled
-                ? (verdict.key === 'live' ? 'SETTLED' : verdict.label)
-                : 'OPEN';
-              return `
-                <article class="home-game-card status-${statusKey}">
-                  <div class="home-game-top">
-                    <div>
-                      <div class="home-game-kicker">
-                        <span class="${sportPillClass}">${_dailyEscape(getSportBadgeText(game.sport))}</span>
-                        <span class="home-status-pill ${statusKey}">${_dailyEscape(statusText)}</span>
-                      </div>
-                      <div class="home-game-title">${_dailyEscape(game.label)}</div>
-                      <div class="home-game-meta">${_dailyEscape(gameMeta)}</div>
-                    </div>
-                    <div>
-                      <div class="home-game-pl ${groupPlClass}">${_dailyEscape(groupPlLabel)}</div>
-                      <div class="home-game-caption">${_dailyEscape(groupCaption)}</div>
-                    </div>
-                  </div>
-                  <div class="home-game-picks">
-                    ${game.picks.map(p => {
-                      const pc = p.pl > 0 ? 'positive' : p.pl < 0 ? 'negative' : 'neutral';
-                      const plDisplay = p.result === 'pending' ? `${formatUnitsCompact(p.units)}u risk` : `${p.pl >= 0 ? '+' : ''}${formatUnitsCompact(p.pl)}u`;
-                      const res = renderPickResultControl(p);
-                      const sourceUpper = String(p.source || '').toUpperCase();
-                      const isNbaNewPick = sourceUpper.includes('NBANEW') || sourceUpper.includes('NBA NEW');
-                      const resultLabel = {
-                        pending: 'Awaiting grade',
-                        win: 'Win',
-                        loss: 'Loss',
-                        push: 'Push',
-                      }[p.result] || 'Pending';
-                      return `
-                        <div class="home-pick-card result-${p.result}">
-                          <div class="home-pick-main">
-                            <div class="home-pick-head">
-                              <span class="home-pick-source">${_dailyEscape(getRankingSourceKey(p))}</span>
-                              <span class="home-pick-odds">${_dailyEscape(formatOddsOrProbabilityDisplay(p.odds, p.probability))}</span>
-                              <span class="home-pick-units">${_dailyEscape(formatUnitsCompact(p.units))}u</span>
-                            </div>
-                            <div class="home-pick-text">${_dailyEscape(p.pick || '')}</div>
-                          </div>
-                          <div class="home-pick-actions">
-                            <span class="home-pick-status ${p.result}">${_dailyEscape(resultLabel)}</span>
-                            <div class="home-pick-pl ${pc}">${_dailyEscape(plDisplay)}</div>
-                            <div class="home-pick-control">${res}</div>
-                          </div>
-                          ${isNbaNewPick && p.kelly_edge ? (() => {
-                            const ke = p.kelly_edge;
-                            const v  = ke.verdict || 'PASS';
-                            const verdictLabel = {
-                              BET: '🔥 Bet',
-                              LEAN: '~ Lean',
-                              PASS: '— Pass',
-                              FADE: '✗ Fade',
-                              NO_LINE: '— No Line',
-                              ERROR: '— Error',
-                              NO_MODEL_SPREAD: '— No Spread'
-                            }[v] || v;
-
-                            const edgeRow = (ke.edge_pct != null) ? `
-                              <div class="kelly-details">
-                                <span>
-                                  <div class="kd-label">Edge</div>
-                                  <div class="kd-val">${ke.edge_pct}%</div>
-                                </span>
-                                <span>
-                                  <div class="kd-label">Model P</div>
-                                  <div class="kd-val">${ke.model_prob}%</div>
-                                </span>
-                                <span>
-                                  <div class="kd-label">Market P</div>
-                                  <div class="kd-val">${ke.market_prob}%</div>
-                                </span>
-                                <span>
-                                  <div class="kd-label">Kelly Stake</div>
-                                  <div class="kd-val">${ke.kelly_frac_pct}%</div>
-                                </span>
-                                <span>
-                                  <div class="kd-label">Bet Side</div>
-                                  <div class="kd-val">${ke.bet_side || '—'}</div>
-                                </span>
-                                ${ke.vegas_spread != null ? `
-                                <span>
-                                  <div class="kd-label">Vegas Line</div>
-                                  <div class="kd-val">${ke.vegas_spread > 0 ? '+' : ''}${ke.vegas_spread}</div>
-                                </span>` : ''}
-                              </div>` : '';
-
-                            return `
-                              <div class="kelly-wrap">
-                                <div class="kelly-badge ${v}">${verdictLabel}</div>
-                                ${edgeRow}
-                              </div>`;
-                          })() : ''}
-                        </div>`;
-                    }).join('')}
-                  </div>
-                </article>`;
-            }).join('')}
-          </div>
+          <div class="home-feed-rows">${rowsHtml}</div>
         </section>`;
     }).join('');
   }
