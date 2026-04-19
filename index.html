@@ -813,6 +813,464 @@
     line-height: 1.6;
     color: var(--muted);
   }
+  /* ── Ledger Pulse (Home) ── */
+  .pulse-shell { display: flex; flex-direction: column; gap: 16px; }
+  .pulse-vital {
+    position: relative;
+    overflow: hidden;
+    padding: 28px 32px;
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+    background:
+      radial-gradient(900px 320px at 0% 0%, rgba(0,229,160,0.16), transparent 62%),
+      radial-gradient(700px 260px at 100% 100%, rgba(77,166,255,0.12), transparent 60%),
+      linear-gradient(165deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)),
+      var(--card);
+  }
+  .pulse-vital::after {
+    content: '';
+    position: absolute;
+    inset: auto -12% -40% auto;
+    width: 360px;
+    height: 360px;
+    background: radial-gradient(circle, rgba(255,215,0,0.07), transparent 60%);
+    pointer-events: none;
+  }
+  .pulse-vital-left { flex: 1 1 420px; min-width: 0; position: relative; z-index: 1; }
+  .pulse-vital-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1.4px;
+    color: var(--accent);
+    text-transform: uppercase;
+  }
+  .pulse-vital-dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 999px;
+    background: var(--accent);
+    box-shadow: 0 0 18px rgba(0,229,160,0.9);
+    animation: pulse-heartbeat 1.6s infinite ease-in-out;
+  }
+  .pulse-vital-dot.cold {
+    background: var(--loss);
+    box-shadow: 0 0 18px rgba(255,69,96,0.9);
+  }
+  @keyframes pulse-heartbeat {
+    0%, 70%, 100% { transform: scale(1); opacity: 1; }
+    15% { transform: scale(1.55); opacity: 0.55; }
+    35% { transform: scale(1.2); opacity: 0.85; }
+  }
+  .pulse-vital-mood {
+    margin-top: 12px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 82px;
+    letter-spacing: 2px;
+    line-height: 0.92;
+    color: var(--text);
+  }
+  .pulse-vital-copy {
+    margin-top: 12px;
+    max-width: 580px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--muted);
+  }
+  .pulse-vital-right {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+  }
+  .pulse-vital-bpm {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .pulse-vital-bpm-ring { position: absolute; inset: 0; }
+  .pulse-vital-bpm-svg { width: 100%; height: 100%; transform: rotate(0deg); }
+  .pulse-vital-bpm.cold #pulse-hero-bpm-arc { stroke: var(--loss); }
+  .pulse-vital-bpm-center {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .pulse-vital-bpm-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 66px;
+    letter-spacing: 1.5px;
+    line-height: 0.9;
+    color: var(--text);
+  }
+  .pulse-vital-bpm-label {
+    margin-top: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.3px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .pulse-bento {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-rows: minmax(150px, auto);
+    gap: 14px;
+  }
+  .pulse-tile {
+    position: relative;
+    padding: 18px 20px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.005)), var(--card);
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: hidden;
+    min-height: 150px;
+  }
+  .pulse-tile:hover {
+    border-color: rgba(0,229,160,0.28);
+    transform: translateY(-2px);
+    box-shadow: 0 18px 34px rgba(0,0,0,0.22);
+  }
+  .pulse-kicker {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.3px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* Bankroll EKG */
+  .pulse-ekg { grid-column: span 2; grid-row: span 2; }
+  .pulse-ekg-main { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  .pulse-ekg-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 68px;
+    letter-spacing: 1.2px;
+    line-height: 0.9;
+    color: var(--text);
+  }
+  .pulse-ekg-num.positive { color: var(--win); }
+  .pulse-ekg-num.negative { color: var(--loss); }
+  .pulse-ekg-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .pulse-ekg-chart {
+    flex: 1;
+    min-height: 170px;
+    position: relative;
+    border-radius: 14px;
+    background: rgba(8,12,18,0.35);
+    border: 1px solid rgba(255,255,255,0.04);
+    overflow: hidden;
+  }
+  .pulse-ekg-chart svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .pulse-ekg-chart-empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--muted);
+  }
+  .pulse-ekg-foot {
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .pulse-ekg-foot > div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+    min-width: 0;
+  }
+  .pulse-ekg-foot strong {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    color: var(--text);
+    letter-spacing: 0.4px;
+  }
+  .pulse-ekg-foot small {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .pulse-ekg-foot strong.positive { color: var(--win); }
+  .pulse-ekg-foot strong.negative { color: var(--loss); }
+
+  /* Streak */
+  .pulse-streak.win {
+    background: linear-gradient(180deg, rgba(0,229,160,0.14), rgba(0,229,160,0.02)), var(--card);
+    border-color: rgba(0,229,160,0.3);
+  }
+  .pulse-streak.loss {
+    background: linear-gradient(180deg, rgba(255,69,96,0.14), rgba(255,69,96,0.02)), var(--card);
+    border-color: rgba(255,69,96,0.3);
+  }
+  .pulse-streak-face { font-size: 54px; line-height: 1; margin-top: 2px; }
+  .pulse-streak-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 46px;
+    letter-spacing: 1.2px;
+    line-height: 0.95;
+    color: var(--text);
+  }
+  .pulse-streak.win .pulse-streak-num { color: var(--win); }
+  .pulse-streak.loss .pulse-streak-num { color: var(--loss); }
+  .pulse-streak-caption {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* Form dots */
+  .pulse-form-dots { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+  .pulse-form-dot {
+    flex: 1 1 22px;
+    min-width: 20px;
+    aspect-ratio: 1 / 1;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    background: rgba(255,255,255,0.04);
+  }
+  .pulse-form-dot.win { background: rgba(0,229,160,0.22); border-color: rgba(0,229,160,0.42); color: var(--win); }
+  .pulse-form-dot.loss { background: rgba(255,69,96,0.22); border-color: rgba(255,69,96,0.42); color: var(--loss); }
+  .pulse-form-dot.push { background: rgba(255,215,0,0.2); border-color: rgba(255,215,0,0.35); color: var(--push); }
+  .pulse-form-dot.empty { background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.06); color: rgba(255,255,255,0.22); }
+  .pulse-form-meta {
+    margin-top: auto;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.6px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* Heat map */
+  .pulse-heat { grid-column: span 2; }
+  .pulse-heat-grid {
+    display: grid;
+    grid-template-columns: repeat(15, minmax(0, 1fr));
+    gap: 5px;
+    margin-top: 4px;
+  }
+  .pulse-heat-cell {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 5px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: transform 0.15s;
+  }
+  .pulse-heat-cell:hover { transform: scale(1.2); z-index: 2; }
+  .pulse-heat-cell.size-sm { width: 12px; height: 12px; aspect-ratio: unset; display: inline-block; }
+  .pulse-heat-cell.pos-1 { background: rgba(0,229,160,0.2); border-color: rgba(0,229,160,0.28); }
+  .pulse-heat-cell.pos-2 { background: rgba(0,229,160,0.38); border-color: rgba(0,229,160,0.5); }
+  .pulse-heat-cell.pos-3 { background: rgba(0,229,160,0.6); border-color: rgba(0,229,160,0.72); }
+  .pulse-heat-cell.pos-4 { background: rgba(0,229,160,0.85); border-color: rgba(0,229,160,0.95); box-shadow: 0 0 12px rgba(0,229,160,0.3); }
+  .pulse-heat-cell.neg-1 { background: rgba(255,69,96,0.2); border-color: rgba(255,69,96,0.28); }
+  .pulse-heat-cell.neg-2 { background: rgba(255,69,96,0.38); border-color: rgba(255,69,96,0.5); }
+  .pulse-heat-cell.neg-3 { background: rgba(255,69,96,0.6); border-color: rgba(255,69,96,0.72); }
+  .pulse-heat-cell.neg-4 { background: rgba(255,69,96,0.85); border-color: rgba(255,69,96,0.95); box-shadow: 0 0 12px rgba(255,69,96,0.3); }
+  .pulse-heat-cell.zero { background: rgba(255,255,255,0.05); }
+  .pulse-heat-legend {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1.2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* Hot Capper */
+  .pulse-hot-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 30px;
+    letter-spacing: 0.8px;
+    line-height: 1;
+    color: var(--text);
+    margin-top: 4px;
+  }
+  .pulse-hot-stat {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.6px;
+    color: var(--muted);
+  }
+  .pulse-hot-bar {
+    margin-top: auto;
+    height: 8px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .pulse-hot-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), rgba(77,166,255,0.85));
+    width: 0%;
+    transition: width 0.4s;
+  }
+
+  /* Best Day */
+  .pulse-best-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 46px;
+    letter-spacing: 0.8px;
+    line-height: 0.95;
+    color: var(--win);
+    margin-top: 4px;
+  }
+  .pulse-best-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.6px;
+    color: var(--muted);
+  }
+
+  /* Sport MVP */
+  .pulse-sport { grid-column: span 2; }
+  .pulse-sport-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 42px;
+    letter-spacing: 1.2px;
+    line-height: 0.95;
+    color: var(--text);
+    margin-top: 4px;
+  }
+  .pulse-sport-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.6px;
+    color: var(--muted);
+  }
+  .pulse-sport-bars { margin-top: auto; display: flex; flex-direction: column; gap: 6px; }
+  .pulse-sport-bar-row {
+    display: grid;
+    grid-template-columns: 52px 1fr auto;
+    align-items: center;
+    gap: 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.4px;
+  }
+  .pulse-sport-bar-label { color: var(--text); }
+  .pulse-sport-bar-track { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.05); overflow: hidden; }
+  .pulse-sport-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s; }
+  .pulse-sport-bar-fill.pos { background: linear-gradient(90deg, rgba(0,229,160,0.55), var(--accent)); }
+  .pulse-sport-bar-fill.neg { background: linear-gradient(90deg, rgba(255,69,96,0.55), var(--loss)); margin-left: auto; }
+  .pulse-sport-bar-value.positive { color: var(--win); }
+  .pulse-sport-bar-value.negative { color: var(--loss); }
+
+  /* CTA */
+  .pulse-cta {
+    cursor: pointer;
+    background:
+      radial-gradient(600px 220px at 100% 0%, rgba(77,166,255,0.18), transparent 62%),
+      linear-gradient(180deg, rgba(77,166,255,0.1), rgba(77,166,255,0.02)),
+      var(--card);
+    border-color: rgba(77,166,255,0.3);
+  }
+  .pulse-cta:hover { border-color: rgba(77,166,255,0.55); transform: translateY(-3px); }
+  .pulse-cta-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 68px;
+    letter-spacing: 1.2px;
+    line-height: 0.9;
+    color: var(--accent3);
+    margin-top: 4px;
+  }
+  .pulse-cta-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .pulse-cta-link {
+    margin-top: auto;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1.2px;
+    color: var(--accent3);
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 1020px) {
+    .pulse-bento { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .pulse-ekg { grid-column: span 2; grid-row: auto; }
+    .pulse-heat { grid-column: span 2; }
+    .pulse-sport { grid-column: span 2; }
+  }
+  @media (max-width: 620px) {
+    .pulse-vital { padding: 22px; }
+    .pulse-vital-mood { font-size: 56px; }
+    .pulse-vital-bpm { width: 140px; height: 140px; }
+    .pulse-vital-bpm-num { font-size: 52px; }
+    .pulse-bento { grid-template-columns: 1fr; }
+    .pulse-ekg, .pulse-heat, .pulse-sport { grid-column: span 1; }
+    .pulse-ekg-num { font-size: 52px; }
+  }
+
+  /* Light theme overrides */
+  body[data-theme="light"] .pulse-vital {
+    background:
+      radial-gradient(900px 320px at 0% 0%, rgba(11,157,116,0.14), transparent 62%),
+      radial-gradient(700px 260px at 100% 100%, rgba(37,99,235,0.1), transparent 60%),
+      linear-gradient(165deg, rgba(15,25,35,0.04), rgba(15,25,35,0.01)),
+      var(--card);
+  }
+  body[data-theme="light"] .pulse-ekg-chart {
+    background: rgba(15,25,35,0.03);
+    border-color: rgba(15,25,35,0.06);
+  }
+
   .home-feed-section { display: flex; flex-direction: column; gap: 14px; }
   .home-feed-section-head {
     display: flex;
@@ -3151,57 +3609,97 @@
 
   <!-- HOME TAB -->
   <div id="tab-home" class="tab-content active">
-    <div class="home-shell">
-      <div class="home-hero">
-        <div class="home-hero-row">
-          <div class="home-hero-copy">
-            <div class="home-eyebrow" id="home-eyebrow">LIVE BOARD</div>
-            <div class="home-title" id="home-title">Today&rsquo;s Slate, cleaned up</div>
-            <div class="home-sub" id="home-sub">Big matchup cards, bigger sport labels, and a calmer way to scan everything that matters.</div>
+    <div class="pulse-shell">
+      <section class="pulse-vital">
+        <div class="pulse-vital-left">
+          <div class="pulse-vital-eyebrow">
+            <span class="pulse-vital-dot" id="pulse-hero-dot"></span>
+            <span id="pulse-hero-stamp">LEDGER VITALS</span>
           </div>
-          <div class="home-hero-actions">
-            <div class="home-hero-chips">
-              <span class="home-hero-chip" id="home-mode-chip">PENDING VIEW</span>
-              <span class="home-hero-chip date" id="home-date-chip">APR 17</span>
-              <span class="home-hero-chip muted" id="home-filter-chip">ALL SOURCES</span>
+          <div class="pulse-vital-mood" id="pulse-hero-mood">WARMING UP</div>
+          <div class="pulse-vital-copy" id="pulse-hero-copy">Reading the room&hellip;</div>
+        </div>
+        <div class="pulse-vital-right">
+          <div class="pulse-vital-bpm" id="pulse-hero-bpm">
+            <div class="pulse-vital-bpm-ring">
+              <svg viewBox="0 0 100 100" class="pulse-vital-bpm-svg" aria-hidden="true">
+                <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="6" />
+                <circle id="pulse-hero-bpm-arc" cx="50" cy="50" r="45" fill="none" stroke="var(--accent)" stroke-width="6" stroke-linecap="round" stroke-dasharray="0 283" transform="rotate(-90 50 50)" />
+              </svg>
             </div>
-            <button id="settled-toggle-btn" class="home-toggle-btn" onclick="toggleShowSettled()">SHOW SETTLED</button>
+            <div class="pulse-vital-bpm-center">
+              <div class="pulse-vital-bpm-num" id="pulse-hero-bpm-num">&mdash;</div>
+              <div class="pulse-vital-bpm-label">BOOK HEALTH</div>
+            </div>
           </div>
         </div>
-        <div class="home-summary-grid" id="home-summary-grid"></div>
-      </div>
+      </section>
 
-      <div class="home-filter-shell">
-        <div class="home-filter-head">
-          <div>
-            <div class="home-filter-title">Filter The Board</div>
-            <div class="home-filter-sub">Lock the board to one date, then slice it by sport or source.</div>
+      <section class="pulse-bento">
+        <article class="pulse-tile pulse-ekg">
+          <div class="pulse-kicker">BANKROLL TRAIL &middot; ALL TIME</div>
+          <div class="pulse-ekg-main">
+            <div class="pulse-ekg-num" id="pulse-ekg-num">&mdash;</div>
+            <div class="pulse-ekg-sub" id="pulse-ekg-sub">Awaiting first result</div>
           </div>
-          <div class="home-date-wrap" id="home-date-wrap">
-            <button
-              id="home-date-trigger"
-              class="home-date-trigger"
-              type="button"
-              onclick="toggleHomeDatePicker(event)"
-              aria-haspopup="dialog"
-              aria-expanded="false"
-            >
-              <span class="home-date-trigger-copy">
-                <span class="home-date-trigger-label">Board Date</span>
-                <span class="home-date-trigger-value" id="home-date-trigger-value">April 17</span>
-              </span>
-              <span class="home-date-trigger-meta" id="home-date-trigger-meta">Today</span>
-              <span class="home-date-trigger-caret">&#9662;</span>
-            </button>
-            <div id="home-date-popover" class="home-date-popover" role="dialog" aria-label="Select board date"></div>
-          </div>
-        </div>
-        <div class="filter-bar" id="filter-bar"></div>
-      </div>
+          <div class="pulse-ekg-chart" id="pulse-ekg-chart"></div>
+          <div class="pulse-ekg-foot" id="pulse-ekg-foot"></div>
+        </article>
 
-      <div class="panel home-feed-panel">
-        <div id="pick-feed" class="pick-feed"></div>
-      </div>
+        <article class="pulse-tile pulse-streak" id="pulse-streak-tile">
+          <div class="pulse-kicker">CURRENT STREAK</div>
+          <div class="pulse-streak-face" id="pulse-streak-face">&mdash;</div>
+          <div class="pulse-streak-num" id="pulse-streak-num">&mdash;</div>
+          <div class="pulse-streak-caption" id="pulse-streak-caption">No decided picks yet</div>
+        </article>
+
+        <article class="pulse-tile pulse-form">
+          <div class="pulse-kicker">FORM &middot; LAST 10</div>
+          <div class="pulse-form-dots" id="pulse-form-dots"></div>
+          <div class="pulse-form-meta" id="pulse-form-meta">No decided picks yet</div>
+        </article>
+
+        <article class="pulse-tile pulse-heat">
+          <div class="pulse-kicker">30-DAY HEAT MAP &middot; DAILY NET UNITS</div>
+          <div class="pulse-heat-grid" id="pulse-heat-grid"></div>
+          <div class="pulse-heat-legend">
+            <span>COLD</span>
+            <span class="pulse-heat-cell size-sm neg-3"></span>
+            <span class="pulse-heat-cell size-sm neg-1"></span>
+            <span class="pulse-heat-cell size-sm zero"></span>
+            <span class="pulse-heat-cell size-sm pos-1"></span>
+            <span class="pulse-heat-cell size-sm pos-3"></span>
+            <span>HOT</span>
+          </div>
+        </article>
+
+        <article class="pulse-tile pulse-hot">
+          <div class="pulse-kicker">HOT CAPPER &middot; LAST 14 DAYS</div>
+          <div class="pulse-hot-name" id="pulse-hot-name">&mdash;</div>
+          <div class="pulse-hot-stat" id="pulse-hot-stat">Need 3+ decided picks</div>
+          <div class="pulse-hot-bar"><div class="pulse-hot-bar-fill" id="pulse-hot-bar-fill"></div></div>
+        </article>
+
+        <article class="pulse-tile pulse-best">
+          <div class="pulse-kicker">PEAK DAY EVER</div>
+          <div class="pulse-best-num" id="pulse-best-num">&mdash;</div>
+          <div class="pulse-best-sub" id="pulse-best-sub">Need 2+ decided picks in one day</div>
+        </article>
+
+        <article class="pulse-tile pulse-sport">
+          <div class="pulse-kicker">SPORT MVP</div>
+          <div class="pulse-sport-name" id="pulse-sport-name">&mdash;</div>
+          <div class="pulse-sport-meta" id="pulse-sport-meta">Need 3+ decided picks per sport</div>
+          <div class="pulse-sport-bars" id="pulse-sport-bars"></div>
+        </article>
+
+        <article class="pulse-tile pulse-cta" id="pulse-cta" onclick="switchTab('daily')" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchTab('daily');}">
+          <div class="pulse-kicker">TODAY&rsquo;S OPEN ACTION</div>
+          <div class="pulse-cta-num" id="pulse-cta-num">0</div>
+          <div class="pulse-cta-sub" id="pulse-cta-sub">pending picks</div>
+          <div class="pulse-cta-link">TAP FOR LIVE SLATE &rarr;</div>
+        </article>
+      </section>
     </div>
   </div>
 
@@ -6422,6 +6920,397 @@ function _dailyJumpToSourceFromEl(el) {
   if (typeof render === 'function') render();
 }
 
+// ── Ledger Pulse (Home tab) ──
+// Strategic dashboard: long-term book health, distinct from the Daily tab's
+// today-only slate. Draws a bankroll trail, mood hero, streak, form dots,
+// 30-day heat map, hot capper, peak day, sport MVP, and an open-today CTA.
+function renderHomePulse() {
+  const shell = document.querySelector('.pulse-shell');
+  if (!shell) return;
+
+  let picks = [];
+  try { picks = (typeof getPicks === 'function') ? getPicks() : []; }
+  catch (e) { picks = []; }
+  if (!Array.isArray(picks)) picks = [];
+
+  // Build a date-sorted, decided-only stream (wins/losses/pushes with a parsable date)
+  const decided = picks
+    .filter(p => p && (p.result === 'win' || p.result === 'loss' || p.result === 'push'))
+    .map(p => ({ pick: p, d: parsePickDateLabel(p.date || p.game_date || p.Date) }))
+    .filter(entry => entry.d)
+    .sort((a, b) => (a.d - b.d) || ((a.pick.id || 0) - (b.pick.id || 0)))
+    .map(entry => ({ ...entry.pick, _d: entry.d }));
+  const decidedWL = decided.filter(p => p.result === 'win' || p.result === 'loss');
+
+  const wins = decided.filter(p => p.result === 'win').length;
+  const losses = decided.filter(p => p.result === 'loss').length;
+  const pushes = decided.filter(p => p.result === 'push').length;
+  const netUnits = decided.reduce((s, p) => s + (Number(p.pl) || 0), 0);
+  const riskTotal = decided
+    .filter(p => p.result !== 'push')
+    .reduce((s, p) => s + (Number(p.units) || 0), 0);
+  const roi = riskTotal > 0 ? (netUnits / riskTotal) * 100 : null;
+  const hitRate = (wins + losses) > 0 ? (wins / (wins + losses)) : null;
+
+  // ── Mood hero ──
+  const stampEl = document.getElementById('pulse-hero-stamp');
+  if (stampEl) {
+    const today = new Date();
+    const stamp = today.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }).toUpperCase();
+    stampEl.textContent = `LEDGER VITALS · ${stamp}`;
+  }
+
+  let mood = 'WARMING UP';
+  let moodCopy = decided.length
+    ? `Only ${decided.length} decided pick${decided.length === 1 ? '' : 's'} in the book so far — too early to call the vibe.`
+    : 'No decided picks in the ledger yet. Once results land, the book starts breathing.';
+  let moodCold = false;
+  let bookHealth = 50;
+
+  if ((wins + losses) >= 10 && hitRate != null) {
+    const accScore = hitRate * 60;
+    const unitsScore = Math.max(-20, Math.min(30, netUnits * 0.8));
+    const volumeBonus = Math.min(10, Math.log2(1 + decided.length) * 2);
+    bookHealth = Math.max(0, Math.min(100, Math.round(accScore + unitsScore + volumeBonus)));
+
+    if (netUnits >= 20 && hitRate >= 0.56) {
+      mood = 'ON FIRE';
+      moodCopy = `The book is printing: ${(hitRate * 100).toFixed(1)}% hit rate, +${netUnits.toFixed(1)}u banked across ${wins + losses} decided picks.`;
+    } else if (netUnits >= 5 && hitRate >= 0.52) {
+      mood = 'CLIMBING';
+      moodCopy = `Quietly grinding up the hill — +${netUnits.toFixed(1)}u at ${(hitRate * 100).toFixed(1)}%. Keep the discipline.`;
+    } else if (Math.abs(netUnits) <= 5 && hitRate >= 0.48 && hitRate <= 0.54) {
+      mood = 'STEADY';
+      moodCopy = `Flat as a pancake — ${(hitRate * 100).toFixed(1)}% hit rate, ${netUnits >= 0 ? '+' : ''}${netUnits.toFixed(1)}u. Waiting for the next move.`;
+    } else if (netUnits <= -10 || hitRate < 0.45) {
+      mood = 'COLD STREAK';
+      moodCold = true;
+      moodCopy = `The book is bleeding — ${netUnits.toFixed(1)}u down at ${(hitRate * 100).toFixed(1)}% hit rate. Trust the process, trim the volume.`;
+    } else {
+      mood = netUnits >= 0 ? 'SOFT UP' : 'SOFT PATCH';
+      moodCold = netUnits < 0;
+      moodCopy = `${netUnits >= 0 ? '+' : ''}${netUnits.toFixed(1)}u at ${(hitRate * 100).toFixed(1)}%. A few results from flipping the narrative.`;
+    }
+  } else if (decided.length > 0) {
+    bookHealth = Math.max(0, Math.min(100, Math.round(50 + netUnits * 2)));
+  }
+
+  const moodEl = document.getElementById('pulse-hero-mood');
+  const copyEl = document.getElementById('pulse-hero-copy');
+  const bpmEl = document.getElementById('pulse-hero-bpm');
+  const bpmNumEl = document.getElementById('pulse-hero-bpm-num');
+  const bpmArcEl = document.getElementById('pulse-hero-bpm-arc');
+  const dotEl = document.getElementById('pulse-hero-dot');
+  if (moodEl) moodEl.textContent = mood;
+  if (copyEl) copyEl.textContent = moodCopy;
+  if (bpmNumEl) bpmNumEl.textContent = decided.length ? bookHealth : '—';
+  if (bpmEl) bpmEl.classList.toggle('cold', moodCold);
+  if (dotEl) dotEl.classList.toggle('cold', moodCold);
+  if (bpmArcEl) {
+    const circ = 2 * Math.PI * 45; // r=45
+    const frac = Math.max(0, Math.min(1, (decided.length ? bookHealth : 0) / 100));
+    bpmArcEl.setAttribute('stroke-dasharray', `${(circ * frac).toFixed(2)} ${circ.toFixed(2)}`);
+  }
+
+  // ── Bankroll EKG ──
+  const ekgNumEl = document.getElementById('pulse-ekg-num');
+  const ekgSubEl = document.getElementById('pulse-ekg-sub');
+  const ekgChartEl = document.getElementById('pulse-ekg-chart');
+  const ekgFootEl = document.getElementById('pulse-ekg-foot');
+
+  if (ekgNumEl) {
+    if (!decided.length) {
+      ekgNumEl.textContent = '—';
+      ekgNumEl.className = 'pulse-ekg-num';
+    } else {
+      ekgNumEl.textContent = `${netUnits >= 0 ? '+' : ''}${netUnits.toFixed(2)}u`;
+      ekgNumEl.className = 'pulse-ekg-num ' + (netUnits > 0 ? 'positive' : netUnits < 0 ? 'negative' : '');
+    }
+  }
+  if (ekgSubEl) {
+    ekgSubEl.textContent = decided.length
+      ? `${decided.length} DECIDED PICK${decided.length === 1 ? '' : 'S'} · ${wins}-${losses}${pushes ? '-' + pushes : ''}`
+      : 'Awaiting first result';
+  }
+
+  let running = 0;
+  const trail = decided.map((p, idx) => {
+    running += (Number(p.pl) || 0);
+    return { idx, u: running };
+  });
+  if (ekgChartEl) {
+    if (!trail.length) {
+      ekgChartEl.innerHTML = '<div class="pulse-ekg-chart-empty">NO DATA · GRADE A PICK TO START THE TRAIL</div>';
+    } else {
+      const W = 600, H = 180, padY = 14;
+      const minU = Math.min(0, ...trail.map(t => t.u));
+      const maxU = Math.max(0, ...trail.map(t => t.u));
+      const range = (maxU - minU) || 1;
+      const xAt = (idx) => trail.length === 1 ? W / 2 : (idx / (trail.length - 1)) * W;
+      const yAt = (u) => H - padY - ((u - minU) / range) * (H - padY * 2);
+      const pts = trail.map(t => `${xAt(t.idx).toFixed(2)},${yAt(t.u).toFixed(2)}`).join(' ');
+      const areaPts = `0,${H} ${pts} ${W},${H}`;
+      const zeroY = yAt(0).toFixed(2);
+      const finalX = xAt(trail.length - 1).toFixed(2);
+      const finalY = yAt(running).toFixed(2);
+      const lineColor = netUnits >= 0 ? '#00e5a0' : '#ff4560';
+      ekgChartEl.innerHTML = `
+        <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="pulseEkgGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="${lineColor}" stop-opacity="0.38" />
+              <stop offset="100%" stop-color="${lineColor}" stop-opacity="0" />
+            </linearGradient>
+          </defs>
+          <line x1="0" y1="${zeroY}" x2="${W}" y2="${zeroY}" stroke="rgba(255,255,255,0.09)" stroke-width="1" stroke-dasharray="3 5" />
+          <polyline points="${areaPts}" fill="url(#pulseEkgGrad)" stroke="none" />
+          <polyline points="${pts}" fill="none" stroke="${lineColor}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+          <circle cx="${finalX}" cy="${finalY}" r="4.5" fill="${lineColor}" />
+          <circle cx="${finalX}" cy="${finalY}" r="8" fill="${lineColor}" opacity="0.32">
+            <animate attributeName="r" values="5;12;5" dur="2s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="0.55;0;0.55" dur="2s" repeatCount="indefinite" />
+          </circle>
+        </svg>`;
+    }
+  }
+  if (ekgFootEl) {
+    const peak = trail.length ? Math.max(...trail.map(t => t.u)) : 0;
+    const trough = trail.length ? Math.min(...trail.map(t => t.u)) : 0;
+    const recordStr = trail.length ? `${wins}-${losses}${pushes ? '-' + pushes : ''}` : '—';
+    const roiStr = roi == null ? '—' : `${roi >= 0 ? '+' : ''}${roi.toFixed(1)}%`;
+    const roiClass = roi == null ? '' : roi >= 0 ? 'positive' : 'negative';
+    const peakStr = trail.length ? `${peak >= 0 ? '+' : ''}${peak.toFixed(1)}u` : '—';
+    const troughStr = trail.length ? `${trough >= 0 ? '+' : ''}${trough.toFixed(1)}u` : '—';
+    ekgFootEl.innerHTML = `
+      <div><strong>${_dailyEscape(recordStr)}</strong><small>RECORD</small></div>
+      <div><strong class="${roiClass}">${_dailyEscape(roiStr)}</strong><small>ROI</small></div>
+      <div><strong class="${peak > 0 ? 'positive' : ''}">${_dailyEscape(peakStr)}</strong><small>PEAK</small></div>
+      <div><strong class="${trough < 0 ? 'negative' : ''}">${_dailyEscape(troughStr)}</strong><small>TROUGH</small></div>`;
+  }
+
+  // ── Streak ──
+  const streakTileEl = document.getElementById('pulse-streak-tile');
+  const streakFaceEl = document.getElementById('pulse-streak-face');
+  const streakNumEl = document.getElementById('pulse-streak-num');
+  const streakCaptionEl = document.getElementById('pulse-streak-caption');
+  if (streakTileEl && streakFaceEl && streakNumEl && streakCaptionEl) {
+    streakTileEl.classList.remove('win', 'loss');
+    if (!decidedWL.length) {
+      streakFaceEl.textContent = '—';
+      streakNumEl.textContent = '—';
+      streakCaptionEl.textContent = 'No decided picks yet';
+    } else {
+      const reversed = decidedWL.slice().reverse();
+      const head = reversed[0].result;
+      let len = 0;
+      for (const p of reversed) {
+        if (p.result !== head) break;
+        len++;
+      }
+      if (head === 'win') {
+        streakTileEl.classList.add('win');
+        streakFaceEl.textContent = '🔥';
+        streakNumEl.textContent = `${len}W`;
+        streakCaptionEl.textContent = len >= 4 ? 'HEATER ACTIVE' : len >= 2 ? 'RIDING GREEN' : 'FRESH WIN';
+      } else {
+        streakTileEl.classList.add('loss');
+        streakFaceEl.textContent = '🧊';
+        streakNumEl.textContent = `${len}L`;
+        streakCaptionEl.textContent = len >= 4 ? 'ICE COLD' : len >= 2 ? 'BOUNCE BACK' : 'SINGLE MISS';
+      }
+    }
+  }
+
+  // ── Form · Last 10 ──
+  const dotsEl = document.getElementById('pulse-form-dots');
+  const formMetaEl = document.getElementById('pulse-form-meta');
+  if (dotsEl && formMetaEl) {
+    const last10 = decided.slice(-10);
+    const dotHtml = [];
+    for (let i = 0; i < 10 - last10.length; i++) {
+      dotHtml.push('<span class="pulse-form-dot empty">·</span>');
+    }
+    last10.forEach(p => {
+      const label = p.result === 'win' ? 'W' : p.result === 'loss' ? 'L' : 'P';
+      dotHtml.push(`<span class="pulse-form-dot ${p.result}" title="${_dailyEscape(p.date || '')} · ${_dailyEscape(p.pick || '')}">${label}</span>`);
+    });
+    dotsEl.innerHTML = dotHtml.join('');
+    if (!last10.length) {
+      formMetaEl.textContent = 'No decided picks yet';
+    } else {
+      const lw = last10.filter(p => p.result === 'win').length;
+      const ll = last10.filter(p => p.result === 'loss').length;
+      const lp = last10.filter(p => p.result === 'push').length;
+      const lnet = last10.reduce((s, p) => s + (Number(p.pl) || 0), 0);
+      formMetaEl.textContent = `${lw}W · ${ll}L${lp ? ' · ' + lp + 'P' : ''} · ${lnet >= 0 ? '+' : ''}${lnet.toFixed(2)}u`;
+    }
+  }
+
+  // ── 30-day heat map ──
+  const heatEl = document.getElementById('pulse-heat-grid');
+  if (heatEl) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const DAYS = 30;
+    const dailyPL = new Map();
+    decided.forEach(p => {
+      const key = getLocalDateKey(p._d);
+      dailyPL.set(key, (dailyPL.get(key) || 0) + (Number(p.pl) || 0));
+    });
+    const cells = [];
+    for (let i = DAYS - 1; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      const key = getLocalDateKey(d);
+      const pl = dailyPL.get(key) || 0;
+      let cls = 'zero';
+      if (pl > 0) {
+        if (pl >= 5) cls = 'pos-4';
+        else if (pl >= 3) cls = 'pos-3';
+        else if (pl >= 1) cls = 'pos-2';
+        else cls = 'pos-1';
+      } else if (pl < 0) {
+        if (pl <= -5) cls = 'neg-4';
+        else if (pl <= -3) cls = 'neg-3';
+        else if (pl <= -1) cls = 'neg-2';
+        else cls = 'neg-1';
+      }
+      const dayLabel = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+      const plLabel = pl === 0 ? 'no action' : `${pl >= 0 ? '+' : ''}${pl.toFixed(2)}u`;
+      cells.push(`<div class="pulse-heat-cell ${cls}" title="${_dailyEscape(dayLabel + ' · ' + plLabel)}"></div>`);
+    }
+    heatEl.innerHTML = cells.join('');
+  }
+
+  // ── Hot capper (last 14 days) ──
+  const hotNameEl = document.getElementById('pulse-hot-name');
+  const hotStatEl = document.getElementById('pulse-hot-stat');
+  const hotBarEl = document.getElementById('pulse-hot-bar-fill');
+  if (hotNameEl && hotStatEl && hotBarEl) {
+    const cutoff = new Date();
+    cutoff.setHours(0, 0, 0, 0);
+    cutoff.setDate(cutoff.getDate() - 13);
+    const recent = decided.filter(p => p._d >= cutoff);
+    const bySource = {};
+    recent.forEach(p => {
+      let key = null;
+      try { key = (typeof getRankingSourceKey === 'function') ? getRankingSourceKey(p) : p.source; }
+      catch (e) { key = p.source; }
+      key = key || p.source || 'Unknown';
+      if (!bySource[key]) bySource[key] = { source: key, count: 0, wins: 0, losses: 0, net: 0 };
+      bySource[key].count++;
+      bySource[key].net += (Number(p.pl) || 0);
+      if (p.result === 'win') bySource[key].wins++;
+      else if (p.result === 'loss') bySource[key].losses++;
+    });
+    const eligible = Object.values(bySource).filter(s => s.count >= 3);
+    eligible.sort((a, b) => b.net - a.net);
+    const top = eligible[0];
+    if (top) {
+      hotNameEl.textContent = top.source;
+      hotStatEl.textContent = `${top.wins}-${top.losses} · ${top.net >= 0 ? '+' : ''}${top.net.toFixed(2)}u on ${top.count} pick${top.count === 1 ? '' : 's'}`;
+      const maxNet = Math.max(1, ...eligible.map(s => s.net));
+      const pct = top.net > 0 ? Math.max(12, Math.min(100, (top.net / maxNet) * 100)) : 4;
+      hotBarEl.style.width = pct + '%';
+    } else {
+      hotNameEl.textContent = '—';
+      hotStatEl.textContent = 'Need 3+ decided picks from one capper in the last 14 days';
+      hotBarEl.style.width = '0%';
+    }
+  }
+
+  // ── Best day ──
+  const bestNumEl = document.getElementById('pulse-best-num');
+  const bestSubEl = document.getElementById('pulse-best-sub');
+  if (bestNumEl && bestSubEl) {
+    const dayMap = new Map();
+    decided.forEach(p => {
+      const key = getLocalDateKey(p._d);
+      if (!dayMap.has(key)) dayMap.set(key, { key, date: p._d, net: 0, picks: 0, wins: 0, losses: 0 });
+      const d = dayMap.get(key);
+      d.net += (Number(p.pl) || 0);
+      d.picks++;
+      if (p.result === 'win') d.wins++;
+      else if (p.result === 'loss') d.losses++;
+    });
+    const eligibleDays = [...dayMap.values()].filter(d => d.picks >= 2);
+    eligibleDays.sort((a, b) => b.net - a.net);
+    const top = eligibleDays[0];
+    if (top && top.net > 0) {
+      bestNumEl.textContent = `+${top.net.toFixed(2)}u`;
+      bestNumEl.style.color = 'var(--win)';
+      bestSubEl.textContent = `${top.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} · ${top.wins}-${top.losses} on ${top.picks} picks`;
+    } else if (top) {
+      bestNumEl.textContent = `${top.net >= 0 ? '+' : ''}${top.net.toFixed(2)}u`;
+      bestNumEl.style.color = top.net < 0 ? 'var(--loss)' : 'var(--text)';
+      bestSubEl.textContent = `Best multi-pick day · ${top.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+    } else {
+      bestNumEl.textContent = '—';
+      bestNumEl.style.color = 'var(--text)';
+      bestSubEl.textContent = 'Need 2+ decided picks in a single day';
+    }
+  }
+
+  // ── Sport MVP ──
+  const sportNameEl = document.getElementById('pulse-sport-name');
+  const sportMetaEl = document.getElementById('pulse-sport-meta');
+  const sportBarsEl = document.getElementById('pulse-sport-bars');
+  if (sportNameEl && sportMetaEl && sportBarsEl) {
+    const bySport = {};
+    decided.forEach(p => {
+      const sp = String(p.sport || 'OTHER').toUpperCase();
+      if (!bySport[sp]) bySport[sp] = { sport: sp, wins: 0, losses: 0, net: 0, risk: 0, count: 0 };
+      bySport[sp].net += (Number(p.pl) || 0);
+      bySport[sp].count++;
+      if (p.result === 'win') bySport[sp].wins++;
+      else if (p.result === 'loss') bySport[sp].losses++;
+      if (p.result !== 'push') bySport[sp].risk += (Number(p.units) || 0);
+    });
+    const sports = Object.values(bySport);
+    const eligibleSports = sports.filter(s => (s.wins + s.losses) >= 3);
+    eligibleSports.sort((a, b) => b.net - a.net);
+    const top = eligibleSports[0];
+    if (top) {
+      const sportRoi = top.risk > 0 ? ((top.net / top.risk) * 100).toFixed(1) + '%' : '—';
+      sportNameEl.textContent = top.sport;
+      sportMetaEl.textContent = `${top.wins}-${top.losses} · ${top.net >= 0 ? '+' : ''}${top.net.toFixed(2)}u · ${sportRoi} ROI`;
+    } else {
+      sportNameEl.textContent = '—';
+      sportMetaEl.textContent = 'Need 3+ decided picks per sport';
+    }
+
+    const allForBars = sports.filter(s => s.count >= 1).sort((a, b) => b.net - a.net);
+    const maxAbs = Math.max(1, ...allForBars.map(s => Math.abs(s.net)));
+    sportBarsEl.innerHTML = allForBars.slice(0, 4).map(s => {
+      const pct = Math.max(4, Math.min(100, (Math.abs(s.net) / maxAbs) * 100));
+      const cls = s.net >= 0 ? 'pos' : 'neg';
+      const valCls = s.net > 0 ? 'positive' : s.net < 0 ? 'negative' : '';
+      const valStr = `${s.net >= 0 ? '+' : ''}${s.net.toFixed(1)}u`;
+      return `
+        <div class="pulse-sport-bar-row">
+          <span class="pulse-sport-bar-label">${_dailyEscape(s.sport)}</span>
+          <span class="pulse-sport-bar-track"><span class="pulse-sport-bar-fill ${cls}" style="width:${pct}%"></span></span>
+          <span class="pulse-sport-bar-value ${valCls}">${_dailyEscape(valStr)}</span>
+        </div>`;
+    }).join('');
+  }
+
+  // ── CTA: today's open picks ──
+  const ctaNumEl = document.getElementById('pulse-cta-num');
+  const ctaSubEl = document.getElementById('pulse-cta-sub');
+  if (ctaNumEl && ctaSubEl) {
+    const todayKey = getTodayDateKey();
+    const open = picks.filter(p => p && p.result === 'pending' && getPickDateKey(p.date || p.game_date || p.Date) === todayKey);
+    ctaNumEl.textContent = open.length;
+    if (!open.length) {
+      ctaSubEl.textContent = 'no open picks today';
+    } else {
+      const sportSet = new Set(open.map(p => String(p.sport || 'OTHER').toUpperCase()));
+      ctaSubEl.textContent = `pending picks · ${sportSet.size} sport${sportSet.size === 1 ? '' : 's'}`;
+    }
+  }
+}
+
 function renderTrends() {
   const todayLabel = formatTodayPickDateLabel();
   const container = document.getElementById('trends-container');
@@ -6742,7 +7631,8 @@ function render() {
     ).join('');
     filterHtml += `</div></div>`;
   }
-  document.getElementById('filter-bar').innerHTML = filterHtml;
+  const filterBarEl = document.getElementById('filter-bar');
+  if (filterBarEl) filterBarEl.innerHTML = filterHtml;
   syncHomeSettledToggleButton();
 
   // Home feed
@@ -6893,7 +7783,12 @@ function render() {
   }
 
   const feed = document.getElementById('pick-feed');
-  if(!detailed.length) {
+  if (!feed) {
+    // Home tab was re-skinned to the Ledger Pulse dashboard; there is no pick-feed
+    // element to populate. Skip the legacy rendering but keep the code path alive
+    // in case the classic board ever comes back.
+  }
+  else if(!detailed.length) {
     const emptyTitle = showSettled
       ? `No settled picks on ${selectedDateLong}`
       : `No open picks on ${selectedDateLong}`;
@@ -7103,6 +7998,7 @@ function render() {
   // Trends
   renderTrends();
   renderDaily();
+  renderHomePulse();
 }
 
 function initTheme() {
