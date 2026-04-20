@@ -8,6 +8,7 @@ from calibration import apply_moneyline_calibration
 from date_utils import get_mlb_slate_date
 from live_data import build_live_dataframe
 from market_mechanics import calculate_edge, check_minimum_threshold, remove_vig
+from model_v2 import StaleV2Artifact, predict_moneyline_v2, predict_totals_v2
 from model_variants import VALID_MLB_MODEL_VARIANTS
 from moneyline_model import predict_home_win_probability
 from prediction_logging import append_prediction_rows, build_prediction_log_rows
@@ -72,16 +73,76 @@ def main(argv: list[str] | None = None) -> int:
             print(f"No MLB games found for {target_date.isoformat()}.")
             return 0
 
-        predictions = predict_home_win_probability(live_frame, variant=args.variant)
-        predictions = apply_moneyline_calibration(predictions, variant=args.variant)
-        try:
-            predictions = predict_totals(predictions, variant=args.variant)
-        except FileNotFoundError:
-            predictions = predictions.copy()
-            predictions["predicted_total_runs"] = predictions.apply(
-                lambda row: predict_total_runs(row.to_dict()),
-                axis=1,
-            )
+        if args.variant == "new":
+            # v2 stack: HistGradientBoosting + isotonic calibration + market-
+            # residual totals. Inference returns `calibrated_home_win_probability`
+            # and `predicted_total_runs` directly, so downstream code is shared.
+            try:
+                predictions = predict_moneyline_v2(live_frame)
+                try:
+                    predictions = predict_totals_v2(predictions)
+                except FileNotFoundError:
+                    predictions = predictions.copy()
+                    predictions["predicted_total_runs"] = predictions.apply(
+                        lambda row: predict_total_runs(row.to_dict()),
+                        axis=1,
+                    )
+                except StaleV2Artifact as stale_exc:
+                    # Totals v2 artifact is a pre-v2 file — lean on the legacy
+                    # totals model under the same ``new`` variant slot so
+                    # MLB New still produces a totals pick. Log clearly.
+                    print(
+                        f"[run_today] MLB NEW: stale v2 totals artifact "
+                        f"({stale_exc}); falling back to legacy totals model "
+                        f"under variant=new.",
+                        file=sys.stderr,
+                    )
+                    try:
+                        predictions = predict_totals(predictions, variant="new")
+                    except FileNotFoundError:
+                        predictions = predictions.copy()
+                        predictions["predicted_total_runs"] = predictions.apply(
+                            lambda row: predict_total_runs(row.to_dict()),
+                            axis=1,
+                        )
+            except StaleV2Artifact as stale_exc:
+                # Moneyline v2 artifact on disk is a pre-v2 file (no
+                # ``variant="new"`` metadata). This commonly happens on a
+                # fresh clone before the user has run ``train_model_v2.py``
+                # locally. Fall back to the legacy stack for the ``new``
+                # variant so MLB New is fully standalone — no MLB Old
+                # bootstrap required. Same mechanics MLB Old uses, just
+                # loading the ``_new.joblib`` artifacts instead.
+                print(
+                    f"[run_today] MLB NEW: stale v2 moneyline artifact "
+                    f"({stale_exc}); falling back to legacy pipeline under "
+                    f"variant=new. Run `python train_model_v2.py` inside "
+                    f"MLBPredictionModel (or trigger the mlb-train GitHub "
+                    f"Actions workflow) to enable the HistGradientBoosting "
+                    f"stack.",
+                    file=sys.stderr,
+                )
+                predictions = predict_home_win_probability(live_frame, variant="new")
+                predictions = apply_moneyline_calibration(predictions, variant="new")
+                try:
+                    predictions = predict_totals(predictions, variant="new")
+                except FileNotFoundError:
+                    predictions = predictions.copy()
+                    predictions["predicted_total_runs"] = predictions.apply(
+                        lambda row: predict_total_runs(row.to_dict()),
+                        axis=1,
+                    )
+        else:
+            predictions = predict_home_win_probability(live_frame, variant=args.variant)
+            predictions = apply_moneyline_calibration(predictions, variant=args.variant)
+            try:
+                predictions = predict_totals(predictions, variant=args.variant)
+            except FileNotFoundError:
+                predictions = predictions.copy()
+                predictions["predicted_total_runs"] = predictions.apply(
+                    lambda row: predict_total_runs(row.to_dict()),
+                    axis=1,
+                )
     except FileNotFoundError as exc:
         print(str(exc), file=sys.stderr)
         return 1
