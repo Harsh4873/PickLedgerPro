@@ -190,7 +190,7 @@ def build_cannon_daily_picks(
     """
     slate_date = slate_date or get_mlb_slate_date()
     print(f"[cannon_daily_adapter] Building Cannon daily picks for slate_date={slate_date}")
-    raw_cannon = fetch_cannon_game_projections_raw()
+    raw_cannon = fetch_cannon_game_projections_raw(slate_date=slate_date)
     cannon_games = _filter_cannon_games_for_slate_date(_normalize_cannon_games(raw_cannon), slate_date)
 
     sportsline_games = sportsline_odds.get_mlb_odds_for_date(slate_date)

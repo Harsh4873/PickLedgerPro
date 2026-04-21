@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import sqlite3
 import time
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -46,6 +46,8 @@ HEADERS = {
         "Chrome/123.0.0.0 Safari/537.36"
     ),
     "Accept": "application/json",
+    "Cache-Control": "no-cache",
+    "Pragma": "no-cache",
 }
 
 # Render free-tier cold starts can take 30-50s.
@@ -99,15 +101,25 @@ def _safe_int(value: Any, default: int | None = None) -> int | None:
 # API fetch layer
 # ---------------------------------------------------------------------------
 
-def fetch_endpoint(endpoint_key: str) -> Any:
+def fetch_endpoint(endpoint_key: str, params: dict[str, Any] | None = None) -> Any:
     """Fetch a single Cannon Analytics endpoint and return parsed JSON.
 
     Returns an empty list/dict on failure so callers can degrade gracefully.
     """
     path = ENDPOINTS[endpoint_key]
     url = f"{BASE_URL}{path}"
+    request_params = {
+        key: value
+        for key, value in (params or {}).items()
+        if value is not None and str(value).strip() != ""
+    }
     try:
-        resp = requests.get(url, headers=HEADERS, timeout=REQUEST_TIMEOUT)
+        resp = requests.get(
+            url,
+            headers=HEADERS,
+            params=request_params or None,
+            timeout=REQUEST_TIMEOUT,
+        )
         resp.raise_for_status()
         return resp.json()
     except requests.RequestException as exc:
@@ -528,18 +540,35 @@ def save_all(data: dict[str, Any], game_date: str | None = None) -> dict[str, in
 # High-level accessors for the prediction pipeline
 # ---------------------------------------------------------------------------
 
-def fetch_cannon_game_projections_raw() -> list[dict]:
+def _format_slate_date(value: date | datetime | str | None) -> str | None:
+    if value is None:
+        return None
+    if isinstance(value, datetime):
+        return value.date().isoformat()
+    if isinstance(value, date):
+        return value.isoformat()
+    text = str(value).strip()
+    return text or None
+
+
+def fetch_cannon_game_projections_raw(
+    slate_date: date | datetime | str | None = None,
+) -> list[dict]:
     """Return the raw daily game projections list from Cannon.
 
     Each element is the raw JSON dict from the API with keys like
     away_team, home_team, away_sp, home_sp, away_xR, home_xR,
     total_xR, away_xWin, home_xWin, nrfi_pct.
     """
+    params: dict[str, Any] = {"_": int(time.time())}
+    slate_date_text = _format_slate_date(slate_date)
+    if slate_date_text:
+        params["date"] = slate_date_text
     try:
-        games = fetch_endpoint("game_projections")
+        games = fetch_endpoint("game_projections", params=params)
     except Exception:
         return []
-    return games or []
+    return games if isinstance(games, list) else []
 
 
 def fetch_cannon_game_projections() -> dict[tuple[str, str], dict]:

@@ -9091,6 +9091,21 @@ function _cannonMlVerdict(edgePct) {
   return 'PASS';
 }
 
+function _getCannonPayloadDate(data) {
+  const raw = data && (data.slate_date || data.as_of || data.date);
+  return _normalizeFeedDate(raw);
+}
+
+function _validateCannonPayloadDate(data, liveSource) {
+  const expectedDate = _getTodayIsoDate();
+  const payloadDate = _getCannonPayloadDate(data);
+  if (payloadDate && payloadDate !== expectedDate) {
+    const sourceLabel = liveSource === 'live' ? 'live scrape' : 'cached JSON';
+    throw new Error(`Cannon ${sourceLabel} returned ${payloadDate}; expected ${expectedDate}`);
+  }
+  return { expectedDate, payloadDate };
+}
+
 async function loadCannonDailyPicks() {
   const btn = document.getElementById('btn-run-cannon');
   const statusEl = document.getElementById('status-cannon-analytics');
@@ -9100,10 +9115,16 @@ async function loadCannonDailyPicks() {
 
   if (btn) { btn.disabled = true; btn.textContent = 'LOADING...'; }
   if (statusEl) { statusEl.textContent = 'Fetching Cannon daily picks...'; statusEl.className = 'model-status running'; }
+  console.log('[analytics] loadCannonDailyPicks: start');
 
   try {
     let data = null;
     let liveSource = 'cache';
+    let liveError = null;
+    // Track whether we took the admin+backend path, so we can also run fresh
+    // live scrapes of the secondary MLB sources (SportyTrader + SportsGambler)
+    // in parallel alongside Cannon rather than serving their stale cached JSON.
+    let adminLiveScrapeUsed = false;
 
     // Admin + local backend available: scrape Cannon Analytics + SportsLine
     // LIVE for today's slate so each click pulls fresh data instead of the
@@ -9111,7 +9132,7 @@ async function loadCannonDailyPicks() {
     if (typeof isAdminModelRunnerUser === 'function' && isAdminModelRunnerUser()) {
       let backendHealthy = false;
       try {
-        backendHealthy = await checkAdminLocalBackendHealth();
+        backendHealthy = await checkAdminLocalBackendHealth(true);
       } catch (_err) {
         backendHealthy = false;
       }
@@ -9143,7 +9164,9 @@ async function loadCannonDailyPicks() {
           }
           data = fresh;
           liveSource = 'live';
+          adminLiveScrapeUsed = true;
         } catch (err) {
+          liveError = err;
           console.warn('[cannon] live scrape failed, falling back to cached JSON:', err);
           if (statusEl) {
             statusEl.textContent = 'Live scrape failed (' + (err.message || err) + ') — loading cached JSON...';
@@ -9162,10 +9185,12 @@ async function loadCannonDailyPicks() {
       liveSource = 'cache';
     }
 
+    const cannonDateMeta = _validateCannonPayloadDate(data, liveSource);
     const games = data.games || [];
 
     if (!games.length) {
-      if (statusEl) { statusEl.textContent = 'No games found in Cannon data.'; statusEl.className = 'model-status'; }
+      const suffix = liveError ? ' Live scrape error: ' + (liveError.message || liveError) : '';
+      if (statusEl) { statusEl.textContent = 'No games found in Cannon data.' + suffix; statusEl.className = 'model-status'; }
       if (btn) { btn.disabled = false; btn.textContent = 'LOAD CANNON PICKS'; }
       return;
     }
@@ -9221,16 +9246,8 @@ async function loadCannonDailyPicks() {
 
     section.style.display = 'block';
     if (metaEl) {
-      // Freshness check: if the JSON's slate_date is older than today (in the
-      // user's local time), flag it as stale so the scheduled refresh workflow
-      // gets noticed if it ever misses a run. Live scrapes are never stale.
-      var todayStr = (function() {
-        var d = new Date();
-        var mm = String(d.getMonth() + 1).padStart(2, '0');
-        var dd = String(d.getDate()).padStart(2, '0');
-        return d.getFullYear() + '-' + mm + '-' + dd;
-      })();
-      var asOf = data.as_of || 'today';
+      var todayStr = cannonDateMeta.expectedDate;
+      var asOf = cannonDateMeta.payloadDate || data.as_of || 'today';
       var isLive = liveSource === 'live';
       var stale = !isLive && data.as_of && data.as_of < todayStr;
       metaEl.textContent = 'As of ' + asOf + ' \u2022 ' + games.length + ' games' +
@@ -9250,18 +9267,135 @@ async function loadCannonDailyPicks() {
       renderModelResults(combined, { meta: '', metaState: 'ok' });
     }
 
+    // ── Fresh secondary-source scrape (analytics generation rule) ──
+    // When the admin backend path succeeded for Cannon, also run fresh live
+    // scrapes of SportyTrader + SportsGambler for MLB and merge those picks
+    // into Model Results alongside Cannon. Prior behavior served stale JSON
+    // for these sources during analytics runs; now cache/JSON is strictly a
+    // fallback. Graceful degradation: if either source fails, Cannon picks
+    // still render and we log the failure.
+    var secondaryMeta = '';
+    if (adminLiveScrapeUsed) {
+      try {
+        secondaryMeta = await _refreshSecondaryMlbPicksForAnalytics(statusEl);
+      } catch (secErr) {
+        console.warn('[analytics] secondary MLB scrape wrapper threw:', secErr);
+        secondaryMeta = ' (secondary scrape error: ' + (secErr && secErr.message || secErr) + ')';
+      }
+    }
+
     var pickCount = cannonPicks.length;
     if (statusEl) {
       var prefix = liveSource === 'live' ? 'Scraped live. ' : '';
       statusEl.textContent = prefix + games.length + ' games loaded.' +
-        (pickCount ? ' ' + pickCount + ' picks injected into Model Results.' : '');
+        (pickCount ? ' ' + pickCount + ' picks injected into Model Results.' : '') +
+        (secondaryMeta || '');
       statusEl.className = 'model-status ok';
     }
   } catch (e) {
     if (statusEl) { statusEl.textContent = 'Error: ' + (e.message || e); statusEl.className = 'model-status error'; }
+    if (section) { section.style.display = 'none'; }
+    if (tbody) { tbody.innerHTML = ''; }
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = 'LOAD CANNON PICKS'; }
+    console.log('[analytics] loadCannonDailyPicks: done');
   }
+}
+
+// Runs fresh live scrapes of SportyTrader + SportsGambler in parallel and
+// merges their MLB-only picks into `pendingModelPicks` alongside whatever is
+// already there (Cannon, other sources). Intended to be called ONLY from
+// `loadCannonDailyPicks` after the admin-backend Cannon scrape succeeded —
+// the admin + local-backend gate is re-checked inside the sync helpers.
+//
+// Graceful degradation: we use Promise.allSettled so a single-source failure
+// (offline backend, scrape timeout, etc.) does not block the other source
+// from refreshing, and Cannon picks stay rendered either way. Failures are
+// console-logged and summarized in the returned meta string.
+//
+// Returns a short trailing string to append to the Cannon status label.
+async function _refreshSecondaryMlbPicksForAnalytics(statusEl) {
+  console.log('[analytics] refreshing SportyTrader + SportsGambler MLB picks live');
+  if (statusEl) {
+    statusEl.textContent = (statusEl.textContent || '') + ' | Refreshing SportyTrader + SportsGambler MLB...';
+  }
+
+  const [stResult, sgResult] = await Promise.allSettled([
+    syncSportyTraderFromServer(),
+    syncSportsgamblerFromServer(),
+  ]);
+
+  // Drop any existing MLB picks from these two sources first so re-clicks
+  // replace rather than duplicate. Other sports + other sources are kept.
+  let next = pendingModelPicks.filter(function (p) {
+    const src = String(p && p.source || '').toUpperCase();
+    const sport = String(p && p.sport || '').toUpperCase();
+    if (sport !== 'MLB') return true;
+    return src !== 'SPORTYTRADER' && src !== 'SPORTSGAMBLER';
+  });
+
+  const added = [];
+  const failed = [];
+
+  if (stResult.status === 'fulfilled' && stResult.value && Array.isArray(stResult.value.picks)) {
+    const mlbPicks = stResult.value.picks.filter(function (p) {
+      return String(p && p.sport || '').toUpperCase() === 'MLB';
+    });
+    next = next.concat(mlbPicks);
+    added.push('SportyTrader ' + mlbPicks.length);
+    console.log('[analytics] SportyTrader live sync OK: ' + stResult.value.picks.length +
+      ' pick(s) total, ' + mlbPicks.length + ' MLB');
+    try {
+      if (typeof saveSportyTraderCachedFeed === 'function') {
+        saveSportyTraderCachedFeed({ picks: stResult.value.picks, meta: stResult.value.meta });
+      }
+      if (typeof setSportyTraderSyncMeta === 'function') {
+        setSportyTraderSyncMeta(stResult.value.meta || {});
+      }
+    } catch (persistErr) {
+      console.warn('[analytics] SportyTrader cache persist failed:', persistErr);
+    }
+  } else {
+    const reason = stResult.status === 'rejected'
+      ? (stResult.reason && stResult.reason.message ? stResult.reason.message : String(stResult.reason))
+      : 'unknown';
+    failed.push('SportyTrader');
+    console.warn('[analytics] SportyTrader live sync failed:', reason);
+  }
+
+  if (sgResult.status === 'fulfilled' && sgResult.value && Array.isArray(sgResult.value.picks)) {
+    const mlbPicks = sgResult.value.picks.filter(function (p) {
+      return String(p && p.sport || '').toUpperCase() === 'MLB';
+    });
+    next = next.concat(mlbPicks);
+    added.push('SportsGambler ' + mlbPicks.length);
+    console.log('[analytics] SportsGambler live sync OK: ' + sgResult.value.picks.length +
+      ' pick(s) total, ' + mlbPicks.length + ' MLB');
+    try {
+      if (typeof saveSportsgamblerCachedFeed === 'function') {
+        saveSportsgamblerCachedFeed({ picks: sgResult.value.picks, meta: sgResult.value.meta });
+      }
+      if (typeof setSportsgamblerSyncMeta === 'function') {
+        setSportsgamblerSyncMeta(sgResult.value.meta || {});
+      }
+    } catch (persistErr) {
+      console.warn('[analytics] SportsGambler cache persist failed:', persistErr);
+    }
+  } else {
+    const reason = sgResult.status === 'rejected'
+      ? (sgResult.reason && sgResult.reason.message ? sgResult.reason.message : String(sgResult.reason))
+      : 'unknown';
+    failed.push('SportsGambler');
+    console.warn('[analytics] SportsGambler live sync failed:', reason);
+  }
+
+  pendingModelPicks = next;
+  renderModelResults(next, { meta: '', metaState: 'ok' });
+
+  const parts = [];
+  if (added.length) parts.push('fresh: ' + added.join(', '));
+  if (failed.length) parts.push('failed: ' + failed.join(', '));
+  return parts.length ? ' | ' + parts.join(' | ') : '';
 }
 
 async function _runAsyncModelRequest(model, endpoint, body) {
