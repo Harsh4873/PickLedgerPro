@@ -3690,7 +3690,7 @@ function getPreferredDisplayedRecord(derivedRecord, canonicalRecord = window._us
         <div class="model-card-title">NBA New</div>
         <div class="model-card-desc">Runs the refined NBA pipeline with the independent spread layer, extra form/rest/injury features, and calibration wrapper for the selected NBA date.</div>
         <span data-model-timestamp="nba_new" class="model-timestamp-badge" style="display:none;"></span>
-        <button class="model-run-btn" id="btn-run-nba-new" onclick="runModel('nba-new')">RUN NBA NEW</button>
+        <button class="model-run-btn" id="btn-run-nba-new" onclick="runModel('nba-new', event)" title="Shift-click to force refresh from the local backend">RUN NBA NEW</button>
         <div class="model-status" id="status-nba-new"></div>
       </div>
       <div class="model-card" id="model-card-nba-playoffs">
@@ -3698,7 +3698,7 @@ function getPreferredDisplayedRecord(derivedRecord, canonicalRecord = window._us
         <div class="model-card-title">NBA Playoffs</div>
         <div class="model-card-desc">Runs the playoff-only NBA model with ESPN postseason verification, market moneylines, playoff home-court weighting, and strict pre-game gates.</div>
         <span data-model-timestamp="nba_playoffs" class="model-timestamp-badge" style="display:none;"></span>
-        <button class="model-run-btn" id="btn-run-nba-playoffs" onclick="runModel('nba-playoffs')">RUN NBA PLAYOFFS</button>
+        <button class="model-run-btn" id="btn-run-nba-playoffs" onclick="runModel('nba-playoffs', event)" title="Shift-click to force refresh from the local backend">RUN NBA PLAYOFFS</button>
         <div class="model-status" id="status-nba-playoffs"></div>
       </div>
       <div class="model-card" id="model-card-nba-old">
@@ -3706,7 +3706,7 @@ function getPreferredDisplayedRecord(derivedRecord, canonicalRecord = window._us
         <div class="model-card-title">NBA Model</div>
         <div class="model-card-desc">Runs the legacy confidence path on the same selected NBA slate so you can compare side-by-side against the refined model output.</div>
         <span data-model-timestamp="nba" class="model-timestamp-badge" style="display:none;"></span>
-        <button class="model-run-btn" id="btn-run-nba-old" onclick="runModel('nba-old')">RUN NBA MODEL</button>
+        <button class="model-run-btn" id="btn-run-nba-old" onclick="runModel('nba-old', event)" title="Shift-click to force refresh from the local backend">RUN NBA MODEL</button>
         <div class="model-status" id="status-nba-old"></div>
       </div>
       <div class="model-card" id="model-card-nba-props">
@@ -3838,7 +3838,7 @@ const SPORTSGAMBLER_FEED_URL = './sportsgambler_manual_feed.json';
 const SPORTSGAMBLER_CACHE_KEY = 'pickledger_sportsgambler_feed_cache';
 const MODEL_FIREBASE_KEY_ALIASES = {
   'nba-old': ['nba_old', 'nba-old', 'nba'],
-  'nba-new': ['nba', 'nba_new', 'nba-new', 'nba_new_model', 'nbaNew'],
+  'nba-new': ['nba_new', 'nba-new', 'nba_new_model', 'nbaNew', 'nba'],
   'nba-playoffs': ['nba_playoffs', 'nba-playoffs', 'nbaPlayoffs'],
   'nba-props': ['nba_props', 'nba-props', 'props'],
   wnba: ['wnba'],
@@ -8731,6 +8731,7 @@ function toggleTheme() {
 let pendingModelPicks = [];
 let pendingIplPrediction = null;
 const MODEL_BACKEND_TIMEOUT_MS = 15000;
+const MODEL_FORCE_REFRESH_TIMEOUT_MS = 600000;
 const NBA_COMPARISON_MODELS = new Set(['nba-old', 'nba-new']);
 const NBA_MODEL_SOURCE_LABELS = {
   'nba-old': 'NBA OLD',
@@ -8930,11 +8931,25 @@ async function getAdminPicksFromFirebase(modelKey, options = {}) {
       let payload = null;
       for (const container of containers) {
         const entries = Object.entries(container);
+        for (const alias of aliases) {
+          if (!Object.prototype.hasOwnProperty.call(container, alias)) continue;
+          payload = _extractFirebaseModelPayload(container[alias], { gameLabel });
+          if (payload) break;
+        }
+        if (payload) break;
+        for (const alias of normalizedAliases) {
+          for (const [key, value] of entries) {
+            const normalizedKey = String(key || '').trim().toLowerCase().replace(/[\s_]+/g, '-');
+            if (normalizedKey !== alias) continue;
+            payload = _extractFirebaseModelPayload(value, { gameLabel });
+            if (payload) break;
+          }
+          if (payload) break;
+        }
+        if (payload) break;
         for (const [key, value] of entries) {
           const normalizedKey = String(key || '').trim().toLowerCase().replace(/[\s_]+/g, '-');
           if (
-            aliases.includes(key) ||
-            normalizedAliases.includes(normalizedKey) ||
             normalizedAliases.some(alias => normalizedKey.includes(alias) || alias.includes(normalizedKey))
           ) {
             payload = _extractFirebaseModelPayload(value, { gameLabel });
@@ -9408,23 +9423,37 @@ async function _refreshSecondaryMlbPicksForAnalytics(statusEl) {
   return parts.length ? ' | ' + parts.join(' | ') : '';
 }
 
+function isForceModelRefreshRequest(eventOrOptions = {}) {
+  const params = new URLSearchParams(window.location.search || '');
+  if (params.get('forceModelRefresh') === '1' || params.get('force_refresh') === '1') return true;
+  if (!eventOrOptions || typeof eventOrOptions !== 'object') return false;
+  return !!(
+    eventOrOptions.forceRefresh ||
+    eventOrOptions.force_refresh ||
+    eventOrOptions.shiftKey ||
+    eventOrOptions.altKey
+  );
+}
+
 async function _runAsyncModelRequest(model, endpoint, body) {
   const dateStr = body && body.date ? body.date : getFirestoreDateKey();
   const gameLabel = body && body.game_label ? String(body.game_label).trim() : '';
   const fallbackModelKey = String(body && body.fallbackModelKey ? body.fallbackModelKey : model).trim() || model;
   const fallbackDate = String(body && body.fallbackDateStr ? body.fallbackDateStr : dateStr).trim() || dateStr;
+  const forceRefresh = !!(body && body.force_refresh);
   let backendError = null;
 
   if (endpoint && isAdminModelRunnerUser()) {
     const backendHealthy = await checkAdminLocalBackendHealth();
     if (backendHealthy) {
-      setModelStatus(model, 'Connecting to local admin backend...', 'running');
+      setModelStatus(model, forceRefresh ? 'Force refreshing from local admin backend...' : 'Connecting to local admin backend...', 'running');
       try {
         const resp = await fetch(`${ADMIN_BACKEND_URL}${endpoint}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body || {}),
-          signal: _createTimeoutSignal(MODEL_BACKEND_TIMEOUT_MS),
+          cache: 'no-store',
+          signal: _createTimeoutSignal(forceRefresh ? MODEL_FORCE_REFRESH_TIMEOUT_MS : MODEL_BACKEND_TIMEOUT_MS),
         });
         const launch = await resp.json().catch(() => ({}));
         if (!resp.ok || !launch.ok) {
@@ -9455,6 +9484,13 @@ async function _runAsyncModelRequest(model, endpoint, body) {
     } else {
       backendError = new Error('Local admin backend is offline');
     }
+  }
+
+  if (forceRefresh) {
+    if (backendError) {
+      throw new Error(`Force refresh failed before cache fallback: ${String(backendError && backendError.message ? backendError.message : backendError)}`);
+    }
+    throw new Error('Force refresh requires the local admin backend.');
   }
 
   setModelStatus(model, 'Loading Firebase cache...', 'running');
@@ -9535,15 +9571,18 @@ function renderIplResults(result, options = {}) {
   }
 }
 
-async function _runNbaVariantModel(model, dateStr) {
+async function _runNbaVariantModel(model, dateStr, options = {}) {
   const label = formatModelRunDate(dateStr);
+  const forceRefresh = !!(options && options.forceRefresh);
   if (model === 'nba-new' && isAdminModelRunnerUser()) {
     setModelStatus(model, 'Refreshing SportsLine odds...', 'running');
     await _refreshSportsLineOdds();
   }
   setModelStatus(
     model,
-    isAdminModelRunnerUser()
+    forceRefresh
+      ? `Force refreshing ${NBA_MODEL_SOURCE_LABELS[model]} for ${label}...`
+      : isAdminModelRunnerUser()
       ? `Running ${NBA_MODEL_SOURCE_LABELS[model]} for ${label}...`
       : `Loading ${NBA_MODEL_SOURCE_LABELS[model]} for ${label} from Firebase...`,
     'running'
@@ -9552,10 +9591,11 @@ async function _runNbaVariantModel(model, dateStr) {
     model,
     model === 'nba-old' ? '/run-nba-old-model' : '/run-nba-model',
     {
-      async: true,
+      async: !forceRefresh,
       date: dateStr,
       fallbackModelKey: model === 'nba-old' ? 'nba_old' : 'nba_new',
       fallbackDateStr: dateStr,
+      force_refresh: forceRefresh,
     }
   );
   const picks = _relabelPicksForVariant(_extractModelPicks(result), NBA_MODEL_SOURCE_LABELS[model]);
@@ -10058,15 +10098,16 @@ async function syncSportsgamblerFromServer() {
   };
 }
 
-async function runModel(model) {
+async function runModel(model, eventOrOptions = {}) {
   _setModelButtonRunning(model);
+  const forceRefresh = isForceModelRefreshRequest(eventOrOptions);
 
   if (NBA_COMPARISON_MODELS.has(model)) {
     const dateStr = getSelectedNbaModelDate();
     const label = formatModelRunDate(dateStr);
     _clearMlbComparisonResults();
     try {
-      const picks = await _runNbaVariantModel(model, dateStr);
+      const picks = await _runNbaVariantModel(model, dateStr, { forceRefresh });
       _storeNbaComparisonPicks(model, picks, dateStr);
       const hasBoth = ['nba-old', 'nba-new'].every(key => (pendingNbaComparisonPicks[key] || []).length > 0);
       setModelStatus(
@@ -10260,8 +10301,9 @@ async function runModel(model) {
 
   let endpoint = '';
   const body = {
-    async: true,
+    async: !forceRefresh,
     date: _getTodayIsoDate ? _getTodayIsoDate() : getFirestoreDateKey(),
+    force_refresh: forceRefresh,
   };
   if (model === 'mlb') {
     endpoint = '/run-mlb-model';

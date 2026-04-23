@@ -3080,6 +3080,24 @@ def run_nba_model(date_str: str | None = None, variant: str = "new") -> dict[str
     """Execute an NBA model variant and return parsed picks."""
     python_bin = _resolve_python_bin(os.path.join(NBA_MODEL_DIR, "venv", "bin", "python"))
     source_label = "NBA New" if variant == "new" else "NBA Model"
+    target_iso, _ = _parse_model_date_arg(date_str)
+
+    def _cache_result(result: dict[str, Any]) -> dict[str, Any]:
+        if variant == "new":
+            nba_saved = _save_admin_picks_doc("nba", result, target_iso)
+            nba_new_saved = _save_admin_picks_doc("nba_new", result, target_iso)
+            result["cache_date"] = target_iso
+            result["cache_writes"] = {
+                f"admin_picks/{target_iso}/nba": nba_saved,
+                f"admin_picks/{target_iso}/nba_new": nba_new_saved,
+            }
+        else:
+            nba_old_saved = _save_admin_picks_doc("nba_old", result, target_iso)
+            result["cache_date"] = target_iso
+            result["cache_writes"] = {
+                f"admin_picks/{target_iso}/nba_old": nba_old_saved,
+            }
+        return result
 
     try:
         output = _run_script(
@@ -3102,12 +3120,7 @@ def run_nba_model(date_str: str | None = None, variant: str = "new") -> dict[str
                     "raw_lines": len(output.split("\n")),
                     "note": f"No NBA games found for requested date ({source_label})",
                 }
-                if variant == "new":
-                    _save_admin_picks_doc("nba", result)
-                    _save_admin_picks_doc("nba_new", result)
-                else:
-                    _save_admin_picks_doc("nba_old", result)
-                return result
+                return _cache_result(result)
             tail = " | ".join((output.strip().splitlines() or ["no output"])[-12:])
             return {
                 "ok": False,
@@ -3116,12 +3129,7 @@ def run_nba_model(date_str: str | None = None, variant: str = "new") -> dict[str
             }
 
         result = {"ok": True, "picks": picks, "raw_lines": len(output.split("\n"))}
-        if variant == "new":
-            _save_admin_picks_doc("nba", result)
-            _save_admin_picks_doc("nba_new", result)
-        else:
-            _save_admin_picks_doc("nba_old", result)
-        return result
+        return _cache_result(result)
     except subprocess.TimeoutExpired:
         return {"ok": False, "error": f"{source_label} timed out (7 min limit)"}
     except Exception as e:
