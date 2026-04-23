@@ -157,9 +157,27 @@ def _ou_probability(model_total: float, vegas_line: float, rmse: float) -> float
     return round(1.0 - p_under, 4)
 
 
+def _norm_cdf(value: float) -> float:
+    return 0.5 * (1.0 + _math.erf(value / _math.sqrt(2.0)))
+
+
+def _spread_cover_probability(model_team_margin: float, vegas_spread: float, rmse: float) -> float:
+    """
+    Estimate selected team's cover probability from its model margin and market spread.
+
+    Example: model says Thunder by 10.1 and market is Thunder -17.5.
+    Cover margin = 10.1 + (-17.5) = -7.4, so P(cover) is well below 50%.
+    """
+    if rmse <= 0:
+        return 0.5
+    cover_margin = model_team_margin + vegas_spread
+    return round(_norm_cdf(cover_margin / rmse), 4)
+
+
 # Model-specific RMSE constants (from backtest metadata)
 _MLB_TOTALS_RMSE = 4.329383382244959
 _NBA_TOTALS_RMSE = 12.5
+_NBA_SPREAD_RMSE = 11.5
 
 _firebase_init_lock = threading.Lock()
 _firebase_db = None
@@ -2261,28 +2279,46 @@ def _parse_nba_output(output: str, source_label: str = "NBA Model") -> list[dict
                     current_home, current_away, 'NBA'
                 )
                 if sl_spread_home is not None:
-                    # Pick the Vegas spread for the winning team
+                    # Pick the Vegas spread for the selected model team.
                     team_last = winner.split()[-1].lower()
                     home_last = current_home.split()[-1].lower()
-                    vegas_spread = sl_spread_home if team_last == home_last else sl_spread_away
+                    winner_is_home = team_last == home_last
+                    vegas_spread = sl_spread_home if winner_is_home else sl_spread_away
+                    if vegas_spread is None:
+                        _append_unique(pick)
+                        continue
 
                     _sp_odds = sl_spread_odds if sl_spread_odds else -110
-                    # Implied probability from Vegas vig
                     _implied = (abs(_sp_odds) / (abs(_sp_odds) + 100)) if _sp_odds < 0 \
                                else (100 / (_sp_odds + 100))
-                    _model_prob = pick.get("probability") or 0.75
-                    _edge_val = round((_model_prob - _implied) * 100, 2)
+                    _model_team_margin = float(spread_val)
+                    _cover_margin = _model_team_margin + float(vegas_spread)
+                    _cover_prob = _spread_cover_probability(
+                        _model_team_margin,
+                        float(vegas_spread),
+                        _NBA_SPREAD_RMSE,
+                    )
+                    _edge_val = round((_cover_prob - _implied) * 100, 2)
 
                     # Quarter-Kelly sizing (capped at 5%)
                     _b = 100.0 / abs(_sp_odds) if _sp_odds < 0 else _sp_odds / 100.0
-                    _kf = round(min(max((_b * _model_prob - (1 - _model_prob)) / _b, 0.0) * 0.25, 0.05) * 100, 2)
+                    _kf = round(min(max((_b * _cover_prob - (1 - _cover_prob)) / _b, 0.0) * 0.25, 0.05) * 100, 2)
 
+                    pick_spread_label = f"{float(vegas_spread):+.1f}"
+                    pick["pick"] = f"{winner} {pick_spread_label} ({matchup})"
                     pick["odds"] = _sp_odds
                     pick["market_line"] = vegas_spread
+                    pick["vegas"] = vegas_spread
                     pick["model_prediction"] = -round(float(spread_val), 1)
+                    pick["cover_margin"] = round(_cover_margin, 2)
+                    pick["probability"] = _cover_prob
+                    pick["prob"] = _cover_prob
                     pick["edge"] = _edge_val
                     pick["units"] = _kf
-                    if _edge_val >= 5.0:
+                    if _cover_margin < 1.5:
+                        pick["decision"] = "PASS"
+                        pick["units"] = 0
+                    elif _edge_val >= 5.0:
                         pick["decision"] = "BET"
                     elif _edge_val >= 3.0:
                         pick["decision"] = "LEAN"

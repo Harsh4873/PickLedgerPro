@@ -14,6 +14,7 @@ import datetime as dt
 import json
 import math
 import os
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -32,12 +33,7 @@ from injury_report import fetch_injuries, get_expected_injury_impact  # noqa: E4
 from data_models import GameContext, Venue  # noqa: E402
 from live_data import fetch_all_team_stats, fetch_roster, get_team_id  # noqa: E402
 from market_mechanics import remove_vig  # noqa: E402
-from probability_layers import (  # noqa: E402
-    calculate_dictated_pace,
-    calculate_injury_adjustment as calculate_probabilistic_injury_adjustment,
-    predict_spread,
-    predict_total_points,
-)
+from probability_layers import calculate_injury_adjustment as calculate_probabilistic_injury_adjustment  # noqa: E402
 from run_live import (  # noqa: E402
     IS_RENDER_RUNTIME,
     _pause_after_injury_lookup,
@@ -52,6 +48,9 @@ ESPN_SCOREBOARD_URL = (
     "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
 )
 USER_AGENT = "Mozilla/5.0 PickLedgerPro NBAPlayoffs/1.0"
+LEAGUE_AVG_RATING = 114.0
+LEAGUE_AVG_PACE = 99.0
+PLAYOFF_MARGIN_RMSE = 11.5
 
 
 def _clamp(value: float, low: float, high: float) -> float:
@@ -326,6 +325,103 @@ def _safe_pct(value: Any, fallback: float = 0.5) -> float:
     return _clamp(number, 0.0, 1.0)
 
 
+def _stat(stats: Any, attr: str, fallback: float) -> float:
+    try:
+        value = float(getattr(stats, attr, fallback))
+    except (TypeError, ValueError):
+        return fallback
+    if not math.isfinite(value):
+        return fallback
+    return value
+
+
+def _normal_cdf(value: float) -> float:
+    return 0.5 * (1.0 + math.erf(value / math.sqrt(2.0)))
+
+
+def _home_is_altitude(team_name: str) -> bool:
+    normalized = str(team_name or "").upper()
+    return any(marker in normalized for marker in ("NUGGETS", "DENVER", "JAZZ", "UTAH"))
+
+
+def _record_text(value: Any) -> str:
+    if isinstance(value, dict):
+        for key in ("displayValue", "summary", "name", "abbreviation"):
+            text = str(value.get(key) or "").strip()
+            if text:
+                return text
+    return str(value or "").strip()
+
+
+def _parse_series_record(value: Any) -> tuple[int, int] | None:
+    text = _record_text(value)
+    match = re.search(r"(\d+)\s*[-–]\s*(\d+)", text)
+    if not match:
+        return None
+    return int(match.group(1)), int(match.group(2))
+
+
+def parse_series_context(game: dict[str, Any]) -> dict[str, Any]:
+    headline = str(game.get("series_status") or "NBA Playoffs").strip()
+    game_number_match = re.search(r"\bGame\s+(\d+)\b", headline, flags=re.IGNORECASE)
+    game_number = int(game_number_match.group(1)) if game_number_match else 1
+
+    home_record = _parse_series_record(game.get("home_series_record"))
+    away_record = _parse_series_record(game.get("away_series_record"))
+    home_wins = home_record[0] if home_record else None
+    away_wins = away_record[0] if away_record else None
+
+    if home_record and away_record is None:
+        home_wins, away_wins = home_record
+    elif away_record and home_record is None:
+        away_wins, home_wins = away_record
+
+    if home_wins is None or away_wins is None:
+        lead_match = re.search(
+            r"(.+?)\s+leads\s+series\s+(\d+)\s*[-–]\s*(\d+)",
+            headline,
+            flags=re.IGNORECASE,
+        )
+        tied_match = re.search(r"series\s+tied\s+(\d+)\s*[-–]\s*(\d+)", headline, flags=re.IGNORECASE)
+        if tied_match:
+            home_wins = int(tied_match.group(1))
+            away_wins = int(tied_match.group(2))
+        elif lead_match:
+            leader = lead_match.group(1).strip().lower()
+            first = int(lead_match.group(2))
+            second = int(lead_match.group(3))
+            home_name = str(game.get("home_team") or "").lower()
+            away_name = str(game.get("away_team") or "").lower()
+            if home_name and home_name in leader:
+                home_wins, away_wins = first, second
+            elif away_name and away_name in leader:
+                away_wins, home_wins = first, second
+
+    if home_wins is None:
+        home_wins = 0
+    if away_wins is None:
+        away_wins = 0
+
+    repeat_matchups = max(0, game_number - 1, home_wins + away_wins)
+    return {
+        "round": str(game.get("round") or "Playoffs").strip() or "Playoffs",
+        "headline": headline,
+        "game_number": game_number,
+        "is_game_1": game_number == 1,
+        "is_game_2": game_number == 2,
+        "is_game_7": game_number == 7,
+        "home_wins": home_wins,
+        "away_wins": away_wins,
+        "home_trailing": home_wins < away_wins,
+        "away_trailing": away_wins < home_wins,
+        "home_elimination": away_wins >= 3,
+        "away_elimination": home_wins >= 3,
+        "home_closeout": home_wins >= 3,
+        "away_closeout": away_wins >= 3,
+        "repeat_matchups": repeat_matchups,
+    }
+
+
 def calculate_base_rate(
     home_team: str,
     away_team: str,
@@ -371,66 +467,379 @@ def _injury_adjustment(team_name: str, injuries: dict[str, list[dict[str, Any]]]
     return adj, reason, len(expected)
 
 
+def _playoff_injury_profile(
+    home_name: str,
+    away_name: str,
+    injuries: dict[str, list[dict[str, Any]]],
+) -> dict[str, Any]:
+    home_raw, home_reason, home_count = _injury_adjustment(home_name, injuries)
+    away_raw, away_reason, away_count = _injury_adjustment(away_name, injuries)
+
+    # Playoff rotations are shorter, so an expected absence costs more than it
+    # does in the regular-season NBA model. Keep the cap inside the prompt's
+    # star/rotation absence range instead of letting injury news dominate.
+    home_playoff = _clamp(home_raw * 1.45, -0.14, 0.04)
+    away_playoff = _clamp(away_raw * 1.45, -0.14, 0.04)
+    prob_delta = _clamp(home_playoff - away_playoff, -0.14, 0.14)
+
+    return {
+        "home_raw": home_raw,
+        "away_raw": away_raw,
+        "home_adjustment": home_playoff,
+        "away_adjustment": away_playoff,
+        "prob_delta": prob_delta,
+        "margin_delta": _clamp(prob_delta * 34.0, -5.5, 5.5),
+        "home_reason": home_reason,
+        "away_reason": away_reason,
+        "home_count": home_count,
+        "away_count": away_count,
+        "label": "1.45x playoff injury multiplier",
+    }
+
+
+def calculate_playoff_tempo(
+    away_stats: Any,
+    home_stats: Any,
+    series_context: dict[str, Any],
+) -> dict[str, Any]:
+    home_pace = _stat(home_stats, "pace", LEAGUE_AVG_PACE)
+    away_pace = _stat(away_stats, "pace", LEAGUE_AVG_PACE)
+    neutral_pace = (home_pace + away_pace) / 2.0
+
+    def control_score(team_stats: Any, opponent_stats: Any) -> float:
+        pace_resistance = (LEAGUE_AVG_PACE - _stat(team_stats, "pace", LEAGUE_AVG_PACE)) * 0.08
+        defense = (LEAGUE_AVG_RATING - _stat(team_stats, "def_rating_10", LEAGUE_AVG_RATING)) * 0.035
+        dreb = (_stat(team_stats, "dreb_pct", 0.72) - 0.72) * 5.0
+        force_turnovers = (_stat(team_stats, "opp_tov_pct", 0.135) - 0.135) * 8.0
+        recent = _stat(team_stats, "recent_10_point_diff", _stat(team_stats, "net_rating", 0.0)) * 0.025
+        opponent_run_game = (_stat(opponent_stats, "pace", LEAGUE_AVG_PACE) - LEAGUE_AVG_PACE) * 0.02
+        return pace_resistance + defense + dreb + force_turnovers + recent - opponent_run_game
+
+    home_control = control_score(home_stats, away_stats)
+    away_control = control_score(away_stats, home_stats)
+    control_gap = home_control - away_control
+    if abs(control_gap) < 0.15:
+        home_weight = 0.50
+    else:
+        home_weight = _clamp(0.50 + (control_gap * 0.07), 0.30, 0.70)
+    away_weight = 1.0 - home_weight
+    dictated_regular_pace = (home_pace * home_weight) + (away_pace * away_weight)
+
+    game_number = int(series_context.get("game_number", 1) or 1)
+    pace_drag = 1.6
+    if game_number == 2:
+        pace_drag = 2.2
+    elif game_number in (3, 4):
+        pace_drag = 2.8
+    elif game_number >= 5:
+        pace_drag = 3.5
+    if series_context.get("home_elimination") or series_context.get("away_elimination"):
+        pace_drag += 0.7
+    if series_context.get("is_game_7"):
+        pace_drag += 0.8
+
+    playoff_pace = _clamp(dictated_regular_pace - pace_drag, 89.0, 101.5)
+    halfcourt_weight = _clamp(
+        0.58 + (min(game_number - 1, 5) * 0.035) + (0.05 if series_context.get("home_elimination") or series_context.get("away_elimination") else 0.0),
+        0.58,
+        0.82,
+    )
+
+    if home_weight > away_weight + 0.03:
+        dictating_side = "home"
+    elif away_weight > home_weight + 0.03:
+        dictating_side = "away"
+    else:
+        dictating_side = "neutral"
+
+    return {
+        "dictated_pace": playoff_pace,
+        "playoff_pace": playoff_pace,
+        "regular_dictated_pace": dictated_regular_pace,
+        "neutral_pace": neutral_pace,
+        "pace_drag": pace_drag,
+        "pace_factor": playoff_pace / neutral_pace if neutral_pace else 1.0,
+        "halfcourt_weight": halfcourt_weight,
+        "home_weight": home_weight,
+        "away_weight": away_weight,
+        "control_gap": control_gap,
+        "dictating_side": dictating_side,
+        "home_control_score": home_control,
+        "away_control_score": away_control,
+        "home_reason": f"slowdown/defense control {home_control:+.2f}",
+        "away_reason": f"slowdown/defense control {away_control:+.2f}",
+    }
+
+
+def _playoff_expected_rating(team_stats: Any, opponent_stats: Any, halfcourt_weight: float) -> float:
+    offense = _stat(team_stats, "off_rating_10", LEAGUE_AVG_RATING)
+    opponent_defense = _stat(opponent_stats, "def_rating_10", LEAGUE_AVG_RATING)
+    base_rating = (offense * 0.54) + (opponent_defense * 0.46)
+
+    efg_edge = (_stat(team_stats, "efg_pct", 0.54) - _stat(opponent_stats, "efg_pct", 0.54)) * 34.0
+    turnover_edge = (_stat(opponent_stats, "tov_pct", 0.135) - _stat(team_stats, "tov_pct", 0.135)) * 18.0
+    rebounding_edge = (_stat(team_stats, "reb_pct", 0.50) - _stat(opponent_stats, "reb_pct", 0.50)) * 14.0
+    halfcourt_adj = (efg_edge + turnover_edge + rebounding_edge) * halfcourt_weight
+
+    return _clamp(base_rating + halfcourt_adj, 99.0, 128.0)
+
+
+def _home_court_points(home_name: str, series_context: dict[str, Any]) -> float:
+    points = 4.6 if not _home_is_altitude(home_name) else 5.6
+    if series_context.get("is_game_7"):
+        points += 1.1
+    elif series_context.get("home_elimination") or series_context.get("home_closeout"):
+        points += 0.6
+    if series_context.get("is_game_1"):
+        points += 0.3
+    return points
+
+
+def predict_playoff_margin(
+    home_team: Any,
+    away_team: Any,
+    tempo_context: dict[str, Any],
+    series_context: dict[str, Any],
+    h2h: dict[str, Any],
+    injury_profile: dict[str, Any],
+) -> tuple[float, dict[str, float]]:
+    home_stats = home_team.team_stats
+    away_stats = away_team.team_stats
+    pace = float(tempo_context["playoff_pace"])
+    halfcourt_weight = float(tempo_context["halfcourt_weight"])
+
+    home_rating = _playoff_expected_rating(home_stats, away_stats, halfcourt_weight)
+    away_rating = _playoff_expected_rating(away_stats, home_stats, halfcourt_weight)
+    scoring_margin = ((home_rating - away_rating) * pace / 100.0)
+
+    home_court = _home_court_points(home_team.name, series_context)
+    net_diff = _stat(home_stats, "net_rating", 0.0) - _stat(away_stats, "net_rating", 0.0)
+    star_minutes = _clamp(net_diff * 0.09, -2.2, 2.2)
+
+    series_points = 0.0
+    if series_context.get("is_game_1"):
+        series_points += 0.4
+    if series_context.get("is_game_2"):
+        if series_context.get("home_trailing"):
+            series_points += 0.9
+        if series_context.get("away_trailing"):
+            series_points -= 0.9
+    if series_context.get("game_number") in (3, 4):
+        if series_context.get("home_wins") == 0 and series_context.get("away_wins") == 2:
+            series_points += 1.1
+        if series_context.get("away_wins") == 0 and series_context.get("home_wins") == 2:
+            series_points -= 1.1
+    if series_context.get("home_elimination"):
+        series_points += 1.4
+    if series_context.get("away_elimination"):
+        series_points -= 1.4
+    if series_context.get("home_closeout"):
+        series_points += 0.6
+    if series_context.get("away_closeout"):
+        series_points -= 0.6
+
+    repeat_matchups = int(series_context.get("repeat_matchups", 0) or 0)
+    coaching = 0.0
+    if repeat_matchups:
+        if series_context.get("home_trailing"):
+            coaching += min(1.1, repeat_matchups * 0.28)
+        if series_context.get("away_trailing"):
+            coaching -= min(1.1, repeat_matchups * 0.28)
+        h2h_margin = float(h2h.get("point_diff", 0.0) or 0.0)
+        coaching += _clamp(h2h_margin * 0.04 * min(repeat_matchups, 4), -1.0, 1.0)
+
+    rest_diff = _stat(home_stats, "rest_days", 1.0) - _stat(away_stats, "rest_days", 1.0)
+    rest = _clamp(rest_diff * 0.55, -1.6, 1.6)
+
+    pace_control = 0.0
+    dictating_side = str(tempo_context.get("dictating_side") or "neutral")
+    if dictating_side == "home":
+        pace_control = 0.7 if net_diff >= 0 else 0.25
+    elif dictating_side == "away":
+        pace_control = -0.7 if net_diff <= 0 else -0.25
+
+    injury = float(injury_profile.get("margin_delta", 0.0) or 0.0)
+    margin = scoring_margin + home_court + star_minutes + series_points + coaching + rest + pace_control + injury
+    return _clamp(margin, -26.0, 26.0), {
+        "scoring_margin": scoring_margin,
+        "home_court": home_court,
+        "star_minutes": star_minutes,
+        "series_state": series_points,
+        "coaching_adjustment": coaching,
+        "rest": rest,
+        "pace_control": pace_control,
+        "injury": injury,
+        "home_expected_rating": home_rating,
+        "away_expected_rating": away_rating,
+    }
+
+
+def predict_playoff_total(
+    home_team: Any,
+    away_team: Any,
+    tempo_context: dict[str, Any],
+    series_context: dict[str, Any],
+    injury_profile: dict[str, Any],
+) -> tuple[float, dict[str, float]]:
+    pace = float(tempo_context["playoff_pace"])
+    halfcourt_weight = float(tempo_context["halfcourt_weight"])
+    home_rating = _playoff_expected_rating(home_team.team_stats, away_team.team_stats, halfcourt_weight)
+    away_rating = _playoff_expected_rating(away_team.team_stats, home_team.team_stats, halfcourt_weight)
+    base_total = ((home_rating + away_rating) * pace / 100.0)
+    physicality_drag = max(0.0, (halfcourt_weight - 0.58) * 9.0)
+    if series_context.get("home_elimination") or series_context.get("away_elimination"):
+        physicality_drag += 1.2
+    if series_context.get("is_game_7"):
+        physicality_drag += 1.8
+    availability_drag = (int(injury_profile.get("home_count", 0) or 0) + int(injury_profile.get("away_count", 0) or 0)) * 0.55
+    total = _clamp(base_total - physicality_drag - availability_drag, 178.0, 252.0)
+    return total, {
+        "base_total": base_total,
+        "physicality_drag": physicality_drag,
+        "availability_drag": availability_drag,
+        "home_expected_rating": home_rating,
+        "away_expected_rating": away_rating,
+    }
+
+
 def _build_adjustments(
     game: dict[str, Any],
     home_team,
     away_team,
     injuries: dict[str, list[dict[str, Any]]],
     tempo_context: dict[str, Any],
+    series_context: dict[str, Any],
+    h2h: dict[str, Any],
+    injury_profile: dict[str, Any],
 ) -> tuple[list[dict[str, Any]], str, str]:
     adjustments: list[dict[str, Any]] = []
 
     home_name = home_team.name
     away_name = away_team.name
 
-    hca = 0.05 if home_name in {"Nuggets", "Jazz", "Denver Nuggets", "Utah Jazz"} else 0.04
-    adjustments.append({"label": "Home court", "value": hca, "reason": f"{home_name} home playoff game"})
+    hca = 0.052 if _home_is_altitude(home_name) else 0.046
+    if series_context.get("is_game_7"):
+        hca += 0.008
+    elif series_context.get("home_elimination") or series_context.get("home_closeout"):
+        hca += 0.004
+    adjustments.append({"label": "Stronger playoff home court", "value": _clamp(hca, 0.035, 0.060), "reason": f"{home_name} home playoff game; game {series_context.get('game_number')}"})
 
-    home_inj_adj, home_inj_reason, home_inj_count = _injury_adjustment(home_name, injuries)
-    away_inj_adj, away_inj_reason, away_inj_count = _injury_adjustment(away_name, injuries)
-    injury_delta = _clamp(home_inj_adj - away_inj_adj, -0.08, 0.08)
+    home_inj_reason = str(injury_profile.get("home_reason") or "No listed expected absences")
+    away_inj_reason = str(injury_profile.get("away_reason") or "No listed expected absences")
+    injury_delta = float(injury_profile.get("prob_delta", 0.0) or 0.0)
     if injury_delta:
-        adjustments.append({"label": "Star/rotation availability", "value": injury_delta, "reason": f"{home_name}: {home_inj_reason}; {away_name}: {away_inj_reason}"})
-    elif home_inj_count or away_inj_count:
-        adjustments.append({"label": "Star/rotation availability", "value": 0.0, "reason": f"{home_name}: {home_inj_reason}; {away_name}: {away_inj_reason}"})
+        adjustments.append({"label": "Strict playoff injury weighting", "value": injury_delta, "reason": f"{injury_profile.get('label')}; {home_name}: {home_inj_reason}; {away_name}: {away_inj_reason}"})
+    elif injury_profile.get("home_count") or injury_profile.get("away_count"):
+        adjustments.append({"label": "Strict playoff injury weighting", "value": 0.0, "reason": f"{home_name}: {home_inj_reason}; {away_name}: {away_inj_reason}"})
 
     home_stats = home_team.team_stats
     away_stats = away_team.team_stats
-    home_attack = (home_stats.off_rating_10 - 114.0) + (away_stats.def_rating_10 - 114.0)
-    away_attack = (away_stats.off_rating_10 - 114.0) + (home_stats.def_rating_10 - 114.0)
-    mismatch_adj = _clamp((home_attack - away_attack) * 0.006, -0.06, 0.06)
+    halfcourt_weight = float(tempo_context.get("halfcourt_weight", 0.62) or 0.62)
+    home_attack = (_stat(home_stats, "off_rating_10", LEAGUE_AVG_RATING) - LEAGUE_AVG_RATING) + (_stat(away_stats, "def_rating_10", LEAGUE_AVG_RATING) - LEAGUE_AVG_RATING)
+    away_attack = (_stat(away_stats, "off_rating_10", LEAGUE_AVG_RATING) - LEAGUE_AVG_RATING) + (_stat(home_stats, "def_rating_10", LEAGUE_AVG_RATING) - LEAGUE_AVG_RATING)
+    four_factor_edge = (
+        (_stat(home_stats, "efg_pct", 0.54) - _stat(away_stats, "efg_pct", 0.54)) * 1.25
+        + (_stat(home_stats, "reb_pct", 0.50) - _stat(away_stats, "reb_pct", 0.50)) * 0.75
+        + (_stat(away_stats, "tov_pct", 0.135) - _stat(home_stats, "tov_pct", 0.135)) * 0.80
+    )
+    mismatch_adj = _clamp(((home_attack - away_attack) * 0.0065) + (four_factor_edge * halfcourt_weight), -0.06, 0.06)
     if abs(mismatch_adj) >= 0.005:
         adjustments.append({
-            "label": "Off/def mismatch",
+            "label": "Playoff matchup/halfcourt mismatch",
             "value": mismatch_adj,
-            "reason": f"attack score {home_name} {home_attack:+.1f} vs {away_name} {away_attack:+.1f}",
+            "reason": f"attack score {home_name} {home_attack:+.1f} vs {away_name} {away_attack:+.1f}; halfcourt weight {halfcourt_weight:.2f}",
         })
 
-    rest_diff = float(home_stats.rest_days) - float(away_stats.rest_days)
+    rest_diff = _stat(home_stats, "rest_days", 1.0) - _stat(away_stats, "rest_days", 1.0)
     rest_adj = _clamp(rest_diff * 0.015, -0.03, 0.03)
     if abs(rest_adj) >= 0.005:
         adjustments.append({
             "label": "Rest/travel",
             "value": rest_adj,
-            "reason": f"rest days {home_name} {home_stats.rest_days:.0f} vs {away_name} {away_stats.rest_days:.0f}",
+            "reason": f"rest days {home_name} {_stat(home_stats, 'rest_days', 1.0):.0f} vs {away_name} {_stat(away_stats, 'rest_days', 1.0):.0f}",
         })
 
     dictating_side = str(tempo_context.get("dictating_side") or "neutral")
     pace_adj = 0.0
     if dictating_side == "home":
-        pace_adj = 0.015 if home_stats.net_rating >= away_stats.net_rating else 0.005
+        pace_adj = 0.020 if _stat(home_stats, "net_rating", 0.0) >= _stat(away_stats, "net_rating", 0.0) else 0.008
     elif dictating_side == "away":
-        pace_adj = -0.015 if away_stats.net_rating >= home_stats.net_rating else -0.005
+        pace_adj = -0.020 if _stat(away_stats, "net_rating", 0.0) >= _stat(home_stats, "net_rating", 0.0) else -0.008
     if pace_adj:
         adjustments.append({
-            "label": "Pace control",
+            "label": "Playoff pace control",
             "value": pace_adj,
-            "reason": f"{dictating_side} tempo control, dictated pace {tempo_context.get('dictated_pace', 0.0):.1f}",
+            "reason": f"{dictating_side} tempo control, playoff pace {tempo_context.get('playoff_pace', 0.0):.1f} after {tempo_context.get('pace_drag', 0.0):.1f}-possession drag",
         })
 
-    series_record = str(game.get("home_series_record") or "").strip()
-    if series_record == "0-2":
-        adjustments.append({"label": "Situational urgency", "value": 0.005, "reason": f"{home_name} down 0-2 at home"})
+    net_diff = _stat(home_stats, "net_rating", 0.0) - _stat(away_stats, "net_rating", 0.0)
+    star_minutes_adj = _clamp(net_diff * 0.0035, -0.030, 0.030)
+    if abs(star_minutes_adj) >= 0.004:
+        adjustments.append({
+            "label": "Shorter rotations / star minutes",
+            "value": star_minutes_adj,
+            "reason": f"playoff minutes shift toward top-end quality; net rating gap {net_diff:+.1f}",
+        })
+
+    series_adj = 0.0
+    series_notes: list[str] = []
+    if series_context.get("is_game_1"):
+        series_adj += 0.006
+        series_notes.append("Game 1 prep edge to home team")
+    if series_context.get("is_game_2"):
+        if series_context.get("home_trailing"):
+            series_adj += 0.014
+            series_notes.append(f"{home_name} Game 2 adjustment while trailing")
+        if series_context.get("away_trailing"):
+            series_adj -= 0.014
+            series_notes.append(f"{away_name} Game 2 adjustment while trailing")
+    if series_context.get("game_number") in (3, 4):
+        if series_context.get("home_wins") == 0 and series_context.get("away_wins") == 2:
+            series_adj += 0.018
+            series_notes.append(f"{home_name} down 0-2 returning home")
+        if series_context.get("away_wins") == 0 and series_context.get("home_wins") == 2:
+            series_adj -= 0.018
+            series_notes.append(f"{away_name} down 0-2 returning home next")
+    if series_context.get("home_elimination"):
+        series_adj += 0.024
+        series_notes.append(f"{home_name} elimination urgency")
+    if series_context.get("away_elimination"):
+        series_adj -= 0.024
+        series_notes.append(f"{away_name} elimination urgency")
+    if series_context.get("home_closeout"):
+        series_adj += 0.010
+        series_notes.append(f"{home_name} closeout chance")
+    if series_context.get("away_closeout"):
+        series_adj -= 0.010
+        series_notes.append(f"{away_name} closeout chance")
+    if abs(series_adj) >= 0.004:
+        adjustments.append({
+            "label": "Series state",
+            "value": _clamp(series_adj, -0.035, 0.035),
+            "reason": "; ".join(series_notes),
+        })
+
+    repeated = int(series_context.get("repeat_matchups", 0) or 0)
+    coaching_adj = 0.0
+    coaching_notes: list[str] = []
+    if repeated:
+        if series_context.get("home_trailing"):
+            coaching_adj += min(0.018, repeated * 0.0045)
+            coaching_notes.append(f"{home_name} adjustment opportunity after repeated matchups")
+        if series_context.get("away_trailing"):
+            coaching_adj -= min(0.018, repeated * 0.0045)
+            coaching_notes.append(f"{away_name} adjustment opportunity after repeated matchups")
+        h2h_margin = float(h2h.get("point_diff", 0.0) or 0.0)
+        if abs(h2h_margin) >= 2.5:
+            h2h_adj = _clamp(h2h_margin * 0.0012 * min(repeated, 4), -0.014, 0.014)
+            coaching_adj += h2h_adj
+            coaching_notes.append(f"regular-season matchup margin {h2h_margin:+.1f}")
+    if abs(coaching_adj) >= 0.004:
+        adjustments.append({
+            "label": "Coaching/repeated-matchup adjustment",
+            "value": _clamp(coaching_adj, -0.030, 0.030),
+            "reason": "; ".join(coaching_notes),
+        })
 
     return adjustments, home_inj_reason, away_inj_reason
 
@@ -521,6 +930,7 @@ def run_playoff_game(
     home_team = create_team(2, home_name, True, all_team_stats[home_name])
     away_team = create_team(1, away_name, False, all_team_stats[away_name])
     venue = game.get("arena") or f"{home_name} Arena"
+    series_context = parse_series_context(game)
     ctx = GameContext(
         game.get("slate_date") or game.get("date", "")[:10],
         Venue(venue),
@@ -530,10 +940,10 @@ def run_playoff_game(
         game_id=game.get("game_id", ""),
     )
 
-    _, tempo_context = calculate_dictated_pace(
+    tempo_context = calculate_playoff_tempo(
         away_team.team_stats,
         home_team.team_stats,
-        use_capped_form=True,
+        series_context,
     )
 
     h2h = fetch_h2h_context(home_name, game.get("away_abbr", ""), season, ctx.date)
@@ -545,20 +955,38 @@ def run_playoff_game(
         ranks,
         h2h,
     )
+    injury_profile = _playoff_injury_profile(home_name, away_name, injuries)
     adjustments, home_inj_reason, away_inj_reason = _build_adjustments(
         game,
         home_team,
         away_team,
         injuries,
         tempo_context,
+        series_context,
+        h2h,
+        injury_profile,
     )
 
-    raw_prob = _clamp(base_rate + sum(float(item["value"]) for item in adjustments), 0.03, 0.97)
+    adjusted_base_prob = _clamp(base_rate + sum(float(item["value"]) for item in adjustments), 0.03, 0.97)
+    predicted_spread, margin_components = predict_playoff_margin(
+        home_team,
+        away_team,
+        tempo_context,
+        series_context,
+        h2h,
+        injury_profile,
+    )
+    margin_prob = _clamp(_normal_cdf(predicted_spread / PLAYOFF_MARGIN_RMSE), 0.03, 0.97)
+    raw_prob = _clamp((adjusted_base_prob * 0.52) + (margin_prob * 0.48), 0.03, 0.97)
     final_home_prob = extremize_probability(raw_prob)
     home_market_prob, away_market_prob = remove_vig(home_ml, away_ml)
-
-    predicted_spread = predict_spread(home_team, away_team, pace_context=tempo_context)
-    predicted_total = predict_total_points(ctx, pace_context=tempo_context)
+    predicted_total, total_components = predict_playoff_total(
+        home_team,
+        away_team,
+        tempo_context,
+        series_context,
+        injury_profile,
+    )
 
     if final_home_prob >= 0.50:
         pick_team = home_name
@@ -582,7 +1010,7 @@ def run_playoff_game(
 
     print("**Game Context:**")
     print(f"- {game.get('away_display') or away_name} at {game.get('home_display') or home_name}")
-    print(f"- {game.get('series_status')} | Venue: {venue} | Scheduled: {game.get('game_status')}")
+    print(f"- {game.get('series_status')} | Game {series_context.get('game_number')} | Venue: {venue} | Scheduled: {game.get('game_status')}")
     print(f"- Source: ESPN NBA postseason scoreboard confirms season type 3 / post-season.")
 
     print("\n**Verification checks:**")
@@ -595,7 +1023,8 @@ def run_playoff_game(
     print("\n**Key Factors:**")
     print(f"- Net Rating: {away_name} {away_team.team_stats.net_rating:+.1f} vs {home_name} {home_team.team_stats.net_rating:+.1f} (NBA API)")
     print(f"- Off/Def Rating: {away_name} {away_team.team_stats.off_rating_10:.1f}/{away_team.team_stats.def_rating_10:.1f} vs {home_name} {home_team.team_stats.off_rating_10:.1f}/{home_team.team_stats.def_rating_10:.1f}")
-    print(f"- Pace: {away_name} {away_team.team_stats.pace:.1f} vs {home_name} {home_team.team_stats.pace:.1f}; dictated {tempo_context.get('dictated_pace', 0.0):.1f}")
+    print(f"- Pace: {away_name} {away_team.team_stats.pace:.1f} vs {home_name} {home_team.team_stats.pace:.1f}; playoff pace {tempo_context.get('playoff_pace', 0.0):.1f} after {tempo_context.get('pace_drag', 0.0):.1f}-possession playoff drag")
+    print(f"- Playoff style: halfcourt weight {tempo_context.get('halfcourt_weight', 0.0):.2f}; dictating side {tempo_context.get('dictating_side')}")
     print(f"- H2H: {h2h.get('note')}")
     print(f"- Injuries: {home_name}: {home_inj_reason}; {away_name}: {away_inj_reason}")
     print(f"- Rest days: {away_name} {away_team.team_stats.rest_days:.0f} vs {home_name} {home_team.team_stats.rest_days:.0f}")
@@ -606,7 +1035,10 @@ def run_playoff_game(
         print(f"  - {note}")
     for item in adjustments:
         print(f"- {item['label']}: {float(item['value'])*100:+.1f}% because {item['reason']}")
-    print(f"- Raw adjusted probability ({home_name}): {raw_prob*100:.1f}%")
+    print(f"- Adjustment subtotal: {sum(float(item['value']) for item in adjustments)*100:+.1f}%")
+    print(f"- Adjusted base probability ({home_name}): {adjusted_base_prob*100:.1f}%")
+    print(f"- Margin-implied playoff probability ({home_name}): {margin_prob*100:.1f}% from {predicted_spread:+.2f} projected home margin")
+    print(f"- Blended raw probability ({home_name}): {raw_prob*100:.1f}%")
     print(f"- Extremized final probability ({home_name}): {final_home_prob*100:.1f}%")
 
     print("\n**Model Predictions:**")
@@ -614,6 +1046,21 @@ def run_playoff_game(
     print(f"- **Projected Margin:** {spread_team} by {abs(predicted_spread):.2f} points")
     print(f"- **Model Confidence:** {pick_prob*100:.1f}%")
     print(f"- **Total:** {predicted_total:.1f} O/U")
+    print(
+        "- **Playoff Margin Components:** "
+        f"scoring {margin_components['scoring_margin']:+.2f}, "
+        f"home court {margin_components['home_court']:+.2f}, "
+        f"star minutes {margin_components['star_minutes']:+.2f}, "
+        f"series {margin_components['series_state']:+.2f}, "
+        f"coaching {margin_components['coaching_adjustment']:+.2f}, "
+        f"injury {margin_components['injury']:+.2f}"
+    )
+    print(
+        "- **Playoff Total Components:** "
+        f"base {total_components['base_total']:.1f}, "
+        f"physicality drag -{total_components['physicality_drag']:.1f}, "
+        f"availability drag -{total_components['availability_drag']:.1f}"
+    )
 
     print("\n**Market Odds:**")
     print(f"- {home_name} {_format_odds(home_ml)} | {away_name} {_format_odds(away_ml)} ({market.get('provider') or 'ESPN odds'})")
@@ -660,6 +1107,14 @@ def run_playoff_game(
         "vegas": market.get("home_spread") if pick_team == home_name else market.get("away_spread"),
         "market_line": market.get("home_spread") if pick_team == home_name else market.get("away_spread"),
         "total_projection": round(predicted_total, 1),
+        "base_probability": round(base_rate, 4),
+        "adjusted_base_probability": round(adjusted_base_prob, 4),
+        "margin_probability": round(margin_prob, 4),
+        "playoff_pace": round(float(tempo_context.get("playoff_pace", 0.0) or 0.0), 2),
+        "halfcourt_weight": round(float(tempo_context.get("halfcourt_weight", 0.0) or 0.0), 3),
+        "series_game_number": series_context.get("game_number"),
+        "margin_components": {key: round(float(value), 3) for key, value in margin_components.items()},
+        "total_components": {key: round(float(value), 3) for key, value in total_components.items()},
         "series_status": game.get("series_status"),
         "game_id": game.get("game_id"),
     }
