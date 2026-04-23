@@ -1243,6 +1243,7 @@ def run_daily_model_caches_to_firestore(date_str: str | None = None) -> dict[str
     model_jobs: dict[str, tuple[Any, tuple[Any, ...]]] = {
         "nba": (run_nba_model, (date_iso, "new")),
         "nba_old": (run_nba_model, (date_iso, "old")),
+        "nba_playoffs": (run_nba_playoffs_model, (date_iso,)),
         "wnba": (run_wnba_model, (date_iso,)),
         "nba_props": (run_nba_props_model, (date_iso,)),
         "mlb_old": (run_mlb_model, (date_iso, "old")),
@@ -1278,6 +1279,7 @@ def run_daily_model_caches_to_firestore(date_str: str | None = None) -> dict[str
         "models": results,
         "nba": results.get("nba", {}),
         "nba_old": results.get("nba_old", {}),
+        "nba_playoffs": results.get("nba_playoffs", {}),
         "wnba": results.get("wnba", {}),
         "nba_props": results.get("nba_props", {}),
         "mlb": results.get("mlb_old", {}),
@@ -2002,6 +2004,7 @@ def run_background_grade_all_users() -> dict[str, Any]:
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 NBA_MODEL_DIR = os.path.join(BASE_DIR, "NBAPredictionModel")
+NBA_PLAYOFFS_MODEL_DIR = os.path.join(BASE_DIR, "NBAPlayoffsPredictionModel")
 WNBA_MODEL_DIR = os.path.join(BASE_DIR, "WNBAPredictionModel")
 MLB_MODEL_DIR = os.path.join(BASE_DIR, "MLBPredictionModel")
 NBA_PROPS_MODEL_DIR = os.path.join(BASE_DIR, "NBAPlayerBettingModel")
@@ -2345,6 +2348,44 @@ def _parse_nba_output(output: str, source_label: str = "NBA Model") -> list[dict
                     "home_team": home_team,
                 }
                 _append_unique(ou_pick)
+
+    return picks
+
+
+def _parse_nba_playoffs_output(output: str) -> list[dict[str, Any]]:
+    """Parse JSON pick lines emitted by the NBA Playoffs model runner."""
+    picks: list[dict[str, Any]] = []
+    seen_keys: set[tuple[str, str, str]] = set()
+
+    for raw_line in output.splitlines():
+        line = raw_line.strip()
+        if not line.startswith("PICK_JSON:"):
+            continue
+        payload_text = line.split("PICK_JSON:", 1)[1].strip()
+        if not payload_text:
+            continue
+        try:
+            pick = json.loads(payload_text)
+        except json.JSONDecodeError:
+            continue
+        if not isinstance(pick, dict):
+            continue
+
+        pick["source"] = "NBA Playoffs"
+        pick["sport"] = "NBA"
+        pick["league"] = "NBA"
+        pick.setdefault("units", 0)
+        pick.setdefault("decision", "PASS")
+
+        key = (
+            str(pick.get("source", "")),
+            str(pick.get("sport", "")),
+            str(pick.get("pick", "")),
+        )
+        if key in seen_keys:
+            continue
+        seen_keys.add(key)
+        picks.append(pick)
 
     return picks
 
@@ -3051,6 +3092,64 @@ def run_nba_model(date_str: str | None = None, variant: str = "new") -> dict[str
         return {"ok": False, "error": str(e)}
 
 
+def run_nba_playoffs_model(date_str: str | None = None) -> dict[str, Any]:
+    """Execute the NBA Playoffs model and return parsed picks."""
+    python_bin = _resolve_python_bin(os.path.join(NBA_PLAYOFFS_MODEL_DIR, "venv", "bin", "python"))
+    target_iso, _ = _parse_model_date_arg(date_str)
+
+    try:
+        output = _run_script(
+            python_bin,
+            "run_live.py",
+            NBA_PLAYOFFS_MODEL_DIR,
+            timeout=480,
+            extra_args=["--date", target_iso],
+        )
+        if "Traceback (most recent call last)" in output or "ModuleNotFoundError" in output:
+            tail = " | ".join((output.strip().splitlines() or ["no output"])[-12:])
+            return {"ok": False, "error": f"NBA Playoffs runtime failed ({tail})"}
+
+        picks = _parse_nba_playoffs_output(output)
+        note = ""
+        if not picks:
+            lines = [line.strip() for line in output.splitlines() if line.strip()]
+            no_pick_markers = (
+                "No eligible NBA playoff games",
+                "No official NBA playoff games",
+                "No eligible NBA playoff picks generated",
+            )
+            if any(any(marker in line for marker in no_pick_markers) for line in lines):
+                note = next(
+                    (
+                        line for line in reversed(lines)
+                        if any(marker in line for marker in no_pick_markers)
+                    ),
+                    "No NBA playoff picks generated after verification gates.",
+                )
+                result = {
+                    "ok": True,
+                    "picks": [],
+                    "raw_lines": len(output.split("\n")),
+                    "note": note,
+                }
+                _save_admin_picks_doc("nba_playoffs", result, target_iso)
+                return result
+            tail = " | ".join((output.strip().splitlines() or ["no output"])[-12:])
+            return {
+                "ok": False,
+                "error": f"NBA Playoffs parser found no predictions ({tail})",
+                "raw_lines": len(output.split("\n")),
+            }
+
+        result = {"ok": True, "picks": picks, "raw_lines": len(output.split("\n"))}
+        _save_admin_picks_doc("nba_playoffs", result, target_iso)
+        return result
+    except subprocess.TimeoutExpired:
+        return {"ok": False, "error": "NBA Playoffs timed out (8 min limit)"}
+    except Exception as e:
+        return {"ok": False, "error": str(e)}
+
+
 def run_nba_props_model(
     date_str: str | None = None,
     game_id: str | None = None,
@@ -3563,6 +3662,7 @@ def _public_endpoints() -> list[str]:
         "/run-sportsline-odds",
         "/run-nba-model",
         "/run-nba-old-model",
+        "/run-nba-playoffs-model",
         "/run-wnba-model",
         "/api/run-wnba-model",
         "/refresh-nba-props-games",
@@ -4036,6 +4136,14 @@ class Handler(BaseHTTPRequestHandler):
                 self._send_json(200, {"ok": True, "job_id": job_id, "status": "running"})
             else:
                 result = run_nba_model(date_str, "old")
+                self._send_json(200, result)
+
+        elif path == "/run-nba-playoffs-model":
+            if async_mode:
+                job_id = _launch_job(run_nba_playoffs_model, date_str)
+                self._send_json(200, {"ok": True, "job_id": job_id, "status": "running"})
+            else:
+                result = run_nba_playoffs_model(date_str)
                 self._send_json(200, result)
 
         elif path == "/run-wnba-model":

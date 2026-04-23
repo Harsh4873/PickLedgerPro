@@ -3693,6 +3693,14 @@ function getPreferredDisplayedRecord(derivedRecord, canonicalRecord = window._us
         <button class="model-run-btn" id="btn-run-nba-new" onclick="runModel('nba-new')">RUN NBA NEW</button>
         <div class="model-status" id="status-nba-new"></div>
       </div>
+      <div class="model-card" id="model-card-nba-playoffs">
+        <div class="model-card-icon">&#127942;</div>
+        <div class="model-card-title">NBA Playoffs</div>
+        <div class="model-card-desc">Runs the playoff-only NBA model with ESPN postseason verification, market moneylines, playoff home-court weighting, and strict pre-game gates.</div>
+        <span data-model-timestamp="nba_playoffs" class="model-timestamp-badge" style="display:none;"></span>
+        <button class="model-run-btn" id="btn-run-nba-playoffs" onclick="runModel('nba-playoffs')">RUN NBA PLAYOFFS</button>
+        <div class="model-status" id="status-nba-playoffs"></div>
+      </div>
       <div class="model-card" id="model-card-nba-old">
         <div class="model-card-icon">&#128220;</div>
         <div class="model-card-title">NBA Model</div>
@@ -3831,6 +3839,7 @@ const SPORTSGAMBLER_CACHE_KEY = 'pickledger_sportsgambler_feed_cache';
 const MODEL_FIREBASE_KEY_ALIASES = {
   'nba-old': ['nba_old', 'nba-old', 'nba'],
   'nba-new': ['nba', 'nba_new', 'nba-new', 'nba_new_model', 'nbaNew'],
+  'nba-playoffs': ['nba_playoffs', 'nba-playoffs', 'nbaPlayoffs'],
   'nba-props': ['nba_props', 'nba-props', 'props'],
   wnba: ['wnba'],
   mlb: ['mlb', 'mlb_old', 'mlb-old'],
@@ -8964,7 +8973,7 @@ async function loadModelTimestamps() {
     const data = typeof snap.data === 'function' ? snap.data() : null;
     if (!data || typeof data !== 'object') return;
 
-    for (const key of ['nba', 'nba_new', 'wnba', 'mlb', 'mlb_new', 'ipl', 'props']) {
+    for (const key of ['nba', 'nba_new', 'nba_playoffs', 'wnba', 'mlb', 'mlb_new', 'ipl', 'props']) {
       const rawTs = data[`${key}_ts`];
       if (!rawTs) continue;
       const badge = document.querySelector(`[data-model-timestamp="${key}"]`);
@@ -9068,6 +9077,7 @@ function _resetModelButton(model) {
     mlb: 'RUN MLB MODEL',
     'mlb-new': 'RUN MLB NEW',
     'nba-new': 'RUN NBA NEW',
+    'nba-playoffs': 'RUN NBA PLAYOFFS',
     'nba-old': 'RUN NBA MODEL',
     'nba-props': 'RUN PROPS MODEL',
     wnba: 'RUN WNBA MODEL',
@@ -10263,6 +10273,11 @@ async function runModel(model) {
     body.fallbackModelKey = 'wnba';
     body.fallbackDateStr = body.date;
   }
+  if (model === 'nba-playoffs') {
+    endpoint = '/run-nba-playoffs-model';
+    body.fallbackModelKey = 'nba_playoffs';
+    body.fallbackDateStr = body.date;
+  }
   if (model === 'nba-props') {
     endpoint = '/run-nba-props-model';
     body.fallbackModelKey = 'props';
@@ -10845,6 +10860,7 @@ window.addEventListener('firestorePicksLoaded', function(e) {
     { id: 'model-card-mlb-new',          icon: '\u26BE', name: 'MLB New',                       desc: '2024-25 MLB challenger artifacts' },
     { id: 'model-card-ipl',              icon: '\u{1F3DF}', name: 'IPL Model',                  desc: 'Cached IPL winner + fantasy XI' },
     { id: 'model-card-nba-new',          icon: '\u{1F3C0}', name: 'NBA New',                    desc: 'Refined NBA spread + calibration' },
+    { id: 'model-card-nba-playoffs',     icon: '\u{1F3C6}', name: 'NBA Playoffs',               desc: 'Postseason-only verified moneyline model' },
     { id: 'model-card-nba-old',          icon: '\u{1F4DC}', name: 'NBA Model',                  desc: 'Legacy NBA confidence path' },
     { id: 'model-card-nba-props',        icon: '\u{1F3AF}', name: 'NBA Props Model',            desc: 'Player props with Kelly sizing' },
     { id: 'model-card-sportytrader',     icon: '\u{1F3C0}', name: 'SportyTrader Feed',          desc: 'NBA + MLB scraper feed' },
