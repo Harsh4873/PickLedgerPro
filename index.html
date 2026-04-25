@@ -9451,6 +9451,13 @@ async function _runAsyncModelRequest(model, endpoint, body) {
         });
         const launch = await resp.json().catch(() => ({}));
         if (!resp.ok || !launch.ok) {
+          // 404 + "Route not found" is almost always a stale local backend
+          // process that was started before this route shipped. Surface a
+          // clearer hint so the next time this happens it's obvious how to
+          // fix it without grepping the server logs.
+          if (resp.status === 404 || /route not found/i.test(String(launch.error || ''))) {
+            throw new Error(`Local backend is missing ${endpoint} — restart pickgrader_server.py to pick up new routes.`);
+          }
           throw new Error(launch.error || `HTTP ${resp.status}`);
         }
         if (!launch.job_id) {
