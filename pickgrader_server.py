@@ -2090,21 +2090,33 @@ def _run_ipl_model_subprocess(
         if text:
             extra_args.extend([flag, text])
 
-    output = _run_script(
-        python_bin,
-        IPL_MODEL_RUNNER,
-        BASE_DIR,
+    cmd = [python_bin, IPL_MODEL_RUNNER] + extra_args
+    proc = _subprocess_run(
+        cmd,
+        cwd=BASE_DIR,
+        capture_output=True,
+        text=True,
         timeout=240,
-        extra_args=extra_args,
     )
-    lines = [line.strip() for line in output.splitlines() if line.strip()]
-    if not lines:
-        return {"error": "IPL runner returned no output"}
-    payload_line = lines[-1]
-    try:
-        payload = json.loads(payload_line)
-    except json.JSONDecodeError:
-        tail = " | ".join(lines[-12:])
+    # Try stdout-only first (cleanest path, avoids all gRPC/grpcio stderr noise).
+    stdout_lines = [ln.strip() for ln in proc.stdout.splitlines() if ln.strip()]
+    # Fall back to scanning combined output only if stdout alone has no JSON.
+    combined_lines = [ln.strip() for ln in (proc.stdout + proc.stderr).splitlines() if ln.strip()]
+
+    def _find_last_json(lines):
+        for line in reversed(lines):
+            if line.startswith("{") or line.startswith("["):
+                try:
+                    return json.loads(line), None
+                except json.JSONDecodeError:
+                    pass
+        return None, lines
+
+    payload, _ = _find_last_json(stdout_lines)
+    if payload is None:
+        payload, bad_lines = _find_last_json(combined_lines)
+    if payload is None:
+        tail = " | ".join((combined_lines or ["no output"])[-12:])
         return {"error": f"IPL runner returned invalid JSON ({tail})"}
     if not isinstance(payload, dict):
         return {"error": "IPL runner returned invalid payload"}
