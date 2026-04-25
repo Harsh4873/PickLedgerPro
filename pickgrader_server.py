@@ -3479,7 +3479,7 @@ def run_sportytrader_scraper(
     """Execute the SportyTrader scraper for NBA and/or MLB."""
     python_bin = _resolve_python_bin(SPORTYTRADER_VENV)
     target_date = _resolve_scrape_date(date_str)
-    scraper_path = os.path.join(BASE_DIR, "sportytrader_scraper.py")
+    scraper_path = os.path.join(BASE_DIR, "scripts", "scrapers", "sportytrader_scraper.py")
     if not os.path.exists(scraper_path):
         return {"ok": False, "error": f"sportytrader scraper not found at {scraper_path}"}
 
@@ -3590,7 +3590,7 @@ def run_sportsgambler_scraper(
     """Execute the SportsGambler scraper for NBA and/or MLB."""
     python_bin = _resolve_python_bin(SPORTSGAMBLER_VENV)
     target_date = _resolve_scrape_date(date_str)
-    scraper_path = os.path.join(BASE_DIR, "sportsgambler_scraper.py")
+    scraper_path = os.path.join(BASE_DIR, "scripts", "scrapers", "sportsgambler_scraper.py")
     if not os.path.exists(scraper_path):
         return {"ok": False, "error": f"sportsgambler scraper not found at {scraper_path}"}
 
