@@ -3,7 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PickLedger</title>
+<title>PickLedgerPro — Sports Pick Tracker</title>
+<meta name="description" content="PickLedgerPro — algorithmic sports pick tracker for NBA, MLB, WNBA, and IPL. Live predictions powered by Firebase.">
+<meta property="og:title" content="PickLedgerPro">
+<meta property="og:description" content="Sports pick tracker with live algorithmic predictions for NBA, MLB, WNBA, and IPL.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://harsh4873.github.io/PickLedgerPro/">
+<link rel="canonical" href="https://harsh4873.github.io/PickLedgerPro/">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="./ipl/ipl_styles.css">
 <style>
@@ -3832,9 +3838,9 @@ const RANKINGS_OWNER_EMAIL = 'hdav4873@gmail.com';
 const RANKINGS_STATE_UID = 'primary';
 const ADMIN_BACKEND_STORAGE_KEY = 'pickledger_backend';
 const DEFAULT_ADMIN_BACKEND_URL = 'http://127.0.0.1:8765';
-const SPORTYTRADER_FEED_URL = './sportytrader_manual_feed.json';
+const SPORTYTRADER_FEED_URL = null;  // manual feed removed — use Firebase cache only
 const SPORTYTRADER_CACHE_KEY = 'pickledger_sportytrader_feed_cache';
-const SPORTSGAMBLER_FEED_URL = './sportsgambler_manual_feed.json';
+const SPORTSGAMBLER_FEED_URL = null; // manual feed removed — use Firebase cache only
 const SPORTSGAMBLER_CACHE_KEY = 'pickledger_sportsgambler_feed_cache';
 const MODEL_FIREBASE_KEY_ALIASES = {
   'nba-old': ['nba_old', 'nba-old', 'nba'],
@@ -9884,9 +9890,9 @@ async function loadSportyTraderManualFeed() {
     return { picks: firebaseCache.picks || [], meta: firebaseCache.meta || {} };
   }
 
-  const payload = await _fetchManualFeedPayload(
-    _buildManualFeedCandidates(SPORTYTRADER_FEED_URL, '/sportytrader-feed')
-  );
+  const payload = await (SPORTYTRADER_FEED_URL
+    ? _fetchManualFeedPayload(_buildManualFeedCandidates(SPORTYTRADER_FEED_URL, '/sportytrader-feed'))
+    : Promise.resolve(null));
   const picks = Array.isArray(payload) ? payload : payload.picks;
   if (!Array.isArray(picks)) {
     throw new Error('Invalid feed format: expected { picks: [] }');
@@ -9937,9 +9943,9 @@ async function loadSportsgamblerManualFeed() {
     return { picks: firebaseCache.picks || [], meta: firebaseCache.meta || {} };
   }
 
-  const payload = await _fetchManualFeedPayload(
-    _buildManualFeedCandidates(SPORTSGAMBLER_FEED_URL)
-  );
+  const payload = await (SPORTSGAMBLER_FEED_URL
+    ? _fetchManualFeedPayload(_buildManualFeedCandidates(SPORTSGAMBLER_FEED_URL))
+    : Promise.resolve(null));
   const picks = Array.isArray(payload) ? payload : payload.picks;
   if (!Array.isArray(picks)) {
     throw new Error('Invalid feed format: expected { picks: [] }');
