@@ -4596,43 +4596,63 @@ async function refreshAutoGrades(silent = false) {
   }
 
   try {
-    const data = await loadGradedResultsFromFirebase(getCurrentFirebaseUid());
-    const graded = data.graded || {};
-    const merged = getResults();
-    Object.entries(graded).forEach(([id, result]) => {
-      merged[id] = result;
-    });
-    const startTimes = data.startTimes || {};
-    const mergedTimes = getGameTimes();
-    Object.entries(startTimes).forEach(([id, iso]) => {
-      if (iso) mergedTimes[id] = iso;
-    });
-    writeLedgerStateToLocalStorage({
-      ledger: {
-        addedPicks: getAddedPicks(),
-        deletedPickIds: getDeletedPickIds(),
+    let graded = {};
+    let startTimes = {};
+
+    let uid = null;
+    try {
+      uid = getCurrentFirebaseUid();
+    } catch (uidErr) {
+      // Not signed in — we'll still run live schedule + auto-grade, but skip Firestore grade load.
+      if (!silent) {
+        const msg = String(uidErr && uidErr.message ? uidErr.message : uidErr);
+        if (msg.toLowerCase().includes('firebase sign-in required')) {
+          setRefreshStatus('Not signed in — refreshing schedule and auto-grading without saving to your account.', 'ok');
+        } else {
+          setRefreshStatus(`Firebase grade load failed: ${msg}`, 'error');
+        }
+      }
+    }
+
+    if (uid) {
+      const data = await loadGradedResultsFromFirebase(uid);
+      graded = data.graded || {};
+      startTimes = data.startTimes || {};
+      const merged = getResults();
+      Object.entries(graded).forEach(([id, result]) => {
+        merged[id] = result;
+      });
+      const mergedTimes = getGameTimes();
+      Object.entries(startTimes).forEach(([id, iso]) => {
+        if (iso) mergedTimes[id] = iso;
+      });
+      writeLedgerStateToLocalStorage({
+        ledger: {
+          addedPicks: getAddedPicks(),
+          deletedPickIds: getDeletedPickIds(),
+          results: merged,
+          startTimes: mergedTimes,
+          gameTimes: mergedTimes,
+        },
         results: merged,
         startTimes: mergedTimes,
         gameTimes: mergedTimes,
-      },
-      results: merged,
-      startTimes: mergedTimes,
-      gameTimes: mergedTimes,
-    });
-    if (window._currentUser && picksBeforeRefresh.size > 0) {
-      let nextRecord = window.normalizeRecordSummary(window._userRecord);
-      let recordChanged = false;
-      const picksAfterRefresh = typeof getPicks === 'function'
-        ? new Map(getPicks().map(p => [String(p.id), normalizeResultValue(p.result)]))
-        : new Map();
-      picksAfterRefresh.forEach((nextResult, pickId) => {
-        const previousResult = picksBeforeRefresh.get(pickId) || 'pending';
-        if (previousResult === nextResult) return;
-        nextRecord = window.applyRecordOutcomeTransition(nextRecord, previousResult, nextResult);
-        recordChanged = true;
       });
-      if (recordChanged) {
-        window.syncVisibleUserRecord(nextRecord, { persist: Boolean(window._userUid) });
+      if (window._currentUser && picksBeforeRefresh.size > 0) {
+        let nextRecord = window.normalizeRecordSummary(window._userRecord);
+        let recordChanged = false;
+        const picksAfterRefresh = typeof getPicks === 'function'
+          ? new Map(getPicks().map(p => [String(p.id), normalizeResultValue(p.result)]))
+          : new Map();
+        picksAfterRefresh.forEach((nextResult, pickId) => {
+          const previousResult = picksBeforeRefresh.get(pickId) || 'pending';
+          if (previousResult === nextResult) return;
+          nextRecord = window.applyRecordOutcomeTransition(nextRecord, previousResult, nextResult);
+          recordChanged = true;
+        });
+        if (recordChanged) {
+          window.syncVisibleUserRecord(nextRecord, { persist: Boolean(window._userUid) });
+        }
       }
     }
     scheduleLedgerStateSync();
