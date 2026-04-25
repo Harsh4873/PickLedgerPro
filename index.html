@@ -3840,6 +3840,7 @@ const MODEL_FIREBASE_KEY_ALIASES = {
   'nba-old': ['nba_old', 'nba-old', 'nba'],
   'nba-new': ['nba_new', 'nba-new', 'nba_new_model', 'nbaNew', 'nba'],
   'nba-playoffs': ['nba_playoffs', 'nba-playoffs', 'nbaPlayoffs'],
+  nba_playoffs: ['nba_playoffs', 'nba-playoffs', 'nbaPlayoffs'],
   'nba-props': ['nba_props', 'nba-props', 'props'],
   wnba: ['wnba'],
   mlb: ['mlb', 'mlb_old', 'mlb-old'],
@@ -8947,10 +8948,20 @@ async function getAdminPicksFromFirebase(modelKey, options = {}) {
           if (payload) break;
         }
         if (payload) break;
+        // Strict fuzzy fallback: only allow the firebase key to be the alias
+        // itself or an alias with extra suffix (e.g. "nba_new" matches
+        // "nba_new_picks"). The reverse direction is forbidden because it
+        // collapses specific lookups onto more general keys (e.g. searching
+        // for "nba_playoffs" must NOT match a stored "nba" / "nba_new" doc,
+        // which previously caused playoff runs to render NBA New picks).
         for (const [key, value] of entries) {
           const normalizedKey = String(key || '').trim().toLowerCase().replace(/[\s_]+/g, '-');
           if (
-            normalizedAliases.some(alias => normalizedKey.includes(alias) || alias.includes(normalizedKey))
+            normalizedAliases.some(alias =>
+              normalizedKey === alias ||
+              normalizedKey.startsWith(alias + '-') ||
+              normalizedKey.startsWith(alias + '_')
+            )
           ) {
             payload = _extractFirebaseModelPayload(value, { gameLabel });
             if (payload) break;
@@ -9146,10 +9157,6 @@ async function loadCannonDailyPicks() {
     let data = null;
     let liveSource = 'cache';
     let liveError = null;
-    // Track whether we took the admin+backend path, so we can also run fresh
-    // live scrapes of the secondary MLB sources (SportyTrader + SportsGambler)
-    // in parallel alongside Cannon rather than serving their stale cached JSON.
-    let adminLiveScrapeUsed = false;
 
     // Admin + local backend available: scrape Cannon Analytics + SportsLine
     // LIVE for today's slate so each click pulls fresh data instead of the
@@ -9189,7 +9196,6 @@ async function loadCannonDailyPicks() {
           }
           data = fresh;
           liveSource = 'live';
-          adminLiveScrapeUsed = true;
         } catch (err) {
           liveError = err;
           console.warn('[cannon] live scrape failed, falling back to cached JSON:', err);
@@ -9292,29 +9298,17 @@ async function loadCannonDailyPicks() {
       renderModelResults(combined, { meta: '', metaState: 'ok' });
     }
 
-    // ── Fresh secondary-source scrape (analytics generation rule) ──
-    // When the admin backend path succeeded for Cannon, also run fresh live
-    // scrapes of SportyTrader + SportsGambler for MLB and merge those picks
-    // into Model Results alongside Cannon. Prior behavior served stale JSON
-    // for these sources during analytics runs; now cache/JSON is strictly a
-    // fallback. Graceful degradation: if either source fails, Cannon picks
-    // still render and we log the failure.
-    var secondaryMeta = '';
-    if (adminLiveScrapeUsed) {
-      try {
-        secondaryMeta = await _refreshSecondaryMlbPicksForAnalytics(statusEl);
-      } catch (secErr) {
-        console.warn('[analytics] secondary MLB scrape wrapper threw:', secErr);
-        secondaryMeta = ' (secondary scrape error: ' + (secErr && secErr.message || secErr) + ')';
-      }
-    }
-
+    // Cannon Analytics is a stand-alone source. It must NOT trigger live
+    // SportyTrader / SportsGambler scrapes — those are run only when the user
+    // explicitly clicks their own SYNC buttons. Previously this block called
+    // _refreshSecondaryMlbPicksForAnalytics(), which caused every Cannon run
+    // to overlap into the other two MLB feeds. Removed to keep the sources
+    // strictly isolated.
     var pickCount = cannonPicks.length;
     if (statusEl) {
       var prefix = liveSource === 'live' ? 'Scraped live. ' : '';
       statusEl.textContent = prefix + games.length + ' games loaded.' +
-        (pickCount ? ' ' + pickCount + ' picks injected into Model Results.' : '') +
-        (secondaryMeta || '');
+        (pickCount ? ' ' + pickCount + ' picks injected into Model Results.' : '');
       statusEl.className = 'model-status ok';
     }
   } catch (e) {

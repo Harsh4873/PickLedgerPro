@@ -471,6 +471,17 @@ class HistoricalDatasetBuilder:
             "home_starter_ip": innings_to_float(home_pitching_pre.get("inningsPitched")),
             "away_starter_starts": safe_int(away_pitching_pre.get("gamesStarted")),
             "home_starter_starts": safe_int(home_pitching_pre.get("gamesStarted")),
+            # Raw starter rate-stat components so v2 can compute K/9, BB/9, HR/9
+            # and K-BB%. We use the season-to-date values with the current game
+            # already subtracted out (subtract_pitching_game_from_season).
+            "away_starter_strikeouts": safe_float(away_pitching_pre.get("strikeOuts")),
+            "home_starter_strikeouts": safe_float(home_pitching_pre.get("strikeOuts")),
+            "away_starter_walks": safe_float(away_pitching_pre.get("baseOnBalls")),
+            "home_starter_walks": safe_float(home_pitching_pre.get("baseOnBalls")),
+            "away_starter_home_runs": safe_float(away_pitching_pre.get("homeRuns")),
+            "home_starter_home_runs": safe_float(home_pitching_pre.get("homeRuns")),
+            "away_starter_batters_faced": safe_float(away_pitching_pre.get("battersFaced")),
+            "home_starter_batters_faced": safe_float(home_pitching_pre.get("battersFaced")),
             "away_prior_starter_era": safe_float(away_prior_stat.get("era")),
             "home_prior_starter_era": safe_float(home_prior_stat.get("era")),
             "away_prior_starter_fip": away_prior_fip,
@@ -662,6 +673,19 @@ def team_context_from_history(
         wins = sum(record.won for record in subset)
         windows[f"form_{days}d_win_pct"] = rate_or_default(wins, len(subset), 0.5)
         windows[f"form_{days}d_games"] = float(len(subset))
+        if subset:
+            rs = sum(record.runs_scored for record in subset)
+            ra = sum(record.runs_allowed for record in subset)
+            windows[f"form_{days}d_run_diff"] = float(rs - ra) / max(1, len(subset))
+        else:
+            windows[f"form_{days}d_run_diff"] = 0.0
+
+    # Season-to-date scoring totals (excludes games from future dates because
+    # `history` is appended chronologically by the caller).
+    season_rs = sum(record.runs_scored for record in history)
+    season_ra = sum(record.runs_allowed for record in history)
+    windows["runs_scored_season"] = float(season_rs)
+    windows["runs_allowed_season"] = float(season_ra)
 
     usage_1d = [
         record for record in history if 0 < (current_date - record.game_date).days <= 1

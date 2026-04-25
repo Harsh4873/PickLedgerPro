@@ -41,6 +41,10 @@ jobs:
         working-directory: MLBPredictionModel
         run: python train_calibration_model.py
 
+      - name: Train v2 stack (new variant)
+        working-directory: MLBPredictionModel
+        run: python train_model_v2.py
+
       - name: Upload trained artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -52,5 +56,11 @@ jobs:
             MLBPredictionModel/artifacts/mlb_totals_model_metadata.json
             MLBPredictionModel/artifacts/mlb_probability_calibration.joblib
             MLBPredictionModel/artifacts/mlb_probability_calibration_metadata.json
+            MLBPredictionModel/artifacts/mlb_moneyline_model_new.joblib
+            MLBPredictionModel/artifacts/mlb_moneyline_model_new_metadata.json
+            MLBPredictionModel/artifacts/mlb_totals_model_new.joblib
+            MLBPredictionModel/artifacts/mlb_totals_model_new_metadata.json
+            MLBPredictionModel/artifacts/mlb_probability_calibration_new.joblib
+            MLBPredictionModel/artifacts/mlb_probability_calibration_new_metadata.json
           retention-days: 30
           if-no-files-found: error

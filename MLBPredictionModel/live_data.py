@@ -225,6 +225,11 @@ def _pitcher_stat_bundle(
         "whip": _float_or_default(current_stat.get("whip"), 1.3),
         "ip": innings_to_float(current_stat.get("inningsPitched")),
         "starts": safe_int(current_stat.get("gamesStarted")),
+        # Raw counts so v2 features can compute K/9, BB/9, HR/9 and K-BB%.
+        "strikeouts": safe_float(current_stat.get("strikeOuts")),
+        "walks": safe_float(current_stat.get("baseOnBalls")),
+        "home_runs": safe_float(current_stat.get("homeRuns")),
+        "batters_faced": safe_float(current_stat.get("battersFaced")),
         "prior_era": _float_or_default(prior_stat.get("era"), 4.2),
         "prior_fip": compute_estimated_fip(prior_stat, prior_fip_constant),
         "prior_ip": innings_to_float(prior_stat.get("inningsPitched")),
@@ -408,6 +413,17 @@ def build_live_dataframe(
                 "home_starter_ip": home_pitcher["ip"],
                 "away_starter_starts": away_pitcher["starts"],
                 "home_starter_starts": home_pitcher["starts"],
+                # Raw starter counts so v2 features can compute K/9, BB/9, HR/9.
+                "away_starter_strikeouts": away_pitcher["strikeouts"],
+                "home_starter_strikeouts": home_pitcher["strikeouts"],
+                "away_starter_walks": away_pitcher["walks"],
+                "home_starter_walks": home_pitcher["walks"],
+                "away_starter_home_runs": away_pitcher["home_runs"],
+                "home_starter_home_runs": home_pitcher["home_runs"],
+                "away_starter_batters_faced": away_pitcher["batters_faced"],
+                "home_starter_batters_faced": home_pitcher["batters_faced"],
+                "away_starter_recent_era": away_pitcher["last_5_starts_era"],
+                "home_starter_recent_era": home_pitcher["last_5_starts_era"],
                 "away_starter_last_5_starts_era": away_pitcher["last_5_starts_era"],
                 "home_starter_last_5_starts_era": home_pitcher["last_5_starts_era"],
                 "away_starter_last_5_starts_whip": away_pitcher["last_5_starts_whip"],
@@ -440,6 +456,18 @@ def build_live_dataframe(
                 "home_form_14d_games": home_context["form_14d_games"],
                 "away_form_30d_games": away_context["form_30d_games"],
                 "home_form_30d_games": home_context["form_30d_games"],
+                # Run-differential-based form used by v2 (stronger than W/L).
+                "away_form_7d_run_diff": away_context.get("form_7d_run_diff", 0.0),
+                "home_form_7d_run_diff": home_context.get("form_7d_run_diff", 0.0),
+                "away_form_14d_run_diff": away_context.get("form_14d_run_diff", 0.0),
+                "home_form_14d_run_diff": home_context.get("form_14d_run_diff", 0.0),
+                "away_form_30d_run_diff": away_context.get("form_30d_run_diff", 0.0),
+                "home_form_30d_run_diff": home_context.get("form_30d_run_diff", 0.0),
+                # Season-to-date totals powering v2's Pythagorean estimate.
+                "away_runs_scored_season": away_context.get("runs_scored_season", 0.0),
+                "home_runs_scored_season": home_context.get("runs_scored_season", 0.0),
+                "away_runs_allowed_season": away_context.get("runs_allowed_season", 0.0),
+                "home_runs_allowed_season": home_context.get("runs_allowed_season", 0.0),
                 "away_bullpen_pitches_1d": away_context["bullpen_pitches_1d"],
                 "home_bullpen_pitches_1d": home_context["bullpen_pitches_1d"],
                 "away_bullpen_pitches_3d": away_context["bullpen_pitches_3d"],
@@ -463,6 +491,8 @@ def build_live_dataframe(
     # it with the league average (8.7) so training and inference stay aligned.
     if market_odds_map and not frame.empty:
         totals: list[float | None] = []
+        ml_home: list[float | None] = []
+        ml_away: list[float | None] = []
         for _, row in frame.iterrows():
             away = str(row.get("away_team") or "").strip().split()
             home = str(row.get("home_team") or "").strip().split()
@@ -471,6 +501,11 @@ def build_live_dataframe(
             mo = market_odds_map.get((away_key, home_key), {})
             line = mo.get("total_line")
             totals.append(float(line) if line is not None else None)
+            ml_home.append(float(mo.get("ml_home")) if mo.get("ml_home") is not None else None)
+            ml_away.append(float(mo.get("ml_away")) if mo.get("ml_away") is not None else None)
         frame["market_total_line"] = totals
+        # v2 features treat these as first-class inputs (vig-free prob + line move).
+        frame["home_moneyline"] = ml_home
+        frame["away_moneyline"] = ml_away
 
     return frame

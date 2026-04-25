@@ -9,3 +9,9 @@ logs/*.log
 __pycache__/
 *.pyc
 *.pyo
+
+# Cached API data
+data/wnba_*.json
+
+# Local config with API keys
+config.py

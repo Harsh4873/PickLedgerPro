@@ -4014,6 +4014,7 @@ class Handler(BaseHTTPRequestHandler):
                 with _jobs_lock:
                     _jobs.pop(job_id, None)
         else:
+            print(f"[route] 404 GET route not found: {path!r}")
             self._send_json(404, {"ok": False, "error": "Route not found"})
 
     def do_HEAD(self) -> None:  # noqa: N802
@@ -4215,6 +4216,10 @@ class Handler(BaseHTTPRequestHandler):
                 self._send_json(200, result)
 
         elif path == "/run-mlb-new-model":
+            # Defensive log so a missing/miswired route shows up as the
+            # actual HTTP path we took (helps diagnose the old
+            # "MLB New only works after MLB Old has run once" report).
+            print(f"[route] /run-mlb-new-model date={date_str!r} async={async_mode}")
             if async_mode:
                 job_id = _launch_job(run_mlb_model, date_str, "new")
                 self._send_json(200, {"ok": True, "job_id": job_id, "status": "running"})
@@ -4226,6 +4231,7 @@ class Handler(BaseHTTPRequestHandler):
             # Always scrape Cannon Analytics + SportsLine live for the given
             # slate date (defaults to today in America/Chicago) so clicking
             # "LOAD CANNON PICKS" never serves a stale cached JSON.
+            print(f"[route] /run-cannon-daily date={date_str!r} async={async_mode}")
             if async_mode:
                 job_id = _launch_job(run_cannon_daily, date_str)
                 self._send_json(200, {"ok": True, "job_id": job_id, "status": "running"})
@@ -4246,6 +4252,7 @@ class Handler(BaseHTTPRequestHandler):
             sports = body.get("sports")
             if not isinstance(sports, list):
                 sports = [league] if league else ["nba", "mlb"]
+            print(f"[route] /run-sportytrader date={scrape_date!r} sports={sports} async={async_mode}")
             if async_mode:
                 job_id = _launch_job(run_sportytrader_scraper, scrape_date, sports)
                 self._send_json(200, {"ok": True, "job_id": job_id, "status": "running"})
@@ -4259,6 +4266,7 @@ class Handler(BaseHTTPRequestHandler):
             league = str(body.get("league", "")).strip().lower()
             if not isinstance(sports, list):
                 sports = [league] if league else ["nba", "mlb"]
+            print(f"[route] /run-sportsgambler date={scrape_date!r} sports={sports} async={async_mode}")
             if async_mode:
                 job_id = _launch_job(run_sportsgambler_scraper, scrape_date, sports)
                 self._send_json(200, {"ok": True, "job_id": job_id, "status": "running"})
@@ -4280,6 +4288,7 @@ class Handler(BaseHTTPRequestHandler):
             self._send_json(200 if result.get("ok") else 400, result)
 
         else:
+            print(f"[route] 404 POST route not found: {path!r}")
             self._send_json(404, {"ok": False, "error": "Route not found"})
 
 

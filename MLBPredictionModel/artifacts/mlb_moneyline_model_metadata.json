@@ -1,8 +1,8 @@
 {
-  "training_rows": 3888,
-  "validation_rows": 973,
-  "training_end_date": "2024-07-20",
-  "validation_start_date": "2024-07-20",
+  "training_rows": 3885,
+  "validation_rows": 972,
+  "training_end_date": "2025-07-19",
+  "validation_start_date": "2025-07-19",
   "feature_columns": [
     "park_factor_runs",
     "temperature_f",
@@ -94,23 +94,23 @@
     "wind_direction"
   ],
   "raw_model_metrics": {
-    "accuracy": 0.5704008221993834,
-    "log_loss": 0.6767550140516102,
-    "brier_score": 0.24207411736467116
+    "accuracy": 0.5606995884773662,
+    "log_loss": 0.6892607710231706,
+    "brier_score": 0.24782574346252978
   },
   "model_metrics": {
-    "accuracy": 0.5714285714285714,
-    "log_loss": 0.6742441866365729,
-    "brier_score": 0.2408358834871366
+    "accuracy": 0.5483539094650206,
+    "log_loss": 0.6824172776134323,
+    "brier_score": 0.2447464690189609
   },
   "heuristic_metrics": {
-    "accuracy": 0.5611510791366906,
-    "log_loss": 0.6809397789140091,
-    "brier_score": 0.2440518707410583
+    "accuracy": 0.5432098765432098,
+    "log_loss": 0.6850667421164547,
+    "brier_score": 0.24603612431573896
   },
-  "blend_weight_model": 0.65,
+  "blend_weight_model": 0.4,
   "seasons": [
-    2023,
-    2024
+    2024,
+    2025
   ]
 }
