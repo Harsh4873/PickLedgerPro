@@ -15,3 +15,6 @@ data/wnba_*.json
 
 # Local config with API keys
 config.py
+
+# Render config (moved to docs/)
+/render.yaml

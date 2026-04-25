@@ -20,5 +20,5 @@ services:
       - key: FIREBASE_CLIENT_ID
         sync: false
       - key: ADMIN_PICKS_SECRET
-        value: 611e61c79074c0845929e581ebd484b527ecadb483dd431259de0793e47459e7
+        sync: false  # Set via environment or secrets manager; do not hardcode
     healthCheckPath: /health
