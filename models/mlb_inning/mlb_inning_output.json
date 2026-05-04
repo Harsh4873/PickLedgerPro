@@ -1,0 +1,402 @@
+{
+  "date": "2026-05-04",
+  "model": "MLBInning",
+  "picks": [
+    {
+      "game_id": "824363",
+      "matchup": "Colorado Rockies vs New York Mets",
+      "home_team": "Colorado Rockies",
+      "away_team": "New York Mets",
+      "home_pitcher": "Tomoyuki Sugano",
+      "away_pitcher": "Clay Holmes",
+      "top_2_picks": [
+        {
+          "inning": 9,
+          "probability_scoreless": 0.607,
+          "confidence": "High",
+          "label": "Inning 9 - No Run Scored (60.7%)"
+        },
+        {
+          "inning": 7,
+          "probability_scoreless": 0.462,
+          "confidence": "Medium",
+          "label": "Inning 7 - No Run Scored (46.2%)"
+        }
+      ],
+      "full_inning_table": {
+        "1": 0.32,
+        "2": 0.371,
+        "3": 0.438,
+        "4": 0.381,
+        "5": 0.385,
+        "6": 0.462,
+        "7": 0.462,
+        "8": 0.354,
+        "9": 0.607
+      }
+    },
+    {
+      "game_id": "824283",
+      "matchup": "Detroit Tigers vs Boston Red Sox",
+      "home_team": "Detroit Tigers",
+      "away_team": "Boston Red Sox",
+      "home_pitcher": "Tarik Skubal",
+      "away_pitcher": "Payton Tolle",
+      "top_2_picks": [
+        {
+          "inning": 7,
+          "probability_scoreless": 0.637,
+          "confidence": "High",
+          "label": "Inning 7 - No Run Scored (63.7%)"
+        },
+        {
+          "inning": 1,
+          "probability_scoreless": 0.584,
+          "confidence": "High",
+          "label": "Inning 1 - No Run Scored (58.4%)"
+        }
+      ],
+      "full_inning_table": {
+        "1": 0.584,
+        "2": 0.462,
+        "3": 0.503,
+        "4": 0.488,
+        "5": 0.353,
+        "6": 0.46,
+        "7": 0.637,
+        "8": 0.421,
+        "9": 0.481
+      }
+    },
+    {
+      "game_id": "822984",
+      "matchup": "Tampa Bay Rays vs Toronto Blue Jays",
+      "home_team": "Tampa Bay Rays",
+      "away_team": "Toronto Blue Jays",
+      "home_pitcher": "Nick Martinez",
+      "away_pitcher": "Trey Yesavage",
+      "top_2_picks": [
+        {
+          "inning": 9,
+          "probability_scoreless": 0.535,
+          "confidence": "High",
+          "label": "Inning 9 - No Run Scored (53.5%)"
+        },
+        {
+          "inning": 2,
+          "probability_scoreless": 0.48,
+          "confidence": "Medium",
+          "label": "Inning 2 - No Run Scored (48.0%)"
+        }
+      ],
+      "full_inning_table": {
+        "1": 0.389,
+        "2": 0.48,
+        "3": 0.398,
+        "4": 0.425,
+        "5": 0.406,
+        "6": 0.294,
+        "7": 0.337,
+        "8": 0.353,
+        "9": 0.535
+      }
+    },
+    {
+      "game_id": "823874",
+      "matchup": "Miami Marlins vs Philadelphia Phillies",
+      "home_team": "Miami Marlins",
+      "away_team": "Philadelphia Phillies",
+      "home_pitcher": "Janson Junk",
+      "away_pitcher": "Aaron Nola",
+      "top_2_picks": [
+        {
+          "inning": 3,
+          "probability_scoreless": 0.506,
+          "confidence": "High",
+          "label": "Inning 3 - No Run Scored (50.6%)"
+        },
+        {
+          "inning": 9,
+          "probability_scoreless": 0.466,
+          "confidence": "Medium",
+          "label": "Inning 9 - No Run Scored (46.6%)"
+        }
+      ],
+      "full_inning_table": {
+        "1": 0.29,
+        "2": 0.369,
+        "3": 0.506,
+        "4": 0.347,
+        "5": 0.389,
+        "6": 0.461,
+        "7": 0.462,
+        "8": 0.289,
+        "9": 0.466
+      }
+    },
+    {
+      "game_id": "823552",
+      "matchup": "New York Yankees vs Baltimore Orioles",
+      "home_team": "New York Yankees",
+      "away_team": "Baltimore Orioles",
+      "home_pitcher": "Cam Schlittler",
+      "away_pitcher": "Shane Baz",
+      "top_2_picks": [
+        {
+          "inning": 9,
+          "probability_scoreless": 0.448,
+          "confidence": "Medium",
+          "label": "Inning 9 - No Run Scored (44.8%)"
+        },
+        {
+          "inning": 3,
+          "probability_scoreless": 0.429,
+          "confidence": "Medium",
+          "label": "Inning 3 - No Run Scored (42.9%)"
+        }
+      ],
+      "full_inning_table": {
+        "1": 0.313,
+        "2": 0.386,
+        "3": 0.429,
+        "4": 0.361,
+        "5": 0.383,
+        "6": 0.37,
+        "7": 0.273,
+        "8": 0.333,
+        "9": 0.448
+      }
+    },
+    {
+      "game_id": "824684",
+      "matchup": "Chicago Cubs vs Cincinnati Reds",
+      "home_team": "Chicago Cubs",
+      "away_team": "Cincinnati Reds",
+      "home_pitcher": "Edward Cabrera",
+      "away_pitcher": "Chase Petty",
+      "top_2_picks": [
+        {
+          "inning": 1,
+          "probability_scoreless": 0.438,
+          "confidence": "Medium",
+          "label": "Inning 1 - No Run Scored (43.8%)"
+        },
+        {
+          "inning": 4,
+          "probability_scoreless": 0.405,
+          "confidence": "Medium",
+          "label": "Inning 4 - No Run Scored (40.5%)"
+        }
+      ],
+      "full_inning_table": {
+        "1": 0.438,
+        "2": 0.287,
+        "3": 0.355,
+        "4": 0.405,
+        "5": 0.354,
+        "6": 0.337,
+        "7": 0.384,
+        "8": 0.253,
+        "9": 0.325
+      }
+    },
+    {
+      "game_id": "824120",
+      "matchup": "Kansas City Royals vs Cleveland Guardians",
+      "home_team": "Kansas City Royals",
+      "away_team": "Cleveland Guardians",
+      "home_pitcher": "Michael Wacha",
+      "away_pitcher": "Tanner Bibee",
+      "top_2_picks": [
+        {
+          "inning": 9,
+          "probability_scoreless": 0.67,
+          "confidence": "High",
+          "label": "Inning 9 - No Run Scored (67.0%)"
+        },
+        {
+          "inning": 3,
+          "probability_scoreless": 0.614,
+          "confidence": "High",
+          "label": "Inning 3 - No Run Scored (61.4%)"
+        }
+      ],
+      "full_inning_table": {
+        "1": 0.421,
+        "2": 0.459,
+        "3": 0.614,
+        "4": 0.455,
+        "5": 0.355,
+        "6": 0.488,
+        "7": 0.405,
+        "8": 0.303,
+        "9": 0.67
+      }
+    },
+    {
+      "game_id": "823064",
+      "matchup": "St. Louis Cardinals vs Milwaukee Brewers",
+      "home_team": "St. Louis Cardinals",
+      "away_team": "Milwaukee Brewers",
+      "home_pitcher": "Kyle Leahy",
+      "away_pitcher": "Chad Patrick",
+      "top_2_picks": [
+        {
+          "inning": 2,
+          "probability_scoreless": 0.539,
+          "confidence": "High",
+          "label": "Inning 2 - No Run Scored (53.9%)"
+        },
+        {
+          "inning": 9,
+          "probability_scoreless": 0.462,
+          "confidence": "Medium",
+          "label": "Inning 9 - No Run Scored (46.2%)"
+        }
+      ],
+      "full_inning_table": {
+        "1": 0.369,
+        "2": 0.539,
+        "3": 0.318,
+        "4": 0.376,
+        "5": 0.388,
+        "6": 0.371,
+        "7": 0.325,
+        "8": 0.266,
+        "9": 0.462
+      }
+    },
+    {
+      "game_id": "824201",
+      "matchup": "Houston Astros vs Los Angeles Dodgers",
+      "home_team": "Houston Astros",
+      "away_team": "Los Angeles Dodgers",
+      "home_pitcher": "Steven Okert",
+      "away_pitcher": "Yoshinobu Yamamoto",
+      "top_2_picks": [
+        {
+          "inning": 9,
+          "probability_scoreless": 0.401,
+          "confidence": "Medium",
+          "label": "Inning 9 - No Run Scored (40.1%)"
+        },
+        {
+          "inning": 7,
+          "probability_scoreless": 0.388,
+          "confidence": "Low",
+          "label": "Inning 7 - No Run Scored (38.8%)"
+        }
+      ],
+      "full_inning_table": {
+        "1": 0.273,
+        "2": 0.369,
+        "3": 0.289,
+        "4": 0.332,
+        "5": 0.332,
+        "6": 0.361,
+        "7": 0.388,
+        "8": 0.354,
+        "9": 0.401
+      }
+    },
+    {
+      "game_id": "824039",
+      "matchup": "Los Angeles Angels vs Chicago White Sox",
+      "home_team": "Los Angeles Angels",
+      "away_team": "Chicago White Sox",
+      "home_pitcher": "Jos\u00e9 Soriano",
+      "away_pitcher": "Davis Martin",
+      "top_2_picks": [
+        {
+          "inning": 9,
+          "probability_scoreless": 0.52,
+          "confidence": "High",
+          "label": "Inning 9 - No Run Scored (52.0%)"
+        },
+        {
+          "inning": 8,
+          "probability_scoreless": 0.462,
+          "confidence": "Medium",
+          "label": "Inning 8 - No Run Scored (46.2%)"
+        }
+      ],
+      "full_inning_table": {
+        "1": 0.314,
+        "2": 0.443,
+        "3": 0.351,
+        "4": 0.308,
+        "5": 0.462,
+        "6": 0.443,
+        "7": 0.337,
+        "8": 0.462,
+        "9": 0.52
+      }
+    },
+    {
+      "game_id": "823143",
+      "matchup": "Seattle Mariners vs Atlanta Braves",
+      "home_team": "Seattle Mariners",
+      "away_team": "Atlanta Braves",
+      "home_pitcher": "Logan Gilbert",
+      "away_pitcher": "JR Ritchie",
+      "top_2_picks": [
+        {
+          "inning": 6,
+          "probability_scoreless": 0.484,
+          "confidence": "Medium",
+          "label": "Inning 6 - No Run Scored (48.4%)"
+        },
+        {
+          "inning": 7,
+          "probability_scoreless": 0.462,
+          "confidence": "Medium",
+          "label": "Inning 7 - No Run Scored (46.2%)"
+        }
+      ],
+      "full_inning_table": {
+        "1": 0.287,
+        "2": 0.283,
+        "3": 0.432,
+        "4": 0.401,
+        "5": 0.303,
+        "6": 0.484,
+        "7": 0.462,
+        "8": 0.441,
+        "9": 0.378
+      }
+    },
+    {
+      "game_id": "823228",
+      "matchup": "San Francisco Giants vs San Diego Padres",
+      "home_team": "San Francisco Giants",
+      "away_team": "San Diego Padres",
+      "home_pitcher": "Trevor McDonald",
+      "away_pitcher": "Randy V\u00e1squez",
+      "top_2_picks": [
+        {
+          "inning": 3,
+          "probability_scoreless": 0.523,
+          "confidence": "High",
+          "label": "Inning 3 - No Run Scored (52.3%)"
+        },
+        {
+          "inning": 2,
+          "probability_scoreless": 0.501,
+          "confidence": "High",
+          "label": "Inning 2 - No Run Scored (50.1%)"
+        }
+      ],
+      "full_inning_table": {
+        "1": 0.501,
+        "2": 0.501,
+        "3": 0.523,
+        "4": 0.441,
+        "5": 0.351,
+        "6": 0.396,
+        "7": 0.389,
+        "8": 0.401,
+        "9": 0.493
+      }
+    }
+  ]
+}
