@@ -3393,18 +3393,36 @@ function getPreferredDisplayedRecord(derivedRecord, canonicalRecord = window._us
         const mergedForThisBrowser = shouldKeepLocal && typeof window.mergeLedgerStates === 'function'
           ? window.mergeLedgerStates(userPicks, localBeforeRemote)
           : userPicks;
-        window._applyUserLedgerState(mergedForThisBrowser);
+        let ledgerToApply = mergedForThisBrowser;
+        let forcedResetChanged = false;
+        if (typeof window.resetLedgerStateForCurrentDeployment === 'function') {
+          const reset = window.resetLedgerStateForCurrentDeployment(ledgerToApply);
+          ledgerToApply = reset.state;
+          forcedResetChanged = Boolean(reset.changed);
+        }
+        window._applyUserLedgerState(ledgerToApply);
         localLedgerLoaded = hasMeaningfulLocalState();
-        if (shouldKeepLocal && localLedgerLoaded && typeof window.pushLedgerState === 'function') {
+        if ((shouldKeepLocal || forcedResetChanged) && localLedgerLoaded && typeof window.pushLedgerState === 'function') {
           window.pushLedgerState(true).catch(() => {});
         }
         console.log('[Firestore] Loaded user ledger state, reloading app state');
       } else if (hadLocalLedgerState) {
+        let forcedResetChanged = false;
+        if (typeof window.resetLedgerStateForCurrentDeployment === 'function') {
+          const reset = window.resetLedgerStateForCurrentDeployment(localBeforeRemote);
+          if (reset.changed) {
+            forcedResetChanged = true;
+            window._clearLedgerLocalState();
+            window._applyUserLedgerState(reset.state);
+          }
+        }
         localLedgerLoaded = true;
         if (typeof window.pushLedgerState === 'function') {
           window.pushLedgerState(true).catch(() => {});
         }
-        console.log('[Auth] Preserved local ledger state and pushed it to Firestore');
+        console.log(forcedResetChanged
+          ? '[Auth] Reset today ledger state and pushed it to Firestore'
+          : '[Auth] Preserved local ledger state and pushed it to Firestore');
       } else {
         window._clearLedgerLocalState();
         const restored = await pullLedgerStateIfNeeded({ uid: user.uid, expectedGeneration: currentGeneration });
@@ -3877,6 +3895,8 @@ const GAME_TIMES_KEY = `pickledger_game_times_${STORAGE_VERSION}`;
 const LEDGER_UPDATED_AT_KEY = `pickledger_ledger_updated_at_${STORAGE_VERSION}`;
 const HOME_DATE_STORAGE_KEY = `pickledger_home_date_${STORAGE_VERSION}`;
 const ONE_TIME_PROPS_CLEANUP_KEY = `pickledger_cleanup_nba_props_${STORAGE_VERSION}`;
+const FORCED_LEDGER_RESET_DATE_KEYS = ['2026-05-04'];
+const FORCED_LEDGER_RESET_STORAGE_KEY = `pickledger_forced_reset_may4_${STORAGE_VERSION}`;
 const STABLE_PICK_RESULT_KEY_PREFIX = 'stable:';
 const STABLE_PICK_KEY_MIGRATION_KEY = `pickledger_stable_pick_keys_${STORAGE_VERSION}`;
 const RESET_CUTOFF_ISO = '2026-03-19T00:00:00.000Z';
@@ -3888,6 +3908,7 @@ let homeSelectedDateKey = '';
 let homeCalendarMonthKey = '';
 let homeCalendarOpen = false;
 let homeDateFocusKey = '';
+let currentDeploymentLedgerResetChanged = false;
 const LOOPBACK_HOST_RE = /^(?:localhost|127(?:\.\d{1,3}){3}|0\.0\.0\.0)$/i;
 const PICKLEDGER_MODE = 'firebase_direct';
 const RANKINGS_OWNER_EMAIL = 'hdav4873@gmail.com';
@@ -4548,8 +4569,18 @@ async function pullLedgerStateIfNeeded(options = {}) {
   try {
     const data = await loadLedgerFromFirebase(uid);
     if (expectedGeneration !== null && expectedGeneration !== window._authStateGeneration) return false;
-    const restored = applyLedgerStateFromServer(data || {});
+    let stateToApply = data || {};
+    let forcedResetChanged = false;
+    if (typeof window.resetLedgerStateForCurrentDeployment === 'function') {
+      const reset = window.resetLedgerStateForCurrentDeployment(stateToApply);
+      stateToApply = reset.state;
+      forcedResetChanged = Boolean(reset.changed);
+    }
+    const restored = applyLedgerStateFromServer(stateToApply);
     if (restored) {
+      if (forcedResetChanged && typeof pushLedgerState === 'function') {
+        pushLedgerState(true).catch(() => {});
+      }
       render();
       if (document.getElementById('tab-search').classList.contains('active')) {
         renderSearch();
@@ -5529,6 +5560,90 @@ function getPickDateKey(value) {
   const dt = parsePickDateLabel(value);
   return dt ? getLocalDateKey(dt) : '';
 }
+
+function hasCurrentDeploymentLedgerResetRun() {
+  try {
+    return localStorage.getItem(FORCED_LEDGER_RESET_STORAGE_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function markCurrentDeploymentLedgerResetRun() {
+  try {
+    localStorage.setItem(FORCED_LEDGER_RESET_STORAGE_KEY, '1');
+  } catch {
+    // If storage is blocked, the reset is still safe and idempotent.
+  }
+}
+
+function resetLedgerStateForDateKeys(state, dateKeys) {
+  const targets = new Set((Array.isArray(dateKeys) ? dateKeys : [])
+    .map(key => String(key || '').trim())
+    .filter(Boolean));
+  const ledger = _coerceLedgerState(state);
+  if (!targets.size) return { state: ledger, changed: false, removedCount: 0 };
+
+  const removedPicks = [];
+  const keptPicks = [];
+  ledger.addedPicks.forEach((pick) => {
+    const key = getPickDateKey(pick && (pick.date || pick.game_date || pick.Date));
+    if (targets.has(key)) removedPicks.push(pick);
+    else keptPicks.push(pick);
+  });
+
+  const results = { ...(ledger.results || {}) };
+  const aliasesChanged = clearResultAliasesForPicks(results, removedPicks);
+  const removedIds = new Set(removedPicks.map(p => String(p && p.id)).filter(Boolean));
+  const gameTimes = { ...(ledger.gameTimes || ledger.startTimes || {}) };
+  let timesChanged = false;
+  removedIds.forEach((id) => {
+    if (Object.prototype.hasOwnProperty.call(gameTimes, id)) {
+      delete gameTimes[id];
+      timesChanged = true;
+    }
+  });
+  const deletedPickIds = ledger.deletedPickIds.filter(id => !removedIds.has(String(id)));
+  const tombstonesChanged = deletedPickIds.length !== ledger.deletedPickIds.length;
+  const changed = removedPicks.length > 0 || aliasesChanged || timesChanged || tombstonesChanged;
+
+  return {
+    state: {
+      ...ledger,
+      addedPicks: keptPicks,
+      deletedPickIds,
+      results,
+      startTimes: gameTimes,
+      gameTimes,
+      savedAt: changed ? new Date().toISOString() : ledger.savedAt,
+    },
+    changed,
+    removedCount: removedPicks.length,
+  };
+}
+
+function resetLedgerStateForCurrentDeployment(state) {
+  currentDeploymentLedgerResetChanged = false;
+  if (hasCurrentDeploymentLedgerResetRun()) {
+    return { state: _coerceLedgerState(state), changed: false, removedCount: 0 };
+  }
+  const reset = resetLedgerStateForDateKeys(state, FORCED_LEDGER_RESET_DATE_KEYS);
+  markCurrentDeploymentLedgerResetRun();
+  currentDeploymentLedgerResetChanged = reset.changed;
+  if (reset.changed) {
+    console.log(`[LedgerReset] Removed ${reset.removedCount} pick(s) for ${FORCED_LEDGER_RESET_DATE_KEYS.join(', ')}`);
+  }
+  return reset;
+}
+
+function consumeCurrentDeploymentLedgerResetChanged() {
+  const changed = currentDeploymentLedgerResetChanged;
+  currentDeploymentLedgerResetChanged = false;
+  return changed;
+}
+
+window.resetLedgerStateForCurrentDeployment = resetLedgerStateForCurrentDeployment;
+window.consumeCurrentDeploymentLedgerResetChanged = consumeCurrentDeploymentLedgerResetChanged;
 
 function buildHomeDateEntries(list) {
   const counts = new Map();
@@ -10918,7 +11033,10 @@ function _appendModelPicksToLedger(candidates) {
   // Respect deleted IDs when checking duplicates, but keep max ID monotonic.
   const activeLedgerPicks = getAllLedgerPicks();
   const allKnownPicks = [...PICKS, ...existingAdded];
-  const maxId = allKnownPicks.reduce((m, p) => Math.max(m, Number(p.id) || 0), 0);
+  const deletedIds = getDeletedPickIds();
+  const maxKnownId = allKnownPicks.reduce((m, p) => Math.max(m, Number(p.id) || 0), 0);
+  const maxDeletedId = deletedIds.reduce((m, id) => Math.max(m, Number(id) || 0), 0);
+  const maxId = Math.max(maxKnownId, maxDeletedId);
 
   let added = 0;
   let skippedDuplicates = 0;
