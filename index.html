@@ -2802,6 +2802,13 @@
     };
   }
 
+  const USER_LEDGER_MERGE_FIELDS = ['ledger', 'picks', 'results', 'startTimes', 'savedAt', 'lastSynced'];
+  window.USER_LEDGER_MERGE_FIELDS = USER_LEDGER_MERGE_FIELDS;
+
+  function saveUserLedgerDoc(ref, state) {
+    return setDoc(ref, buildUserDocLedgerPayload(state), { mergeFields: USER_LEDGER_MERGE_FIELDS });
+  }
+
   function buildLedgerStateUrl(explicitUid) {
     return '';
   }
@@ -3083,7 +3090,7 @@ function getPreferredDisplayedRecord(derivedRecord, canonicalRecord = window._us
         }
       }
 
-      await setDoc(ref, buildUserDocLedgerPayload(stateToSave), { merge: true });
+      await saveUserLedgerDoc(ref, stateToSave);
     } catch (e) {
       console.warn('[Firestore] saveUserPicks failed:', e.message);
     }
@@ -3247,7 +3254,7 @@ function getPreferredDisplayedRecord(derivedRecord, canonicalRecord = window._us
         const migratedState = typeof migrateLedgerStateToStablePickKeys === 'function'
           ? migrateLedgerStateToStablePickKeys(mergedState)
           : mergedState;
-        await setDoc(primaryRef, buildUserDocLedgerPayload(migratedState), { merge: true });
+        await saveUserLedgerDoc(primaryRef, migratedState);
         return migratedState;
       }
       return null;
@@ -3880,6 +3887,7 @@ let pulseLogSport = 'ALL';
 let homeSelectedDateKey = '';
 let homeCalendarMonthKey = '';
 let homeCalendarOpen = false;
+let homeDateFocusKey = '';
 const LOOPBACK_HOST_RE = /^(?:localhost|127(?:\.\d{1,3}){3}|0\.0\.0\.0)$/i;
 const PICKLEDGER_MODE = 'firebase_direct';
 const RANKINGS_OWNER_EMAIL = 'hdav4873@gmail.com';
@@ -4171,6 +4179,7 @@ async function loadGradedResultsFromFirebase(uid) {
   };
   const primaryRef = docFn(db, 'users', uid);
   const buildPayload = window.buildUserDocLedgerPayload;
+  const ledgerMergeFields = window.USER_LEDGER_MERGE_FIELDS || ['ledger', 'picks', 'results', 'startTimes', 'savedAt', 'lastSynced'];
   const candidateIds = typeof window.getFirestoreUserDocCandidates === 'function'
     ? window.getFirestoreUserDocCandidates(uid)
     : [uid];
@@ -4188,7 +4197,7 @@ async function loadGradedResultsFromFirebase(uid) {
             results: topLevel.graded,
             startTimes: topLevel.startTimes,
             gameTimes: topLevel.startTimes,
-          }), { merge: true });
+          }), { mergeFields: ledgerMergeFields });
         }
         return topLevel;
       }
@@ -4222,7 +4231,7 @@ async function loadGradedResultsFromFirebase(uid) {
           results: normalized.graded,
           startTimes: normalized.startTimes,
           gameTimes: normalized.startTimes,
-        }), { merge: true });
+        }), { mergeFields: ledgerMergeFields });
       }
       return normalized;
     } catch (err) {
@@ -4882,6 +4891,13 @@ function getPickGameDateKeyLocal(pick) {
   return getPickDateKey(pick && (pick.game_date_key || pick.game_date || pick.Date || pick.date));
 }
 
+function parseMlbNoRunInningPick(pickText) {
+  const m = String(pickText || '').trim().match(/\binning\s+([1-9])\s*[-\u2013\u2014:]?\s*no\s+runs?\s+scored\b/i);
+  if (!m) return null;
+  const inning = Number(m[1]);
+  return Number.isFinite(inning) ? inning : null;
+}
+
 function getStablePickMarketParts(pick) {
   const sport = String(pick && pick.sport || '').toUpperCase();
   const pickText = String(pick && pick.pick || '').trim();
@@ -4890,6 +4906,15 @@ function getStablePickMarketParts(pick) {
   const teams = _pickAwayHomePair(pick || {});
   const matchupKey = _matchupKeyFromTeams(teams.away, teams.home, sport);
   const withGame = (side) => `${normalizeStableToken(side)}@${matchupKey || 'unknown-game'}`;
+
+  const noRunInning = sport === 'MLB' ? parseMlbNoRunInningPick(pickText) : null;
+  if (noRunInning != null) {
+    return {
+      market: 'no_run_inning',
+      line: normalizeStableLine(noRunInning),
+      selectedTeamOrSide: withGame('no_run_scored'),
+    };
+  }
 
   const mTotal = lower.match(/\b(over|under)\s+(\d+(?:\.\d+)?)\b/);
   const hasTeamTg = lower.endsWith(' tg') && !/^(over|under)\b/.test(lower);
@@ -4999,6 +5024,33 @@ function normalizeResultEntry(raw) {
   return { result, gradedAtMs };
 }
 
+function getKnownPickStartTimeMs(pick) {
+  if (!pick || typeof pick !== 'object') return 0;
+  const directValues = [
+    pick.start_time,
+    pick.game_start_time,
+    pick.startTime,
+    pick.game_time,
+  ];
+  for (const raw of directValues) {
+    const ms = Date.parse(String(raw || ''));
+    if (Number.isFinite(ms)) return ms;
+  }
+  try {
+    const times = typeof getGameTimes === 'function' ? getGameTimes() : {};
+    const raw = times && times[String(pick.id)];
+    const ms = Date.parse(String(raw || ''));
+    return Number.isFinite(ms) ? ms : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function pickStartsInFuture(pick, bufferMs = 5 * 60 * 1000) {
+  const startMs = getKnownPickStartTimeMs(pick);
+  return Boolean(startMs && startMs > Date.now() + bufferMs);
+}
+
 function chooseResultEntry(existing, incoming) {
   if (!existing) return incoming;
   if (!incoming) return existing;
@@ -5072,11 +5124,16 @@ function migrateResultsToStablePickKeys(results, picks) {
 function getResultForPickFromMap(pick, results) {
   const source = results && typeof results === 'object' ? results : {};
   const keys = getLegacyResultKeysForPick(pick);
+  const suppressDecidedResults = pickStartsInFuture(pick);
   let sawPending = false;
   for (const key of keys) {
     if (!Object.prototype.hasOwnProperty.call(source, key)) continue;
     const result = normalizeResultEntry(source[key]).result;
-    if (result !== 'pending') return result;
+    if (result !== 'pending') {
+      if (!suppressDecidedResults) return result;
+      sawPending = true;
+      continue;
+    }
     sawPending = true;
   }
   return sawPending ? 'pending' : normalizeResultValue(pick && pick.result);
@@ -5090,6 +5147,22 @@ function pruneResultAliasesForPick(results, pick, keepKey) {
     }
   });
   return results;
+}
+
+function clearResultAliasesForPicks(results, picks, keepKeyByPick) {
+  if (!results || typeof results !== 'object') return false;
+  let changed = false;
+  (Array.isArray(picks) ? picks : []).forEach((pick) => {
+    if (!pick) return;
+    const keepKey = typeof keepKeyByPick === 'function' ? keepKeyByPick(pick) : '';
+    getLegacyResultKeysForPick(pick).forEach((key) => {
+      if (key && key !== keepKey && Object.prototype.hasOwnProperty.call(results, key)) {
+        delete results[key];
+        changed = true;
+      }
+    });
+  });
+  return changed;
 }
 
 function migrateLedgerStateToStablePickKeys(state) {
@@ -5482,18 +5555,38 @@ function ensureHomeSelectedDate(list) {
   const availableKeys = entries.map((entry) => entry.key);
   const todayKey = getTodayDateKey();
   let resetSelection = false;
-  if (!parseLocalDateKey(homeSelectedDateKey) || (availableKeys.length && !availableKeys.includes(homeSelectedDateKey))) {
+  if (homeDateFocusKey && availableKeys.includes(homeDateFocusKey)) {
+    homeSelectedDateKey = homeDateFocusKey;
+    homeDateFocusKey = '';
+    persistHomeSelectedDate();
+    resetSelection = true;
+  } else if (!parseLocalDateKey(homeSelectedDateKey) || (availableKeys.length && !availableKeys.includes(homeSelectedDateKey))) {
     homeSelectedDateKey = availableKeys.includes(todayKey)
       ? todayKey
       : (availableKeys[availableKeys.length - 1] || todayKey);
     persistHomeSelectedDate();
     resetSelection = true;
+  } else if (homeDateFocusKey) {
+    homeDateFocusKey = '';
   }
   const selectedDate = parseLocalDateKey(homeSelectedDateKey) || parseLocalDateKey(todayKey) || new Date();
   if (resetSelection || !parseLocalMonthKey(homeCalendarMonthKey)) {
     homeCalendarMonthKey = getLocalMonthKey(selectedDate);
   }
   return { entries, availableKeys, todayKey };
+}
+
+function requestHomeDateFocusForPicks(picks) {
+  const keys = [];
+  (Array.isArray(picks) ? picks : []).forEach((pick) => {
+    const key = getPickDateKey(pick && (pick.date || pick.game_date || pick.Date));
+    if (key && !keys.includes(key)) keys.push(key);
+  });
+  if (!keys.length) return;
+  const todayKey = getTodayDateKey();
+  homeDateFocusKey = keys.includes(todayKey) ? todayKey : keys[keys.length - 1];
+  const selectedDate = parseLocalDateKey(homeDateFocusKey);
+  if (selectedDate) homeCalendarMonthKey = getLocalMonthKey(selectedDate);
 }
 
 function syncHomeDatePickerVisibility() {
@@ -6790,12 +6883,50 @@ function _autoGradeResultCode(result) {
   return { win: 'W', loss: 'L', push: 'P' }[normalizeResultValue(result)] || 'P';
 }
 
+function _lineScoreEntryRuns(entry) {
+  if (!entry || typeof entry !== 'object') return null;
+  for (const key of ['value', 'score', 'runs']) {
+    const value = entry[key];
+    if (value === null || value === undefined || value === '') continue;
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) return Math.trunc(parsed);
+  }
+  const display = String(entry.displayValue || '').trim();
+  const m = display.match(/^-?\d+/);
+  if (!m) return null;
+  const parsed = Number(m[0]);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function _espnCompetitorInningRuns(comp, inning) {
+  if (!comp || !Number.isFinite(inning) || inning < 1) return null;
+  const raw = comp.raw || comp;
+  const linescores = Array.isArray(comp.linescores)
+    ? comp.linescores
+    : (Array.isArray(raw.linescores) ? raw.linescores : (Array.isArray(raw.lineScores) ? raw.lineScores : []));
+  if (!Array.isArray(linescores) || linescores.length < inning) return null;
+  return _lineScoreEntryRuns(linescores[inning - 1]);
+}
+
+function gradeMlbNoRunInningPickFromEspnGame(pick, game) {
+  if (String(pick && pick.sport || '').toUpperCase() !== 'MLB') return null;
+  const inning = parseMlbNoRunInningPick(pick && pick.pick);
+  if (inning == null) return null;
+  if (inning >= 9) return 'pending';
+  const runs = (game && Array.isArray(game.competitors) ? game.competitors : []).map(comp => _espnCompetitorInningRuns(comp, inning));
+  if (runs.length !== 2 || runs.some(value => value == null)) return 'pending';
+  return runs.reduce((sum, value) => sum + value, 0) === 0 ? 'win' : 'loss';
+}
+
 function gradePickFromEspnGame(pick, game) {
   const pickText = String(pick && pick.pick || '');
   const head = pickText.split('(', 1)[0].trim();
   const lower = head.toLowerCase();
 
   const totalPoints = game.competitors[0].score + game.competitors[1].score;
+
+  const inningGrade = gradeMlbNoRunInningPickFromEspnGame(pick, game);
+  if (inningGrade !== null) return inningGrade;
 
   // Full-game totals (Over/Under X)
   const mTotal = lower.match(/\b(over|under)\s+(\d+(?:\.\d+)?)\b/);
@@ -8793,6 +8924,7 @@ function render() {
   renderTrends();
   renderDaily();
   renderHomePulse();
+  if (typeof renderSearch === 'function') renderSearch();
 }
 
 function initTheme() {
@@ -8976,11 +9108,54 @@ function _normalizeCachedModelPayload(payload) {
 }
 
 function _extractModelPicks(result) {
-  if (!result) return [];
-  if (Array.isArray(result.picks)) return result.picks;
-  if (Array.isArray(result.payload)) return result.payload;
-  if (result.payload && Array.isArray(result.payload.picks)) return result.payload.picks;
-  return [];
+  let picks = [];
+  if (!result) return picks;
+  if (Array.isArray(result.picks)) picks = result.picks;
+  else if (Array.isArray(result.payload)) picks = result.payload;
+  else if (result.payload && Array.isArray(result.payload.picks)) picks = result.payload.picks;
+  const games = Array.isArray(result.games)
+    ? result.games
+    : (result.payload && Array.isArray(result.payload.games) ? result.payload.games : []);
+  if (games.length) picks = _enrichMlbInningPicksFromGames(picks, games);
+  return _sanitizeModelPicks(picks);
+}
+
+function _isMlbInningModelPick(pick) {
+  const source = String(pick && pick.source || '').trim().toUpperCase();
+  return source === 'MLB INNING';
+}
+
+function _enrichMlbInningPicksFromGames(picks, games) {
+  if (!Array.isArray(picks) || !Array.isArray(games) || !games.length) return picks || [];
+  const byMatchup = new Map();
+  games.forEach((game) => {
+    const matchup = String(game && game.matchup || '').trim();
+    if (matchup) byMatchup.set(matchup, game);
+  });
+  return picks.map((pick) => {
+    if (!_isMlbInningModelPick(pick)) return pick;
+    const matchup = String(pick && (pick.matchup || pick.game) || '').trim();
+    const game = byMatchup.get(matchup);
+    if (!game) return pick;
+    const inning = pick && pick.inning != null ? pick.inning : parseMlbNoRunInningPick(pick && pick.pick);
+    return {
+      ...pick,
+      start_time: pick.start_time ?? game.game_start_time ?? null,
+      game_start_time: pick.game_start_time ?? game.game_start_time ?? null,
+      game_order: pick.game_order ?? game.game_order ?? null,
+      game_id: pick.game_id ?? game.game_id ?? '',
+      inning,
+    };
+  });
+}
+
+function _sanitizeModelPicks(picks) {
+  if (!Array.isArray(picks)) return [];
+  return picks.filter((pick) => {
+    if (!_isMlbInningModelPick(pick)) return true;
+    const inning = Number(pick && pick.inning != null ? pick.inning : parseMlbNoRunInningPick(pick && pick.pick));
+    return !Number.isFinite(inning) || inning < 9;
+  });
 }
 
 // Firebase caches some picks with legacy labels like "MLB Model" / "NBA Model".
@@ -9666,6 +9841,50 @@ function renderIplResults(result, options = {}) {
   } else {
     target.innerHTML = '<div class="empty-state">IPL renderer unavailable</div>';
   }
+}
+
+function _modelResultStartTimeMs(pick) {
+  const raw = String(pick && (pick.start_time || pick.game_start_time || pick.startTime || pick.game_time || '') || '').trim();
+  if (!raw) return null;
+  const ms = new Date(raw).getTime();
+  return Number.isFinite(ms) ? ms : null;
+}
+
+function _modelResultGameOrder(pick) {
+  const value = Number(pick && pick.game_order);
+  return Number.isFinite(value) ? value : null;
+}
+
+function _modelResultInningNumber(pick) {
+  const direct = Number(pick && pick.inning);
+  if (Number.isFinite(direct)) return direct;
+  const parsed = parseMlbNoRunInningPick(pick && pick.pick);
+  return parsed == null ? null : parsed;
+}
+
+function _modelResultGameLabel(pick) {
+  return String(pick && (pick.matchup || pick.game || '') || '').trim();
+}
+
+function _compareMlbInningModelResults(a, b) {
+  const at = _modelResultStartTimeMs(a.pick);
+  const bt = _modelResultStartTimeMs(b.pick);
+  if (at != null && bt != null && at !== bt) return at - bt;
+  if (at != null && bt == null) return -1;
+  if (at == null && bt != null) return 1;
+
+  const ao = _modelResultGameOrder(a.pick);
+  const bo = _modelResultGameOrder(b.pick);
+  if (ao != null && bo != null && ao !== bo) return ao - bo;
+
+  const gameDiff = _modelResultGameLabel(a.pick).localeCompare(_modelResultGameLabel(b.pick));
+  if (gameDiff) return gameDiff;
+
+  const ai = _modelResultInningNumber(a.pick);
+  const bi = _modelResultInningNumber(b.pick);
+  if (ai != null && bi != null && ai !== bi) return ai - bi;
+
+  return a.index - b.index;
 }
 
 async function _runNbaVariantModel(model, dateStr, options = {}) {
@@ -10549,6 +10768,9 @@ function renderModelResults(picks, options = {}) {
     const bSource = String(b.pick.source || '').toUpperCase();
     const rankDiff = (sourceRank[aSource] ?? 50) - (sourceRank[bSource] ?? 50);
     if (rankDiff) return rankDiff;
+    if (aSource === 'MLB INNING' && bSource === 'MLB INNING') {
+      return _compareMlbInningModelResults(a, b);
+    }
     const pickDiff = String(a.pick.pick || '').localeCompare(String(b.pick.pick || ''));
     if (pickDiff) return pickDiff;
     return a.index - b.index;
@@ -10727,6 +10949,10 @@ function _appendModelPicksToLedger(candidates) {
       kelly_edge: p.kelly_edge || null,
       notes: p.notes || '',
       start_time: p.start_time ?? null,
+      game_id: p.game_id || '',
+      game_order: p.game_order ?? null,
+      inning: p.inning ?? null,
+      market: p.market || '',
       game: p.game || p.matchup || '',
       confidence: p.confidence ?? null,
     };
@@ -10760,6 +10986,10 @@ function _appendModelPicksToLedger(candidates) {
       kelly_edge: shaped.kelly_edge,
       notes: shaped.notes,
       start_time: shaped.start_time,
+      game_id: shaped.game_id,
+      game_order: shaped.game_order,
+      inning: shaped.inning,
+      market: shaped.market,
       game: shaped.game,
       confidence: shaped.confidence,
       result: 'pending'
@@ -10768,6 +10998,22 @@ function _appendModelPicksToLedger(candidates) {
   });
 
   if (newEntries.length) {
+    const results = getResults();
+    let resultsChanged = clearResultAliasesForPicks(results, newEntries, getStablePickKey);
+    newEntries.forEach((entry) => {
+      const resultKey = getStablePickKey(entry);
+      if (!resultKey) return;
+      if (!Object.prototype.hasOwnProperty.call(results, resultKey) || normalizeResultEntry(results[resultKey]).result !== 'pending') {
+        results[resultKey] = 'pending';
+        resultsChanged = true;
+      }
+    });
+    if (resultsChanged) {
+      localStorage.setItem(RESULTS_KEY, JSON.stringify(results));
+      markLedgerLocalChanged();
+    }
+    showSettled = false;
+    requestHomeDateFocusForPicks(newEntries);
     saveAddedPicks([...existingAdded, ...newEntries]);
   }
 
