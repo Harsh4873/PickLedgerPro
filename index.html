@@ -3886,6 +3886,7 @@ const RANKINGS_OWNER_EMAIL = 'hdav4873@gmail.com';
 const RANKINGS_STATE_UID = 'primary';
 const ADMIN_BACKEND_STORAGE_KEY = 'pickledger_backend';
 const DEFAULT_ADMIN_BACKEND_URL = 'http://127.0.0.1:8765';
+const FALLBACK_ADMIN_BACKEND_URL = 'http://127.0.0.1:8766';
 const SPORTYTRADER_FEED_URL = null;  // manual feed removed — use Firebase cache only
 const SPORTYTRADER_CACHE_KEY = 'pickledger_sportytrader_feed_cache';
 const SPORTSGAMBLER_FEED_URL = null; // manual feed removed — use Firebase cache only
@@ -9526,51 +9527,56 @@ async function _runAsyncModelRequest(model, endpoint, body) {
   const forceRefresh = !!(body && body.force_refresh);
   let backendError = null;
 
+  const backendCandidates = [ADMIN_BACKEND_URL];
+  if (FALLBACK_ADMIN_BACKEND_URL && !backendCandidates.includes(FALLBACK_ADMIN_BACKEND_URL)) {
+    backendCandidates.push(FALLBACK_ADMIN_BACKEND_URL);
+  }
+
   if (endpoint && isAdminModelRunnerUser()) {
     const backendHealthy = await checkAdminLocalBackendHealth();
     if (backendHealthy) {
-      setModelStatus(model, forceRefresh ? 'Force refreshing from local admin backend...' : 'Connecting to local admin backend...', 'running');
-      try {
-        const resp = await fetch(`${ADMIN_BACKEND_URL}${endpoint}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body || {}),
-          cache: 'no-store',
-          signal: _createTimeoutSignal(forceRefresh ? MODEL_FORCE_REFRESH_TIMEOUT_MS : MODEL_BACKEND_TIMEOUT_MS),
-        });
-        const launch = await resp.json().catch(() => ({}));
-        if (!resp.ok || !launch.ok) {
-          // 404 + "Route not found" is almost always a stale local backend
-          // process that was started before this route shipped. Surface a
-          // clearer hint so the next time this happens it's obvious how to
-          // fix it without grepping the server logs.
-          if (resp.status === 404 || /route not found/i.test(String(launch.error || ''))) {
-            throw new Error(`Local backend is missing ${endpoint} — restart pickgrader_server.py to pick up new routes.`);
+      for (const backendUrl of backendCandidates) {
+        setModelStatus(model, forceRefresh ? `Force refreshing from ${backendUrl}...` : `Connecting to local backend ${backendUrl}...`, 'running');
+        try {
+          const resp = await fetch(`${backendUrl}${endpoint}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body || {}),
+            cache: 'no-store',
+            signal: _createTimeoutSignal(forceRefresh ? MODEL_FORCE_REFRESH_TIMEOUT_MS : MODEL_BACKEND_TIMEOUT_MS),
+          });
+          const launch = await resp.json().catch(() => ({}));
+          if (!resp.ok || !launch.ok) {
+            if (resp.status === 404 || /route not found/i.test(String(launch.error || ''))) {
+              throw new Error(`Local backend is missing ${endpoint}`);
+            }
+            throw new Error(launch.error || `HTTP ${resp.status}`);
           }
-          throw new Error(launch.error || `HTTP ${resp.status}`);
-        }
-        if (!launch.job_id) {
+          if (!launch.job_id) {
+            return {
+              ...launch,
+              source: 'local_backend',
+              backend_url: backendUrl,
+              picks: Array.isArray(launch.picks) ? launch.picks : [],
+              note: String(launch.note || '').trim(),
+            };
+          }
+          setModelStatus(model, 'Local backend running — polling for results...', 'running');
+          const pollTimeoutMs = Number(body && body.pollTimeoutMs) || MODEL_FORCE_REFRESH_TIMEOUT_MS;
+          const data = await _pollJob(launch.job_id, model, backendUrl, pollTimeoutMs);
+          if (!data || !data.ok) {
+            throw new Error((data && data.error) || `Local backend polling failed via ${backendUrl}`);
+          }
           return {
-            ...launch,
+            ...data,
             source: 'local_backend',
-            picks: Array.isArray(launch.picks) ? launch.picks : [],
-            note: String(launch.note || '').trim(),
+            backend_url: backendUrl,
+            picks: Array.isArray(data.picks) ? data.picks : [],
+            note: String(data.note || '').trim(),
           };
+        } catch (err) {
+          backendError = err;
         }
-        setModelStatus(model, 'Local backend running — polling for results...', 'running');
-        const pollTimeoutMs = Number(body && body.pollTimeoutMs) || MODEL_BACKEND_TIMEOUT_MS;
-        const data = await _pollJob(launch.job_id, model, ADMIN_BACKEND_URL, pollTimeoutMs);
-        if (!data || !data.ok) {
-          throw new Error((data && data.error) || 'Local backend polling failed');
-        }
-        return {
-          ...data,
-          source: 'local_backend',
-          picks: Array.isArray(data.picks) ? data.picks : [],
-          note: String(data.note || '').trim(),
-        };
-      } catch (err) {
-        backendError = err;
       }
     } else {
       backendError = new Error('Local admin backend is offline');
