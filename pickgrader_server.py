@@ -3524,31 +3524,53 @@ def run_mlb_inning_model(date_str: str | None = None) -> dict[str, Any]:
     date_iso, _ = _parse_model_date_arg(date_str)
     python_bin = _resolve_python_bin(os.path.join(BASE_DIR, ".venv", "bin", "python"))
     try:
-        output = _run_script(
-            python_bin,
-            "mlb_inning_model.py",
-            MLB_INNING_MODEL_DIR,
-            timeout=600,
-            extra_args=["--date", date_iso],
-        )
-        if "Traceback (most recent call last)" in output or "ModuleNotFoundError" in output:
-            tail = " | ".join((output.strip().splitlines() or ["no output"])[-12:])
-            return {"ok": False, "error": f"MLB Inning runtime failed ({tail})"}
+        requested_date = datetime.strptime(date_iso, "%Y-%m-%d").date()
+        output = ""
+        payload: dict[str, Any] = {}
+        picks: list[dict[str, Any]] = []
+        used_date_iso = date_iso
 
-        output_path = os.path.join(MLB_INNING_MODEL_DIR, "mlb_inning_output.json")
-        with open(output_path, encoding="utf-8") as fh:
-            payload = json.load(fh)
-        picks = _mlb_inning_pick_rows(payload)
+        for offset_days in range(3):
+            candidate_date = requested_date + timedelta(days=offset_days)
+            candidate_iso = candidate_date.strftime("%Y-%m-%d")
+            output = _run_script(
+                python_bin,
+                "mlb_inning_model.py",
+                MLB_INNING_MODEL_DIR,
+                timeout=600,
+                extra_args=["--date", candidate_iso],
+            )
+            if "Traceback (most recent call last)" in output or "ModuleNotFoundError" in output:
+                tail = " | ".join((output.strip().splitlines() or ["no output"])[-12:])
+                return {"ok": False, "error": f"MLB Inning runtime failed ({tail})"}
+
+            output_path = os.path.join(MLB_INNING_MODEL_DIR, "mlb_inning_output.json")
+            with open(output_path, encoding="utf-8") as fh:
+                payload = json.load(fh)
+            picks = _mlb_inning_pick_rows(payload)
+            used_date_iso = str(payload.get("date") or candidate_iso)
+            if picks:
+                break
+
+        rolled_note = ""
+        if used_date_iso != date_iso and picks:
+            rolled_note = f" Requested slate {date_iso} had no eligible pre-game picks, so MLB Inning used {used_date_iso}."
         result = {
             "ok": True,
-            "date": payload.get("date", date_iso),
+            "date": used_date_iso,
+            "requested_date": date_iso,
             "model": "MLBInning",
             "picks": picks,
             "games": payload.get("picks", []),
             "raw_lines": len(output.split("\n")),
-            "note": f"MLB Inning processed {len(payload.get('picks', []))} game(s), returned {len(picks)} top inning pick(s).",
+            "note": (
+                f"MLB Inning processed {len(payload.get('picks', []))} game(s), "
+                f"returned {len(picks)} top inning pick(s).{rolled_note}"
+            ),
         }
         _save_admin_picks_doc("mlb_inning", result, date_iso)
+        if used_date_iso != date_iso:
+            _save_admin_picks_doc("mlb_inning", result, used_date_iso)
         return result
     except subprocess.TimeoutExpired:
         return {"ok": False, "error": "MLB Inning model timed out (10 min limit)"}
