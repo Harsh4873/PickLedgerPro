@@ -10,7 +10,15 @@ if [ -f ".env" ]; then
   set +a
 fi
 
-PYTHON_BIN="${PYTHON_BIN:-$(command -v python3 || true)}"
+if [ -z "${PYTHON_BIN:-}" ]; then
+  if [ -x "$REPO_DIR/.venv/bin/python" ]; then
+    PYTHON_BIN="$REPO_DIR/.venv/bin/python"
+  elif [ -x "/opt/homebrew/bin/python3" ]; then
+    PYTHON_BIN="/opt/homebrew/bin/python3"
+  else
+    PYTHON_BIN="$(command -v python3 || true)"
+  fi
+fi
 if [ -z "$PYTHON_BIN" ]; then
   echo "ERROR: python3 not found"
   exit 1

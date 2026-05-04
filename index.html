@@ -3025,14 +3025,65 @@ function getPreferredDisplayedRecord(derivedRecord, canonicalRecord = window._us
           ? ledger.startTimes
           : (ledger.gameTimes && typeof ledger.gameTimes === 'object' ? ledger.gameTimes : {}));
       const savedAt = String(payload.savedAt || ledger.savedAt || new Date().toISOString());
-      await setDoc(ref, {
-        ledger: { ...ledger, savedAt },
-        picks: Array.isArray(ledger.addedPicks) ? ledger.addedPicks : (Array.isArray(payload.picks) ? payload.picks : []),
+      const deletedPickIds = Array.isArray(ledger.deletedPickIds)
+        ? ledger.deletedPickIds.map(v => String(v))
+        : [];
+      const addedPicks = Array.isArray(ledger.addedPicks)
+        ? ledger.addedPicks
+        : (Array.isArray(payload.picks) ? payload.picks : []);
+      let stateToSave = {
+        ...ledger,
+        addedPicks,
+        deletedPickIds,
         results,
         startTimes,
+        gameTimes: startTimes,
         savedAt,
-        lastSynced: savedAt,
-      }, { merge: true });
+      };
+
+      const isResultsOnlyLocalState = (
+        !addedPicks.length &&
+        (deletedPickIds.length || Object.keys(results).length || Object.keys(startTimes).length)
+      );
+      if (isResultsOnlyLocalState && typeof window._loadUserPicks === 'function') {
+        try {
+          const remoteState = await window._loadUserPicks(uid);
+          const remotePicks = Array.isArray(remoteState && remoteState.addedPicks)
+            ? remoteState.addedPicks
+            : [];
+          if (remotePicks.length) {
+            if (typeof window.mergeLedgerStates === 'function') {
+              stateToSave = window.mergeLedgerStates(remoteState, stateToSave);
+            } else {
+              stateToSave = {
+                ...remoteState,
+                ...stateToSave,
+                addedPicks: remotePicks,
+                deletedPickIds: [...new Set([
+                  ...((remoteState && remoteState.deletedPickIds) || []),
+                  ...deletedPickIds,
+                ].map(v => String(v)))],
+                results: {
+                  ...((remoteState && remoteState.results) || {}),
+                  ...results,
+                },
+                startTimes: {
+                  ...((remoteState && (remoteState.startTimes || remoteState.gameTimes)) || {}),
+                  ...startTimes,
+                },
+                gameTimes: {
+                  ...((remoteState && (remoteState.startTimes || remoteState.gameTimes)) || {}),
+                  ...startTimes,
+                },
+              };
+            }
+          }
+        } catch (guardErr) {
+          console.warn('[Firestore] preserving existing pick objects failed:', guardErr.message);
+        }
+      }
+
+      await setDoc(ref, buildUserDocLedgerPayload(stateToSave), { merge: true });
     } catch (e) {
       console.warn('[Firestore] saveUserPicks failed:', e.message);
     }
@@ -3042,15 +3093,25 @@ function getPreferredDisplayedRecord(derivedRecord, canonicalRecord = window._us
     if (!uid) return null;
     const normalizeLegacyLedgerState = (payload) => {
       const data = payload && typeof payload === 'object' ? payload : {};
-      const embeddedLedger = data.picks && typeof data.picks === 'object' && !Array.isArray(data.picks)
-        ? data.picks
+      let parsedPicks = data.picks;
+      if (typeof parsedPicks === 'string') {
+        try {
+          parsedPicks = JSON.parse(parsedPicks);
+        } catch {
+          parsedPicks = [];
+        }
+      }
+      const embeddedLedger = parsedPicks && typeof parsedPicks === 'object' && !Array.isArray(parsedPicks)
+        ? parsedPicks
         : null;
       const ledger = data.ledger && typeof data.ledger === 'object'
         ? data.ledger
         : (embeddedLedger && typeof embeddedLedger === 'object' ? embeddedLedger : data);
       const addedPicks = Array.isArray(ledger.addedPicks)
         ? ledger.addedPicks
-        : (Array.isArray(data.picks) ? data.picks : []);
+        : (Array.isArray(parsedPicks)
+          ? parsedPicks
+          : (Array.isArray(data.addedPicks) ? data.addedPicks : []));
       const results = data.results && typeof data.results === 'object'
         ? data.results
         : (ledger.results && typeof ledger.results === 'object' ? ledger.results : {});
@@ -3061,8 +3122,8 @@ function getPreferredDisplayedRecord(derivedRecord, canonicalRecord = window._us
           : (ledger.gameTimes && typeof ledger.gameTimes === 'object' ? ledger.gameTimes : {}));
       const deletedPickIds = Array.isArray(ledger.deletedPickIds)
         ? ledger.deletedPickIds.map(v => String(v))
-        : [];
-      const savedAt = data.savedAt || data.lastSynced || ledger.savedAt || ledger.lastSynced || null;
+        : (Array.isArray(data.deletedPickIds) ? data.deletedPickIds.map(v => String(v)) : []);
+      const savedAt = data.savedAt || data.lastSynced || data.updatedAt || ledger.savedAt || ledger.lastSynced || null;
       return {
         addedPicks,
         deletedPickIds,
@@ -3181,28 +3242,7 @@ function getPreferredDisplayedRecord(derivedRecord, canonicalRecord = window._us
         let mergedState = states[0].state;
         for (let i = 1; i < states.length; i += 1) {
           const next = states[i].state;
-          const mergedDeletedIds = [...new Set([
-            ...(next.deletedPickIds || []),
-            ...(mergedState.deletedPickIds || []),
-          ].map(v => String(v)))];
-          const mergedResults = {
-            ...(next.results || {}),
-            ...(mergedState.results || {}),
-          };
-          const mergedStartTimes = {
-            ...(next.startTimes || next.gameTimes || {}),
-            ...(mergedState.startTimes || mergedState.gameTimes || {}),
-          };
-          mergedState = {
-            ...mergedState,
-            deletedPickIds: mergedDeletedIds,
-            results: mergedResults,
-            startTimes: mergedStartTimes,
-            gameTimes: mergedStartTimes,
-          };
-          if (!mergedState.addedPicks.length && !mergedState.deletedPickIds.length && Array.isArray(next.addedPicks) && next.addedPicks.length) {
-            mergedState = mergeLedgerStates(next, mergedState);
-          }
+          mergedState = mergeLedgerStates(mergedState, next);
         }
         const migratedState = typeof migrateLedgerStateToStablePickKeys === 'function'
           ? migrateLedgerStateToStablePickKeys(mergedState)
@@ -8897,7 +8937,20 @@ function _adminCacheDocDateCandidates(dateStr) {
   const requested = String(dateStr || '').trim();
   if (requested) candidates.push(requested);
   const todayUtc = new Date().toISOString().split('T')[0];
-  if (!candidates.includes(todayUtc)) candidates.push(todayUtc);
+  const useRecentFallback = !requested || requested === todayUtc;
+  const pushDate = (value) => {
+    if (value && !candidates.includes(value)) candidates.push(value);
+  };
+  if (useRecentFallback) {
+    const cursor = new Date(`${todayUtc}T12:00:00Z`);
+    for (let offset = 0; offset <= 14; offset += 1) {
+      const d = new Date(cursor);
+      d.setUTCDate(cursor.getUTCDate() - offset);
+      pushDate(d.toISOString().split('T')[0]);
+    }
+  } else {
+    pushDate(todayUtc);
+  }
   return candidates;
 }
 

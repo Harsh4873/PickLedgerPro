@@ -1268,7 +1268,7 @@ def run_daily_model_caches_to_firestore(date_str: str | None = None) -> dict[str
         "mlb_new": (run_mlb_model, (date_iso, "new")),
     }
     if IPL_AVAILABLE:
-        model_jobs["ipl"] = (run_ipl_model, (None, None, None, None, None, LEDGER_DB_FILE))
+        model_jobs["ipl"] = (_run_ipl_model_subprocess, (None, None, None, None, None, LEDGER_DB_FILE))
 
     results: dict[str, Any] = {}
     errors: list[str] = []
@@ -2027,6 +2027,7 @@ WNBA_MODEL_DIR = os.path.join(BASE_DIR, "WNBAPredictionModel")
 MLB_MODEL_DIR = os.path.join(BASE_DIR, "MLBPredictionModel")
 NBA_PROPS_MODEL_DIR = os.path.join(BASE_DIR, "NBAPlayerBettingModel")
 IPL_MODEL_RUNNER = os.path.join(BASE_DIR, "ipl", "run_api.py")
+IPL_AVAILABLE = os.path.exists(IPL_MODEL_RUNNER)
 SPORTYTRADER_VENV = os.path.join(BASE_DIR, ".venv", "bin", "python")
 SPORTSGAMBLER_VENV = os.path.join(BASE_DIR, ".venv", "bin", "python")
 

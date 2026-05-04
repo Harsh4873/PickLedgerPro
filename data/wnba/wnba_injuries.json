@@ -1,0 +1,563 @@
+{
+  "last_updated": "2026-05-03T09:32:51.515305",
+  "report": {
+    "naz hillmon": {
+      "player_name": "Naz Hillmon",
+      "team_abbr": "ATL",
+      "status": "Day-To-Day",
+      "sources": [
+        "espn"
+      ],
+      "comment": "day-to-day"
+    },
+    "maite cazorla": {
+      "player_name": "Maite Cazorla",
+      "team_abbr": "ATL",
+      "status": "Day-To-Day",
+      "sources": [
+        "espn"
+      ],
+      "comment": "day-to-day"
+    },
+    "holly winterburn": {
+      "player_name": "Holly Winterburn",
+      "team_abbr": "ATL",
+      "status": "Day-To-Day",
+      "sources": [
+        "espn"
+      ],
+      "comment": "day-to-day"
+    },
+    "stephanie jones": {
+      "player_name": "Stephanie Jones",
+      "team_abbr": "ATL",
+      "status": "Day-To-Day",
+      "sources": [
+        "espn"
+      ],
+      "comment": "day-to-day"
+    },
+    "brionna jones": {
+      "player_name": "Brionna Jones",
+      "team_abbr": "ATL",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Jones underwent right knee surgery Monday and is without a timetable to return, Sara Jane Gamelli of BallisLife.com reports."
+    },
+    "azura stevens": {
+      "player_name": "Azura Stevens",
+      "team_abbr": "CHI",
+      "status": "Day-To-Day",
+      "sources": [
+        "espn"
+      ],
+      "comment": "General manager Jeff Pagliocca said Thursday that Stevens (knee) has resumed full basketball activities and is \"hopefully a few weeks away\" from returning to game action, Jack Maloney of CBS Sports reports."
+    },
+    "courtney vandersloot": {
+      "player_name": "Courtney Vandersloot",
+      "team_abbr": "CHI",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Chicago general manager Jeff Pagliocca said Thursday that Vandersloot (knee) is back on the court and working out at full speed, Jack Maloney of CBS Sports reports."
+    },
+    "skylar diggins": {
+      "player_name": "Skylar Diggins",
+      "team_abbr": "CHI",
+      "status": "Day-To-Day",
+      "sources": [
+        "espn"
+      ],
+      "comment": "day-to-day"
+    },
+    "elizabeth williams": {
+      "player_name": "Elizabeth Williams",
+      "team_abbr": "CHI",
+      "status": "Day-To-Day",
+      "sources": [
+        "espn"
+      ],
+      "comment": "day-to-day"
+    },
+    "dijonai carrington": {
+      "player_name": "DiJonai Carrington",
+      "team_abbr": "CHI",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "out"
+    },
+    "nell angloma": {
+      "player_name": "Nell Angloma",
+      "team_abbr": "CON",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Angloma (overseas commitment) has been ruled out for Sunday's preseason game against the Liberty."
+    },
+    "aaliyah edwards": {
+      "player_name": "Aaliyah Edwards",
+      "team_abbr": "CON",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Edwards (thigh) won't play in Sunday's preseason game against the Liberty."
+    },
+    "leila lacan": {
+      "player_name": "Leila Lacan",
+      "team_abbr": "CON",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Lacan (overseas commitment) has been ruled out for Sunday's game against New York."
+    },
+    "shey peddy": {
+      "player_name": "Shey Peddy",
+      "team_abbr": "CON",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Peddy (lower leg) has been ruled out for Sunday's preseason game against the Liberty."
+    },
+    "awak kuier": {
+      "player_name": "Awak Kuier",
+      "team_abbr": "DAL",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Kuier (overseas) won't play in Sunday's preseason game against the Aces."
+    },
+    "alanna smith": {
+      "player_name": "Alanna Smith",
+      "team_abbr": "DAL",
+      "status": "Day-To-Day",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Smith (quadriceps) is questionable for Sunday's preseason game against the Aces."
+    },
+    "arike ogunbowale": {
+      "player_name": "Arike Ogunbowale",
+      "team_abbr": "DAL",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Ogunbowale (ankle) is listed as out for Sunday's preseason game against Las Vegas."
+    },
+    "kate martin": {
+      "player_name": "Kate Martin",
+      "team_abbr": "GSV",
+      "status": "Day-To-Day",
+      "sources": [
+        "espn"
+      ],
+      "comment": "The Valkyries announced Tuesday that Martin has been diagnosed with a Grade 2 right quad strain and will be re-evaluated in a week, Sara Jane Gamelli of BallisLife.com reports."
+    },
+    "cecilia zandalasini": {
+      "player_name": "Cecilia Zandalasini",
+      "team_abbr": "GSV",
+      "status": "Day-To-Day",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Zandalasini is not with the team and did not play in Saturday's 78-76 preseason win over the Storm."
+    },
+    "gabby williams": {
+      "player_name": "Gabby Williams",
+      "team_abbr": "GSV",
+      "status": "Day-To-Day",
+      "sources": [
+        "espn"
+      ],
+      "comment": "day-to-day"
+    },
+    "juste jocyte": {
+      "player_name": "Juste Jocyte",
+      "team_abbr": "GSV",
+      "status": "Day-To-Day",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Jocyte is not with the team and did not play in Saturday's 78-76 preseason win over the Storm."
+    },
+    "kaila charles": {
+      "player_name": "Kaila Charles",
+      "team_abbr": "GSV",
+      "status": "Day-To-Day",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Charles is not with the team and did not play in Saturday's 78-76 preseason win over the Storm."
+    },
+    "justine pissott": {
+      "player_name": "Justine Pissott",
+      "team_abbr": "IND",
+      "status": "Day-To-Day",
+      "sources": [
+        "espn"
+      ],
+      "comment": "day-to-day"
+    },
+    "lexie hull": {
+      "player_name": "Lexie Hull",
+      "team_abbr": "IND",
+      "status": "Day-To-Day",
+      "sources": [
+        "espn"
+      ],
+      "comment": "day-to-day"
+    },
+    "monique billings": {
+      "player_name": "Monique Billings",
+      "team_abbr": "IND",
+      "status": "Day-To-Day",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Billings won't return to Saturday's exhibition game against Nigeria due to a right ankle injury, Scott Agness of FieldhouseFiles.com reports. She'll finish with seven points (3-3 FG, 1-1 3Pt), two rebounds and one steal in six minutes."
+    },
+    "a'ja wilson": {
+      "player_name": "A'ja Wilson",
+      "team_abbr": "LV",
+      "status": "Day-To-Day",
+      "sources": [
+        "espn"
+      ],
+      "comment": "day-to-day"
+    },
+    "janiah barker": {
+      "player_name": "Janiah Barker",
+      "team_abbr": "LV",
+      "status": "Day-To-Day",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Barker is in concussion protocol after taking a blow to the head during Sunday's preseason game against the Japan National Team, Nekias Duncan of Yahoo Sports reports."
+    },
+    "dana evans": {
+      "player_name": "Dana Evans",
+      "team_abbr": "LV",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "out"
+    },
+    "dorka juhasz": {
+      "player_name": "Dorka Juhasz",
+      "team_abbr": "MIN",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Juhasz (overseas commitment) is out for Friday's preseason game against the Tempo."
+    },
+    "napheesa collier": {
+      "player_name": "Napheesa Collier",
+      "team_abbr": "MIN",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Collier underwent surgery on her left ankle March 24 and is expected to return to on-court activities in early June, Sara Jane Gamelli of BallisLife.com reports."
+    },
+    "satou sabally": {
+      "player_name": "Satou Sabally",
+      "team_abbr": "NY",
+      "status": "Day-To-Day",
+      "sources": [
+        "espn"
+      ],
+      "comment": "day-to-day"
+    },
+    "leonie fiebich": {
+      "player_name": "Leonie Fiebich",
+      "team_abbr": "NY",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "out"
+    },
+    "ugonne onyiah": {
+      "player_name": "Ugonne Onyiah",
+      "team_abbr": "NY",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Onyiah (overseas commitment) has been ruled out for Sunday's preseason game against the Sun, Madeline Kenney of the New York Post reports."
+    },
+    "raquel carrera": {
+      "player_name": "Raquel Carrera",
+      "team_abbr": "NY",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Carrera (overseas commitment) has been ruled out for Sunday's preseason game against the Sun, Madeline Kenney of the New York Post reports."
+    },
+    "rebecca allen": {
+      "player_name": "Rebecca Allen",
+      "team_abbr": "NY",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "out"
+    },
+    "betnijah laney-hamilton": {
+      "player_name": "Betnijah Laney-Hamilton",
+      "team_abbr": "NY",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Laney-Hamilton is listed as questionable for Sunday's preseason game against the Sun due to reconditioning, Madeline Kenney of the New York Post reports."
+    },
+    "marine fauthoux": {
+      "player_name": "Marine Fauthoux",
+      "team_abbr": "NY",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Fauthoux (knee) will be joining the Liberty for the 2026 season, Myles Ehrlich of Winsidr.com reports."
+    },
+    "kara dunn": {
+      "player_name": "Kara Dunn",
+      "team_abbr": "PHX",
+      "status": "Day-To-Day",
+      "sources": [
+        "espn"
+      ],
+      "comment": "day-to-day"
+    },
+    "monique akoa makani": {
+      "player_name": "Monique Akoa Makani",
+      "team_abbr": "PHX",
+      "status": "Day-To-Day",
+      "sources": [
+        "espn"
+      ],
+      "comment": "day-to-day"
+    },
+    "noemie brochant": {
+      "player_name": "Noemie Brochant",
+      "team_abbr": "PHX",
+      "status": "Day-To-Day",
+      "sources": [
+        "espn"
+      ],
+      "comment": "day-to-day"
+    },
+    "jovana nogic": {
+      "player_name": "Jovana Nogic",
+      "team_abbr": "PHX",
+      "status": "Day-To-Day",
+      "sources": [
+        "espn"
+      ],
+      "comment": "day-to-day"
+    },
+    "kathryn westbeld": {
+      "player_name": "Kathryn Westbeld",
+      "team_abbr": "PHX",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Westbeld has been diagnosed with a torn ACL and will miss the 2026 WNBA season, Dylan Kane of The IX Sports reports."
+    },
+    "ines pitarch-granel": {
+      "player_name": "Ines Pitarch-Granel",
+      "team_abbr": "PHX",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "out"
+    },
+    "eszter ratkai": {
+      "player_name": "Eszter Ratkai",
+      "team_abbr": "PHX",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "out"
+    },
+    "kamiah smalls": {
+      "player_name": "Kamiah Smalls",
+      "team_abbr": "POR",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Smalls (knee) is listed as out for Sunday's preseason game against Los Angeles."
+    },
+    "teja oblak": {
+      "player_name": "Teja Oblak",
+      "team_abbr": "POR",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Oblak (quadriceps) has been ruled out for Sunday's preseason game against the Sparks."
+    },
+    "karlie samuelson": {
+      "player_name": "Karlie Samuelson",
+      "team_abbr": "POR",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Samuelson has been ruled out for Sunday's preseason game against the Sparks due to a left foot issue."
+    },
+    "sarah ashlee barker": {
+      "player_name": "Sarah Ashlee Barker",
+      "team_abbr": "POR",
+      "status": "Day-To-Day",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Barker (illness) is questionable for Sunday's preseason game against the Sparks, Sean Highkin of RoseGardenReport.com reports."
+    },
+    "emily engstler": {
+      "player_name": "Emily Engstler",
+      "team_abbr": "POR",
+      "status": "Day-To-Day",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Engstler (ankle) is questionable for Sunday's game against Los Angeles, Sean Highkin of RoseGardenReport.com reports."
+    },
+    "megan gustafson": {
+      "player_name": "Megan Gustafson",
+      "team_abbr": "POR",
+      "status": "Day-To-Day",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Gustafson (thigh) is questionable for Sunday's preseason game against the Sparks, Sean Highkin of RoseGardenReport.com reports."
+    },
+    "nika muhl": {
+      "player_name": "Nika Muhl",
+      "team_abbr": "POR",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Muhl (knee) was selected by the Fire in the second round of the WNBA Expansion Draft on Friday, Annie Costabile of Front Office Sports reports."
+    },
+    "awa fam": {
+      "player_name": "Awa Fam",
+      "team_abbr": "SEA",
+      "status": "Day-To-Day",
+      "sources": [
+        "espn"
+      ],
+      "comment": "day-to-day"
+    },
+    "jordan horston": {
+      "player_name": "Jordan Horston",
+      "team_abbr": "SEA",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Horston (knee) has been ruled out for Wednesday's preseason game against the Fire, Jeff Brown of Storm Chasers reports."
+    },
+    "katie lou samuelson": {
+      "player_name": "Katie Lou Samuelson",
+      "team_abbr": "SEA",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Samuelson (knee) has no timetable for a return to action, Roberta Rodrigues of Beta Basket reports."
+    },
+    "ezi magbegor": {
+      "player_name": "Ezi Magbegor",
+      "team_abbr": "SEA",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "The Storm announced Monday that Magbegor is expected to miss at least 6-8 weeks due to a right foot injury, Alexa Philippou of ESPN.com reports."
+    },
+    "nikolina milic": {
+      "player_name": "Nikolina Milic",
+      "team_abbr": "TOR",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Milic (reconditioning) didn't play in Friday's 73-66 preseason loss to the Lynx."
+    },
+    "maria conde": {
+      "player_name": "Maria Conde",
+      "team_abbr": "TOR",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Conde (overseas commitment) has been ruled out for Friday's preseason game against the Lynx, Chelsea Leite of The IX Sports reports."
+    },
+    "saffron shiels": {
+      "player_name": "Saffron Shiels",
+      "team_abbr": "TOR",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Shiels is not expected to play with the Tempo in 2026, Khristina Williams of MSG Network reports."
+    },
+    "charlise dunn": {
+      "player_name": "Charlise Dunn",
+      "team_abbr": "TOR",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Dunn signed a two-year deal with Australia's Sydney Flames on Thursday and won't play for the Tempo during the 2026 season, Zulfi Sheikh of Sportsnet reports."
+    },
+    "nyla harris": {
+      "player_name": "Nyla Harris",
+      "team_abbr": "WAS",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Harris (leg) has been ruled out for Sunday's preseason game against Atlanta, Jenn Hatfield of The Next reports."
+    },
+    "michaela onyenwere": {
+      "player_name": "Michaela Onyenwere",
+      "team_abbr": "WAS",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Onyenwere (leg) has been ruled out for Sunday's preseason game against the Dream, Meghan L. Hall of USA Today reports."
+    },
+    "shakira austin": {
+      "player_name": "Shakira Austin",
+      "team_abbr": "WAS",
+      "status": "Out",
+      "sources": [
+        "espn"
+      ],
+      "comment": "Austin (reconditioning) has been ruled out for Sunday's preseason game against Atlanta, Meghan L. Hall of USA Today reports."
+    }
+  }
+}
