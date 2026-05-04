@@ -3723,6 +3723,14 @@ function getPreferredDisplayedRecord(derivedRecord, canonicalRecord = window._us
         <button class="model-run-btn" id="btn-run-mlb-new" onclick="runModel('mlb-new')">RUN MLB NEW</button>
         <div class="model-status" id="status-mlb-new"></div>
       </div>
+      <div class="model-card" id="model-card-mlb-inning">
+        <div class="model-card-icon">&#9918;</div>
+        <div class="model-card-title">MLB Inning</div>
+        <div class="model-card-desc">Ranks the two innings in each MLB game most likely to finish with no runs using recent inning history, lineups, and pitcher-batter matchup pressure.</div>
+        <span data-model-timestamp="mlb_inning" class="model-timestamp-badge" style="display:none;"></span>
+        <button class="model-run-btn" id="btn-run-mlb-inning" onclick="runModel('mlb-inning')">RUN MLB INNING</button>
+        <div class="model-status" id="status-mlb-inning"></div>
+      </div>
       <div class="model-card" id="model-card-ipl">
         <div class="model-card-icon">&#127951;</div>
         <div class="model-card-title">IPL Model</div>
@@ -3891,6 +3899,7 @@ const MODEL_FIREBASE_KEY_ALIASES = {
   wnba: ['wnba'],
   mlb: ['mlb', 'mlb_old', 'mlb-old'],
   'mlb-new': ['mlb_new', 'mlb-new', 'mlbNew'],
+  'mlb-inning': ['mlb_inning', 'mlb-inning', 'mlbInning'],
   ipl: ['ipl'],
   sportytrader: ['sportytrader'],
   sportsgambler: ['sportsgambler'],
@@ -9078,7 +9087,7 @@ async function loadModelTimestamps() {
     const data = typeof snap.data === 'function' ? snap.data() : null;
     if (!data || typeof data !== 'object') return;
 
-    for (const key of ['nba', 'nba_new', 'nba_playoffs', 'wnba', 'mlb', 'mlb_new', 'ipl', 'props']) {
+    for (const key of ['nba', 'nba_new', 'nba_playoffs', 'wnba', 'mlb', 'mlb_new', 'mlb_inning', 'ipl', 'props']) {
       const rawTs = data[`${key}_ts`];
       if (!rawTs) continue;
       const badge = document.querySelector(`[data-model-timestamp="${key}"]`);
@@ -9181,6 +9190,7 @@ function _resetModelButton(model) {
     ipl: 'RUN IPL MODEL',
     mlb: 'RUN MLB MODEL',
     'mlb-new': 'RUN MLB NEW',
+    'mlb-inning': 'RUN MLB INNING',
     'nba-new': 'RUN NBA NEW',
     'nba-playoffs': 'RUN NBA PLAYOFFS',
     'nba-old': 'RUN NBA MODEL',
@@ -9548,7 +9558,8 @@ async function _runAsyncModelRequest(model, endpoint, body) {
           };
         }
         setModelStatus(model, 'Local backend running — polling for results...', 'running');
-        const data = await _pollJob(launch.job_id, model, ADMIN_BACKEND_URL, MODEL_BACKEND_TIMEOUT_MS);
+        const pollTimeoutMs = Number(body && body.pollTimeoutMs) || MODEL_BACKEND_TIMEOUT_MS;
+        const data = await _pollJob(launch.job_id, model, ADMIN_BACKEND_URL, pollTimeoutMs);
         if (!data || !data.ok) {
           throw new Error((data && data.error) || 'Local backend polling failed');
         }
@@ -10390,6 +10401,12 @@ async function runModel(model, eventOrOptions = {}) {
     body.fallbackModelKey = 'mlb';
     body.fallbackDateStr = body.date;
   }
+  if (model === 'mlb-inning') {
+    endpoint = '/run-mlb-inning-model';
+    body.fallbackModelKey = 'mlb_inning';
+    body.fallbackDateStr = body.date;
+    body.pollTimeoutMs = MODEL_FORCE_REFRESH_TIMEOUT_MS;
+  }
   if (model === 'wnba') {
     endpoint = '/api/run-wnba-model';
     body.fallbackModelKey = 'wnba';
@@ -10502,7 +10519,8 @@ function renderModelResults(picks, options = {}) {
     'WNBA MODEL': 2,
     'MLB MODEL': 3,
     'MLB NEW': 4,
-    'CANNON ANALYTICS': 5,
+    'MLB INNING': 5,
+    'CANNON ANALYTICS': 6,
   };
   // Keep backend variants distinct so they do not collapse.
   // 'MLB MODEL' is the single champion label; 'MLB NEW' is the challenger.
@@ -10517,6 +10535,7 @@ function renderModelResults(picks, options = {}) {
     'MLB MODEL': 'MLB Model',
     'MLB NEW': 'MLB NEW',
     MLBNEW: 'MLB NEW',
+    'MLB INNING': 'MLB Inning',
     'CANNON ANALYTICS': 'Cannon Analytics',
   };
   const sorted = picks.map((pick, index) => ({ pick, index })).sort((a, b) => {
@@ -10977,9 +10996,24 @@ window.addEventListener('firestorePicksLoaded', function(e) {
 // ── Model Chooser ──
 (function() {
   const STORAGE_KEY = 'pickledger_visible_models';
+  const CATALOG_KEY = 'pickledger_visible_models_catalog';
+  const LEGACY_MODEL_IDS = [
+    'model-card-mlb',
+    'model-card-mlb-new',
+    'model-card-ipl',
+    'model-card-nba-new',
+    'model-card-nba-playoffs',
+    'model-card-nba-old',
+    'model-card-nba-props',
+    'model-card-sportytrader',
+    'model-card-sportsgambler',
+    'model-card-cannon-analytics',
+    'model-card-wnba',
+  ];
   const ALL_MODELS = [
     { id: 'model-card-mlb',              icon: '\u26BE', name: 'MLB Model',                     desc: 'Pitcher-based MLB predictions' },
     { id: 'model-card-mlb-new',          icon: '\u26BE', name: 'MLB New',                       desc: '2024-25 MLB challenger artifacts' },
+    { id: 'model-card-mlb-inning',       icon: '\u26BE', name: 'MLB Inning',                    desc: 'Least likely run-scoring innings' },
     { id: 'model-card-ipl',              icon: '\u{1F3DF}', name: 'IPL Model',                  desc: 'Cached IPL winner + fantasy XI' },
     { id: 'model-card-nba-new',          icon: '\u{1F3C0}', name: 'NBA New',                    desc: 'Refined NBA spread + calibration' },
     { id: 'model-card-nba-playoffs',     icon: '\u{1F3C6}', name: 'NBA Playoffs',               desc: 'Postseason-only verified moneyline model' },
@@ -10993,11 +11027,28 @@ window.addEventListener('firestorePicksLoaded', function(e) {
 
   // Default: show all
   function getVisible() {
+    const allIds = ALL_MODELS.map(m => m.id);
     try {
       const stored = JSON.parse(localStorage.getItem(STORAGE_KEY));
-      if (Array.isArray(stored)) return new Set(stored);
+      if (Array.isArray(stored)) {
+        const visible = new Set(stored.filter(id => allIds.includes(id)));
+        let known = JSON.parse(localStorage.getItem(CATALOG_KEY));
+        if (!Array.isArray(known)) known = LEGACY_MODEL_IDS;
+        const knownSet = new Set(known);
+        let changed = false;
+        allIds.forEach(function(id) {
+          if (!knownSet.has(id)) {
+            visible.add(id);
+            changed = true;
+          }
+        });
+        if (changed) saveVisible(visible);
+        localStorage.setItem(CATALOG_KEY, JSON.stringify(allIds));
+        return visible;
+      }
     } catch {}
-    return new Set(ALL_MODELS.map(m => m.id));
+    localStorage.setItem(CATALOG_KEY, JSON.stringify(allIds));
+    return new Set(allIds);
   }
 
   function saveVisible(set) {

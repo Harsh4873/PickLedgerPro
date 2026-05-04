@@ -1266,6 +1266,7 @@ def run_daily_model_caches_to_firestore(date_str: str | None = None) -> dict[str
         "nba_props": (run_nba_props_model, (date_iso,)),
         "mlb_old": (run_mlb_model, (date_iso, "old")),
         "mlb_new": (run_mlb_model, (date_iso, "new")),
+        "mlb_inning": (run_mlb_inning_model, (date_iso,)),
     }
     if IPL_AVAILABLE:
         model_jobs["ipl"] = (_run_ipl_model_subprocess, (None, None, None, None, None, LEDGER_DB_FILE))
@@ -1303,6 +1304,7 @@ def run_daily_model_caches_to_firestore(date_str: str | None = None) -> dict[str
         "mlb": results.get("mlb_old", {}),
         "mlb_old": results.get("mlb_old", {}),
         "mlb_new": results.get("mlb_new", {}),
+        "mlb_inning": results.get("mlb_inning", {}),
         "ipl": results.get("ipl", {}),
         "props_games": props_games,
     }
@@ -2025,6 +2027,7 @@ NBA_MODEL_DIR = os.path.join(BASE_DIR, "NBAPredictionModel")
 NBA_PLAYOFFS_MODEL_DIR = os.path.join(BASE_DIR, "NBAPlayoffsPredictionModel")
 WNBA_MODEL_DIR = os.path.join(BASE_DIR, "WNBAPredictionModel")
 MLB_MODEL_DIR = os.path.join(BASE_DIR, "MLBPredictionModel")
+MLB_INNING_MODEL_DIR = os.path.join(BASE_DIR, "models", "mlb_inning")
 NBA_PROPS_MODEL_DIR = os.path.join(BASE_DIR, "NBAPlayerBettingModel")
 IPL_MODEL_RUNNER = os.path.join(BASE_DIR, "ipl", "run_api.py")
 IPL_AVAILABLE = os.path.exists(IPL_MODEL_RUNNER)
@@ -3464,6 +3467,95 @@ def run_mlb_model(date_str: str | None = None, variant: str = "old") -> dict[str
         return {"ok": False, "error": str(e)}
 
 
+def _mlb_inning_pick_rows(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    date_str = str(payload.get("date") or datetime.now().strftime("%Y-%m-%d"))
+    rows: list[dict[str, Any]] = []
+    for game in payload.get("picks") or []:
+        if not isinstance(game, dict):
+            continue
+        matchup = str(game.get("matchup") or "").strip()
+        away_team = str(game.get("away_team") or "").strip()
+        home_team = str(game.get("home_team") or "").strip()
+        full_table = game.get("full_inning_table") if isinstance(game.get("full_inning_table"), dict) else {}
+        for pick in game.get("top_2_picks") or []:
+            if not isinstance(pick, dict):
+                continue
+            inning = int(pick.get("inning") or 0)
+            probability = pick.get("probability_scoreless")
+            try:
+                probability_f = float(probability)
+            except (TypeError, ValueError):
+                probability_f = None
+            confidence = str(pick.get("confidence") or "").strip() or "Low"
+            if confidence.upper() == "HIGH":
+                decision = "BET"
+            elif confidence.upper() == "MEDIUM":
+                decision = "LEAN"
+            else:
+                decision = "PASS"
+            rows.append({
+                "source": "MLB Inning",
+                "pick": f"Inning {inning} - No Run Scored" if inning else str(pick.get("label") or "No Run Scored"),
+                "sport": "MLB",
+                "league": "MLB",
+                "date": date_str,
+                "game": matchup,
+                "matchup": matchup,
+                "home_team": home_team,
+                "away_team": away_team,
+                "team": "",
+                "odds": None,
+                "assumed_odds": -110,
+                "probability": probability_f,
+                "edge": None,
+                "decision": decision,
+                "confidence": confidence,
+                "model_prediction": f"{probability_f * 100:.1f}%" if probability_f is not None else None,
+                "notes": f"Top no-run inning candidate. Full table: {json.dumps(full_table, sort_keys=True)}",
+            })
+    return rows
+
+
+def run_mlb_inning_model(date_str: str | None = None) -> dict[str, Any]:
+    """Execute the MLB Inning model and return top no-run inning picks."""
+    if not os.path.exists(os.path.join(MLB_INNING_MODEL_DIR, "mlb_inning_model.py")):
+        return {"ok": False, "error": f"MLB Inning model not found at {MLB_INNING_MODEL_DIR}"}
+
+    date_iso, _ = _parse_model_date_arg(date_str)
+    python_bin = _resolve_python_bin(os.path.join(BASE_DIR, ".venv", "bin", "python"))
+    try:
+        output = _run_script(
+            python_bin,
+            "mlb_inning_model.py",
+            MLB_INNING_MODEL_DIR,
+            timeout=600,
+            extra_args=["--date", date_iso],
+        )
+        if "Traceback (most recent call last)" in output or "ModuleNotFoundError" in output:
+            tail = " | ".join((output.strip().splitlines() or ["no output"])[-12:])
+            return {"ok": False, "error": f"MLB Inning runtime failed ({tail})"}
+
+        output_path = os.path.join(MLB_INNING_MODEL_DIR, "mlb_inning_output.json")
+        with open(output_path, encoding="utf-8") as fh:
+            payload = json.load(fh)
+        picks = _mlb_inning_pick_rows(payload)
+        result = {
+            "ok": True,
+            "date": payload.get("date", date_iso),
+            "model": "MLBInning",
+            "picks": picks,
+            "games": payload.get("picks", []),
+            "raw_lines": len(output.split("\n")),
+            "note": f"MLB Inning processed {len(payload.get('picks', []))} game(s), returned {len(picks)} top inning pick(s).",
+        }
+        _save_admin_picks_doc("mlb_inning", result, date_iso)
+        return result
+    except subprocess.TimeoutExpired:
+        return {"ok": False, "error": "MLB Inning model timed out (10 min limit)"}
+    except Exception as exc:
+        return {"ok": False, "error": str(exc)}
+
+
 def _resolve_scrape_date(date_str: str | None) -> str:
     """Normalize incoming date to YYYY-MM-DD for scraper scripts."""
     if date_str:
@@ -3726,6 +3818,7 @@ def _public_endpoints() -> list[str]:
         "/run-nba-props-model",
         "/run-mlb-model",
         "/run-mlb-new-model",
+        "/run-mlb-inning-model",
         "/run-cannon-daily",
         "/api/ipl",
         "/ask-opus",
@@ -4238,6 +4331,15 @@ class Handler(BaseHTTPRequestHandler):
                 self._send_json(200, {"ok": True, "job_id": job_id, "status": "running"})
             else:
                 result = run_mlb_model(date_str, "new")
+                self._send_json(200, result)
+
+        elif path == "/run-mlb-inning-model":
+            print(f"[route] /run-mlb-inning-model date={date_str!r} async={async_mode}")
+            if async_mode:
+                job_id = _launch_job(run_mlb_inning_model, date_str)
+                self._send_json(200, {"ok": True, "job_id": job_id, "status": "running"})
+            else:
+                result = run_mlb_inning_model(date_str)
                 self._send_json(200, result)
 
         elif path == "/run-cannon-daily":
