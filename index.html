@@ -2744,6 +2744,7 @@
   window._currentUser = null;
   window._userUid = null;
   window._userRecord = null;
+  window._ledgerHydrated = false;
   window._authStateResolved = false;
   window._authStateGeneration = 0;
 
@@ -2848,15 +2849,25 @@ function getRecordSummaryTotal(record) {
 }
 
 function shouldPersistDerivedRecordSummary(canonicalRecord, derivedRecord) {
-  return hasRecordSummaryData(derivedRecord) && (
-    !hasRecordSummaryData(canonicalRecord) ||
-    getRecordSummaryTotal(derivedRecord) > getRecordSummaryTotal(canonicalRecord)
-  );
+  if (!hasRecordSummaryData(derivedRecord)) return false;
+  // Once the ledger is hydrated, mirror the derived count exactly so the OVERALL
+  // RECORD reflects every grade in the live ledger (including downward changes).
+  // Before hydration only ratchet up, so an incomplete load can't shrink the canonical.
+  if (window._ledgerHydrated) {
+    const c = normalizeRecordSummary(canonicalRecord);
+    const d = normalizeRecordSummary(derivedRecord);
+    return c.wins !== d.wins || c.losses !== d.losses || c.pushes !== d.pushes;
+  }
+  return !hasRecordSummaryData(canonicalRecord) ||
+    getRecordSummaryTotal(derivedRecord) > getRecordSummaryTotal(canonicalRecord);
 }
 
 function getPreferredDisplayedRecord(derivedRecord, canonicalRecord = window._userRecord) {
   const normalizedCanonical = normalizeRecordSummary(canonicalRecord);
   const normalizedDerived = normalizeRecordSummary(derivedRecord);
+  if (window._ledgerHydrated && hasRecordSummaryData(normalizedDerived)) {
+    return normalizedDerived;
+  }
   if (hasRecordSummaryData(normalizedDerived)) {
     if (!hasRecordSummaryData(normalizedCanonical)) return normalizedDerived;
     if (getRecordSummaryTotal(normalizedDerived) >= getRecordSummaryTotal(normalizedCanonical)) {
@@ -2903,6 +2914,19 @@ function getPreferredDisplayedRecord(derivedRecord, canonicalRecord = window._us
     if (headerRecord) headerRecord.textContent = text;
   }
 
+  function syncRecordWithLedger() {
+    if (typeof getPicks !== 'function') return;
+    const derivedRecord = buildRecordSummaryFromPicks(getPicks());
+    const previousCanonical = window._userRecord;
+    const shouldPersist = shouldPersistDerivedRecordSummary(previousCanonical, derivedRecord);
+    const displayRecord = getPreferredDisplayedRecord(derivedRecord, previousCanonical);
+    syncVisibleUserRecord(displayRecord);
+    const uid = window._userUid;
+    if (uid && shouldPersist && typeof window._saveUserRecordSummary === 'function') {
+      window._saveUserRecordSummary(uid, derivedRecord).catch(() => {});
+    }
+  }
+
   window.getLedgerSyncUid = getLedgerSyncUid;
   window.getFirestoreUserDocCandidates = getFirestoreUserDocCandidates;
   window.buildUserDocLedgerPayload = buildUserDocLedgerPayload;
@@ -2916,6 +2940,7 @@ function getPreferredDisplayedRecord(derivedRecord, canonicalRecord = window._us
   window.applyRecordOutcomeTransition = applyRecordOutcomeTransition;
   window.buildRecordSummaryFromPicks = buildRecordSummaryFromPicks;
   window.updateRecordDisplays = updateRecordDisplays;
+  window.syncRecordWithLedger = syncRecordWithLedger;
 
   // ── Login gate ────────────────────────────────────────────
   const gate = document.getElementById('login-gate');
@@ -3434,11 +3459,8 @@ function getPreferredDisplayedRecord(derivedRecord, canonicalRecord = window._us
       }
       refreshLedgerUi();
       if (localLedgerLoaded) {
-        const derivedRecord = buildRecordSummaryFromPicks(typeof getPicks === 'function' ? getPicks() : []);
-        syncVisibleUserRecord(getPreferredDisplayedRecord(derivedRecord, record));
-        if (window._saveUserRecordSummary && shouldPersistDerivedRecordSummary(record, derivedRecord)) {
-          window._saveUserRecordSummary(user.uid, derivedRecord).catch(() => {});
-        }
+        window._ledgerHydrated = true;
+        syncRecordWithLedger();
       } else {
         syncVisibleUserRecord(getPreferredDisplayedRecord(null, record));
       }
@@ -3454,6 +3476,7 @@ function getPreferredDisplayedRecord(derivedRecord, canonicalRecord = window._us
       }
       resetProfilePanel();
       window._userRecord = null;
+      window._ledgerHydrated = false;
       if (ledgerStateSyncTimer) {
         clearTimeout(ledgerStateSyncTimer);
         ledgerStateSyncTimer = null;
@@ -4578,9 +4601,11 @@ async function pullLedgerStateIfNeeded(options = {}) {
     }
     const restored = applyLedgerStateFromServer(stateToApply);
     if (restored) {
+      window._ledgerHydrated = true;
       if (forcedResetChanged && typeof pushLedgerState === 'function') {
         pushLedgerState(true).catch(() => {});
       }
+      if (typeof window.syncRecordWithLedger === 'function') window.syncRecordWithLedger();
       render();
       if (document.getElementById('tab-search').classList.contains('active')) {
         renderSearch();
@@ -4744,6 +4769,7 @@ async function refreshAutoGrades(silent = false) {
           window.syncVisibleUserRecord(nextRecord, { persist: Boolean(window._userUid) });
         }
       }
+      if (typeof window.syncRecordWithLedger === 'function') window.syncRecordWithLedger();
     }
     scheduleLedgerStateSync();
 
@@ -5433,6 +5459,7 @@ function deletePick(id) {
       { persist: Boolean(window._userUid) }
     );
   }
+  if (typeof window.syncRecordWithLedger === 'function') window.syncRecordWithLedger();
 
   render();
   if (document.getElementById('tab-search').classList.contains('active')) {
@@ -5464,6 +5491,7 @@ function setResult(id,r) {
       { persist: Boolean(window._userUid) }
     );
   }
+  if (typeof window.syncRecordWithLedger === 'function') window.syncRecordWithLedger();
   saveResultToServer(id, nextResult);
   scheduleLedgerStateSync();
   render();
