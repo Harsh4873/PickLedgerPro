@@ -8671,6 +8671,15 @@ function renderTrends() {
 
 // ── Render ──
 function render() {
+  // Keep the rankings tab in sync with live grades. rankingsLedgerState
+  // is the source for getRankingsPicks(); without this refresh it only
+  // updates when the debounced ledger sync fires, so the leaderboard
+  // lags behind the header/home tab after a grade change.
+  if (typeof getMergedRankingsLedgerState === 'function' && typeof buildLedgerStatePayload === 'function') {
+    try {
+      rankingsLedgerState = getMergedRankingsLedgerState(buildLedgerStatePayload());
+    } catch (_) { /* best-effort refresh */ }
+  }
   let picks = getPicks();
   const gameTimes = getGameTimes();
 
