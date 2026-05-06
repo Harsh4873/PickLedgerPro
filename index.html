@@ -2744,8 +2744,11 @@
   window._currentUser = null;
   window._userUid = null;
   window._userRecord = null;
+  window._recordSummaryLoaded = false;
+  window._pendingRecordDelta = { wins: 0, losses: 0, pushes: 0 };
   window._authStateResolved = false;
   window._authStateGeneration = 0;
+  let userRecordSaveChain = Promise.resolve();
 
   let authStateReadyResolve = null;
   window._authStateReady = new Promise((resolve) => { authStateReadyResolve = resolve; });
@@ -2874,6 +2877,62 @@ function recordSummariesEqual(a, b) {
   return x.wins === y.wins && x.losses === y.losses && x.pushes === y.pushes;
 }
 
+function normalizeRecordDelta(delta) {
+  return {
+    wins: Number(delta && delta.wins) || 0,
+    losses: Number(delta && delta.losses) || 0,
+    pushes: Number(delta && delta.pushes) || 0,
+  };
+}
+
+function hasRecordDelta(delta) {
+  const summary = normalizeRecordDelta(delta);
+  return summary.wins !== 0 || summary.losses !== 0 || summary.pushes !== 0;
+}
+
+function addRecordDeltas(a, b) {
+  const x = normalizeRecordDelta(a);
+  const y = normalizeRecordDelta(b);
+  return {
+    wins: x.wins + y.wins,
+    losses: x.losses + y.losses,
+    pushes: x.pushes + y.pushes,
+  };
+}
+
+function applyRecordDelta(record, delta) {
+  const summary = normalizeRecordSummary(record);
+  const change = normalizeRecordDelta(delta);
+  return {
+    wins: Math.max(0, summary.wins + change.wins),
+    losses: Math.max(0, summary.losses + change.losses),
+    pushes: Math.max(0, summary.pushes + change.pushes),
+  };
+}
+
+function buildRecordOutcomeDelta(previousResult, nextResult) {
+  const delta = { wins: 0, losses: 0, pushes: 0 };
+  const adjust = (result, amount) => {
+    const normalized = normalizeResultValue(result);
+    if (normalized === 'win') delta.wins += amount;
+    if (normalized === 'loss') delta.losses += amount;
+    if (normalized === 'push') delta.pushes += amount;
+  };
+  adjust(previousResult, -1);
+  adjust(nextResult, 1);
+  return delta;
+}
+
+function queuePendingRecordDelta(delta) {
+  if (!hasRecordDelta(delta)) return normalizeRecordDelta(window._pendingRecordDelta);
+  window._pendingRecordDelta = addRecordDeltas(window._pendingRecordDelta, delta);
+  return normalizeRecordDelta(window._pendingRecordDelta);
+}
+
+function clearPendingRecordDelta() {
+  window._pendingRecordDelta = { wins: 0, losses: 0, pushes: 0 };
+}
+
 function shouldPersistDerivedRecordSummary(canonicalRecord, derivedRecord) {
   // Per-category ratchet: persist when any axis of derived exceeds canonical.
   // Never decrease canonical — picks can be deleted (e.g. slate resets) but
@@ -2893,23 +2952,46 @@ function getPreferredDisplayedRecord(derivedRecord, canonicalRecord = window._us
     window._userRecord = summary;
     const persist = options.persist === true;
     const uid = options.uid || window._userUid;
-    if (persist && uid && typeof window._saveUserRecordSummary === 'function') {
+    if (persist && window._recordSummaryLoaded && uid && typeof window._saveUserRecordSummary === 'function') {
       window._saveUserRecordSummary(uid, summary).catch(() => {});
     }
     return summary;
   }
 
   function applyRecordOutcomeTransition(record, previousResult, nextResult) {
-    const summary = normalizeRecordSummary(record);
-    const adjust = (result, delta) => {
-      const normalized = normalizeResultValue(result);
-      if (normalized === 'win') summary.wins = Math.max(0, summary.wins + delta);
-      if (normalized === 'loss') summary.losses = Math.max(0, summary.losses + delta);
-      if (normalized === 'push') summary.pushes = Math.max(0, summary.pushes + delta);
-    };
-    adjust(previousResult, -1);
-    adjust(nextResult, 1);
-    return summary;
+    return applyRecordDelta(record, buildRecordOutcomeDelta(previousResult, nextResult));
+  }
+
+  function syncRecordDelta(delta, options = {}) {
+    if (!hasRecordDelta(delta)) return normalizeRecordSummary(window._userRecord);
+    const nextRecord = applyRecordDelta(window._userRecord, delta);
+    if (!window._recordSummaryLoaded) {
+      queuePendingRecordDelta(delta);
+      updateRecordDisplays(nextRecord);
+      window._userRecord = nextRecord;
+      return nextRecord;
+    }
+    return syncVisibleUserRecord(nextRecord, {
+      persist: options.persist !== false && Boolean(window._userUid),
+      uid: options.uid || window._userUid,
+    });
+  }
+
+  function syncRecordOutcomeTransition(previousResult, nextResult, options = {}) {
+    const previous = normalizeResultValue(previousResult);
+    const next = normalizeResultValue(nextResult);
+    if (previous === next) return normalizeRecordSummary(window._userRecord);
+    return syncRecordDelta(buildRecordOutcomeDelta(previous, next), options);
+  }
+
+  function applyPendingRecordDeltas(options = {}) {
+    const pending = normalizeRecordDelta(window._pendingRecordDelta);
+    if (!hasRecordDelta(pending)) return normalizeRecordSummary(window._userRecord);
+    clearPendingRecordDelta();
+    return syncVisibleUserRecord(applyRecordDelta(window._userRecord, pending), {
+      persist: options.persist !== false && Boolean(window._userUid),
+      uid: options.uid || window._userUid,
+    });
   }
 
   function updateRecordDisplays(record) {
@@ -2938,7 +3020,7 @@ function getPreferredDisplayedRecord(derivedRecord, canonicalRecord = window._us
     updateRecordDisplays(merged);
     window._userRecord = merged;
     const uid = window._userUid;
-    if (uid && !recordSummariesEqual(previousCanonical, merged) && typeof window._saveUserRecordSummary === 'function') {
+    if (uid && window._recordSummaryLoaded && !recordSummariesEqual(previousCanonical, merged) && typeof window._saveUserRecordSummary === 'function') {
       window._saveUserRecordSummary(uid, merged).catch(() => {});
     }
   }
@@ -2958,8 +3040,16 @@ function getPreferredDisplayedRecord(derivedRecord, canonicalRecord = window._us
   window.buildRecordSummaryFromResultsMap = buildRecordSummaryFromResultsMap;
   window.mergeRecordSummariesMaxPerCategory = mergeRecordSummariesMaxPerCategory;
   window.recordSummariesEqual = recordSummariesEqual;
+  window.normalizeRecordDelta = normalizeRecordDelta;
+  window.hasRecordDelta = hasRecordDelta;
+  window.addRecordDeltas = addRecordDeltas;
+  window.applyRecordDelta = applyRecordDelta;
+  window.buildRecordOutcomeDelta = buildRecordOutcomeDelta;
   window.updateRecordDisplays = updateRecordDisplays;
   window.syncRecordWithLedger = syncRecordWithLedger;
+  window.syncRecordDelta = syncRecordDelta;
+  window.syncRecordOutcomeTransition = syncRecordOutcomeTransition;
+  window.applyPendingRecordDeltas = applyPendingRecordDeltas;
 
   // ── Login gate ────────────────────────────────────────────
   const gate = document.getElementById('login-gate');
@@ -3030,15 +3120,21 @@ function getPreferredDisplayedRecord(derivedRecord, canonicalRecord = window._us
     return zeroRecord || normalizeRecordSummary(null);
   }
 
-  window._saveUserRecordSummary = async function(uid, record) {
-    if (!uid) return;
-    const summary = normalizeRecordSummary(record);
-    try {
-      await setDoc(doc(db, 'users', uid), { record: summary }, { merge: true });
-      window._userRecord = summary;
-    } catch (e) {
-      console.warn('[Firestore] saveUserRecordSummary failed:', e.message);
-    }
+  window._saveUserRecordSummary = function(uid, record) {
+    if (!uid) return Promise.resolve(null);
+    const requested = normalizeRecordSummary(record);
+    userRecordSaveChain = userRecordSaveChain.catch(() => {}).then(async () => {
+      const summary = mergeRecordSummariesMaxPerCategory(window._userRecord, requested);
+      try {
+        await setDoc(doc(db, 'users', uid), { record: summary }, { merge: true });
+        window._userRecord = summary;
+        return summary;
+      } catch (e) {
+        console.warn('[Firestore] saveUserRecordSummary failed:', e.message);
+        return null;
+      }
+    });
+    return userRecordSaveChain;
   };
 
   window._incrementRecord = async function(uid, outcome) {
@@ -3418,7 +3514,9 @@ function getPreferredDisplayedRecord(derivedRecord, canonicalRecord = window._us
       const record = await loadUserRecord(user.uid);
       if (currentGeneration !== window._authStateGeneration) return;
       window._userRecord = record;
-      updateProfilePanel(user, record);
+      window._recordSummaryLoaded = true;
+      const displayRecord = applyPendingRecordDeltas({ persist: true, uid: user.uid });
+      updateProfilePanel(user, displayRecord);
 
       const localBeforeRemote = typeof window._buildLedgerStatePayload === 'function'
         ? window._buildLedgerStatePayload()
@@ -3480,7 +3578,7 @@ function getPreferredDisplayedRecord(derivedRecord, canonicalRecord = window._us
       if (localLedgerLoaded) {
         syncRecordWithLedger();
       } else {
-        syncVisibleUserRecord(getPreferredDisplayedRecord(null, record));
+        syncVisibleUserRecord(getPreferredDisplayedRecord(null, window._userRecord));
       }
       loadCanonicalRankingsState().then(() => {
         if (typeof render === 'function') render();
@@ -3494,6 +3592,8 @@ function getPreferredDisplayedRecord(derivedRecord, canonicalRecord = window._us
       }
       resetProfilePanel();
       window._userRecord = null;
+      window._recordSummaryLoaded = false;
+      clearPendingRecordDelta();
       if (ledgerStateSyncTimer) {
         clearTimeout(ledgerStateSyncTimer);
         ledgerStateSyncTimer = null;
@@ -4586,7 +4686,8 @@ function scheduleLedgerStateSync(delayMs = 250) {
     if (window._userUid && window._saveUserRecordSummary && typeof getPicks === 'function' && typeof window.buildRecordSummaryFromPicks === 'function') {
       const derivedRecord = window.buildRecordSummaryFromPicks(getPicks());
       if (window.shouldPersistDerivedRecordSummary(window._userRecord, derivedRecord)) {
-        window._saveUserRecordSummary(window._userUid, derivedRecord);
+        const mergedRecord = window.getPreferredDisplayedRecord(derivedRecord, window._userRecord);
+        window.syncVisibleUserRecord(mergedRecord, { persist: true });
       }
     }
   }, Math.max(0, Number(delayMs) || 0));
@@ -4769,20 +4870,21 @@ async function refreshAutoGrades(silent = false) {
         startTimes: mergedTimes,
         gameTimes: mergedTimes,
       });
-      if (window._currentUser && picksBeforeRefresh.size > 0) {
-        let nextRecord = window.normalizeRecordSummary(window._userRecord);
-        let recordChanged = false;
+      if (picksBeforeRefresh.size > 0) {
+        let recordDelta = window.normalizeRecordDelta(null);
         const picksAfterRefresh = typeof getPicks === 'function'
           ? new Map(getPicks().map(p => [String(p.id), normalizeResultValue(p.result)]))
           : new Map();
         picksAfterRefresh.forEach((nextResult, pickId) => {
           const previousResult = picksBeforeRefresh.get(pickId) || 'pending';
           if (previousResult === nextResult) return;
-          nextRecord = window.applyRecordOutcomeTransition(nextRecord, previousResult, nextResult);
-          recordChanged = true;
+          recordDelta = window.addRecordDeltas(
+            recordDelta,
+            window.buildRecordOutcomeDelta(previousResult, nextResult)
+          );
         });
-        if (recordChanged) {
-          window.syncVisibleUserRecord(nextRecord, { persist: Boolean(window._userUid) });
+        if (window.hasRecordDelta(recordDelta)) {
+          window.syncRecordDelta(recordDelta, { persist: Boolean(window._userUid) });
         }
       }
       if (typeof window.syncRecordWithLedger === 'function') window.syncRecordWithLedger();
@@ -5498,10 +5600,7 @@ function setResult(id,r) {
   localStorage.setItem(RESULTS_KEY,JSON.stringify(o));
   markLedgerLocalChanged();
   if (previousResult !== nextResult) {
-    window.syncVisibleUserRecord(
-      window.applyRecordOutcomeTransition(window._userRecord, previousResult, nextResult),
-      { persist: Boolean(window._userUid) }
-    );
+    window.syncRecordOutcomeTransition(previousResult, nextResult, { persist: Boolean(window._userUid) });
   }
   if (typeof window.syncRecordWithLedger === 'function') window.syncRecordWithLedger();
   saveResultToServer(id, nextResult);
