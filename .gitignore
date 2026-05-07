@@ -22,7 +22,18 @@ config.py
 # OS artifacts
 .DS_Store
 .DS_Store?
+**/.DS_Store
 Thumbs.db
+
+# LaTeX build artifacts
+*.aux
+*.fls
+*.fdb_latexmk
+*.toc
+*.bbl
+*.blg
+*.synctex.gz
+**/out/
 
 # Browser profiles (never commit)
 .chromium_profile/
