@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       seasons:
-        description: "Space-separated seasons to train on (e.g. 2024 2025)"
+        description: "Seasons to train on (e.g. 2024-2025 or 2024 2025)"
         required: false
-        default: "2024 2025"
+        default: "2024-2025"
 
 jobs:
   train:
@@ -25,9 +25,24 @@ jobs:
       - name: Install dependencies
         run: pip install -r MLBPredictionModel/requirements.txt
 
+      - name: Normalize seasons input
+        id: seasons
+        shell: bash
+        run: |
+          raw="${{ github.event.inputs.seasons || '2024-2025' }}"
+          raw="${raw:-2024-2025}"
+          artifact_safe="${raw//[ ,]/-}"
+          while [[ "$artifact_safe" == *"--"* ]]; do
+            artifact_safe="${artifact_safe//--/-}"
+          done
+          seasons_args="${raw//,/ }"
+          seasons_args="${seasons_args//-/ }"
+          echo "artifact_name=mlb-artifacts-${artifact_safe}" >> "$GITHUB_OUTPUT"
+          echo "args=${seasons_args}" >> "$GITHUB_OUTPUT"
+
       - name: Build historical dataset
         working-directory: MLBPredictionModel
-        run: python build_historical_dataset.py --seasons ${{ github.event.inputs.seasons }}
+        run: python build_historical_dataset.py --seasons ${{ steps.seasons.outputs.args }}
 
       - name: Train moneyline model
         working-directory: MLBPredictionModel
@@ -48,7 +63,7 @@ jobs:
       - name: Upload trained artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: mlb-artifacts-${{ github.event.inputs.seasons || '2024-2025' }}
+          name: ${{ steps.seasons.outputs.artifact_name }}
           path: |
             MLBPredictionModel/artifacts/mlb_moneyline_model.joblib
             MLBPredictionModel/artifacts/mlb_moneyline_model_metadata.json
