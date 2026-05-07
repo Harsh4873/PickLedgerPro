@@ -2581,6 +2581,24 @@
   .model-card.model-hidden {
     display: none;
   }
+  .rankings-section-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+  .rankings-section-bar .section-title {
+    margin-bottom: 0;
+  }
+  .source-chooser-wrap {
+    margin-left: auto;
+  }
+  .source-chooser-wrap .model-chooser-dropdown {
+    left: auto;
+    right: 0;
+  }
 
   @media (max-width: 700px) {
     .logo-title { font-size: 28px; }
@@ -2599,6 +2617,22 @@
       left: 0;
       right: auto;
       width: min(100%, 360px);
+    }
+    .rankings-section-bar {
+      align-items: flex-start;
+    }
+    .source-chooser-wrap {
+      width: 100%;
+      margin-left: 0;
+    }
+    .source-chooser-wrap .model-chooser-trigger {
+      width: 100%;
+      justify-content: space-between;
+    }
+    .source-chooser-wrap .model-chooser-dropdown {
+      left: 0;
+      right: auto;
+      min-width: min(320px, calc(100vw - 32px));
     }
   }
 
@@ -3838,7 +3872,18 @@ function getPreferredDisplayedRecord(derivedRecord, canonicalRecord = window._us
     </div>
     <div class="section-title clean-title">Sport Profitability</div>
     <div class="sport-board" id="sport-board"><div class="empty-state" style="grid-column:1/-1">No decided picks yet</div></div>
-    <div class="section-title clean-title">Source Rankings</div>
+    <div class="rankings-section-bar">
+      <div class="section-title clean-title">Source Rankings</div>
+      <div class="model-chooser-wrap source-chooser-wrap" id="source-chooser-wrap">
+        <div class="model-chooser-trigger" id="source-chooser-trigger">
+          <span class="model-chooser-icon">&#9881;</span>
+          <span class="model-chooser-label">Choose Sources</span>
+          <span class="model-chooser-count" id="source-chooser-count">0</span>
+          <span class="model-chooser-caret">&#9660;</span>
+        </div>
+        <div class="model-chooser-dropdown" id="source-chooser-dropdown"></div>
+      </div>
+    </div>
     <div class="leaderboard" id="leaderboard"><div class="empty-state" style="grid-column:1/-1">Waiting for results...</div></div>
     <section id="day-of-week-section">
       <h2 class="section-title">📅 Performance By Day of Week</h2>
@@ -8768,6 +8813,139 @@ function renderTrends() {
   `;
 }
 
+// ── Source Rankings Chooser ──
+const SOURCE_CHOOSER_STORAGE_KEY = 'pickledger_visible_ranking_sources';
+const SOURCE_CHOOSER_CATALOG_KEY = 'pickledger_visible_ranking_sources_catalog';
+let sourceChooserVisibleSources = null;
+let sourceChooserBound = false;
+let sourceChooserOpen = false;
+
+function readStoredArray(key) {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(key));
+    return Array.isArray(parsed) ? parsed : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function saveVisibleRankingSources(set) {
+  try {
+    localStorage.setItem(SOURCE_CHOOSER_STORAGE_KEY, JSON.stringify([...set]));
+  } catch (_) {}
+}
+
+function getVisibleRankingSources(sourceNames) {
+  const allSources = [...new Set((Array.isArray(sourceNames) ? sourceNames : [])
+    .map(source => String(source || '').trim())
+    .filter(Boolean))];
+  const allSourceSet = new Set(allSources);
+  const stored = readStoredArray(SOURCE_CHOOSER_STORAGE_KEY);
+  if (!sourceChooserVisibleSources) {
+    sourceChooserVisibleSources = Array.isArray(stored)
+      ? new Set(stored.map(source => String(source || '').trim()).filter(source => allSourceSet.has(source)))
+      : new Set(allSources);
+  }
+
+  let knownSources = readStoredArray(SOURCE_CHOOSER_CATALOG_KEY);
+  if (!knownSources) knownSources = Array.isArray(stored) ? allSources : [];
+  const knownSourceSet = new Set(knownSources.map(source => String(source || '').trim()).filter(Boolean));
+  let changed = false;
+
+  allSources.forEach(source => {
+    if (!knownSourceSet.has(source) && !sourceChooserVisibleSources.has(source)) {
+      sourceChooserVisibleSources.add(source);
+      changed = true;
+    }
+  });
+
+  [...sourceChooserVisibleSources].forEach(source => {
+    if (!allSourceSet.has(source)) {
+      sourceChooserVisibleSources.delete(source);
+      changed = true;
+    }
+  });
+
+  try {
+    localStorage.setItem(SOURCE_CHOOSER_CATALOG_KEY, JSON.stringify(allSources));
+  } catch (_) {}
+  if (changed) saveVisibleRankingSources(sourceChooserVisibleSources);
+  return sourceChooserVisibleSources;
+}
+
+function setSourceChooserOpen(open) {
+  sourceChooserOpen = Boolean(open);
+  const trigger = document.getElementById('source-chooser-trigger');
+  const dd = document.getElementById('source-chooser-dropdown');
+  if (trigger) trigger.classList.toggle('open', sourceChooserOpen);
+  if (dd) dd.classList.toggle('open', sourceChooserOpen);
+}
+
+function initSourceChooserInteractions() {
+  if (sourceChooserBound) return;
+  const trigger = document.getElementById('source-chooser-trigger');
+  const wrap = document.getElementById('source-chooser-wrap');
+  const dd = document.getElementById('source-chooser-dropdown');
+  if (!trigger || !wrap || !dd) return;
+  sourceChooserBound = true;
+
+  trigger.addEventListener('click', function(e) {
+    e.stopPropagation();
+    setSourceChooserOpen(!sourceChooserOpen);
+  });
+
+  dd.addEventListener('click', function(e) {
+    e.stopPropagation();
+    const item = e.target.closest('.model-chooser-item[data-source-name]');
+    if (!item) return;
+    const source = String(item.getAttribute('data-source-name') || '').trim();
+    if (!source) return;
+    if (!sourceChooserVisibleSources) sourceChooserVisibleSources = new Set();
+    if (sourceChooserVisibleSources.has(source)) sourceChooserVisibleSources.delete(source);
+    else sourceChooserVisibleSources.add(source);
+    sourceChooserOpen = true;
+    saveVisibleRankingSources(sourceChooserVisibleSources);
+    render();
+  });
+
+  document.addEventListener('click', function(e) {
+    if (!wrap.contains(e.target)) setSourceChooserOpen(false);
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') setSourceChooserOpen(false);
+  });
+}
+
+function renderSourceChooser(stats, visibleSet) {
+  const dd = document.getElementById('source-chooser-dropdown');
+  const countEl = document.getElementById('source-chooser-count');
+  if (!dd) return;
+  const visibleCount = visibleSet ? visibleSet.size : 0;
+  if (countEl) countEl.textContent = visibleCount;
+
+  if (!Array.isArray(stats) || !stats.length) {
+    dd.innerHTML = '<div class="model-chooser-section-label">NO RANKED SOURCES</div>';
+  } else {
+    dd.innerHTML = '<div class="model-chooser-section-label">AVAILABLE SOURCES</div>' +
+      stats.map(function(s) {
+        const selected = visibleSet && visibleSet.has(s.source) ? ' selected' : '';
+        const pending = s.pending > 0 ? ' &bull; ' + s.pending + ' pending' : '';
+        const desc = s.wins + '-' + s.losses + ' record &bull; ' + s.count + ' picks' + pending;
+        return '<div class="model-chooser-item' + selected + '" data-source-name="' + _dailyEscape(s.source) + '">' +
+          '<span class="model-chooser-item-icon">' + (s.source && s.source.toUpperCase().includes('MLB') ? '&#9918;' : '&#127936;') + '</span>' +
+          '<div class="model-chooser-item-info">' +
+            '<div class="model-chooser-item-name">' + _dailyEscape(s.source) + '</div>' +
+            '<div class="model-chooser-item-desc">' + desc + '</div>' +
+          '</div>' +
+          '<div class="model-chooser-cb"><span class="model-chooser-cb-check">&#10003;</span></div>' +
+        '</div>';
+      }).join('');
+  }
+
+  initSourceChooserInteractions();
+  setSourceChooserOpen(sourceChooserOpen);
+}
+
 // ── Render ──
 function render() {
   // Keep the rankings tab in sync with live grades. rankingsLedgerState
@@ -8810,9 +8988,13 @@ function render() {
   const rankingSources = [...new Set(rankedPicks.map(p => getRankingSourceKey(p)))];
   const stats = rankingSources.map(s=>getSourceStats(s, rankedPicks)).filter(s=>s&&s.eligible);
   stats.sort((a,b)=>b.composite-a.composite);
+  const visibleRankingSources = getVisibleRankingSources(stats.map(s => s.source));
+  const visibleStats = stats.filter(s => visibleRankingSources.has(s.source));
+  renderSourceChooser(stats, visibleRankingSources);
   const lb = document.getElementById('leaderboard');
   if(!stats.length) lb.innerHTML='<div class="empty-state" style="grid-column:1/-1">Need 3+ decided picks per source to rank</div>';
-  else lb.innerHTML=stats.map((s,i)=>{
+  else if(!visibleStats.length) lb.innerHTML='<div class="empty-state" style="grid-column:1/-1">Choose at least one source to show rankings</div>';
+  else lb.innerHTML=visibleStats.map((s,i)=>{
     const rank=i+1, rc=rank<=3?`rank-${rank}`:'', c=getColor(s.composite);
     const roiStr=(s.roi>=0?'+':'')+(s.roi*100).toFixed(1)+'%', netStr=(s.netUnits>=0?'+':'')+s.netUnits+'u';
     const pn=s.pending>0?` &bull; ${s.pending} pending`:'';
