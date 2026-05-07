@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib
 import sys
+import types
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -21,7 +22,13 @@ def prepended_sys_paths(*paths: Path):
         sys.path[:] = original
 
 
-def test_locked_runtime_imports_still_resolve():
+def test_locked_runtime_imports_still_resolve(monkeypatch):
+    if importlib.util.find_spec("config") is None:
+        config_stub = types.ModuleType("config")
+        config_stub.BDL_API_KEY = ""
+        config_stub.RUN_WNBA = False
+        monkeypatch.setitem(sys.modules, "config", config_stub)
+
     imports = [
         ("pickgrader_server", (REPO_ROOT,)),
         ("runlive", (REPO_ROOT,)),
