@@ -266,6 +266,6 @@
     }
   },
   "target_accuracy": 0.7,
-  "training_fingerprint": "10137eeb889da131260e255a578e5dad4784cda48e74619b8a60e8b34ec688f9",
+  "training_fingerprint": "c7212e1f47f164936bbdcbec11acdeee4f31bb7cf6025ef21994722f0aec2b69",
   "version": "player_props_consensus_v2.0.0"
 }

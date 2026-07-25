@@ -1,41 +1,42 @@
 {
   "date": "2026-07-25",
-  "generatedAt": "2026-07-25T14:16:34.956990Z",
+  "generatedAt": "2026-07-25T15:28:12.607341Z",
   "models": {
     "mlb_player_props": {
       "abstained": false,
-      "candidate_count": 1387,
-      "consensus_rejected_count": 3800,
+      "candidate_count": 1422,
+      "consensus_rejected_count": 3890,
       "consensus_rejection_reasons": {
-        "batter_walks has not cleared 70%": 388,
+        "batter_walks has not cleared 70%": 412,
+        "failed: history_probability": 8,
         "failed: history_probability, season_rate": 12,
         "failed: market_implied, history_probability, model_agreement, season_rate": 4,
         "failed: market_implied, history_probability, season_rate": 8,
-        "failed: market_implied, season_probability, history_probability": 8,
+        "failed: market_implied, season_probability, history_probability": 4,
         "failed: market_implied, season_probability, history_probability, model_agreement": 8,
         "failed: market_implied, season_probability, history_probability, model_agreement, season_rate": 4,
         "failed: market_implied, season_probability, history_probability, season_rate": 20,
         "failed: market_implied, season_rate": 4,
-        "failed: season_probability, history_probability": 8,
+        "failed: season_probability, history_probability, model_agreement": 4,
         "failed: season_probability, history_probability, season_rate": 16,
         "failed: season_rate": 4,
-        "hits has not cleared 70%": 972,
-        "hits_runs_rbis has not cleared 70%": 892,
+        "hits has not cleared 70%": 956,
+        "hits_runs_rbis has not cleared 70%": 944,
         "pitcher_hits_allowed has not cleared 70%": 50,
         "pitcher_outs_recorded has not cleared 70%": 50,
         "pitcher_walks_allowed has not cleared 70%": 100,
-        "rbis has not cleared 70%": 446,
-        "runs has not cleared 70%": 486,
-        "stolen_bases has not cleared 70%": 140,
-        "total_bases has not cleared 70%": 180
+        "rbis has not cleared 70%": 472,
+        "runs has not cleared 70%": 472,
+        "stolen_bases has not cleared 70%": 134,
+        "total_bases has not cleared 70%": 204
       },
       "consensus_rejections": [
         {
-          "id": "pp_0be1f41dd557f8ade0c1_season",
-          "line": 5.5,
-          "odds": -159,
+          "id": "pp_4fdff8a49763452b4a28_season",
+          "line": 4.5,
+          "odds": 118,
           "player_name": "Michael Wacha",
-          "reason": "failed: season_probability, history_probability",
+          "reason": "failed: history_probability",
           "selection": "Under",
           "stat_key": "strikeouts"
         },
@@ -51,7 +52,7 @@
         {
           "id": "pp_0d183c720c21b6874bad_season",
           "line": 17.5,
-          "odds": -154,
+          "odds": -149,
           "player_name": "Michael Wacha",
           "reason": "pitcher_outs_recorded has not cleared 70%",
           "selection": "Over",
@@ -60,7 +61,7 @@
         {
           "id": "pp_c6166dbd565d2ea0275b_season",
           "line": 1.5,
-          "odds": -123,
+          "odds": -128,
           "player_name": "Michael Wacha",
           "reason": "pitcher_walks_allowed has not cleared 70%",
           "selection": "Over",
@@ -69,7 +70,7 @@
         {
           "id": "pp_75a35db302aa5ea42866_season",
           "line": 5.5,
-          "odds": -113,
+          "odds": -110,
           "player_name": "Casey Mize",
           "reason": "failed: market_implied, season_probability, history_probability, season_rate",
           "selection": "Over",
@@ -78,7 +79,7 @@
         {
           "id": "pp_ca54ce0ed6ae46da9202_season",
           "line": 4.5,
-          "odds": -119,
+          "odds": -120,
           "player_name": "Casey Mize",
           "reason": "pitcher_hits_allowed has not cleared 70%",
           "selection": "Under",
@@ -87,7 +88,7 @@
         {
           "id": "pp_f968489875924729ff79_season",
           "line": 17.5,
-          "odds": -130,
+          "odds": -124,
           "player_name": "Casey Mize",
           "reason": "pitcher_outs_recorded has not cleared 70%",
           "selection": "Under",
@@ -96,7 +97,7 @@
         {
           "id": "pp_94015ecd7af81fcbaadf_season",
           "line": 1.5,
-          "odds": 138,
+          "odds": 152,
           "player_name": "Casey Mize",
           "reason": "pitcher_walks_allowed has not cleared 70%",
           "selection": "Over",
@@ -105,16 +106,16 @@
         {
           "id": "pp_4daa34d3fc188cec04fa_season",
           "line": 0.5,
-          "odds": -157,
+          "odds": -150,
           "player_name": "Michael Massey",
           "reason": "hits has not cleared 70%",
           "selection": "Over",
           "stat_key": "hits"
         },
         {
-          "id": "pp_b988ed73840491ebe3dd_season",
-          "line": 1.5,
-          "odds": 127,
+          "id": "pp_fdc5ae4887bbc27c66f1_season",
+          "line": 0.5,
+          "odds": -175,
           "player_name": "Michael Massey",
           "reason": "hits_runs_rbis has not cleared 70%",
           "selection": "Over",
@@ -123,7 +124,7 @@
         {
           "id": "pp_04d0a42fc1dcb4bbb78c_season",
           "line": 0.5,
-          "odds": 240,
+          "odds": 242,
           "player_name": "Michael Massey",
           "reason": "rbis has not cleared 70%",
           "selection": "Over",
@@ -132,7 +133,7 @@
         {
           "id": "pp_da45ef8532de10b924c9_season",
           "line": 0.5,
-          "odds": 183,
+          "odds": 192,
           "player_name": "Michael Massey",
           "reason": "runs has not cleared 70%",
           "selection": "Over",
@@ -239,11 +240,11 @@
           "ml_probability": 0.6657,
           "ml_probability_mode": "four_model_consensus_gate",
           "ml_rank": 1,
-          "ml_rank_epoch": "MLB:player_props_consensus_v2.0.0:published:10137eeb889da131",
+          "ml_rank_epoch": "MLB:player_props_consensus_v2.0.0:published:c7212e1f47f16493",
           "ml_raw_probability": 0.6657,
           "ml_stake_cap": 0.5,
           "ml_training_fingerprint": "10137eeb889da131260e255a578e5dad4784cda48e74619b8a60e8b34ec688f9",
-          "model_epoch": "MLB:player_props_consensus_v2.0.0:published:10137eeb889da131",
+          "model_epoch": "MLB:player_props_consensus_v2.0.0:published:c7212e1f47f16493",
           "model_key": "mlb_player_props",
           "model_rank": 1,
           "model_variant": "all_time",
@@ -273,7 +274,7 @@
           "published_model": "MLBPlayerProps",
           "quarter_kelly": 0.05,
           "rank": 1,
-          "ranking_epoch": "MLB:player_props_consensus_v2.0.0:published:10137eeb889da131",
+          "ranking_epoch": "MLB:player_props_consensus_v2.0.0:published:c7212e1f47f16493",
           "ranking_model": "MLBPlayerProps",
           "ranking_updated_at": "2026-07-25T14:16:34.956990Z",
           "reason": "The active four-model consensus gate qualifies this market at 66.6%; the All Time variant is retained as a supporting signal.",
@@ -381,11 +382,11 @@
           "ml_probability": 0.6531,
           "ml_probability_mode": "four_model_consensus_gate",
           "ml_rank": 2,
-          "ml_rank_epoch": "MLB:player_props_consensus_v2.0.0:published:10137eeb889da131",
+          "ml_rank_epoch": "MLB:player_props_consensus_v2.0.0:published:c7212e1f47f16493",
           "ml_raw_probability": 0.6531,
           "ml_stake_cap": 0.5,
           "ml_training_fingerprint": "10137eeb889da131260e255a578e5dad4784cda48e74619b8a60e8b34ec688f9",
-          "model_epoch": "MLB:player_props_consensus_v2.0.0:published:10137eeb889da131",
+          "model_epoch": "MLB:player_props_consensus_v2.0.0:published:c7212e1f47f16493",
           "model_key": "mlb_player_props",
           "model_rank": 2,
           "model_variant": "all_time",
@@ -415,7 +416,7 @@
           "published_model": "MLBPlayerProps",
           "quarter_kelly": 0.0254,
           "rank": 2,
-          "ranking_epoch": "MLB:player_props_consensus_v2.0.0:published:10137eeb889da131",
+          "ranking_epoch": "MLB:player_props_consensus_v2.0.0:published:c7212e1f47f16493",
           "ranking_model": "MLBPlayerProps",
           "ranking_updated_at": "2026-07-25T14:16:34.956990Z",
           "reason": "The active four-model consensus gate qualifies this market at 65.3%; the All Time variant is retained as a supporting signal.",
@@ -441,11 +442,11 @@
           "variant_signal_selection": "Under"
         }
       ],
-      "ranking_epoch": "MLB:player_props_consensus_v2.0.0:published:10137eeb889da131",
-      "ranking_updated_at": "2026-07-25T14:16:34.956990Z",
-      "scored_count": 3808,
+      "ranking_epoch": "MLB:player_props_consensus_v2.0.0:published:c7212e1f47f16493",
+      "ranking_updated_at": "2026-07-25T15:28:12.607341Z",
+      "scored_count": 3894,
       "sport": "MLB",
-      "training_fingerprint": "10137eeb889da131260e255a578e5dad4784cda48e74619b8a60e8b34ec688f9"
+      "training_fingerprint": "c7212e1f47f164936bbdcbec11acdeee4f31bb7cf6025ef21994722f0aec2b69"
     },
     "nba_player_props": {
       "abstained": false,
@@ -469,7 +470,7 @@
       "note": "No NBA prop cleared the consensus publication gate.",
       "ok": true,
       "picks": [],
-      "ranking_epoch": "NBA:player_props_consensus_v2.0.0:published:10137eeb889da131",
+      "ranking_epoch": "NBA:player_props_consensus_v2.0.0:published:c7212e1f47f16493",
       "scored_count": 0,
       "sport": "NBA"
     },
@@ -497,10 +498,10 @@
       "note": "No WNBA prop cleared the consensus publication gate.",
       "ok": true,
       "picks": [],
-      "ranking_epoch": "WNBA:player_props_consensus_v2.0.0:published:10137eeb889da131",
+      "ranking_epoch": "WNBA:player_props_consensus_v2.0.0:published:c7212e1f47f16493",
       "scored_count": 0,
       "sport": "WNBA"
     }
   },
-  "updatedAt": "2026-07-25T14:16:34.956990Z"
+  "updatedAt": "2026-07-25T15:28:12.607341Z"
 }
