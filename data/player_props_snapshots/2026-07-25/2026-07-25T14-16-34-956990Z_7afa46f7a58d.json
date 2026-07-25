@@ -165,28 +165,13 @@
           "closing_line_movement": null,
           "closing_line_source": "not_tracked",
           "confidence": "High",
-          "consensus_applicable_models": [
-            "mlb_history: 2022-26 five-year roster-aware outcome-history classifiers",
-            "mlb_season: 2026 market classifier"
-          ],
           "consensus_conservative_validation_accuracy": 0.7037037037037037,
           "consensus_evaluated": true,
           "consensus_history_probability": 0.6270022392272949,
           "consensus_history_projection": null,
           "consensus_holdout_accuracy": 0.75,
           "consensus_model_agreement": true,
-          "consensus_model_count": 4,
-          "consensus_models": [
-            "mlb_history: 2022-26 five-year roster-aware outcome-history classifiers",
-            "mlb_season: 2026 market classifier",
-            "wnba_history: 2024-26 workload-aware market/count models",
-            "wnba_season: 2026 market/count models"
-          ],
           "consensus_qualified": true,
-          "consensus_record_models": [
-            "mlb_history: 2022-26 five-year roster-aware outcome-history classifiers",
-            "mlb_season: 2026 market classifier"
-          ],
           "consensus_rejection_reason": null,
           "consensus_required": true,
           "consensus_score": 0.6376756300819801,
@@ -201,7 +186,6 @@
           "home_team": "Pittsburgh Pirates",
           "id": "pp_9d57bb6d39129036685f_consensus",
           "key_factors": [
-            "Four-model consensus suite active: mlb_history, mlb_season, wnba_history, wnba_season",
             "Active four-model consensus gate qualified publication",
             "All Time model signal",
             "History model over probability 62.7%",
@@ -264,7 +248,6 @@
           "precision_qualified": true,
           "precision_reason": "qualified",
           "precision_required": true,
-          "preserved_from_prior_refresh": true,
           "pricing_type": "market",
           "probability": 0.6657,
           "probability_source": "player_props_ml_v1",
@@ -307,28 +290,13 @@
           "closing_line_movement": null,
           "closing_line_source": "not_tracked",
           "confidence": "Medium",
-          "consensus_applicable_models": [
-            "mlb_history: 2022-26 five-year roster-aware outcome-history classifiers",
-            "mlb_season: 2026 market classifier"
-          ],
           "consensus_conservative_validation_accuracy": 0.7037037037037037,
           "consensus_evaluated": true,
           "consensus_history_probability": 0.7072395384311676,
           "consensus_history_projection": null,
           "consensus_holdout_accuracy": 0.75,
           "consensus_model_agreement": true,
-          "consensus_model_count": 4,
-          "consensus_models": [
-            "mlb_history: 2022-26 five-year roster-aware outcome-history classifiers",
-            "mlb_season: 2026 market classifier",
-            "wnba_history: 2024-26 workload-aware market/count models",
-            "wnba_season: 2026 market/count models"
-          ],
           "consensus_qualified": true,
-          "consensus_record_models": [
-            "mlb_history: 2022-26 five-year roster-aware outcome-history classifiers",
-            "mlb_season: 2026 market classifier"
-          ],
           "consensus_rejection_reason": null,
           "consensus_required": true,
           "consensus_score": 0.6400035306753799,
@@ -343,7 +311,6 @@
           "home_team": "Milwaukee Brewers",
           "id": "pp_dc18114ae3f7de82f9e8_consensus",
           "key_factors": [
-            "Four-model consensus suite active: mlb_history, mlb_season, wnba_history, wnba_season",
             "Active four-model consensus gate qualified publication",
             "All Time model signal",
             "History model over probability 29.3%",
@@ -406,7 +373,6 @@
           "precision_qualified": true,
           "precision_reason": "qualified",
           "precision_required": true,
-          "preserved_from_prior_refresh": true,
           "pricing_type": "market",
           "probability": 0.6531,
           "probability_source": "player_props_ml_v1",
