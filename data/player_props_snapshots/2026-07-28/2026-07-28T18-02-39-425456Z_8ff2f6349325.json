@@ -349,28 +349,13 @@
           "closing_line_movement": null,
           "closing_line_source": "not_tracked",
           "confidence": "High",
-          "consensus_applicable_models": [
-            "wnba_history: 2024-26 workload-aware market/count models",
-            "wnba_season: 2026 market/count models"
-          ],
           "consensus_conservative_validation_accuracy": 0.8,
           "consensus_evaluated": true,
           "consensus_history_probability": null,
           "consensus_history_projection": 2.5509226322174072,
           "consensus_holdout_accuracy": 0.8,
           "consensus_model_agreement": true,
-          "consensus_model_count": 4,
-          "consensus_models": [
-            "mlb_history: 2022-26 five-year roster-aware outcome-history classifiers",
-            "mlb_season: 2026 market classifier",
-            "wnba_history: 2024-26 workload-aware market/count models",
-            "wnba_season: 2026 market/count models"
-          ],
           "consensus_qualified": true,
-          "consensus_record_models": [
-            "wnba_history: 2024-26 workload-aware market/count models",
-            "wnba_season: 2026 market/count models"
-          ],
           "consensus_rejection_reason": null,
           "consensus_required": true,
           "consensus_score": 0.6041603970000056,
@@ -386,7 +371,6 @@
           "id": "pp_5d1b40262a848a789b3d_consensus",
           "injury_status": "Healthy",
           "key_factors": [
-            "Four-model consensus suite active: mlb_history, mlb_season, wnba_history, wnba_season",
             "Active four-model consensus gate qualified publication",
             "All Time model signal",
             "History model projection 2.55",
@@ -452,7 +436,6 @@
           "precision_qualified": true,
           "precision_reason": "qualified",
           "precision_required": true,
-          "preserved_from_prior_refresh": true,
           "pricing_type": "market",
           "probability": 0.6042,
           "probability_source": "player_props_ml_v1",
@@ -497,28 +480,13 @@
           "closing_line_movement": null,
           "closing_line_source": "not_tracked",
           "confidence": "Medium",
-          "consensus_applicable_models": [
-            "wnba_history: 2024-26 workload-aware market/count models",
-            "wnba_season: 2026 market/count models"
-          ],
           "consensus_conservative_validation_accuracy": 0.8,
           "consensus_evaluated": true,
           "consensus_history_probability": null,
           "consensus_history_projection": 2.7493419647216797,
           "consensus_holdout_accuracy": 0.8,
           "consensus_model_agreement": true,
-          "consensus_model_count": 4,
-          "consensus_models": [
-            "mlb_history: 2022-26 five-year roster-aware outcome-history classifiers",
-            "mlb_season: 2026 market classifier",
-            "wnba_history: 2024-26 workload-aware market/count models",
-            "wnba_season: 2026 market/count models"
-          ],
           "consensus_qualified": true,
-          "consensus_record_models": [
-            "wnba_history: 2024-26 workload-aware market/count models",
-            "wnba_season: 2026 market/count models"
-          ],
           "consensus_rejection_reason": null,
           "consensus_required": true,
           "consensus_score": 0.6055873413008206,
@@ -534,7 +502,6 @@
           "id": "pp_fd779fd8d730b5d14102_consensus",
           "injury_status": "Healthy",
           "key_factors": [
-            "Four-model consensus suite active: mlb_history, mlb_season, wnba_history, wnba_season",
             "Active four-model consensus gate qualified publication",
             "All Time model signal",
             "History model projection 2.75",
@@ -600,7 +567,6 @@
           "precision_qualified": true,
           "precision_reason": "qualified",
           "precision_required": true,
-          "preserved_from_prior_refresh": true,
           "pricing_type": "market",
           "probability": 0.6056,
           "probability_source": "player_props_ml_v1",
@@ -645,28 +611,13 @@
           "closing_line_movement": null,
           "closing_line_source": "not_tracked",
           "confidence": "Medium",
-          "consensus_applicable_models": [
-            "wnba_history: 2024-26 workload-aware market/count models",
-            "wnba_season: 2026 market/count models"
-          ],
           "consensus_conservative_validation_accuracy": 0.8,
           "consensus_evaluated": true,
           "consensus_history_probability": null,
           "consensus_history_projection": 2.74941349029541,
           "consensus_holdout_accuracy": 0.8,
           "consensus_model_agreement": true,
-          "consensus_model_count": 4,
-          "consensus_models": [
-            "mlb_history: 2022-26 five-year roster-aware outcome-history classifiers",
-            "mlb_season: 2026 market classifier",
-            "wnba_history: 2024-26 workload-aware market/count models",
-            "wnba_season: 2026 market/count models"
-          ],
           "consensus_qualified": true,
-          "consensus_record_models": [
-            "wnba_history: 2024-26 workload-aware market/count models",
-            "wnba_season: 2026 market/count models"
-          ],
           "consensus_rejection_reason": null,
           "consensus_required": true,
           "consensus_score": 0.6187722167747887,
@@ -682,7 +633,6 @@
           "id": "pp_1aab8b24ee49fa682ed9_consensus",
           "injury_status": "Healthy",
           "key_factors": [
-            "Four-model consensus suite active: mlb_history, mlb_season, wnba_history, wnba_season",
             "Active four-model consensus gate qualified publication",
             "All Time model signal",
             "History model projection 2.75",
@@ -748,7 +698,6 @@
           "precision_qualified": true,
           "precision_reason": "qualified",
           "precision_required": true,
-          "preserved_from_prior_refresh": true,
           "pricing_type": "market",
           "probability": 0.6188,
           "probability_source": "player_props_ml_v1",
