@@ -3,17 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Harsh Dave — Research, software, and useful systems</title>
-    <meta
-      name="description"
-      content="Harsh Dave is a computer scientist, statistician, computational genomics researcher, and builder working across biology, AI, data, sports, and useful software."
-    />
-    <meta name="theme-color" content="#151515" />
-    <meta property="og:title" content="Harsh Dave — Research, software, and useful systems" />
-    <meta
-      property="og:description"
-      content="Computational genomics, independent software, and the questions that connect them."
-    />
+    <title>Harsh Dave - Portfolio</title>
+    <meta name="description" content="Harsh Dave's portfolio, research, and software projects." />
+    <meta name="theme-color" content="#151513" />
+    <meta property="og:title" content="Harsh Dave - Portfolio" />
+    <meta property="og:description" content="Research, work, and software projects by Harsh Dave." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://harsh.bet/" />
     <meta property="og:site_name" content="harsh.bet" />
@@ -37,23 +31,44 @@
   <body>
     <a class="skip-link" href="#main-content">Skip to content</a>
 
-    <aside class="identity-rail" aria-label="Site identity and navigation">
-      <a class="rail-monogram" href="#top" aria-label="Harsh Dave, home">HD</a>
+    <aside class="app-rail" aria-label="Portfolio and app navigation">
+      <div class="rail-topline">
+        <a class="rail-mark" href="#top" aria-label="Harsh Dave, home">HD</a>
+        <button class="mobile-menu-button" type="button" data-menu-toggle aria-expanded="false" aria-controls="app-rail-content">Menu</button>
+      </div>
 
-      <div class="rail-content">
+      <div class="rail-content" id="app-rail-content">
         <header class="rail-profile">
-          <p class="rail-kicker">harsh.bet</p>
-          <p class="rail-name">Harsh Dave</p>
-          <p>Computer scientist, statistician, researcher, and builder.</p>
-          <p class="rail-location">Texas A&amp;M University</p>
+          <p class="rail-kicker">Harsh Dave</p>
+          <p class="rail-name">Portfolio</p>
+          <p>M.S. Computer Science<br />Texas A&amp;M University</p>
         </header>
 
-        <nav class="rail-nav" aria-label="Primary navigation">
-          <a href="#top" data-section-link="top" aria-current="page">Home</a>
-          <a href="#research" data-section-link="research">Research</a>
-          <a href="#about" data-section-link="about">About</a>
-          <a href="#work" data-section-link="work">Work</a>
-          <a href="/portfolio/">Portfolio</a>
+        <nav class="app-nav" aria-label="Apps">
+          <a href="/portfolio/" class="app-nav-link">
+            <span class="nav-icon tone-portfolio">HD</span><span><strong>Portfolio</strong><small>Work and research</small></span>
+          </a>
+          <a href="/pickledger/" class="app-nav-link">
+            <span class="nav-icon tone-pickledger">PL</span><span><strong>PickLedger</strong><small>Sports ledger</small></span>
+          </a>
+          <a href="/genes/" class="app-nav-link">
+            <span class="nav-icon tone-mtbscope">MT</span><span><strong>MtbScope</strong><small>Genome browser</small></span>
+          </a>
+          <a href="/research/" class="app-nav-link">
+            <span class="nav-icon tone-recall">R</span><span><strong>Recall</strong><small>Research tool</small></span>
+          </a>
+          <a href="/daymark/" class="app-nav-link">
+            <span class="nav-icon tone-daymark">DM</span><span><strong>Daymark</strong><small>Habits</small></span>
+          </a>
+          <a href="/slate/" class="app-nav-link">
+            <span class="nav-icon tone-slate">S</span><span><strong>Slate</strong><small>Planner</small></span>
+          </a>
+          <a href="/fare/" class="app-nav-link">
+            <span class="nav-icon tone-fare">F</span><span><strong>Fare</strong><small>Nutrition</small></span>
+          </a>
+          <a href="/gym/" class="app-nav-link">
+            <span class="nav-icon tone-gym">G</span><span><strong>Gym</strong><small>Training</small></span>
+          </a>
         </nav>
 
         <div class="theme-picker" role="group" aria-label="Color theme">
@@ -64,155 +79,65 @@
 
         <div class="rail-links" aria-label="Contact and documents">
           <a href="/resume.pdf" target="_blank" rel="noopener noreferrer">Resume</a>
-          <a href="https://github.com/Harsh4873" target="_blank" rel="noopener noreferrer">GitHub</a>
-          <a href="mailto:hdav3228@gmail.com">Email</a>
+          <a href="https://www.linkedin.com/in/hdav" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          <a href="mailto:hdav4873@gmail.com">Email</a>
         </div>
       </div>
-
-      <span class="rail-hint" aria-hidden="true">Explore</span>
     </aside>
+    <button class="rail-scrim" type="button" data-menu-close aria-label="Close menu" tabindex="-1"></button>
 
     <div class="page-shell">
       <main id="main-content">
-        <section class="hero" id="top" aria-labelledby="hero-title">
-          <p class="eyebrow">Harsh Dave / Computer science · Statistics · Computational genomics</p>
-          <h1 id="hero-title">
-            <span>I like complicated systems.</span>
-            <span>I build useful ways through them.</span>
-          </h1>
-          <p class="hero-lede">
-            I’m Harsh—a computer scientist, statistician, computational genomics researcher, and builder. I follow questions across software, data, biology, AI, sports, and the everyday systems I want to make more useful.
-          </p>
-          <p class="hero-quote">“I rarely accept ‘that’s just how it works’ without asking several more questions.”</p>
-          <div class="text-links" aria-label="Introduction links">
-            <a href="#work">Explore projects</a>
+        <section class="launchpad" id="top" aria-labelledby="page-title">
+          <p class="section-code">Harsh Dave</p>
+          <h1 id="page-title">Portfolio</h1>
+          <p>Research, work, and the apps I build.</p>
+          <nav class="quick-links" aria-label="Profile links">
             <a href="/portfolio/">Portfolio</a>
             <a href="/resume.pdf" target="_blank" rel="noopener noreferrer">Resume</a>
-          </div>
+            <a href="https://www.linkedin.com/in/hdav" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            <a href="https://github.com/Harsh4873" target="_blank" rel="noopener noreferrer">GitHub</a>
+          </nav>
         </section>
 
-        <section class="personal-index" aria-label="Current work and interests">
-          <article id="research">
-            <p class="section-title">In the lab</p>
-            <p class="index-feature">Positive selection in <i>Mycobacterium tuberculosis</i></p>
-            <p>Ioerger Lab · Texas A&amp;M</p>
-          </article>
+        <section class="app-launcher" aria-labelledby="apps-title">
+          <header>
+            <p class="section-code">Apps</p>
+            <h2 id="apps-title">Open an app</h2>
+          </header>
 
-          <article class="selected-work">
-            <p class="section-title">Selected work</p>
-            <a href="/pickledger/">
-              <strong>PickLedger</strong>
-              <span>Accountable sports predictions.</span>
+          <div class="app-grid">
+            <a class="app-card" href="/portfolio/">
+              <span class="app-icon tone-portfolio">HD</span><strong>Portfolio</strong><small>Work and research</small>
             </a>
-            <a href="/genes/">
-              <strong>MtbScope</strong>
-              <span>Tuberculosis genomics, made inspectable.</span>
+            <a class="app-card" href="/pickledger/">
+              <span class="app-icon tone-pickledger">PL</span><strong>PickLedger</strong><small>Sports ledger</small>
             </a>
-            <a href="/daymark/">
-              <strong>Daymark</strong>
-              <span>Habit tracking that bends instead of breaks.</span>
+            <a class="app-card" href="/genes/">
+              <span class="app-icon tone-mtbscope">MT</span><strong>MtbScope</strong><small>Genome browser</small>
             </a>
-          </article>
-
-          <article>
-            <p class="section-title">Away from the screen</p>
-            <p>Lifting, badminton, soccer, basketball, teaching, and trying too many new tools.</p>
-          </article>
-        </section>
-
-        <section class="now-block" aria-labelledby="now-title">
-          <p class="section-label">Now / Texas A&amp;M</p>
-          <h2 id="now-title">Computational genomics in the Ioerger Lab.</h2>
-          <p>
-            I’m pursuing an M.S. in Computer Science while studying positive selection in <i>Mycobacterium tuberculosis</i> using Python, Bayesian modeling, and high-performance computing across approximately 4,000 genes.
-          </p>
-        </section>
-
-        <section class="principles" id="about" aria-labelledby="principles-title">
-          <div class="section-heading">
-            <p class="section-label">How I work</p>
-            <h2 id="principles-title">Build the system. Find the signal. Explain why.</h2>
-          </div>
-          <div class="principle-grid">
-            <article>
-              <span>01</span>
-              <h3>Build systems</h3>
-              <p>Turn an unfinished question into software people can actually use—from local-first personal tools to AI, data, and cloud systems.</p>
-            </article>
-            <article>
-              <span>02</span>
-              <h3>Find signal</h3>
-              <p>Use statistics, reproducible analysis, and explicit uncertainty to separate evidence from noise.</p>
-            </article>
-            <article>
-              <span>03</span>
-              <h3>Explain why</h3>
-              <p>Make the machinery legible—whether it is a model, a research pipeline, a sports argument, or a daily routine.</p>
-            </article>
-          </div>
-        </section>
-
-        <section class="work-index" id="work" aria-labelledby="work-title">
-          <div class="section-heading work-heading">
-            <div>
-              <p class="section-label">Independent systems / 07</p>
-              <h2 id="work-title">Built around friction I kept noticing.</h2>
-            </div>
-            <p>Seven working systems, each with one clear job. The full portfolio keeps the deeper project and experience record.</p>
-          </div>
-
-          <div class="project-table" aria-label="Independent projects">
-            <a class="project-row" data-project-link href="/daymark/">
-              <span class="project-number">01</span><strong>Daymark</strong><span>Flexible habit tracking for imperfect routines.</span><small>Personal tool</small>
+            <a class="app-card" href="/research/">
+              <span class="app-icon tone-recall">R</span><strong>Recall</strong><small>Research tool</small>
             </a>
-            <a class="project-row" data-project-link href="/slate/">
-              <span class="project-number">02</span><strong>Slate</strong><span>A daily plan beside the flexible work that fills it.</span><small>Planning</small>
+            <a class="app-card" href="/daymark/">
+              <span class="app-icon tone-daymark">DM</span><strong>Daymark</strong><small>Habits</small>
             </a>
-            <a class="project-row" data-project-link href="/pickledger/">
-              <span class="project-number">03</span><strong>PickLedger</strong><span>A public record for accountable sports predictions.</span><small>Data product</small>
+            <a class="app-card" href="/slate/">
+              <span class="app-icon tone-slate">S</span><strong>Slate</strong><small>Planner</small>
             </a>
-            <a class="project-row" data-project-link href="/genes/">
-              <span class="project-number">04</span><strong>MtbScope</strong><span>Comparison-first tools for tuberculosis genomics.</span><small>Research software</small>
+            <a class="app-card" href="/fare/">
+              <span class="app-icon tone-fare">F</span><strong>Fare</strong><small>Nutrition</small>
             </a>
-            <a class="project-row" data-project-link href="/research/">
-              <span class="project-number">05</span><strong>Sift</strong><span>Research reading with claims kept close to their sources.</span><small>Research tool</small>
-            </a>
-            <a class="project-row" data-project-link href="/fare/">
-              <span class="project-number">06</span><strong>Fare</strong><span>Low-friction nutrition logging with durable history.</span><small>Personal data</small>
-            </a>
-            <a class="project-row" data-project-link href="/gym/">
-              <span class="project-number">07</span><strong>Gym</strong><span>Training programs, sets, and progress without the noise.</span><small>Training</small>
+            <a class="app-card" href="/gym/">
+              <span class="app-icon tone-gym">G</span><strong>Gym</strong><small>Training</small>
             </a>
           </div>
-
-          <a class="portfolio-row" href="/portfolio/">
-            <span>Portfolio</span>
-            <strong>The deeper record: experience, research, projects, education, and the thinking that connects them.</strong>
-            <span>Enter →</span>
-          </a>
-        </section>
-
-        <section class="interest-strip" aria-labelledby="interests-title">
-          <div>
-            <p class="section-label">Still curious</p>
-            <h2 id="interests-title">The same instinct, applied in different places.</h2>
-          </div>
-          <p><strong>Biology</strong> Disease, evolution, drug resistance, and useful research interfaces.</p>
-          <p><strong>AI systems</strong> The routing, accelerators, context, and failure modes behind an answer.</p>
-          <p><strong>Movement</strong> Lifting, sport, technique, recovery, competition, and measurable progress.</p>
         </section>
       </main>
 
       <footer class="site-footer">
-        <p><strong>Harsh Dave</strong><br />College Station, Texas</p>
-        <nav aria-label="Footer links">
-          <a href="/portfolio/">Portfolio</a>
-          <a href="/resume.pdf" target="_blank" rel="noopener noreferrer">Resume</a>
-          <a href="https://github.com/Harsh4873" target="_blank" rel="noopener noreferrer">GitHub</a>
-          <a href="https://devpost.com/hdav3228" target="_blank" rel="noopener noreferrer">Devpost</a>
-          <a href="mailto:hdav3228@gmail.com">Email</a>
-        </nav>
-        <p>© <span id="current-year">2026</span> harsh.bet</p>
+        <span>© <span id="current-year">2026</span> harsh.bet</span>
+        <a href="mailto:hdav4873@gmail.com">Email</a>
       </footer>
     </div>
 

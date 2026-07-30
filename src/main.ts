@@ -4,6 +4,9 @@ const root = document.documentElement;
 const themeMeta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
 const themeButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-theme-option]'));
 const systemTheme = window.matchMedia('(prefers-color-scheme: light)');
+const rail = document.querySelector<HTMLElement>('.app-rail');
+const menuButton = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+const closeButton = document.querySelector<HTMLButtonElement>('[data-menu-close]');
 
 function storedTheme(): Theme | null {
   try {
@@ -17,7 +20,7 @@ function storedTheme(): Theme | null {
 function applyTheme(theme: Theme, persist = false): void {
   root.dataset.theme = theme;
   root.style.colorScheme = theme;
-  themeMeta?.setAttribute('content', theme === 'light' ? '#f7f7f5' : '#151515');
+  themeMeta?.setAttribute('content', theme === 'light' ? '#f3f1ec' : '#151513');
 
   themeButtons.forEach((button) => {
     button.setAttribute('aria-pressed', String(button.dataset.themeOption === theme));
@@ -27,7 +30,7 @@ function applyTheme(theme: Theme, persist = false): void {
     try {
       window.localStorage.setItem('harsh-theme', theme);
     } catch {
-      // The selected theme still applies for this visit when storage is unavailable.
+      // The selected theme still applies for the current visit.
     }
   }
 }
@@ -48,57 +51,25 @@ themeButtons.forEach((button) => {
 });
 
 systemTheme.addEventListener('change', (event) => {
-  if (!storedTheme()) {
-    applyTheme(event.matches ? 'light' : 'dark');
-  }
+  if (!storedTheme()) applyTheme(event.matches ? 'light' : 'dark');
+});
+
+function setMenu(open: boolean): void {
+  rail?.setAttribute('data-mobile-open', String(open));
+  menuButton?.setAttribute('aria-expanded', String(open));
+  if (menuButton) menuButton.textContent = open ? 'Close' : 'Menu';
+  document.body.classList.toggle('mobile-menu-open', open);
+}
+
+menuButton?.addEventListener('click', () => setMenu(rail?.dataset.mobileOpen !== 'true'));
+closeButton?.addEventListener('click', () => setMenu(false));
+document.querySelectorAll<HTMLAnchorElement>('.app-nav-link').forEach((link) => {
+  link.addEventListener('click', () => setMenu(false));
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') setMenu(false);
 });
 
 const year = document.querySelector<HTMLElement>('#current-year');
-if (year) {
-  year.textContent = String(new Date().getFullYear());
-}
-
-const sectionLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-section-link]'));
-const trackedSections = sectionLinks
-  .map((link) => document.getElementById(link.dataset.sectionLink ?? ''))
-  .filter((section): section is HTMLElement => Boolean(section));
-
-function markCurrentSection(sectionId: string): void {
-  sectionLinks.forEach((link) => {
-    if (link.dataset.sectionLink === sectionId) {
-      link.setAttribute('aria-current', 'page');
-    } else {
-      link.removeAttribute('aria-current');
-    }
-  });
-}
-
-if ('IntersectionObserver' in window && trackedSections.length > 0) {
-  const observer = new IntersectionObserver(
-    (entries) => {
-      const visible = entries
-        .filter((entry) => entry.isIntersecting)
-        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-
-      if (visible?.target.id) {
-        markCurrentSection(visible.target.id);
-      }
-    },
-    { rootMargin: '-20% 0px -60%', threshold: [0, 0.2, 0.6] },
-  );
-
-  trackedSections.forEach((section) => observer.observe(section));
-}
-
-document.addEventListener('keydown', (event) => {
-  if (event.key !== 'Escape') return;
-
-  const rail = document.querySelector<HTMLElement>('.identity-rail');
-  const activeElement = document.activeElement;
-  if (rail && activeElement instanceof HTMLElement && rail.contains(activeElement)) {
-    activeElement.blur();
-  }
-});
-
-const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-root.dataset.motion = reducedMotion.matches ? 'reduced' : 'full';
+if (year) year.textContent = String(new Date().getFullYear());
