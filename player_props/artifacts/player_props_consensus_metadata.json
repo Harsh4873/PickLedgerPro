@@ -24,14 +24,14 @@
       "totalRebounds": 3
     }
   },
-  "market_rows": 145831,
+  "market_rows": 147561,
   "models": {
     "mlb_history": "2022-26 five-year roster-aware outcome-history classifiers",
     "mlb_season": "2026 market classifier",
     "wnba_history": "2024-26 workload-aware market/count models",
     "wnba_season": "2026 market/count models"
   },
-  "outcome_rows": 433218,
+  "outcome_rows": 434664,
   "roster_aware": true,
   "roster_policy": "Current player IDs only; season features reset annually; recent 3/5/10-game workload dominates older priors.",
   "seasons": {
@@ -182,10 +182,10 @@
           "minimum_validation_samples": 5,
           "selection": "Over",
           "validation": {
-            "accuracy": 0.8478260869565217,
-            "losses": 7,
+            "accuracy": 0.8260869565217391,
+            "losses": 8,
             "samples": 46,
-            "wins": 39
+            "wins": 38
           }
         },
         "totalRebounds": {
@@ -206,10 +206,10 @@
           "minimum_validation_samples": 5,
           "selection": "Over",
           "validation": {
-            "accuracy": 0.5,
+            "accuracy": 0.5714285714285714,
             "losses": 3,
-            "samples": 6,
-            "wins": 3
+            "samples": 7,
+            "wins": 4
           }
         }
       },
@@ -221,10 +221,10 @@
         "assists": {
           "active": true,
           "holdout": {
-            "accuracy": 0.8,
+            "accuracy": 0.75,
             "losses": 1,
-            "samples": 5,
-            "wins": 4
+            "samples": 4,
+            "wins": 3
           },
           "meta_gate_threshold": 0.6,
           "minimum_holdout_samples": 3,
@@ -232,10 +232,10 @@
           "minimum_validation_samples": 5,
           "selection": "Over",
           "validation": {
-            "accuracy": 0.9130434782608695,
+            "accuracy": 0.9166666666666666,
             "losses": 2,
-            "samples": 23,
-            "wins": 21
+            "samples": 24,
+            "wins": 22
           }
         },
         "points": {
@@ -266,6 +266,6 @@
     }
   },
   "target_accuracy": 0.7,
-  "training_fingerprint": "ad4022ecf9d827655db3440101aea89bb998cf713be6dc7635c0e84d787c2f9d",
+  "training_fingerprint": "8c7f5981498582cc9f79529fea5152b8667b5f89c3bbb864d60ec97c6467cc03",
   "version": "player_props_consensus_v2.0.0"
 }
