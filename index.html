@@ -3,11 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Harsh Dave - Portfolio</title>
-    <meta name="description" content="Harsh Dave's portfolio, research, and software projects." />
+    <title>Harsh Dave - Apps</title>
+    <meta name="description" content="Apps by Harsh Dave." />
     <meta name="theme-color" content="#151513" />
-    <meta property="og:title" content="Harsh Dave - Portfolio" />
-    <meta property="og:description" content="Research, work, and software projects by Harsh Dave." />
+    <meta property="og:title" content="Harsh Dave - Apps" />
+    <meta property="og:description" content="Apps by Harsh Dave." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://harsh.bet/" />
     <meta property="og:site_name" content="harsh.bet" />
@@ -29,117 +29,39 @@
     <link rel="stylesheet" href="./src/styles/landing.css" />
   </head>
   <body>
-    <a class="skip-link" href="#main-content">Skip to content</a>
+    <a class="skip-link" href="#main-content">Skip to apps</a>
 
-    <aside class="app-rail" aria-label="Portfolio and app navigation">
+    <aside class="app-rail" aria-label="App navigation">
       <div class="rail-topline">
-        <a class="rail-mark" href="#top" aria-label="Harsh Dave, home">HD</a>
+        <a class="rail-mark" href="#main-content" aria-label="Harsh Dave, apps">HD</a>
         <button class="mobile-menu-button" type="button" data-menu-toggle aria-expanded="false" aria-controls="app-rail-content">Menu</button>
       </div>
 
-      <div class="rail-content" id="app-rail-content">
-        <header class="rail-profile">
-          <p class="rail-kicker">Harsh Dave</p>
-          <p class="rail-name">Portfolio</p>
-          <p>M.S. Computer Science<br />Texas A&amp;M University</p>
-        </header>
-
-        <nav class="app-nav" aria-label="Apps">
-          <a href="/portfolio/" class="app-nav-link">
-            <span class="nav-icon tone-portfolio">HD</span><span><strong>Portfolio</strong><small>Work and research</small></span>
-          </a>
-          <a href="/pickledger/" class="app-nav-link">
-            <span class="nav-icon tone-pickledger">PL</span><span><strong>PickLedger</strong><small>Sports ledger</small></span>
-          </a>
-          <a href="/genes/" class="app-nav-link">
-            <span class="nav-icon tone-mtbscope">MT</span><span><strong>MtbScope</strong><small>Genome browser</small></span>
-          </a>
-          <a href="/research/" class="app-nav-link">
-            <span class="nav-icon tone-recall">R</span><span><strong>Recall</strong><small>Research tool</small></span>
-          </a>
-          <a href="/daymark/" class="app-nav-link">
-            <span class="nav-icon tone-daymark">DM</span><span><strong>Daymark</strong><small>Habits</small></span>
-          </a>
-          <a href="/slate/" class="app-nav-link">
-            <span class="nav-icon tone-slate">S</span><span><strong>Slate</strong><small>Planner</small></span>
-          </a>
-          <a href="/fare/" class="app-nav-link">
-            <span class="nav-icon tone-fare">F</span><span><strong>Fare</strong><small>Nutrition</small></span>
-          </a>
-          <a href="/gym/" class="app-nav-link">
-            <span class="nav-icon tone-gym">G</span><span><strong>Gym</strong><small>Training</small></span>
-          </a>
-        </nav>
-
-        <div class="theme-picker" role="group" aria-label="Color theme">
-          <button type="button" data-theme-option="light" aria-pressed="false">Light</button>
-          <span aria-hidden="true">·</span>
-          <button type="button" data-theme-option="dark" aria-pressed="true">Dark</button>
-        </div>
-
-        <div class="rail-links" aria-label="Contact and documents">
-          <a href="/resume.pdf" target="_blank" rel="noopener noreferrer">Resume</a>
-          <a href="https://www.linkedin.com/in/hdav" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-          <a href="mailto:hdav4873@gmail.com">Email</a>
-        </div>
-      </div>
+      <nav class="rail-content app-nav" id="app-rail-content" aria-label="Apps">
+        <a href="/portfolio/" class="app-nav-link"><span class="nav-icon"><img src="/app-icons/portfolio.png" alt="" /></span><strong>Portfolio</strong></a>
+        <a href="/pickledger/" class="app-nav-link"><span class="nav-icon"><img src="/app-icons/pickledger.png" alt="" /></span><strong>PickLedger</strong></a>
+        <a href="/genes/" class="app-nav-link"><span class="nav-icon"><img src="/app-icons/mtbscope.svg" alt="" /></span><strong>MtbScope</strong></a>
+        <a href="/research/" class="app-nav-link"><span class="nav-icon"><img src="/app-icons/recall.png" alt="" /></span><strong>Recall</strong></a>
+        <a href="/daymark/" class="app-nav-link"><span class="nav-icon"><img src="/app-icons/daymark.png" alt="" /></span><strong>Daymark</strong></a>
+        <a href="/slate/" class="app-nav-link"><span class="nav-icon"><img src="/app-icons/slate.png" alt="" /></span><strong>Slate</strong></a>
+        <a href="/fare/" class="app-nav-link"><span class="nav-icon"><img src="/app-icons/fare.png" alt="" /></span><strong>Fare</strong></a>
+        <a href="/gym/" class="app-nav-link"><span class="nav-icon"><img src="/app-icons/gym.png" alt="" /></span><strong>Gym</strong></a>
+      </nav>
     </aside>
     <button class="rail-scrim" type="button" data-menu-close aria-label="Close menu" tabindex="-1"></button>
 
-    <div class="page-shell">
-      <main id="main-content">
-        <section class="launchpad" id="top" aria-labelledby="page-title">
-          <p class="section-code">Harsh Dave</p>
-          <h1 id="page-title">Portfolio</h1>
-          <p>Research, work, and the apps I build.</p>
-          <nav class="quick-links" aria-label="Profile links">
-            <a href="/portfolio/">Portfolio</a>
-            <a href="/resume.pdf" target="_blank" rel="noopener noreferrer">Resume</a>
-            <a href="https://www.linkedin.com/in/hdav" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-            <a href="https://github.com/Harsh4873" target="_blank" rel="noopener noreferrer">GitHub</a>
-          </nav>
-        </section>
-
-        <section class="app-launcher" aria-labelledby="apps-title">
-          <header>
-            <p class="section-code">Apps</p>
-            <h2 id="apps-title">Open an app</h2>
-          </header>
-
-          <div class="app-grid">
-            <a class="app-card" href="/portfolio/">
-              <span class="app-icon tone-portfolio">HD</span><strong>Portfolio</strong><small>Work and research</small>
-            </a>
-            <a class="app-card" href="/pickledger/">
-              <span class="app-icon tone-pickledger">PL</span><strong>PickLedger</strong><small>Sports ledger</small>
-            </a>
-            <a class="app-card" href="/genes/">
-              <span class="app-icon tone-mtbscope">MT</span><strong>MtbScope</strong><small>Genome browser</small>
-            </a>
-            <a class="app-card" href="/research/">
-              <span class="app-icon tone-recall">R</span><strong>Recall</strong><small>Research tool</small>
-            </a>
-            <a class="app-card" href="/daymark/">
-              <span class="app-icon tone-daymark">DM</span><strong>Daymark</strong><small>Habits</small>
-            </a>
-            <a class="app-card" href="/slate/">
-              <span class="app-icon tone-slate">S</span><strong>Slate</strong><small>Planner</small>
-            </a>
-            <a class="app-card" href="/fare/">
-              <span class="app-icon tone-fare">F</span><strong>Fare</strong><small>Nutrition</small>
-            </a>
-            <a class="app-card" href="/gym/">
-              <span class="app-icon tone-gym">G</span><strong>Gym</strong><small>Training</small>
-            </a>
-          </div>
-        </section>
-      </main>
-
-      <footer class="site-footer">
-        <span>© <span id="current-year">2026</span> harsh.bet</span>
-        <a href="mailto:hdav4873@gmail.com">Email</a>
-      </footer>
-    </div>
+    <main class="app-launcher" id="main-content" aria-label="Apps">
+      <div class="app-grid">
+        <a class="app-card" href="/portfolio/"><img class="app-icon" src="/app-icons/portfolio.png" alt="" /><strong>Portfolio</strong></a>
+        <a class="app-card" href="/pickledger/"><img class="app-icon" src="/app-icons/pickledger.png" alt="" /><strong>PickLedger</strong></a>
+        <a class="app-card" href="/genes/"><img class="app-icon" src="/app-icons/mtbscope.svg" alt="" /><strong>MtbScope</strong></a>
+        <a class="app-card" href="/research/"><img class="app-icon" src="/app-icons/recall.png" alt="" /><strong>Recall</strong></a>
+        <a class="app-card" href="/daymark/"><img class="app-icon" src="/app-icons/daymark.png" alt="" /><strong>Daymark</strong></a>
+        <a class="app-card" href="/slate/"><img class="app-icon" src="/app-icons/slate.png" alt="" /><strong>Slate</strong></a>
+        <a class="app-card" href="/fare/"><img class="app-icon" src="/app-icons/fare.png" alt="" /><strong>Fare</strong></a>
+        <a class="app-card" href="/gym/"><img class="app-icon" src="/app-icons/gym.png" alt="" /><strong>Gym</strong></a>
+      </div>
+    </main>
 
     <script type="module" src="./src/main.ts"></script>
   </body>
