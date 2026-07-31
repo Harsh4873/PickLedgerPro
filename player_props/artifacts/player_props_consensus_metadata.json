@@ -24,14 +24,14 @@
       "totalRebounds": 3
     }
   },
-  "market_rows": 147561,
+  "market_rows": 148713,
   "models": {
     "mlb_history": "2022-26 five-year roster-aware outcome-history classifiers",
     "mlb_season": "2026 market classifier",
     "wnba_history": "2024-26 workload-aware market/count models",
     "wnba_season": "2026 market/count models"
   },
-  "outcome_rows": 434664,
+  "outcome_rows": 435684,
   "roster_aware": true,
   "roster_policy": "Current player IDs only; season features reset annually; recent 3/5/10-game workload dominates older priors.",
   "seasons": {
@@ -162,19 +162,19 @@
     "WNBA": {
       "active": true,
       "combined_out_of_sample": {
-        "accuracy": 0.8461538461538461,
+        "accuracy": 0.8421052631578947,
         "losses": 6,
-        "samples": 39,
-        "wins": 33
+        "samples": 38,
+        "wins": 32
       },
       "failed_policies": {
         "three_pointers_made": {
           "active": false,
           "holdout": {
-            "accuracy": 0.4230769230769231,
-            "losses": 15,
+            "accuracy": 0.46153846153846156,
+            "losses": 14,
             "samples": 26,
-            "wins": 11
+            "wins": 12
           },
           "meta_gate_threshold": 0.6,
           "minimum_holdout_samples": 3,
@@ -206,10 +206,10 @@
           "minimum_validation_samples": 5,
           "selection": "Over",
           "validation": {
-            "accuracy": 0.5714285714285714,
+            "accuracy": 0.5,
             "losses": 3,
-            "samples": 7,
-            "wins": 4
+            "samples": 6,
+            "wins": 3
           }
         }
       },
@@ -221,10 +221,10 @@
         "assists": {
           "active": true,
           "holdout": {
-            "accuracy": 0.75,
+            "accuracy": 0.8,
             "losses": 1,
-            "samples": 4,
-            "wins": 3
+            "samples": 5,
+            "wins": 4
           },
           "meta_gate_threshold": 0.6,
           "minimum_holdout_samples": 3,
@@ -232,10 +232,10 @@
           "minimum_validation_samples": 5,
           "selection": "Over",
           "validation": {
-            "accuracy": 0.9166666666666666,
+            "accuracy": 0.9090909090909091,
             "losses": 2,
-            "samples": 24,
-            "wins": 22
+            "samples": 22,
+            "wins": 20
           }
         },
         "points": {
@@ -266,6 +266,6 @@
     }
   },
   "target_accuracy": 0.7,
-  "training_fingerprint": "8c7f5981498582cc9f79529fea5152b8667b5f89c3bbb864d60ec97c6467cc03",
+  "training_fingerprint": "a85740770c0641b548940119a0b7d692205de89437f67d80efb7da52b74bd629",
   "version": "player_props_consensus_v2.0.0"
 }
