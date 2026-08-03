@@ -2,6 +2,156 @@
   "candidates": [
     {
       "blockers": [
+        "edge_requires_two_sided_price",
+        "edge_insufficient_source_samples",
+        "edge_insufficient_segment_samples",
+        "edge_insufficient_distinct_prior_dates",
+        "edge_negative_chronological_evidence_half",
+        "edge_probability_positive_ev_below_0.80",
+        "edge_conservative_probability_margin_below_0.02",
+        "edge_non_positive_conservative_ev",
+        "value_insufficient_source_samples",
+        "value_insufficient_distinct_prior_dates",
+        "value_negative_chronological_evidence_half",
+        "value_non_positive_flat_roi",
+        "value_probability_positive_ev_below_0.70"
+      ],
+      "canonicalGame": "2026-08-03:wnba:chicago sky|phoenix mercury",
+      "consensusSources": [],
+      "date": "2026-08-03",
+      "decimalOdds": 1.769231,
+      "decision": "BET",
+      "dedupeRule": "exact_market_identity_best_executable_price",
+      "direction": "over",
+      "duplicateCount": 1,
+      "duplicateSources": [
+        "WNBAPlayerProps"
+      ],
+      "edgeQualified": false,
+      "estimate": {
+        "alpha": -0.071102,
+        "alphaStdError": 0.084938,
+        "breakEvenProbability": 0.565217,
+        "conservativeExpectedValue": -0.318381,
+        "expectedValue": -0.125796,
+        "lowerProbability": 0.385263,
+        "marketProbability": 0.565217,
+        "method": "market_baseline_plus_hierarchically_shrunk_prior_residual",
+        "probability": 0.494115,
+        "probabilityPositiveEv": 0.201265,
+        "sourceAlpha": -0.05282,
+        "value": {
+          "alpha": -0.05282,
+          "alphaStdError": 0.055922,
+          "conservativeExpectedValue": -0.220246,
+          "expectedValue": -0.09345,
+          "lowerProbability": 0.440731,
+          "method": "source_flat_roi_shrunk_residual_vs_break_even",
+          "probability": 0.512398,
+          "probabilityPositiveEv": 0.172451
+        }
+      },
+      "evidence": {
+        "chronologicalHalvesNonnegative": false,
+        "cutoffExclusive": "2026-08-03",
+        "distinctDates": 5,
+        "firstHalfFlatNetUnits": -0.4888,
+        "flatNetUnits": -1.995,
+        "flatRoi": -0.221662,
+        "losses": 5,
+        "modelVersion": "player_props_consensus_v2.0.0",
+        "policyVersion": "profit_desk_policy_v2",
+        "priorOnly": true,
+        "pushes": 0,
+        "secondHalfFlatNetUnits": -1.5061,
+        "segmentDistinctDates": 5,
+        "segmentEvidenceKey": "player|wnba_player_props|wnba|player_props_consensus_v2.0.0|points|over|0.55_0.60",
+        "segmentSamples": 9,
+        "sourceChronologicalHalvesNonnegative": false,
+        "sourceDistinctDates": 9,
+        "sourceEvidenceKey": "player|wnba_player_props|wnba",
+        "sourceFirstHalfFlatNetUnits": -2.0221,
+        "sourceFlatNetUnits": -8.0114,
+        "sourceFlatRoi": -0.216525,
+        "sourceLosses": 22,
+        "sourceSamples": 37,
+        "sourceSecondHalfFlatNetUnits": -5.9893,
+        "sourceWins": 15,
+        "wins": 4
+      },
+      "game": "Phoenix Mercury @ Chicago Sky",
+      "gradeSupportSource": "repository_grader_default",
+      "gradeSupported": true,
+      "id": "profit-816cc9d59bb61de3e463ae0e",
+      "lane": null,
+      "laneBlockers": {
+        "edge": [
+          "edge_requires_two_sided_price",
+          "edge_insufficient_source_samples",
+          "edge_insufficient_segment_samples",
+          "edge_insufficient_distinct_prior_dates",
+          "edge_negative_chronological_evidence_half",
+          "edge_probability_positive_ev_below_0.80",
+          "edge_conservative_probability_margin_below_0.02",
+          "edge_non_positive_conservative_ev"
+        ],
+        "structural": [],
+        "value": [
+          "value_insufficient_source_samples",
+          "value_insufficient_distinct_prior_dates",
+          "value_negative_chronological_evidence_half",
+          "value_non_positive_flat_roi",
+          "value_probability_positive_ev_below_0.70"
+        ]
+      },
+      "line": 14.5,
+      "liveQualified": false,
+      "market": "Points Milestones",
+      "marketFamily": "points",
+      "marketIdentity": "market:4b64bc523d7f3360db81b2ee",
+      "mode": "player",
+      "modelVersion": "player_props_consensus_v2.0.0",
+      "oddsAmerican": -130,
+      "pick": "Alyssa Thomas Over 14.5 Points",
+      "player": "Alyssa Thomas",
+      "policyVersion": "profit_desk_policy_v2",
+      "price": {
+        "ageHours": 23.5,
+        "breakEvenProbability": 0.565217,
+        "decimalOdds": 1.769231,
+        "eligibleForAlphaEstimate": false,
+        "fresh": true,
+        "freshPregame": true,
+        "maxAgeHours": 24.0,
+        "noVigInputs": {},
+        "noVigMethod": "unverified_single_side",
+        "noVigProbability": null,
+        "noVigVerified": false,
+        "observedExecutable": true,
+        "oddsAmerican": -130,
+        "quality": "one_sided",
+        "source": "posted_market",
+        "sourceField": "pick.odds_source",
+        "startTime": "2026-08-04T01:00Z",
+        "tier": "C",
+        "tierLabel": "posted_one_sided",
+        "timestamp": "2026-08-03T01:30Z",
+        "timestampField": "pick.market_updated_at",
+        "twoSided": false,
+        "updatedAt": "2026-08-03T01:30Z"
+      },
+      "rawModelProbabilityIgnored": 0.6409,
+      "result": "pending",
+      "shadowQualified": false,
+      "source": "WNBAPlayerProps",
+      "sourceKey": "wnba_player_props",
+      "sport": "WNBA",
+      "stakeUnits": 0.0,
+      "tier": "watch",
+      "valueQualified": false
+    },
+    {
+      "blockers": [
         "missing_or_invalid_game_start_time",
         "edge_insufficient_source_samples",
         "edge_insufficient_segment_samples",
@@ -1151,7 +1301,7 @@
   "date": "2026-08-03",
   "engineVersion": "profit_desk_v2_live",
   "firstLiveDate": "2026-07-11",
-  "generatedAt": "2026-08-03T15:23:35.615049Z",
+  "generatedAt": "2026-08-03T15:31:59.687343Z",
   "notices": [
     "Qualified picks carry real flat stakes: EDGE 1.0u, VALUE 0.5u; everything else stays 0u.",
     "The market price is the baseline; historical residual alpha is shrunk and uncertainty-adjusted.",
@@ -2323,7 +2473,7 @@
     },
     {
       "alpha": -0.05282,
-      "candidatesToday": 0,
+      "candidatesToday": 1,
       "distinctDates": 9,
       "evidenceQualified": false,
       "flatNetUnits": -8.0114,
@@ -2362,7 +2512,7 @@
       "mode": "player",
       "probabilityPositiveEv": 0.172451,
       "samples": 37,
-      "source": "wnba_player_props",
+      "source": "WNBAPlayerProps",
       "sourceKey": "wnba_player_props",
       "sport": "wnba",
       "wins": 15
@@ -2370,12 +2520,12 @@
   ],
   "summary": {
     "avoid": 8,
-    "candidateCount": 8,
-    "candidatesEvaluated": 8,
+    "candidateCount": 9,
+    "candidatesEvaluated": 9,
     "deduplicatedPicks": 0,
     "edgeQualified": 0,
     "evidenceRows": 1562,
-    "inputPicks": 8,
+    "inputPicks": 9,
     "livePortfolioCandidates": 0,
     "liveQualified": 0,
     "liveRecord": {
@@ -2407,19 +2557,19 @@
     "modes": {
       "player": {
         "avoid": 0,
-        "candidateCount": 0,
-        "candidates": 0,
-        "candidatesEvaluated": 0,
+        "candidateCount": 1,
+        "candidates": 1,
+        "candidatesEvaluated": 1,
         "edgeQualified": 0,
         "evidenceRows": 542,
         "liveQualified": 0,
-        "observedPriceCandidates": 0,
+        "observedPriceCandidates": 1,
         "portfolioCandidates": 0,
         "researchQualified": 0,
         "selected": 0,
         "shadowQualified": 0,
         "valueQualified": 0,
-        "watchlist": 0
+        "watchlist": 1
       },
       "team": {
         "avoid": 8,
@@ -2438,7 +2588,7 @@
         "watchlist": 0
       }
     },
-    "observedPriceCandidates": 6,
+    "observedPriceCandidates": 7,
     "portfolioCandidates": 0,
     "researchQualified": 0,
     "researchRecord": {
@@ -2470,6 +2620,6 @@
     },
     "sourcesTracked": 25,
     "valueQualified": 0,
-    "watchlist": 0
+    "watchlist": 1
   }
 }
