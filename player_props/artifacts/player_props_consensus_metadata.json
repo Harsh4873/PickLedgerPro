@@ -24,14 +24,14 @@
       "totalRebounds": 3
     }
   },
-  "market_rows": 153685,
+  "market_rows": 154649,
   "models": {
     "mlb_history": "2022-26 five-year roster-aware outcome-history classifiers",
     "mlb_season": "2026 market classifier",
     "wnba_history": "2024-26 workload-aware market/count models",
     "wnba_season": "2026 market/count models"
   },
-  "outcome_rows": 438424,
+  "outcome_rows": 439798,
   "roster_aware": true,
   "roster_policy": "Current player IDs only; season features reset annually; recent 3/5/10-game workload dominates older priors.",
   "seasons": {
@@ -99,10 +99,10 @@
           "minimum_validation_samples": 8,
           "require_classifier_agreement": true,
           "validation": {
-            "accuracy": 0.65,
-            "losses": 14,
-            "samples": 40,
-            "wins": 26
+            "accuracy": 0.6756756756756757,
+            "losses": 12,
+            "samples": 37,
+            "wins": 25
           }
         },
         "pitcher_walks_allowed": {
@@ -191,10 +191,10 @@
         "three_pointers_made": {
           "active": false,
           "holdout": {
-            "accuracy": 0.4230769230769231,
-            "losses": 15,
+            "accuracy": 0.38461538461538464,
+            "losses": 16,
             "samples": 26,
-            "wins": 11
+            "wins": 10
           },
           "meta_gate_threshold": 0.6,
           "minimum_holdout_samples": 3,
@@ -226,10 +226,10 @@
           "minimum_validation_samples": 5,
           "selection": "Over",
           "validation": {
-            "accuracy": 0.5714285714285714,
+            "accuracy": 0.5,
             "losses": 3,
-            "samples": 7,
-            "wins": 4
+            "samples": 6,
+            "wins": 3
           }
         }
       },
@@ -266,6 +266,6 @@
     }
   },
   "target_accuracy": 0.7,
-  "training_fingerprint": "b292cfddf6c49efaf826734f892e968609c57e8aee6552b6379b658cbcc68c55",
+  "training_fingerprint": "d4a2616961ecf9492907141662fbb856aa4b0281ad7f03c8a87d062fcdb3cda8",
   "version": "player_props_consensus_v2.0.0"
 }
