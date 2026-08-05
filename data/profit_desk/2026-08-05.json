@@ -467,6 +467,161 @@
     },
     {
       "blockers": [
+        "missing_or_invalid_game_start_time",
+        "edge_insufficient_source_samples",
+        "edge_insufficient_segment_samples",
+        "edge_insufficient_distinct_prior_dates",
+        "edge_negative_chronological_evidence_half",
+        "edge_probability_positive_ev_below_0.80",
+        "edge_conservative_probability_margin_below_0.02",
+        "edge_non_positive_conservative_ev",
+        "value_insufficient_source_samples",
+        "value_insufficient_distinct_prior_dates",
+        "value_negative_chronological_evidence_half",
+        "value_non_positive_flat_roi",
+        "value_probability_positive_ev_below_0.70"
+      ],
+      "canonicalGame": "2026-08-05:wnba:chicago sky|los angeles sparks",
+      "consensusSources": [],
+      "date": "2026-08-05",
+      "decimalOdds": 1.909091,
+      "decision": "LEAN",
+      "dedupeRule": "exact_market_identity_best_executable_price",
+      "direction": "under",
+      "duplicateCount": 1,
+      "duplicateSources": [
+        "WNBA Model"
+      ],
+      "edgeQualified": false,
+      "estimate": {
+        "alpha": -0.141568,
+        "alphaStdError": 0.064964,
+        "breakEvenProbability": 0.52381,
+        "conservativeExpectedValue": -0.474661,
+        "expectedValue": -0.315721,
+        "lowerProbability": 0.275178,
+        "marketProbability": 0.5,
+        "method": "market_baseline_plus_hierarchically_shrunk_prior_residual",
+        "probability": 0.358432,
+        "probabilityPositiveEv": 0.005453,
+        "sourceAlpha": -0.054765,
+        "value": {
+          "alpha": -0.054765,
+          "alphaStdError": 0.064857,
+          "conservativeExpectedValue": -0.263229,
+          "expectedValue": -0.104551,
+          "lowerProbability": 0.385928,
+          "method": "source_flat_roi_shrunk_residual_vs_break_even",
+          "probability": 0.469045,
+          "probabilityPositiveEv": 0.199224
+        }
+      },
+      "evidence": {
+        "chronologicalHalvesNonnegative": false,
+        "cutoffExclusive": "2026-08-05",
+        "distinctDates": 1,
+        "firstHalfFlatNetUnits": -3.0,
+        "flatNetUnits": -6.0,
+        "flatRoi": -1.0,
+        "losses": 6,
+        "modelVersion": "source_identity:wnba",
+        "policyVersion": "profit_desk_policy_v2",
+        "priorOnly": true,
+        "pushes": 0,
+        "secondHalfFlatNetUnits": -3.0,
+        "segmentDistinctDates": 1,
+        "segmentEvidenceKey": "team|wnba|wnba|source_identity:wnba|totals|under|0.50_0.55",
+        "segmentSamples": 6,
+        "sourceChronologicalHalvesNonnegative": false,
+        "sourceDistinctDates": 1,
+        "sourceEvidenceKey": "team|wnba|wnba",
+        "sourceFirstHalfFlatNetUnits": -4.0,
+        "sourceFlatNetUnits": -5.6717,
+        "sourceFlatRoi": -0.630191,
+        "sourceLosses": 7,
+        "sourceSamples": 9,
+        "sourceSecondHalfFlatNetUnits": -1.6717,
+        "sourceWins": 2,
+        "wins": 0
+      },
+      "game": "Los Angeles Sparks @ Chicago Sky",
+      "gradeSupportSource": "repository_grader_default",
+      "gradeSupported": true,
+      "id": "profit-fcc7a8ee820d5d791f8339fc",
+      "lane": null,
+      "laneBlockers": {
+        "edge": [
+          "edge_insufficient_source_samples",
+          "edge_insufficient_segment_samples",
+          "edge_insufficient_distinct_prior_dates",
+          "edge_negative_chronological_evidence_half",
+          "edge_probability_positive_ev_below_0.80",
+          "edge_conservative_probability_margin_below_0.02",
+          "edge_non_positive_conservative_ev"
+        ],
+        "structural": [
+          "missing_or_invalid_game_start_time"
+        ],
+        "value": [
+          "value_insufficient_source_samples",
+          "value_insufficient_distinct_prior_dates",
+          "value_negative_chronological_evidence_half",
+          "value_non_positive_flat_roi",
+          "value_probability_positive_ev_below_0.70"
+        ]
+      },
+      "line": 186.5,
+      "liveQualified": false,
+      "market": "totals",
+      "marketFamily": "totals",
+      "marketIdentity": "market:23efdd96a89eb13542b8513a",
+      "mode": "team",
+      "modelVersion": "source_identity:wnba",
+      "oddsAmerican": -110,
+      "pick": "Under 186.5 (Los Angeles Sparks vs Chicago Sky)",
+      "player": null,
+      "policyVersion": "profit_desk_policy_v2",
+      "price": {
+        "ageHours": null,
+        "breakEvenProbability": 0.52381,
+        "decimalOdds": 1.909091,
+        "eligibleForAlphaEstimate": true,
+        "fresh": false,
+        "freshPregame": false,
+        "maxAgeHours": 24.0,
+        "noVigInputs": {
+          "hold": 1.047619,
+          "oppositeOdds": -110,
+          "selectedOdds": -110
+        },
+        "noVigMethod": "derived_two_sided:pick.selected_opposite",
+        "noVigProbability": 0.5,
+        "noVigVerified": true,
+        "observedExecutable": true,
+        "oddsAmerican": -110,
+        "quality": "verified_two_sided",
+        "source": "espn_scoreboard:DraftKings",
+        "sourceField": "pick.price_source",
+        "startTime": null,
+        "tier": "B",
+        "tierLabel": "posted_two_sided",
+        "timestamp": "2026-08-05T18:10:22.432460Z",
+        "timestampField": "pick.market_updated_at",
+        "twoSided": true,
+        "updatedAt": "2026-08-05T18:10:22.432460Z"
+      },
+      "rawModelProbabilityIgnored": 0.7257,
+      "result": "pending",
+      "shadowQualified": false,
+      "source": "WNBA Model",
+      "sourceKey": "wnba",
+      "sport": "WNBA",
+      "stakeUnits": 0.0,
+      "tier": "avoid",
+      "valueQualified": false
+    },
+    {
+      "blockers": [
         "assumed_or_non_executable_price",
         "edge_no_usable_price_baseline",
         "value_no_usable_price_baseline"
@@ -540,7 +695,7 @@
       "player": null,
       "policyVersion": "profit_desk_policy_v2",
       "price": {
-        "ageHours": 9.006,
+        "ageHours": 5.495,
         "breakEvenProbability": 0.545455,
         "decimalOdds": 1.833333,
         "eligibleForAlphaEstimate": false,
@@ -561,10 +716,10 @@
         "startTime": "2026-08-05T23:40:00Z",
         "tier": "D",
         "tierLabel": "assumed_proxy_or_synthetic",
-        "timestamp": "2026-08-05T14:39:40.105420Z",
+        "timestamp": "2026-08-05T18:10:18.445792Z",
         "timestampField": "pick.certification_timing.data_as_of",
         "twoSided": true,
-        "updatedAt": "2026-08-05T14:39:40.105420Z"
+        "updatedAt": "2026-08-05T18:10:18.445792Z"
       },
       "rawModelProbabilityIgnored": 0.628,
       "result": "pending",
@@ -651,7 +806,7 @@
       "player": null,
       "policyVersion": "profit_desk_policy_v2",
       "price": {
-        "ageHours": 8.006,
+        "ageHours": 4.495,
         "breakEvenProbability": 0.545455,
         "decimalOdds": 1.833333,
         "eligibleForAlphaEstimate": false,
@@ -672,10 +827,10 @@
         "startTime": "2026-08-05T22:40:00Z",
         "tier": "D",
         "tierLabel": "assumed_proxy_or_synthetic",
-        "timestamp": "2026-08-05T14:39:40.105420Z",
+        "timestamp": "2026-08-05T18:10:18.445792Z",
         "timestampField": "pick.certification_timing.data_as_of",
         "twoSided": true,
-        "updatedAt": "2026-08-05T14:39:40.105420Z"
+        "updatedAt": "2026-08-05T18:10:18.445792Z"
       },
       "rawModelProbabilityIgnored": 0.627,
       "result": "pending",
@@ -762,7 +917,7 @@
       "player": null,
       "policyVersion": "profit_desk_policy_v2",
       "price": {
-        "ageHours": 8.422,
+        "ageHours": 4.912,
         "breakEvenProbability": 0.545455,
         "decimalOdds": 1.833333,
         "eligibleForAlphaEstimate": false,
@@ -783,10 +938,10 @@
         "startTime": "2026-08-05T23:05:00Z",
         "tier": "D",
         "tierLabel": "assumed_proxy_or_synthetic",
-        "timestamp": "2026-08-05T14:39:40.105420Z",
+        "timestamp": "2026-08-05T18:10:18.445792Z",
         "timestampField": "pick.certification_timing.data_as_of",
         "twoSided": true,
-        "updatedAt": "2026-08-05T14:39:40.105420Z"
+        "updatedAt": "2026-08-05T18:10:18.445792Z"
       },
       "rawModelProbabilityIgnored": 0.627,
       "result": "pending",
@@ -803,7 +958,7 @@
   "date": "2026-08-05",
   "engineVersion": "profit_desk_v2_live",
   "firstLiveDate": "2026-07-11",
-  "generatedAt": "2026-08-05T14:39:40.105420Z",
+  "generatedAt": "2026-08-05T18:10:18.445792Z",
   "notices": [
     "Qualified picks carry real flat stakes: EDGE 1.0u, VALUE 0.5u; everything else stays 0u.",
     "The market price is the baseline; historical residual alpha is shrunk and uncertainty-adjusted.",
@@ -1929,7 +2084,7 @@
     },
     {
       "alpha": -0.054765,
-      "candidatesToday": 3,
+      "candidatesToday": 4,
       "distinctDates": 1,
       "evidenceQualified": false,
       "flatNetUnits": -5.6717,
@@ -2021,13 +2176,13 @@
     }
   ],
   "summary": {
-    "avoid": 6,
-    "candidateCount": 6,
-    "candidatesEvaluated": 6,
+    "avoid": 7,
+    "candidateCount": 7,
+    "candidatesEvaluated": 7,
     "deduplicatedPicks": 0,
     "edgeQualified": 0,
     "evidenceRows": 1562,
-    "inputPicks": 6,
+    "inputPicks": 7,
     "livePortfolioCandidates": 0,
     "liveQualified": 0,
     "liveRecord": {
@@ -2074,14 +2229,14 @@
         "watchlist": 0
       },
       "team": {
-        "avoid": 6,
-        "candidateCount": 6,
-        "candidates": 6,
-        "candidatesEvaluated": 6,
+        "avoid": 7,
+        "candidateCount": 7,
+        "candidates": 7,
+        "candidatesEvaluated": 7,
         "edgeQualified": 0,
         "evidenceRows": 1020,
         "liveQualified": 0,
-        "observedPriceCandidates": 3,
+        "observedPriceCandidates": 4,
         "portfolioCandidates": 0,
         "researchQualified": 0,
         "selected": 0,
@@ -2090,7 +2245,7 @@
         "watchlist": 0
       }
     },
-    "observedPriceCandidates": 3,
+    "observedPriceCandidates": 4,
     "portfolioCandidates": 0,
     "researchQualified": 0,
     "researchRecord": {
