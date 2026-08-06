@@ -5,5 +5,11 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
+    rollupOptions: {
+      input: {
+        landing: 'index.html',
+        today: 'today/index.html',
+      },
+    },
   },
 });

@@ -1,12 +1,13 @@
 # harsh.bet
 
-`harsh.bet` is Harsh Dave's minimal personal landing page and project directory. This repository is intentionally landing-only; every project is maintained and deployed from its own public repository.
+`harsh.bet` is the personal app launcher and shared read-only daily operating view. Every source app remains maintained in its own public repository; this repository owns the landing page and `/today/` integration route.
 
 ## Project map
 
 | Path | Project | Repository |
 | --- | --- | --- |
 | `/` | harsh.bet landing | `Harsh4873/harsh4873.github.io` |
+| `/today/` | Shared daily operating view | `Harsh4873/harsh4873.github.io` |
 | `/pickledger/` | PickLedger | `Harsh4873/pickledger` |
 | `/portfolio/` | Portfolio | `Harsh4873/portfolio` |
 | `/daymark/` | Daymark | `Harsh4873/daymark` |

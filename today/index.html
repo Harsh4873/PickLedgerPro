@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Today — Daily operating view</title>
+    <meta name="description" content="One daily view across tasks, habits, nutrition, and training." />
+    <meta name="theme-color" content="#10110f" />
+    <link rel="canonical" href="https://harsh.bet/today/" />
+    <script>
+      (() => {
+        try {
+          const savedTheme = localStorage.getItem('harsh-theme');
+          const theme = savedTheme === 'light' || savedTheme === 'dark'
+            ? savedTheme
+            : matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+          document.documentElement.dataset.theme = theme;
+        } catch {
+          document.documentElement.dataset.theme = 'dark';
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="../src/styles/today.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#dashboard">Skip to today</a>
+    <header class="topbar">
+      <a class="wordmark" href="/" aria-label="Back to all apps">H/B</a>
+      <div class="date-lockup">
+        <span class="eyebrow">Today</span>
+        <strong id="today-date">Loading date…</strong>
+      </div>
+      <div class="topbar-actions">
+        <span class="sync-state" id="sync-state" aria-live="polite">Reading this device</span>
+        <button class="icon-button" id="refresh-button" type="button" aria-label="Refresh dashboard" title="Refresh dashboard">
+          <span aria-hidden="true">↻</span>
+        </button>
+      </div>
+    </header>
+
+    <main id="dashboard" class="dashboard" aria-busy="true">
+      <section class="hero panel" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <span class="eyebrow" id="hero-kicker">Right now</span>
+          <h1 id="hero-title">Bringing today into focus…</h1>
+          <p id="hero-detail">Reading Daymark, Slate, Fare, and Gym on this device.</p>
+        </div>
+        <div class="hero-meta" id="hero-meta"></div>
+      </section>
+
+      <section class="dashboard-grid" aria-label="Today overview">
+        <article class="panel priority-panel" id="priority-card"></article>
+        <article class="panel schedule-panel" id="schedule-card"></article>
+        <article class="panel habits-panel" id="habits-card"></article>
+        <article class="panel nutrition-panel" id="nutrition-card"></article>
+        <article class="panel workout-panel" id="workout-card"></article>
+        <article class="panel trend-panel" id="trend-card"></article>
+      </section>
+
+      <footer class="source-strip" id="source-strip" aria-label="Connected apps"></footer>
+    </main>
+
+    <noscript>
+      <p class="noscript">Today needs JavaScript to read the four apps' on-device data.</p>
+    </noscript>
+    <script type="module" src="../src/today/main.ts"></script>
+  </body>
+</html>

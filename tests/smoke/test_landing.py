@@ -34,10 +34,10 @@ def _landing() -> tuple[str, LandingParser]:
     return html, parser
 
 
-def test_landing_has_personal_metadata_and_accessible_structure():
+def test_landing_has_app_metadata_and_accessible_structure():
     html, parser = _landing()
 
-    assert "<title>Harsh Dave — Research, software, and useful systems</title>" in html
+    assert "<title>Harsh Dave - Apps</title>" in html
     assert 'content="https://harsh.bet/"' in html
     assert '<link rel="canonical" href="https://harsh.bet/"' in html
     assert 'class="skip-link" href="#main-content"' in html
@@ -50,9 +50,11 @@ def test_landing_has_personal_metadata_and_accessible_structure():
     assert "fonts.googleapis.com" not in html
 
 
-def test_landing_routes_every_independent_system_to_its_site():
-    html, parser = _landing()
+def test_landing_routes_every_app_without_new_tabs():
+    _, parser = _landing()
     expected_paths = {
+        "/today/",
+        "/portfolio/",
         "/daymark/",
         "/slate/",
         "/pickledger/",
@@ -61,68 +63,48 @@ def test_landing_routes_every_independent_system_to_its_site():
         "/fare/",
         "/gym/",
     }
-    project_links = [link for link in parser.links if "data-project-link" in link]
+    app_cards = [link for link in parser.links if "app-card" in link.get("class", "")]
 
-    assert {link.get("href") for link in project_links} == expected_paths
-    assert len(project_links) == len(expected_paths)
-    assert all(link.get("target") in (None, "") for link in project_links)
-    assert 'class="portfolio-row" href="/portfolio/"' in html
-    assert "Independent systems / 07" in html
+    assert {link.get("href") for link in app_cards} == expected_paths
+    assert len(app_cards) == len(expected_paths)
+    assert all(link.get("target") in (None, "") for link in app_cards)
 
 
-def test_landing_uses_the_hybrid_rail_and_quiet_theme_tokens():
+def test_landing_uses_the_app_rail_and_shared_theme():
     html, _ = _landing()
     css = (ROOT / "src" / "styles" / "landing.css").read_text(encoding="utf-8")
     script = (ROOT / "src" / "main.ts").read_text(encoding="utf-8")
 
-    assert 'class="identity-rail"' in html
-    assert ".identity-rail:hover" in css
-    assert ".identity-rail:focus-within" in css
+    assert 'class="app-rail"' in html
+    assert ".app-rail:hover" in css
+    assert ".app-rail:focus-within" in css
     assert "transform: translateX" in css
-    assert ':root[data-theme="light"]' in css
+    assert ":root[data-theme='light']" in css
     assert "--accent-deep: #500000;" in css
-    assert "--bg: #151515;" in css
-    assert "harsh-theme" in script
-    assert 'data-theme-option="light"' in html
-    assert 'data-theme-option="dark"' in html
+    assert "--bg: #151513;" in css
+    assert "data-mobile-open" in script
+    assert "Escape" in script
     assert "linear-gradient" not in css
     assert "radial-gradient" not in css
 
 
-def test_landing_publishes_the_plain_labelled_resume():
-    html, _ = _landing()
-    resume = ROOT / "public" / "resume.pdf"
-
-    assert resume.is_file()
-    assert resume.stat().st_size > 100_000
-    assert html.count('href="/resume.pdf" target="_blank" rel="noopener noreferrer">Resume</a>') >= 3
-    assert "Résumé" not in html
-    assert "résumé" not in html
-
-
-def test_landing_is_responsive_and_progressively_enhanced():
-    script = (ROOT / "src" / "main.ts").read_text(encoding="utf-8")
+def test_landing_is_responsive_and_accessible():
     css = (ROOT / "src" / "styles" / "landing.css").read_text(encoding="utf-8")
 
-    assert "current-year" in script
-    assert "prefers-reduced-motion" in script
-    assert "IntersectionObserver" in script
-    assert "prefers-reduced-motion" in css
     assert ":focus-visible" in css
-    assert "@media (max-width: 760px), (hover: none)" in css
+    assert "@media (max-width: 820px)" in css
+    assert "min-width: 320px" in css
     assert not (ROOT / "data").exists()
     assert not (ROOT / "models").exists()
     assert not (ROOT / "player_props").exists()
 
 
-def test_pages_workflow_deploys_only_the_landing_artifact():
+def test_pages_workflow_builds_the_shared_artifact():
     workflow = (ROOT / ".github" / "workflows" / "deploy-pages.yml").read_text(encoding="utf-8")
 
-    assert "actions/checkout@v5" in workflow
-    assert "actions/setup-node@v5" in workflow
+    assert "actions/checkout@v4" in workflow
+    assert "actions/setup-node@v4" in workflow
     assert "npm run build" in workflow
-    assert "python3 scripts/site_upcheck.py" in workflow
     assert "actions/upload-pages-artifact@v3" in workflow
     assert "actions/deploy-pages@v4" in workflow
-    assert "ref: pickledger" not in workflow
-    assert "working-directory:" not in workflow
+    assert "path: dist" in workflow

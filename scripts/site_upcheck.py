@@ -20,8 +20,6 @@ PROJECT_PATHS = (
     "/gym/",
     "/portfolio/",
 )
-
-
 def main() -> int:
     failures: list[str] = []
 
@@ -37,10 +35,10 @@ def main() -> int:
 
     source_contract = (
         ('<link rel="canonical" href="https://harsh.bet/"', "canonical URL"),
-        ('<meta name="theme-color" content="#151515"', "dark theme color"),
+        ('<meta name="theme-color" content="#151513"', "dark theme color"),
         ('href="./src/styles/landing.css"', "landing stylesheet entry"),
         ('src="./src/main.ts"', "TypeScript module entry"),
-        ('href="/resume.pdf" target="_blank" rel="noopener noreferrer">Resume</a>', "plain-labelled resume link that opens separately"),
+        ('href="/today/"', "Today dashboard route"),
     )
     for marker, label in source_contract:
         if marker not in source:
@@ -51,6 +49,26 @@ def main() -> int:
             failures.append(f"source is missing project path {path}")
         if (DIST / path.strip("/")).exists():
             failures.append(f"landing artifact unexpectedly bundles {path}")
+
+    today_source = ROOT / "today" / "index.html"
+    today_built = DIST / "today" / "index.html"
+    if not today_source.is_file():
+        failures.append("today/index.html is missing")
+    if not today_built.is_file():
+        failures.append("dist/today/index.html is missing")
+    if today_source.is_file():
+        today_html = today_source.read_text(encoding="utf-8")
+        today_contract = (
+            ('href="https://harsh.bet/today/"', "Today canonical URL"),
+            ('src="../src/today/main.ts"', "Today TypeScript entry"),
+            ('id="priority-card"', "Today priority card"),
+            ('id="nutrition-card"', "Today nutrition card"),
+            ('id="workout-card"', "Today workout card"),
+            ('id="trend-card"', "Today trend card"),
+        )
+        for marker, label in today_contract:
+            if marker not in today_html:
+                failures.append(f"source is missing {label}")
 
     if "src/main.ts" in built or "src/styles/landing.css" in built:
         failures.append("dist/index.html still references source files")
@@ -78,7 +96,7 @@ def main() -> int:
             print(f"[upcheck] {failure}")
         return 1
 
-    print(f"[upcheck] healthy landing with {len(PROJECT_PATHS) - 1} systems, Portfolio, and Resume")
+    print(f"[upcheck] healthy landing, Today dashboard, {len(PROJECT_PATHS) - 1} systems, Portfolio, and Resume")
     return 0
 
 

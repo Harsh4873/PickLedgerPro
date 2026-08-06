@@ -227,6 +227,7 @@ jobs:
       - name: Verify styled Pages artifact
         run: |
           test -f dist/index.html
+          test -f dist/today/index.html
           test -f dist/pickledger/index.html
           test -f dist/pickledger/data/model_cache/index.json
           test -f dist/pickledger/data/profit_desk/index.json

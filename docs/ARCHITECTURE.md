@@ -4,6 +4,7 @@
 
 ```text
 Harsh4873/harsh4873.github.io  ──> harsh.bet/
+                                      harsh.bet/today/
 Harsh4873/pickledger           ──> harsh.bet/pickledger/
 Harsh4873/portfolio            ──> harsh.bet/portfolio/
 Harsh4873/daymark              ──> harsh.bet/daymark/
