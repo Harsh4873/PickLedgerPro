@@ -19,6 +19,8 @@
 
 The user-site repository owns the `harsh.bet` custom domain. GitHub Pages applies that domain to the project repositories at their matching paths, so project repositories do not contain a `CNAME` file.
 
+`/today/` reads the four source apps' existing on-device mirrors without writing back. Its recommendation engine is deterministic and evidence-labelled: it combines task urgency, schedule openings, unresolved habits, remaining nutrition targets, planned training, and rolling consistency into up to three suggested actions plus a non-persistent day-pressure estimate.
+
 ## Local checks
 
 ```bash

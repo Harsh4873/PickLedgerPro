@@ -11,12 +11,15 @@
       (() => {
         try {
           const savedTheme = localStorage.getItem('harsh-theme');
-          const theme = savedTheme === 'light' || savedTheme === 'dark'
-            ? savedTheme
-            : matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+          const preference = savedTheme === 'light' || savedTheme === 'dark' ? savedTheme : 'system';
+          const theme = preference === 'system'
+            ? matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+            : preference;
           document.documentElement.dataset.theme = theme;
+          document.documentElement.dataset.themePreference = preference;
         } catch {
           document.documentElement.dataset.theme = 'dark';
+          document.documentElement.dataset.themePreference = 'system';
         }
       })();
     </script>
@@ -32,6 +35,11 @@
       </div>
       <div class="topbar-actions">
         <span class="sync-state" id="sync-state" aria-live="polite">Reading this device</span>
+        <div class="theme-switcher" role="group" aria-label="Color theme">
+          <button type="button" data-theme-option="light" aria-label="Use light theme" title="Light theme"><span aria-hidden="true">☼</span></button>
+          <button type="button" data-theme-option="system" aria-label="Use system theme" title="System theme"><span aria-hidden="true">A</span></button>
+          <button type="button" data-theme-option="dark" aria-label="Use dark theme" title="Dark theme"><span aria-hidden="true">●</span></button>
+        </div>
         <button class="icon-button" id="refresh-button" type="button" aria-label="Refresh dashboard" title="Refresh dashboard">
           <span aria-hidden="true">↻</span>
         </button>
@@ -49,6 +57,7 @@
       </section>
 
       <section class="dashboard-grid" aria-label="Today overview">
+        <article class="panel advice-panel" id="advice-card"></article>
         <article class="panel priority-panel" id="priority-card"></article>
         <article class="panel schedule-panel" id="schedule-card"></article>
         <article class="panel habits-panel" id="habits-card"></article>

@@ -44,6 +44,25 @@ export interface PriorityTask {
   reason: string;
 }
 
+export interface AdviceInsight {
+  id: string;
+  title: string;
+  detail: string;
+  evidence: string;
+  source: 'Daymark' | 'Slate' | 'Fare' | 'Gym' | 'Today';
+  href: string;
+  priority: number;
+  tone: 'act' | 'prepare' | 'protect' | 'positive';
+}
+
+export interface DayPressure {
+  score: number;
+  label: 'Light' | 'Manageable' | 'Loaded' | 'Tight';
+  confidence: 'Low' | 'Medium' | 'High';
+  factors: string[];
+  nextOpenWindow: { startMin: number; durationMin: number } | null;
+}
+
 export interface DashboardModel {
   now: Date;
   todayKey: DateKey;
@@ -59,6 +78,8 @@ export interface DashboardModel {
   workout: WorkoutSummary | null;
   trends: TrendWeek[];
   trendNarrative: string;
+  advice: AdviceInsight[];
+  pressure: DayPressure;
   connectedCount: number;
   sources: TodaySources;
 }
@@ -355,6 +376,229 @@ function trendNarrative(trends: TrendWeek[]): string {
   return 'The three signals moved independently this week; no shared direction is clear yet.';
 }
 
+function findNextOpenWindow(blocks: SlateBlock[], now: Date): DayPressure['nextOpenWindow'] {
+  const minute = now.getHours() * 60 + now.getMinutes();
+  const dayEnd = 22 * 60;
+  if (minute >= dayEnd) return null;
+  let cursor = minute;
+  for (const block of blocks) {
+    const blockEnd = block.startMin + block.durationMin;
+    if (blockEnd <= cursor) continue;
+    if (block.startMin - cursor >= 30) return { startMin: cursor, durationMin: block.startMin - cursor };
+    cursor = Math.max(cursor, blockEnd);
+  }
+  return dayEnd - cursor >= 30 ? { startMin: cursor, durationMin: dayEnd - cursor } : null;
+}
+
+function derivePressure(options: {
+  sources: TodaySources;
+  blocks: SlateBlock[];
+  dueTasks: SlateTask[];
+  dueHabits: HabitStatus[];
+  overdueHabits: HabitStatus[];
+  nutrition: NutritionSummary | null;
+  workout: WorkoutSummary | null;
+  now: Date;
+}): DayPressure {
+  const minute = options.now.getHours() * 60 + options.now.getMinutes();
+  const remainingBlockMinutes = options.blocks
+    .filter((block) => block.startMin + block.durationMin > minute)
+    .reduce((sum, block) => sum + Math.max(0, block.startMin + block.durationMin - Math.max(minute, block.startMin)), 0);
+  const openWorkout = options.workout
+    ? Math.max(0, options.workout.exercises.length - options.workout.completed - options.workout.skipped)
+    : 0;
+  const lateProteinGap = options.nutrition && options.nutrition.targetProtein > 0 && minute >= 15 * 60
+    ? options.nutrition.remainingProtein / options.nutrition.targetProtein
+    : 0;
+  const score = Math.min(100, Math.round(
+    Math.min(28, options.dueTasks.length * 9)
+    + Math.min(22, options.overdueHabits.reduce((sum, habit) => sum + habit.previousMisses * 3, 0))
+    + Math.min(10, options.dueHabits.length * 2.5)
+    + Math.min(20, remainingBlockMinutes / 24)
+    + Math.min(12, openWorkout * 1.5)
+    + Math.min(8, lateProteinGap * 8),
+  ));
+  const label = score >= 70 ? 'Tight' : score >= 50 ? 'Loaded' : score >= 25 ? 'Manageable' : 'Light';
+  const connectedCount = Object.values(options.sources).filter((source) => source.connected).length;
+  const confidence = connectedCount === 4 ? 'High' : connectedCount >= 2 ? 'Medium' : 'Low';
+  const factors = [
+    options.dueTasks.length ? `${options.dueTasks.length} due task${options.dueTasks.length === 1 ? '' : 's'}` : '',
+    options.overdueHabits.length ? `${options.overdueHabits.length} habit${options.overdueHabits.length === 1 ? '' : 's'} carrying misses` : '',
+    remainingBlockMinutes ? `${Math.round(remainingBlockMinutes / 30) / 2}h scheduled ahead` : '',
+    openWorkout ? `${openWorkout} workout movement${openWorkout === 1 ? '' : 's'} open` : '',
+  ].filter(Boolean).slice(0, 3);
+  return {
+    score,
+    label,
+    confidence,
+    factors,
+    nextOpenWindow: findNextOpenWindow(options.blocks, options.now),
+  };
+}
+
+function trendDelta(trends: TrendWeek[], key: 'nutrition' | 'training' | 'habits'): number | null {
+  const before = trends[2][key];
+  const after = trends[3][key];
+  return before === null || after === null ? null : after - before;
+}
+
+function deriveAdvice(options: {
+  now: Date;
+  currentBlock: SlateBlock | null;
+  nextBlock: SlateBlock | null;
+  priority: PriorityTask | null;
+  pressure: DayPressure;
+  overdueHabits: HabitStatus[];
+  flexibleHabits: HabitStatus[];
+  nutrition: NutritionSummary | null;
+  workout: WorkoutSummary | null;
+  trends: TrendWeek[];
+  weekStartsOn: 0 | 1;
+}): AdviceInsight[] {
+  const advice: AdviceInsight[] = [];
+  const minute = options.now.getHours() * 60 + options.now.getMinutes();
+  const add = (insight: AdviceInsight) => advice.push(insight);
+
+  if (options.currentBlock) {
+    const minutesLeft = Math.max(1, options.currentBlock.startMin + options.currentBlock.durationMin - minute);
+    add({
+      id: 'stay-in-block',
+      title: `Stay with ${options.currentBlock.title}`,
+      detail: `Keep the next ${minutesLeft} minutes protected before switching contexts.`,
+      evidence: `Slate marks this block active until ${minutesLabel(options.currentBlock.startMin + options.currentBlock.durationMin)}.`,
+      source: 'Slate', href: '/slate/', priority: 100, tone: 'protect',
+    });
+  } else if (options.priority && options.priority.reason.startsWith('Overdue')) {
+    const window = options.pressure.nextOpenWindow;
+    add({
+      id: 'clear-overdue-task',
+      title: `Move “${options.priority.task.title}” first`,
+      detail: window ? `Use the open ${window.durationMin}-minute window beginning ${minutesLabel(window.startMin)}.` : 'Give it the next unclaimed block before adding anything new.',
+      evidence: `${options.priority.reason}; Slate ranks it above the remaining open work.`,
+      source: 'Slate', href: '/slate/', priority: 96, tone: 'act',
+    });
+  } else if (options.priority && options.pressure.nextOpenWindow) {
+    const window = options.pressure.nextOpenWindow;
+    add({
+      id: 'use-open-window',
+      title: `Use the next open window on “${options.priority.task.title}”`,
+      detail: `${window.durationMin} minutes are open from ${minutesLabel(window.startMin)}.`,
+      evidence: 'This is Slate’s highest-ranked unfinished task and the first gap of at least 30 minutes.',
+      source: 'Today', href: '/slate/', priority: 82, tone: 'act',
+    });
+  }
+
+  if (options.nextBlock && options.nextBlock.startMin - minute <= 45 && options.nextBlock.startMin > minute) {
+    add({
+      id: 'prepare-next-block',
+      title: `Prepare for ${options.nextBlock.title}`,
+      detail: `It begins in ${options.nextBlock.startMin - minute} minutes. Close the current loop and set up what it needs.`,
+      evidence: `Next Slate block starts at ${minutesLabel(options.nextBlock.startMin)}.`,
+      source: 'Slate', href: '/slate/', priority: 92, tone: 'prepare',
+    });
+  }
+
+  if (options.overdueHabits.length) {
+    const totalMisses = options.overdueHabits.reduce((sum, habit) => sum + habit.previousMisses, 0);
+    const first = options.overdueHabits[0];
+    add({
+      id: 'recover-habit',
+      title: `Restart with ${first.habit.name}`,
+      detail: 'Complete one clean repetition today; do not try to repay every missed day.',
+      evidence: `${options.overdueHabits.length} daily habit${options.overdueHabits.length === 1 ? '' : 's'} account for ${totalMisses} unresolved scheduled occurrence${totalMisses === 1 ? '' : 's'}.`,
+      source: 'Daymark', href: '/daymark/', priority: 78, tone: 'protect',
+    });
+  }
+
+  if (options.flexibleHabits.length) {
+    const endingSoon = options.flexibleHabits.filter((status) => {
+      const end = endOfPeriod(status.habit.period, options.now, options.weekStartsOn);
+      return Math.round((end.getTime() - fromDateKey(toDateKey(options.now)).getTime()) / 86_400_000) <= 1;
+    });
+    if (endingSoon.length) {
+      add({
+        id: 'close-flex-window',
+        title: `Close the flexible window for ${endingSoon[0].habit.name}`,
+        detail: `${endingSoon[0].label}; its ${endingSoon[0].habit.period} window is nearly over.`,
+        evidence: `${endingSoon.length} flexible goal${endingSoon.length === 1 ? '' : 's'} reach the end of their period within one day.`,
+        source: 'Daymark', href: '/daymark/', priority: 74, tone: 'prepare',
+      });
+    }
+  }
+
+  if (options.nutrition && options.nutrition.targetProtein > 0) {
+    const proteinGap = options.nutrition.remainingProtein / options.nutrition.targetProtein;
+    const calorieOver = options.nutrition.consumedCalories > options.nutrition.targetCalories;
+    if (proteinGap >= 0.35 && minute >= 13 * 60) {
+      add({
+        id: 'protein-gap',
+        title: calorieOver ? 'Favor protein without adding much energy' : 'Make the next meal protein-forward',
+        detail: `${formatNumber(options.nutrition.remainingProtein)} g protein remains${options.nutrition.remainingCalories ? ` alongside ${formatNumber(options.nutrition.remainingCalories)} kcal` : ''}.`,
+        evidence: `${Math.round(proteinGap * 100)}% of the Fare protein target is still open.`,
+        source: 'Fare', href: '/fare/', priority: options.workout?.exercises.length ? 76 : 68, tone: 'prepare',
+      });
+    } else if (options.nutrition.entries > 0 && options.nutrition.remainingProtein <= 0) {
+      add({
+        id: 'protein-covered',
+        title: 'Protein target is covered',
+        detail: 'No nutrition correction is needed from this dashboard right now.',
+        evidence: `Fare shows ${formatNumber(options.nutrition.consumedProtein)} g against a ${formatNumber(options.nutrition.targetProtein)} g target.`,
+        source: 'Fare', href: '/fare/', priority: 35, tone: 'positive',
+      });
+    }
+  }
+
+  if (options.workout?.courtSports.length) {
+    const sport = options.workout.courtSports.map((exercise) => exercise.name.replace(/\s+minutes/i, ' min')).join(' + ');
+    add({
+      id: 'court-plan',
+      title: `Keep room for ${sport}`,
+      detail: options.workout.completed ? 'Some training is already done; keep the remaining court block visible when the day gets busy.' : 'It is part of today’s Gym program, even if Slate does not give it a time.',
+      evidence: `${options.workout.courtSports.length} court session${options.workout.courtSports.length === 1 ? '' : 's'} detected in today’s Gym plan.`,
+      source: 'Gym', href: '/gym/', priority: 72, tone: 'prepare',
+    });
+  } else if (options.workout && options.workout.exercises.length && options.workout.completed >= options.workout.exercises.length - options.workout.skipped) {
+    add({
+      id: 'workout-complete',
+      title: 'Training is handled',
+      detail: 'Leave the workout closed and spend the remaining attention elsewhere.',
+      evidence: `Gym shows ${options.workout.completed} of ${options.workout.exercises.length} movements complete.`,
+      source: 'Gym', href: '/gym/', priority: 38, tone: 'positive',
+    });
+  }
+
+  const nutritionDelta = trendDelta(options.trends, 'nutrition');
+  const trainingDelta = trendDelta(options.trends, 'training');
+  const habitDelta = trendDelta(options.trends, 'habits');
+  const declining = [nutritionDelta, trainingDelta, habitDelta].filter((delta) => delta !== null && delta < -0.08).length;
+  if (declining >= 2) {
+    add({
+      id: 'trend-reset',
+      title: 'Reduce the plan to the minimum viable day',
+      detail: 'Choose one task, one habit, and the planned training anchor instead of spreading effort thin.',
+      evidence: `${declining} of the three 7-day consistency signals declined by more than 8 points together.`,
+      source: 'Today', href: '#trend-card', priority: 88, tone: 'protect',
+    });
+  }
+
+  if (!advice.length) {
+    add({
+      id: 'steady-day',
+      title: 'Keep the day simple',
+      detail: 'Nothing in the connected sources requires a correction. Follow the next scheduled item.',
+      evidence: 'No high-pressure rule fired from the available task, habit, nutrition, or training data.',
+      source: 'Today', href: '#source-strip', priority: 20, tone: 'positive',
+    });
+  }
+
+  return advice.sort((left, right) => right.priority - left.priority).slice(0, 3);
+}
+
+function minutesLabel(minutes: number): string {
+  const date = new Date(2000, 0, 1, Math.floor(minutes / 60), minutes % 60);
+  return new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' }).format(date);
+}
+
 function capitalize(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
@@ -374,6 +618,31 @@ export function deriveDashboard(sources: TodaySources, now = new Date()): Dashbo
   const tasks = rankTasks(sources.slate.state, todayKey, blocks);
   const habits = deriveHabits(sources.daymark.state, now);
   const trends = deriveTrends(sources, now);
+  const nutrition = deriveNutrition(sources.fare.state, todayKey);
+  const workout = deriveWorkout(sources, now, todayKey);
+  const pressure = derivePressure({
+    sources,
+    blocks,
+    dueTasks: tasks.due,
+    dueHabits: habits.due,
+    overdueHabits: habits.overdue,
+    nutrition,
+    workout,
+    now,
+  });
+  const advice = deriveAdvice({
+    now,
+    currentBlock,
+    nextBlock,
+    priority: tasks.priority,
+    pressure,
+    overdueHabits: habits.overdue,
+    flexibleHabits: habits.flexible,
+    nutrition,
+    workout,
+    trends,
+    weekStartsOn: sources.daymark.state?.profile.weekStartsOn ?? 1,
+  });
   return {
     now,
     todayKey,
@@ -385,10 +654,12 @@ export function deriveDashboard(sources: TodaySources, now = new Date()): Dashbo
     dueHabits: habits.due,
     flexibleHabits: habits.flexible,
     overdueHabits: habits.overdue,
-    nutrition: deriveNutrition(sources.fare.state, todayKey),
-    workout: deriveWorkout(sources, now, todayKey),
+    nutrition,
+    workout,
     trends,
     trendNarrative: trendNarrative(trends),
+    advice,
+    pressure,
     connectedCount: Object.values(sources).filter((source) => source.connected).length,
     sources,
   };

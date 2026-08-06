@@ -11,6 +11,7 @@ def test_today_is_a_read_only_cross_app_dashboard():
 
     assert 'href="https://harsh.bet/today/"' in html
     assert 'id="priority-card"' in html
+    assert 'id="advice-card"' in html
     assert 'id="schedule-card"' in html
     assert 'id="habits-card"' in html
     assert 'id="nutrition-card"' in html
@@ -23,6 +24,20 @@ def test_today_is_a_read_only_cross_app_dashboard():
     assert "put(" not in data
     assert "deleteDatabase" not in data
     assert "request.transaction?.abort()" in data
+    for theme in ("light", "system", "dark"):
+        assert f'data-theme-option="{theme}"' in html
+
+
+def test_today_advice_is_explainable_and_derived_without_writes():
+    derive = (ROOT / "src" / "today" / "derive.ts").read_text(encoding="utf-8")
+    script = (ROOT / "src" / "today" / "main.ts").read_text(encoding="utf-8")
+
+    assert "derivePressure" in derive
+    assert "deriveAdvice" in derive
+    assert "findNextOpenWindow" in derive
+    assert "trendDelta" in derive
+    assert "Why this recommendation" in script
+    assert "Pressure describes remaining load, not performance." in script
 
 
 def test_today_uses_each_apps_existing_storage_contract():

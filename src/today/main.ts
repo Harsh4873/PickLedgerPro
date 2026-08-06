@@ -6,6 +6,30 @@ const dashboard = document.querySelector<HTMLElement>('#dashboard');
 const dateNode = document.querySelector<HTMLElement>('#today-date');
 const syncNode = document.querySelector<HTMLElement>('#sync-state');
 const refreshButton = document.querySelector<HTMLButtonElement>('#refresh-button');
+const systemTheme = window.matchMedia('(prefers-color-scheme: light)');
+
+type ThemePreference = 'light' | 'system' | 'dark';
+
+function applyTheme(preference: ThemePreference, persist = true): void {
+  const resolved = preference === 'system' ? systemTheme.matches ? 'light' : 'dark' : preference;
+  document.documentElement.dataset.theme = resolved;
+  document.documentElement.dataset.themePreference = preference;
+  document.querySelectorAll<HTMLButtonElement>('[data-theme-option]').forEach((button) => {
+    button.setAttribute('aria-pressed', String(button.dataset.themeOption === preference));
+  });
+  document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')?.setAttribute('content', resolved === 'light' ? '#efeee9' : '#10110f');
+  if (persist) {
+    try { window.localStorage.setItem('harsh-theme', preference); } catch { /* keep the in-memory preference */ }
+  }
+}
+
+document.querySelectorAll<HTMLButtonElement>('[data-theme-option]').forEach((button) => {
+  button.addEventListener('click', () => applyTheme(button.dataset.themeOption as ThemePreference));
+});
+systemTheme.addEventListener('change', () => {
+  if (document.documentElement.dataset.themePreference === 'system') applyTheme('system', false);
+});
+applyTheme((document.documentElement.dataset.themePreference as ThemePreference) || 'system', false);
 
 function escapeHtml(value: unknown): string {
   return String(value ?? '')
@@ -93,6 +117,42 @@ function hero(model: DashboardModel): void {
     <div><strong>${model.dueTasks.length}</strong><span>tasks due</span></div>
     <div><strong>${model.dueHabits.length}</strong><span>habits open</span></div>
   `);
+}
+
+function renderAdvice(model: DashboardModel): void {
+  const pressure = model.pressure;
+  const factors = pressure.factors.length
+    ? `<ul class="pressure-factors">${pressure.factors.map((factor) => `<li>${escapeHtml(factor)}</li>`).join('')}</ul>`
+    : '<p class="pressure-clear">No material pressure factors detected.</p>';
+  const advice = model.advice.map((insight, index) => `
+    <article class="advice-item ${insight.tone}">
+      <div class="advice-rank"><span>${String(index + 1).padStart(2, '0')}</span><i aria-hidden="true"></i></div>
+      <div class="advice-copy">
+        <div class="advice-source"><span>${escapeHtml(insight.source)}</span><strong>${escapeHtml(insight.tone)}</strong></div>
+        <h3>${escapeHtml(insight.title)}</h3>
+        <p>${escapeHtml(insight.detail)}</p>
+        <details><summary>Why this recommendation</summary><p>${escapeHtml(insight.evidence)}</p></details>
+      </div>
+      <a href="${insight.href}" aria-label="Open ${escapeHtml(insight.source)} for ${escapeHtml(insight.title)}">↗</a>
+    </article>`).join('');
+
+  setHtml('advice-card', `
+    <div class="advice-heading">
+      <div><span class="eyebrow">Decision support</span><h2>What the signals suggest</h2><p>Rules combine urgency, available time, fuel, training, and recent consistency. Nothing is written back.</p></div>
+      <div class="pressure-meter" style="--pressure:${pressure.score}" role="meter" aria-label="Day pressure" aria-valuenow="${pressure.score}" aria-valuemin="0" aria-valuemax="100">
+        <div><strong>${pressure.score}</strong><span>${pressure.label}</span></div>
+      </div>
+    </div>
+    <div class="advice-layout">
+      <aside class="pressure-explain">
+        <span class="eyebrow">Day pressure</span>
+        <h3>${pressure.label} · ${pressure.confidence.toLowerCase()} confidence</h3>
+        ${factors}
+        ${pressure.nextOpenWindow ? `<p class="open-window"><span>Next 30+ min opening</span><strong>${formatTime(pressure.nextOpenWindow.startMin)} · ${formatDuration(pressure.nextOpenWindow.durationMin)}</strong></p>` : '<p class="open-window"><span>Next 30+ min opening</span><strong>None before 10 PM</strong></p>'}
+        <small>Pressure describes remaining load, not performance.</small>
+      </aside>
+      <div class="advice-list">${advice}</div>
+    </div>`);
 }
 
 function renderPriority(model: DashboardModel): void {
@@ -282,6 +342,7 @@ function render(model: DashboardModel): void {
     dateNode.textContent = new Intl.DateTimeFormat(undefined, { weekday: 'long', month: 'long', day: 'numeric' }).format(model.now);
   }
   hero(model);
+  renderAdvice(model);
   renderPriority(model);
   renderSchedule(model);
   renderHabits(model);

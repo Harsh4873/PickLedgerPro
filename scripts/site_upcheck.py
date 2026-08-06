@@ -62,9 +62,13 @@ def main() -> int:
             ('href="https://harsh.bet/today/"', "Today canonical URL"),
             ('src="../src/today/main.ts"', "Today TypeScript entry"),
             ('id="priority-card"', "Today priority card"),
+            ('id="advice-card"', "Today advice card"),
             ('id="nutrition-card"', "Today nutrition card"),
             ('id="workout-card"', "Today workout card"),
             ('id="trend-card"', "Today trend card"),
+            ('data-theme-option="light"', "Today light theme control"),
+            ('data-theme-option="system"', "Today system theme control"),
+            ('data-theme-option="dark"', "Today dark theme control"),
         )
         for marker, label in today_contract:
             if marker not in today_html:
