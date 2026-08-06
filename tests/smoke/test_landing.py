@@ -108,3 +108,5 @@ def test_pages_workflow_builds_the_shared_artifact():
     assert "actions/upload-pages-artifact@v3" in workflow
     assert "actions/deploy-pages@v4" in workflow
     assert "path: dist" in workflow
+    assert "github.event_name == 'push'" in workflow
+    assert "test -f dist/today/index.html" in workflow

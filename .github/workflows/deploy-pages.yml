@@ -39,7 +39,10 @@ jobs:
 
   deploy:
     needs: readiness
-    if: needs.readiness.outputs.ready == 'true'
+    # A landing/Today code push must not be held behind an unrelated daily
+    # market-data refresh. Data-triggered/manual deployments keep the readiness
+    # gate; main pushes may publish the currently committed PickLedger snapshot.
+    if: needs.readiness.outputs.ready == 'true' || github.event_name == 'push'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -159,7 +162,11 @@ jobs:
         working-directory: pickledger-app
         run: |
           npm run build
-          python scripts/site_upcheck.py
+          if [ "${{ needs.readiness.outputs.ready }}" = "true" ]; then
+            python scripts/site_upcheck.py
+          else
+            echo "Daily PickLedger data is not ready; publishing the currently committed snapshot with this site-code release."
+          fi
           mkdir -p ../dist/pickledger
           cp -R dist/. ../dist/pickledger/
           mkdir -p ../dist/pickledger/data ../dist/pickledger/ipl
