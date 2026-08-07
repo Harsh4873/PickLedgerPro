@@ -1082,14 +1082,14 @@
     "error": "403 Client Error: Forbidden for url: https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=20260807&limit=100",
     "ok": false
   },
-  "generatedAt": "2026-08-07T15:47:33.027094Z",
+  "generatedAt": "2026-08-07T16:42:16.355446Z",
   "generatedBy": "github-actions:model-cache-refresh",
   "mlb_first_five": {
     "consensus_gate_version": "mlb_team_consensus_v1.1.0",
     "consensus_rejection_reasons": {
-      "failed_walk_forward_validation": 12,
+      "failed_walk_forward_validation": 11,
       "non_positive_calibrated_edge": 3,
-      "raw_model_abstained": 15
+      "raw_model_abstained": 16
     },
     "consensus_required": true,
     "date": "2026-08-07",
@@ -5122,23 +5122,23 @@
         "features": {
           "away_lineup_matchup": {
             "current_bvp_pa": 0,
-            "older_bvp_pa": 0,
-            "run_delta": 0.107,
+            "older_bvp_pa": 9,
+            "run_delta": -0.006,
             "sampled_batters": 9,
-            "threat_score": 0.3948
+            "threat_score": 0.3467
           },
           "away_offense": {
-            "lineup_delta": 0.107,
+            "lineup_delta": -0.006,
             "park_run_delta_per_team": 0.18,
-            "pitcher_current_f5_allowed": 3.389,
-            "pitcher_current_vs_opponent": 3.337,
-            "pitcher_prior_vs_opponent": 3.337,
-            "pitcher_recent_f5_allowed": 3.4,
-            "pitcher_rest_days": 1,
-            "pitcher_rest_label": "emergency/opener (1d rest) +0.30",
-            "pitcher_rest_runs_modifier": 0.3,
-            "pitcher_venue_f5_allowed": 3.2,
-            "projected_runs": 3.56,
+            "pitcher_current_f5_allowed": 1.868,
+            "pitcher_current_vs_opponent": 1.868,
+            "pitcher_prior_vs_opponent": 1.868,
+            "pitcher_recent_f5_allowed": 1.868,
+            "pitcher_rest_days": null,
+            "pitcher_rest_label": "rest unknown",
+            "pitcher_rest_runs_modifier": 0.0,
+            "pitcher_venue_f5_allowed": 1.901,
+            "projected_runs": 2.31,
             "team_current_f5_runs": 2.632,
             "team_prior_f5_runs": 2.701,
             "team_recent_f5_runs": 3.125,
@@ -5246,21 +5246,21 @@
             "wind_run_delta_per_team": 0.0
           },
           "home_pitcher": {
-            "current_f5_allowed": 3.389,
-            "current_starts": 5,
-            "current_vs_opponent": 3.337,
+            "current_f5_allowed": 1.868,
+            "current_starts": 0,
+            "current_vs_opponent": 1.868,
             "current_vs_opponent_starts": 0,
-            "name": "Carson Whisenhunt",
-            "prior_f5_allowed": 3.161,
-            "prior_starts": 5,
-            "prior_vs_opponent": 3.337,
+            "name": "JT Brubaker",
+            "prior_f5_allowed": 1.876,
+            "prior_starts": 1,
+            "prior_vs_opponent": 1.868,
             "prior_vs_opponent_starts": 0,
-            "recent_f5_allowed": 3.4,
-            "recent_starts": 5,
-            "rest_days": 1,
-            "rest_label": "emergency/opener (1d rest) +0.30",
-            "rest_runs_modifier": 0.3,
-            "stat_expected": 3.337,
+            "recent_f5_allowed": 1.868,
+            "recent_starts": 0,
+            "rest_days": null,
+            "rest_label": "rest unknown",
+            "rest_runs_modifier": 0.0,
+            "stat_expected": 1.868,
             "team_bullpen": {
               "back_to_back_arms": [
                 671345
@@ -5301,8 +5301,8 @@
                 681916
               ]
             },
-            "venue_f5_allowed": 3.2,
-            "venue_starts": 5
+            "venue_f5_allowed": 1.901,
+            "venue_starts": 1
           },
           "travel": {
             "away": {
@@ -5359,43 +5359,44 @@
         "game_id": "823191",
         "game_order": 14,
         "game_start_time": "2026-08-08T02:15:00Z",
-        "home_pitcher": "Carson Whisenhunt",
+        "home_pitcher": "JT Brubaker",
         "home_team": "San Francisco Giants",
         "matchup": "Detroit Tigers @ San Francisco Giants",
-        "notes": "F5 projection Detroit Tigers 3.56, San Francisco Giants 2.08 (total 5.64). BvP PA away/home: 0+0/0+6; venue F5 total 5.23 over 60 games. Travel away/home: 1d since previous game (fatigue 0.20) / 2d since previous game; 1464 mi; 2h west (fatigue 0.24).",
+        "notes": "F5 projection Detroit Tigers 2.31, San Francisco Giants 2.08 (total 4.39). BvP PA away/home: 0+9/0+6; venue F5 total 5.23 over 60 games. Travel away/home: 1d since previous game (fatigue 0.20) / 2d since previous game; 1464 mi; 2h west (fatigue 0.24).",
         "projected_first_five": {
-          "away_lead_probability": 0.6835,
-          "away_runs": 3.56,
-          "home_lead_probability": 0.3165,
+          "away_lead_probability": 0.5296,
+          "away_runs": 2.31,
+          "home_lead_probability": 0.4704,
           "home_runs": 2.08,
-          "total_runs": 5.64
+          "total_runs": 4.39
         },
         "top_picks": [
           {
             "assumed_odds": -110,
-            "confidence": "High",
-            "decision": "BET",
-            "edge_pct": 15.97,
+            "confidence": "Low",
+            "decision": "PASS",
+            "edge_pct": 0.58,
+            "guardrail": "thin starter sample, margin too small",
             "market": "f5_side",
-            "model_prediction": "Detroit Tigers +1.48 F5 runs",
+            "model_prediction": "Detroit Tigers +0.23 F5 runs",
             "pick": "Detroit Tigers F5 ML",
-            "probability": 0.6835,
-            "projected_margin": 1.48,
+            "probability": 0.5296,
+            "projected_margin": 0.23,
             "team": "Detroit Tigers"
           },
           {
-            "assumed_odds": -170,
+            "assumed_odds": -130,
             "confidence": "Low",
             "decision": "PASS",
-            "edge_pct": -9.95,
-            "guardrail": "projection too close to F5 line",
+            "edge_pct": -4.15,
+            "guardrail": "thin starter sample, projection too close to F5 line",
             "market": "f5_total",
-            "model_prediction": "5.64 F5 total",
-            "pick": "Over 5.5 F5",
-            "probability": 0.5302,
-            "projection_gap": 0.14,
+            "model_prediction": "4.39 F5 total",
+            "pick": "Under 4.5 F5",
+            "probability": 0.5237,
+            "projection_gap": 0.11,
             "team": "",
-            "vegas_line": 5.5
+            "vegas_line": 4.5
           }
         ],
         "venue_id": 2395,
@@ -5421,8 +5422,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -5741,8 +5742,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -6139,8 +6140,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -6471,8 +6472,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -6890,8 +6891,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -7268,8 +7269,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -7555,8 +7556,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -7959,8 +7960,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -8271,8 +8272,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -8695,8 +8696,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -9019,8 +9020,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -9319,8 +9320,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -9695,8 +9696,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -10011,8 +10012,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -10415,8 +10416,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -10825,8 +10826,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -11148,8 +11149,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -11456,8 +11457,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -11833,8 +11834,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -12157,8 +12158,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -12554,8 +12555,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -12858,8 +12859,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -13271,8 +13272,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -13591,8 +13592,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -14011,8 +14012,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -14415,8 +14416,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -14722,8 +14723,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -15134,8 +15135,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -15435,23 +15436,23 @@
         "actionability": "research_signal",
         "assumed_odds_replaced": true,
         "away_team": "Detroit Tigers",
-        "calibrated_edge": 9.26,
-        "calibrated_model_probability": 0.616436,
-        "calibrated_probability": 0.616436,
+        "calibrated_edge": -4.14,
+        "calibrated_model_probability": 0.482413,
+        "calibrated_probability": 0.482413,
         "calibration": {
           "applied": true,
           "key": "global",
-          "probability_delta": -0.067064,
+          "probability_delta": -0.047187,
           "samples": 128,
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
-        "confidence": "High",
+        "confidence": "Low",
         "consensus_factor_categories": {
           "bullpen": {
             "missing": [],
@@ -15477,13 +15478,6 @@
               "lineup_threat_quality"
             ]
           },
-          "market_price": {
-            "missing": [],
-            "risk": [],
-            "support": [
-              "market_price"
-            ]
-          },
           "model_edge": {
             "missing": [],
             "risk": [],
@@ -15501,11 +15495,11 @@
             ]
           },
           "starting_pitcher": {
-            "missing": [],
+            "missing": [
+              "starter_sample_missing"
+            ],
             "risk": [],
             "support": [
-              "starting_pitcher",
-              "starter_recent_form",
               "starter_venue_history"
             ]
           },
@@ -15529,23 +15523,18 @@
         },
         "consensus_gate_version": "mlb_team_consensus_v1.1.0",
         "consensus_hard_blockers": [
+          "raw_model_abstained",
+          "non_positive_calibrated_edge",
           "failed_walk_forward_validation"
         ],
         "consensus_passed": false,
         "consensus_publication_mode": "research",
         "consensus_qualified": false,
-        "consensus_rejection_reason": "failed_walk_forward_validation",
+        "consensus_rejection_reason": "raw_model_abstained; non_positive_calibrated_edge; failed_walk_forward_validation",
         "consensus_required": true,
-        "consensus_score": 63.404,
-        "consensus_signal_count": 17,
+        "consensus_score": 35.0,
+        "consensus_signal_count": 14,
         "consensus_signals": [
-          {
-            "category": "market_price",
-            "detail": "calibrated probability beats selected-side market price",
-            "impact": "support",
-            "name": "market_price",
-            "strength": 0.926
-          },
           {
             "category": "calibration",
             "detail": "active calibration group has enough samples",
@@ -15555,17 +15544,10 @@
           },
           {
             "category": "starting_pitcher",
-            "detail": "away offense: opposing starter sample available",
-            "impact": "support",
-            "name": "starting_pitcher",
-            "strength": 1.0
-          },
-          {
-            "category": "starting_pitcher",
-            "detail": "away offense: recent starter form included",
-            "impact": "support",
-            "name": "starter_recent_form",
-            "strength": 0.8
+            "detail": "away offense: thin or missing starter sample",
+            "impact": "missing",
+            "name": "starter_sample_missing",
+            "strength": 0.0
           },
           {
             "category": "starting_pitcher",
@@ -15668,7 +15650,7 @@
         ],
         "date": "2026-08-07",
         "decision": "PASS",
-        "edge": 9.26,
+        "edge": -4.14,
         "game": "Detroit Tigers @ San Francisco Giants",
         "game_id": "823191",
         "game_order": 14,
@@ -15691,8 +15673,8 @@
         "mlb_team_consensus_version": "mlb_team_consensus_v1.1.0",
         "model_assumed_odds": -110,
         "model_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_first_five",
-        "model_prediction": "Detroit Tigers +1.48 F5 runs",
-        "notes": "F5 projection Detroit Tigers 3.56, San Francisco Giants 2.08 (total 5.64). BvP PA away/home: 0+0/0+6; venue F5 total 5.23 over 60 games. Travel away/home: 1d since previous game (fatigue 0.20) / 2d since previous game; 1464 mi; 2h west (fatigue 0.24). Projection: Detroit Tigers 3.56, San Francisco Giants 2.08; total 5.64.",
+        "model_prediction": "Detroit Tigers +0.23 F5 runs",
+        "notes": "F5 projection Detroit Tigers 2.31, San Francisco Giants 2.08 (total 4.39). BvP PA away/home: 0+9/0+6; venue F5 total 5.23 over 60 games. Travel away/home: 1d since previous game (fatigue 0.20) / 2d since previous game; 1464 mi; 2h west (fatigue 0.24). Projection: Detroit Tigers 2.31, San Francisco Giants 2.08; total 4.39.",
         "odds": -135,
         "odds_source": "posted_market",
         "opposite_odds": 105,
@@ -15732,11 +15714,11 @@
         "price_source": "espn_scoreboard:DraftKings",
         "pricing_type": "market",
         "primary_consensus_passed": false,
-        "probability": 0.6164,
+        "probability": 0.4824,
         "ranking_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_first_five",
-        "raw_edge": 15.97,
-        "raw_model_probability": 0.6835,
-        "raw_probability": 0.6835,
+        "raw_edge": 0.58,
+        "raw_model_probability": 0.5296,
+        "raw_probability": 0.5296,
         "selected_odds": -135,
         "selected_side_implied_probability": 0.52381,
         "source": "MLB First Five",
@@ -15751,19 +15733,19 @@
         "actionability": "research_signal",
         "assumed_odds_replaced": true,
         "away_team": "Detroit Tigers",
-        "calibrated_edge": -14.67,
-        "calibrated_model_probability": 0.482916,
-        "calibrated_probability": 0.482916,
+        "calibrated_edge": -8.77,
+        "calibrated_model_probability": 0.477472,
+        "calibrated_probability": 0.477472,
         "calibration": {
           "applied": true,
           "key": "global",
-          "probability_delta": -0.047284,
+          "probability_delta": -0.046228,
           "samples": 128,
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -15810,12 +15792,14 @@
             ]
           },
           "starting_pitcher": {
-            "missing": [],
+            "missing": [
+              "starter_sample_missing"
+            ],
             "risk": [],
             "support": [
+              "starter_venue_history",
               "starting_pitcher",
               "starter_recent_form",
-              "starter_venue_history",
               "starter_vs_opponent_history"
             ]
           },
@@ -15861,17 +15845,10 @@
           },
           {
             "category": "starting_pitcher",
-            "detail": "away offense: opposing starter sample available",
-            "impact": "support",
-            "name": "starting_pitcher",
-            "strength": 1.0
-          },
-          {
-            "category": "starting_pitcher",
-            "detail": "away offense: recent starter form included",
-            "impact": "support",
-            "name": "starter_recent_form",
-            "strength": 0.8
+            "detail": "away offense: thin or missing starter sample",
+            "impact": "missing",
+            "name": "starter_sample_missing",
+            "strength": 0.0
           },
           {
             "category": "starting_pitcher",
@@ -16065,63 +16042,63 @@
         ],
         "date": "2026-08-07",
         "decision": "PASS",
-        "edge": -14.67,
+        "edge": -8.77,
         "game": "Detroit Tigers @ San Francisco Giants",
         "game_id": "823191",
         "game_order": 14,
         "game_start_time": "2026-08-08T02:15:00Z",
         "home_team": "San Francisco Giants",
         "league": "MLB",
-        "line": 5.5,
+        "line": 4.5,
         "line_source": "user_assumed_f5_total_ladder",
         "market": "f5_total",
-        "market_implied_probability": 0.62963,
-        "market_line": 5.5,
-        "market_no_vig_probability": 0.62963,
-        "market_odds_captured_at": "2026-08-07T14:49:07.899998Z",
+        "market_implied_probability": 0.565217,
+        "market_line": 4.5,
+        "market_no_vig_probability": 0.565217,
+        "market_odds_captured_at": "2026-08-07T16:42:22.283262Z",
         "market_odds_provider": "espn_scoreboard:DraftKings",
-        "market_over_odds": 140,
+        "market_over_odds": -110,
         "market_priced": true,
-        "market_under_odds": -180,
-        "market_updated_at": "2026-08-07T14:49:07.899998Z",
+        "market_under_odds": -120,
+        "market_updated_at": "2026-08-07T16:42:22.283262Z",
         "matchup": "Detroit Tigers @ San Francisco Giants",
         "ml_rank_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_first_five",
         "mlb_team_consensus_version": "mlb_team_consensus_v1.1.0",
-        "model_assumed_odds": -170,
+        "model_assumed_odds": -130,
         "model_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_first_five",
-        "model_prediction": "5.64 F5 total",
-        "notes": "F5 projection Detroit Tigers 3.56, San Francisco Giants 2.08 (total 5.64). BvP PA away/home: 0+0/0+6; venue F5 total 5.23 over 60 games. Travel away/home: 1d since previous game (fatigue 0.20) / 2d since previous game; 1464 mi; 2h west (fatigue 0.24). Projection: Detroit Tigers 3.56, San Francisco Giants 2.08; total 5.64.",
-        "odds": 140,
+        "model_prediction": "4.39 F5 total",
+        "notes": "F5 projection Detroit Tigers 2.31, San Francisco Giants 2.08 (total 4.39). BvP PA away/home: 0+9/0+6; venue F5 total 5.23 over 60 games. Travel away/home: 1d since previous game (fatigue 0.20) / 2d since previous game; 1464 mi; 2h west (fatigue 0.24). Projection: Detroit Tigers 2.31, San Francisco Giants 2.08; total 4.39.",
+        "odds": -120,
         "odds_source": "posted_market",
-        "opposite_odds": -180,
-        "pick": "Over 5.5 F5",
+        "opposite_odds": -110,
+        "pick": "Under 4.5 F5",
         "pregame_snapshot": {
           "actionability": "research_signal",
-          "assumed_odds": -170,
+          "assumed_odds": -130,
           "away_team": "Detroit Tigers",
           "confidence": "Low",
           "date": "2026-08-07",
           "decision": "PASS",
-          "edge": -9.94,
+          "edge": -4.15,
           "game": "Detroit Tigers @ San Francisco Giants",
           "game_id": "823191",
           "game_order": 14,
           "game_start_time": "2026-08-08T02:15:00Z",
           "home_team": "San Francisco Giants",
           "league": "MLB",
-          "line": 5.5,
+          "line": 4.5,
           "line_source": "user_assumed_f5_total_ladder",
           "market": "f5_total",
-          "market_implied_probability": 0.62963,
+          "market_implied_probability": 0.565217,
           "market_priced": true,
           "matchup": "Detroit Tigers @ San Francisco Giants",
-          "model_prediction": "5.64 F5 total",
-          "notes": "F5 projection Detroit Tigers 3.56, San Francisco Giants 2.08 (total 5.64). BvP PA away/home: 0+0/0+6; venue F5 total 5.23 over 60 games. Travel away/home: 1d since previous game (fatigue 0.20) / 2d since previous game; 1464 mi; 2h west (fatigue 0.24). Projection: Detroit Tigers 3.56, San Francisco Giants 2.08; total 5.64.",
-          "odds": -170,
-          "odds_source": "user_assumed_f5_total_5.5",
-          "pick": "Over 5.5 F5",
+          "model_prediction": "4.39 F5 total",
+          "notes": "F5 projection Detroit Tigers 2.31, San Francisco Giants 2.08 (total 4.39). BvP PA away/home: 0+9/0+6; venue F5 total 5.23 over 60 games. Travel away/home: 1d since previous game (fatigue 0.20) / 2d since previous game; 1464 mi; 2h west (fatigue 0.24). Projection: Detroit Tigers 2.31, San Francisco Giants 2.08; total 4.39.",
+          "odds": -130,
+          "odds_source": "user_assumed_f5_total_4.5",
+          "pick": "Under 4.5 F5",
           "pricing_type": "user_assumed",
-          "probability": 0.5302,
+          "probability": 0.5237,
           "source": "MLB First Five",
           "sport": "MLB",
           "start_time": "2026-08-08T02:15:00Z",
@@ -16130,13 +16107,13 @@
         "price_source": "espn_scoreboard:DraftKings",
         "pricing_type": "market",
         "primary_consensus_passed": false,
-        "probability": 0.4829,
+        "probability": 0.4775,
         "ranking_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_first_five",
-        "raw_edge": -9.94,
-        "raw_model_probability": 0.5302,
-        "raw_probability": 0.5302,
-        "selected_odds": 140,
-        "selected_side_implied_probability": 0.62963,
+        "raw_edge": -4.15,
+        "raw_model_probability": 0.5237,
+        "raw_probability": 0.5237,
+        "selected_odds": -120,
+        "selected_side_implied_probability": 0.565217,
         "source": "MLB First Five",
         "sport": "MLB",
         "start_time": "2026-08-08T02:15:00Z",
@@ -16154,7 +16131,7 @@
     "consensus_gate_version": "mlb_team_consensus_v1.1.0",
     "consensus_rejection_reasons": {
       "failed_walk_forward_validation": 4,
-      "non_positive_calibrated_edge": 19
+      "non_positive_calibrated_edge": 20
     },
     "consensus_required": true,
     "date": "2026-08-07",
@@ -18052,34 +18029,34 @@
           "8": 0.5625
         },
         "edge_table": {
-          "1": 0.0786,
-          "2": -0.0184,
-          "3": -0.0109,
-          "4": -0.0282,
-          "5": -0.098,
-          "6": -0.0282,
+          "1": 0.1236,
+          "2": 0.0256,
+          "3": 0.0313,
+          "4": 0.014,
+          "5": -0.0585,
+          "6": 0.014,
           "7": -0.0796,
           "8": -0.1459
         },
         "full_inning_table": {
-          "1": 0.463,
-          "2": 0.5,
-          "3": 0.479,
-          "4": 0.49,
-          "5": 0.406,
-          "6": 0.49,
+          "1": 0.508,
+          "2": 0.544,
+          "3": 0.521,
+          "4": 0.532,
+          "5": 0.446,
+          "6": 0.532,
           "7": 0.468,
           "8": 0.417
         },
         "game_id": "823191",
         "game_order": 14,
         "game_start_time": "2026-08-08T02:15:00Z",
-        "home_pitcher": "Carson Whisenhunt",
+        "home_pitcher": "JT Brubaker",
         "home_pitcher_context": {
-          "era": 7.25,
-          "name": "Carson Whisenhunt",
-          "opponent_obp": 0.39,
-          "opponent_slg": 0.506,
+          "era": 3.17,
+          "name": "JT Brubaker",
+          "opponent_obp": 0.294,
+          "opponent_slg": 0.335,
           "team_bullpen": {
             "back_to_back_arms_count": 1,
             "effective_unavailable_count": 3.78,
@@ -18089,7 +18066,7 @@
             "lookback_games": 2,
             "unavailable_today_count": 2
           },
-          "whip": 1.84
+          "whip": 1.17
         },
         "home_team": "San Francisco Giants",
         "matchup": "San Francisco Giants vs Detroit Tigers",
@@ -18097,11 +18074,20 @@
           {
             "baseline": 0.3844,
             "confidence": "Medium",
-            "decision": "LEAN",
-            "edge_pp": 7.86,
+            "decision": "BET",
+            "edge_pp": 12.36,
             "inning": 1,
-            "label": "Inning 1 - No Run Scored (46.3%, edge +7.9pp)",
-            "probability_scoreless": 0.463
+            "label": "Inning 1 - No Run Scored (50.8%, edge +12.4pp)",
+            "probability_scoreless": 0.508
+          },
+          {
+            "baseline": 0.49,
+            "confidence": "Medium",
+            "decision": "LEAN",
+            "edge_pp": 3.13,
+            "inning": 3,
+            "label": "Inning 3 - No Run Scored (52.1%, edge +3.1pp)",
+            "probability_scoreless": 0.521
           }
         ],
         "travel": {
@@ -18152,7 +18138,7 @@
       }
     ],
     "model": "MLBInning",
-    "note": "MLB Inning processed 15 game(s), returned 23 top inning pick(s).",
+    "note": "MLB Inning processed 15 game(s), returned 24 top inning pick(s).",
     "ok": true,
     "picks": [
       {
@@ -18171,8 +18157,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -18415,8 +18401,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -18672,8 +18658,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -18916,8 +18902,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -19160,8 +19146,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -19404,8 +19390,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -19661,8 +19647,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -19898,8 +19884,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -20151,8 +20137,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -20395,8 +20381,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -20639,8 +20625,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -20883,8 +20869,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -21127,8 +21113,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -21371,8 +21357,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -21615,8 +21601,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -21844,8 +21830,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -22089,8 +22075,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -22334,8 +22320,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -22579,8 +22565,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -22840,8 +22826,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -23085,8 +23071,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -23325,8 +23311,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -23551,19 +23537,19 @@
         "assumed_odds": -120,
         "away_team": "Detroit Tigers",
         "baseline_probability": 0.3844,
-        "calibrated_edge": -11.83,
-        "calibrated_model_probability": 0.427136,
-        "calibrated_probability": 0.427136,
+        "calibrated_edge": -8.11,
+        "calibrated_model_probability": 0.464371,
+        "calibrated_probability": 0.464371,
         "calibration": {
           "applied": true,
           "key": "global",
-          "probability_delta": -0.035864,
+          "probability_delta": -0.043629,
           "samples": 128,
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -23718,8 +23704,8 @@
         ],
         "date": "2026-08-07",
         "decision": "PASS",
-        "edge": -11.83,
-        "edge_pp": 7.86,
+        "edge": -8.11,
+        "edge_pp": 12.36,
         "game": "San Francisco Giants vs Detroit Tigers",
         "game_id": "823191",
         "game_order": 14,
@@ -23736,8 +23722,8 @@
         "ml_rank_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
         "mlb_team_consensus_version": "mlb_team_consensus_v1.1.0",
         "model_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
-        "model_prediction": "46.3%",
-        "notes": "Top no-run inning candidate (edge +7.9pp vs baseline). Full table: {\"1\": 0.463, \"2\": 0.5, \"3\": 0.479, \"4\": 0.49, \"5\": 0.406, \"6\": 0.49, \"7\": 0.468, \"8\": 0.417}",
+        "model_prediction": "50.8%",
+        "notes": "Top no-run inning candidate (edge +12.4pp vs baseline). Full table: {\"1\": 0.508, \"2\": 0.544, \"3\": 0.521, \"4\": 0.532, \"5\": 0.446, \"6\": 0.532, \"7\": 0.468, \"8\": 0.417}",
         "odds": -120,
         "odds_source": "user_assumed_no_run_inning_-120",
         "pick": "Inning 1 - No Run Scored",
@@ -23777,11 +23763,256 @@
         },
         "pricing_type": "user_assumed",
         "primary_consensus_passed": false,
-        "probability": 0.4271,
+        "probability": 0.4644,
         "ranking_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
-        "raw_edge": 7.86,
-        "raw_model_probability": 0.463,
-        "raw_probability": 0.463,
+        "raw_edge": 12.36,
+        "raw_model_probability": 0.508,
+        "raw_probability": 0.508,
+        "selected_side_implied_probability": 0.545455,
+        "source": "MLB Inning",
+        "sport": "MLB",
+        "start_time": "2026-08-08T02:15:00Z",
+        "team": "",
+        "units": 0.0,
+        "walk_forward_roi": null,
+        "walk_forward_samples": 0
+      },
+      {
+        "actionability": "research_signal",
+        "assumed_odds": -120,
+        "away_team": "Detroit Tigers",
+        "baseline_probability": 0.49,
+        "calibrated_edge": -7.02,
+        "calibrated_model_probability": 0.475214,
+        "calibrated_probability": 0.475214,
+        "calibration": {
+          "applied": true,
+          "key": "global",
+          "probability_delta": -0.045786,
+          "samples": 128,
+          "version": "cal-v2-1850-2026-07-11"
+        },
+        "certification_timing": {
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
+          "source": "model-cache-refresh",
+          "trusted": true
+        },
+        "confidence": "Medium",
+        "consensus_factor_categories": {
+          "calibration": {
+            "missing": [],
+            "risk": [],
+            "support": [
+              "probability_calibration"
+            ]
+          },
+          "inning_baseline": {
+            "missing": [],
+            "risk": [],
+            "support": [
+              "inning_baseline_edge",
+              "matchup_structure"
+            ]
+          },
+          "park_weather": {
+            "missing": [],
+            "risk": [],
+            "support": [
+              "park_weather",
+              "park_factor",
+              "venue_context"
+            ]
+          },
+          "starting_pitcher": {
+            "missing": [],
+            "risk": [],
+            "support": [
+              "starting_pitcher",
+              "starter_run_prevention"
+            ]
+          },
+          "travel_rest": {
+            "missing": [],
+            "risk": [],
+            "support": [
+              "travel_rest_context",
+              "short_rest_schedule",
+              "long_distance_travel"
+            ]
+          }
+        },
+        "consensus_gate_version": "mlb_team_consensus_v1.1.0",
+        "consensus_hard_blockers": [
+          "non_positive_calibrated_edge",
+          "failed_walk_forward_validation"
+        ],
+        "consensus_passed": false,
+        "consensus_publication_mode": "research",
+        "consensus_qualified": false,
+        "consensus_rejection_reason": "non_positive_calibrated_edge; failed_walk_forward_validation",
+        "consensus_required": true,
+        "consensus_score": 27.5,
+        "consensus_signal_count": 11,
+        "consensus_signals": [
+          {
+            "category": "calibration",
+            "detail": "active calibration group has enough samples",
+            "impact": "support",
+            "name": "probability_calibration",
+            "strength": 1.0
+          },
+          {
+            "category": "inning_baseline",
+            "detail": "scoreless probability beats inning baseline",
+            "impact": "support",
+            "name": "inning_baseline_edge",
+            "strength": 1.0
+          },
+          {
+            "category": "starting_pitcher",
+            "detail": "starter inning profile is applicable",
+            "impact": "support",
+            "name": "starting_pitcher",
+            "strength": 1.0
+          },
+          {
+            "category": "starting_pitcher",
+            "detail": "home: ERA/WHIP run-prevention context included",
+            "impact": "support",
+            "name": "starter_run_prevention",
+            "strength": 0.7
+          },
+          {
+            "category": "starting_pitcher",
+            "detail": "away: ERA/WHIP run-prevention context included",
+            "impact": "support",
+            "name": "starter_run_prevention",
+            "strength": 0.7
+          },
+          {
+            "category": "park_weather",
+            "detail": "venue factor included in inning projection",
+            "impact": "support",
+            "name": "park_weather",
+            "strength": 1.0
+          },
+          {
+            "category": "park_weather",
+            "detail": "park run factor included",
+            "impact": "support",
+            "name": "park_factor",
+            "strength": 0.8
+          },
+          {
+            "category": "park_weather",
+            "detail": "venue context included: Oracle Park",
+            "impact": "support",
+            "name": "venue_context",
+            "strength": 0.5
+          },
+          {
+            "category": "inning_baseline",
+            "detail": "full inning table available for matchup shape",
+            "impact": "support",
+            "name": "matchup_structure",
+            "strength": 1.0
+          },
+          {
+            "category": "travel_rest",
+            "detail": "away team: 1d since previous game",
+            "impact": "support",
+            "name": "travel_rest_context",
+            "strength": 1.0
+          },
+          {
+            "category": "travel_rest",
+            "detail": "away team: 1 day(s) since previous game",
+            "impact": "support",
+            "name": "short_rest_schedule",
+            "strength": 0.6
+          },
+          {
+            "category": "travel_rest",
+            "detail": "home team: 2d since previous game; 1464 mi; 2h west",
+            "impact": "support",
+            "name": "travel_rest_context",
+            "strength": 1.0
+          },
+          {
+            "category": "travel_rest",
+            "detail": "home team: 1464 miles since previous game",
+            "impact": "support",
+            "name": "long_distance_travel",
+            "strength": 0.7
+          }
+        ],
+        "date": "2026-08-07",
+        "decision": "PASS",
+        "edge": -7.02,
+        "edge_pp": 3.13,
+        "game": "San Francisco Giants vs Detroit Tigers",
+        "game_id": "823191",
+        "game_order": 14,
+        "game_start_time": "2026-08-08T02:15:00Z",
+        "home_team": "San Francisco Giants",
+        "inning": 3,
+        "league": "MLB",
+        "line_source": "user_assumed_no_run_inning_price",
+        "market": "no_run_inning",
+        "market_implied_probability": 0.545455,
+        "market_no_vig_probability": 0.545455,
+        "market_priced": true,
+        "matchup": "San Francisco Giants vs Detroit Tigers",
+        "ml_rank_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
+        "mlb_team_consensus_version": "mlb_team_consensus_v1.1.0",
+        "model_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
+        "model_prediction": "52.1%",
+        "notes": "Top no-run inning candidate (edge +3.1pp vs baseline). Full table: {\"1\": 0.508, \"2\": 0.544, \"3\": 0.521, \"4\": 0.532, \"5\": 0.446, \"6\": 0.532, \"7\": 0.468, \"8\": 0.417}",
+        "odds": -120,
+        "odds_source": "user_assumed_no_run_inning_-120",
+        "pick": "Inning 3 - No Run Scored",
+        "pregame_snapshot": {
+          "actionability": "research_signal",
+          "assumed_odds": -120,
+          "away_team": "Detroit Tigers",
+          "baseline_probability": 0.49,
+          "confidence": "Medium",
+          "date": "2026-08-07",
+          "decision": "LEAN",
+          "edge": 3.13,
+          "edge_pp": 3.13,
+          "game": "San Francisco Giants vs Detroit Tigers",
+          "game_id": "823191",
+          "game_order": 14,
+          "game_start_time": "2026-08-08T02:15:00Z",
+          "home_team": "San Francisco Giants",
+          "inning": 3,
+          "league": "MLB",
+          "line_source": "user_assumed_no_run_inning_price",
+          "market": "no_run_inning",
+          "market_implied_probability": 0.545455,
+          "market_priced": true,
+          "matchup": "San Francisco Giants vs Detroit Tigers",
+          "model_prediction": "52.1%",
+          "notes": "Top no-run inning candidate (edge +3.1pp vs baseline). Full table: {\"1\": 0.508, \"2\": 0.544, \"3\": 0.521, \"4\": 0.532, \"5\": 0.446, \"6\": 0.532, \"7\": 0.468, \"8\": 0.417}",
+          "odds": -120,
+          "odds_source": "user_assumed_no_run_inning_-120",
+          "pick": "Inning 3 - No Run Scored",
+          "pricing_type": "user_assumed",
+          "probability": 0.521,
+          "source": "MLB Inning",
+          "sport": "MLB",
+          "start_time": "2026-08-08T02:15:00Z",
+          "team": ""
+        },
+        "pricing_type": "user_assumed",
+        "primary_consensus_passed": false,
+        "probability": 0.4752,
+        "ranking_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
+        "raw_edge": 3.13,
+        "raw_model_probability": 0.521,
+        "raw_probability": 0.521,
         "selected_side_implied_probability": 0.545455,
         "source": "MLB Inning",
         "sport": "MLB",
@@ -23855,8 +24086,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -23991,8 +24222,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -24126,8 +24357,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -24260,8 +24491,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -24395,8 +24626,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -24529,8 +24760,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -24664,8 +24895,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -24798,8 +25029,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -24933,8 +25164,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -25067,8 +25298,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -25214,8 +25445,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -25350,8 +25581,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -25497,8 +25728,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -25633,8 +25864,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -25768,8 +25999,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -25904,8 +26135,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -26039,8 +26270,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -26173,8 +26404,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -26308,8 +26539,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -26442,8 +26673,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -26589,8 +26820,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -26723,8 +26954,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -26857,8 +27088,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -26993,8 +27224,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -27128,8 +27359,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -27264,8 +27495,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -27411,8 +27642,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -27547,8 +27778,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -27705,8 +27936,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -27830,19 +28061,19 @@
         "actionability": "research_signal",
         "assumed_odds_replaced": true,
         "away_team": "Detroit Tigers",
-        "calibrated_edge": -4.31,
-        "calibrated_model_probability": 0.480737,
-        "calibrated_probability": 0.480737,
+        "calibrated_edge": -4.62,
+        "calibrated_model_probability": 0.477639,
+        "calibrated_probability": 0.477639,
         "calibration": {
           "applied": true,
           "key": "global",
-          "probability_delta": -0.046863,
+          "probability_delta": -0.046261,
           "samples": 128,
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T15:47:33.027094Z",
-          "published_at": "2026-08-07T15:47:33.027094Z",
+          "data_as_of": "2026-08-07T16:42:16.355446Z",
+          "published_at": "2026-08-07T16:42:16.355446Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -27907,9 +28138,9 @@
         ],
         "decision": "PASS",
         "direction": "Under",
-        "edge": -4.31,
+        "edge": -4.62,
         "home_team": "San Francisco Giants",
-        "kelly": 0.2,
+        "kelly": 0.0,
         "line": 8.5,
         "market_line": 8.5,
         "market_no_vig_probability": 0.5238095238095238,
@@ -27956,12 +28187,12 @@
         "price_source": "espn_scoreboard:DraftKings",
         "pricing_type": "market",
         "primary_consensus_passed": false,
-        "prob": 0.5276,
-        "probability": 0.4807,
+        "prob": 0.5239,
+        "probability": 0.4776,
         "ranking_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_new",
-        "raw_edge": 0.38,
-        "raw_model_probability": 0.5276,
-        "raw_probability": 0.5276,
+        "raw_edge": 0.01,
+        "raw_model_probability": 0.5239,
+        "raw_probability": 0.5239,
         "raw_units": 0.0,
         "selected_odds": -115,
         "selected_side_implied_probability": 0.5238095238095238,
@@ -27987,9 +28218,9 @@
     "mlb_first_five": {
       "consensus_gate_version": "mlb_team_consensus_v1.1.0",
       "consensus_rejection_reasons": {
-        "failed_walk_forward_validation": 12,
+        "failed_walk_forward_validation": 11,
         "non_positive_calibrated_edge": 3,
-        "raw_model_abstained": 15
+        "raw_model_abstained": 16
       },
       "consensus_required": true,
       "date": "2026-08-07",
@@ -32022,23 +32253,23 @@
           "features": {
             "away_lineup_matchup": {
               "current_bvp_pa": 0,
-              "older_bvp_pa": 0,
-              "run_delta": 0.107,
+              "older_bvp_pa": 9,
+              "run_delta": -0.006,
               "sampled_batters": 9,
-              "threat_score": 0.3948
+              "threat_score": 0.3467
             },
             "away_offense": {
-              "lineup_delta": 0.107,
+              "lineup_delta": -0.006,
               "park_run_delta_per_team": 0.18,
-              "pitcher_current_f5_allowed": 3.389,
-              "pitcher_current_vs_opponent": 3.337,
-              "pitcher_prior_vs_opponent": 3.337,
-              "pitcher_recent_f5_allowed": 3.4,
-              "pitcher_rest_days": 1,
-              "pitcher_rest_label": "emergency/opener (1d rest) +0.30",
-              "pitcher_rest_runs_modifier": 0.3,
-              "pitcher_venue_f5_allowed": 3.2,
-              "projected_runs": 3.56,
+              "pitcher_current_f5_allowed": 1.868,
+              "pitcher_current_vs_opponent": 1.868,
+              "pitcher_prior_vs_opponent": 1.868,
+              "pitcher_recent_f5_allowed": 1.868,
+              "pitcher_rest_days": null,
+              "pitcher_rest_label": "rest unknown",
+              "pitcher_rest_runs_modifier": 0.0,
+              "pitcher_venue_f5_allowed": 1.901,
+              "projected_runs": 2.31,
               "team_current_f5_runs": 2.632,
               "team_prior_f5_runs": 2.701,
               "team_recent_f5_runs": 3.125,
@@ -32146,21 +32377,21 @@
               "wind_run_delta_per_team": 0.0
             },
             "home_pitcher": {
-              "current_f5_allowed": 3.389,
-              "current_starts": 5,
-              "current_vs_opponent": 3.337,
+              "current_f5_allowed": 1.868,
+              "current_starts": 0,
+              "current_vs_opponent": 1.868,
               "current_vs_opponent_starts": 0,
-              "name": "Carson Whisenhunt",
-              "prior_f5_allowed": 3.161,
-              "prior_starts": 5,
-              "prior_vs_opponent": 3.337,
+              "name": "JT Brubaker",
+              "prior_f5_allowed": 1.876,
+              "prior_starts": 1,
+              "prior_vs_opponent": 1.868,
               "prior_vs_opponent_starts": 0,
-              "recent_f5_allowed": 3.4,
-              "recent_starts": 5,
-              "rest_days": 1,
-              "rest_label": "emergency/opener (1d rest) +0.30",
-              "rest_runs_modifier": 0.3,
-              "stat_expected": 3.337,
+              "recent_f5_allowed": 1.868,
+              "recent_starts": 0,
+              "rest_days": null,
+              "rest_label": "rest unknown",
+              "rest_runs_modifier": 0.0,
+              "stat_expected": 1.868,
               "team_bullpen": {
                 "back_to_back_arms": [
                   671345
@@ -32201,8 +32432,8 @@
                   681916
                 ]
               },
-              "venue_f5_allowed": 3.2,
-              "venue_starts": 5
+              "venue_f5_allowed": 1.901,
+              "venue_starts": 1
             },
             "travel": {
               "away": {
@@ -32259,43 +32490,44 @@
           "game_id": "823191",
           "game_order": 14,
           "game_start_time": "2026-08-08T02:15:00Z",
-          "home_pitcher": "Carson Whisenhunt",
+          "home_pitcher": "JT Brubaker",
           "home_team": "San Francisco Giants",
           "matchup": "Detroit Tigers @ San Francisco Giants",
-          "notes": "F5 projection Detroit Tigers 3.56, San Francisco Giants 2.08 (total 5.64). BvP PA away/home: 0+0/0+6; venue F5 total 5.23 over 60 games. Travel away/home: 1d since previous game (fatigue 0.20) / 2d since previous game; 1464 mi; 2h west (fatigue 0.24).",
+          "notes": "F5 projection Detroit Tigers 2.31, San Francisco Giants 2.08 (total 4.39). BvP PA away/home: 0+9/0+6; venue F5 total 5.23 over 60 games. Travel away/home: 1d since previous game (fatigue 0.20) / 2d since previous game; 1464 mi; 2h west (fatigue 0.24).",
           "projected_first_five": {
-            "away_lead_probability": 0.6835,
-            "away_runs": 3.56,
-            "home_lead_probability": 0.3165,
+            "away_lead_probability": 0.5296,
+            "away_runs": 2.31,
+            "home_lead_probability": 0.4704,
             "home_runs": 2.08,
-            "total_runs": 5.64
+            "total_runs": 4.39
           },
           "top_picks": [
             {
               "assumed_odds": -110,
-              "confidence": "High",
-              "decision": "BET",
-              "edge_pct": 15.97,
+              "confidence": "Low",
+              "decision": "PASS",
+              "edge_pct": 0.58,
+              "guardrail": "thin starter sample, margin too small",
               "market": "f5_side",
-              "model_prediction": "Detroit Tigers +1.48 F5 runs",
+              "model_prediction": "Detroit Tigers +0.23 F5 runs",
               "pick": "Detroit Tigers F5 ML",
-              "probability": 0.6835,
-              "projected_margin": 1.48,
+              "probability": 0.5296,
+              "projected_margin": 0.23,
               "team": "Detroit Tigers"
             },
             {
-              "assumed_odds": -170,
+              "assumed_odds": -130,
               "confidence": "Low",
               "decision": "PASS",
-              "edge_pct": -9.95,
-              "guardrail": "projection too close to F5 line",
+              "edge_pct": -4.15,
+              "guardrail": "thin starter sample, projection too close to F5 line",
               "market": "f5_total",
-              "model_prediction": "5.64 F5 total",
-              "pick": "Over 5.5 F5",
-              "probability": 0.5302,
-              "projection_gap": 0.14,
+              "model_prediction": "4.39 F5 total",
+              "pick": "Under 4.5 F5",
+              "probability": 0.5237,
+              "projection_gap": 0.11,
               "team": "",
-              "vegas_line": 5.5
+              "vegas_line": 4.5
             }
           ],
           "venue_id": 2395,
@@ -32321,8 +32553,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -32641,8 +32873,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -33039,8 +33271,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -33371,8 +33603,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -33790,8 +34022,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -34168,8 +34400,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -34455,8 +34687,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -34859,8 +35091,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -35171,8 +35403,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -35595,8 +35827,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -35919,8 +36151,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -36219,8 +36451,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -36595,8 +36827,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -36911,8 +37143,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -37315,8 +37547,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -37725,8 +37957,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -38048,8 +38280,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -38356,8 +38588,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -38733,8 +38965,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -39057,8 +39289,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -39454,8 +39686,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -39758,8 +39990,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -40171,8 +40403,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -40491,8 +40723,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -40911,8 +41143,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -41315,8 +41547,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -41622,8 +41854,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -42034,8 +42266,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -42335,23 +42567,23 @@
           "actionability": "research_signal",
           "assumed_odds_replaced": true,
           "away_team": "Detroit Tigers",
-          "calibrated_edge": 9.26,
-          "calibrated_model_probability": 0.616436,
-          "calibrated_probability": 0.616436,
+          "calibrated_edge": -4.14,
+          "calibrated_model_probability": 0.482413,
+          "calibrated_probability": 0.482413,
           "calibration": {
             "applied": true,
             "key": "global",
-            "probability_delta": -0.067064,
+            "probability_delta": -0.047187,
             "samples": 128,
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
-          "confidence": "High",
+          "confidence": "Low",
           "consensus_factor_categories": {
             "bullpen": {
               "missing": [],
@@ -42377,13 +42609,6 @@
                 "lineup_threat_quality"
               ]
             },
-            "market_price": {
-              "missing": [],
-              "risk": [],
-              "support": [
-                "market_price"
-              ]
-            },
             "model_edge": {
               "missing": [],
               "risk": [],
@@ -42401,11 +42626,11 @@
               ]
             },
             "starting_pitcher": {
-              "missing": [],
+              "missing": [
+                "starter_sample_missing"
+              ],
               "risk": [],
               "support": [
-                "starting_pitcher",
-                "starter_recent_form",
                 "starter_venue_history"
               ]
             },
@@ -42429,23 +42654,18 @@
           },
           "consensus_gate_version": "mlb_team_consensus_v1.1.0",
           "consensus_hard_blockers": [
+            "raw_model_abstained",
+            "non_positive_calibrated_edge",
             "failed_walk_forward_validation"
           ],
           "consensus_passed": false,
           "consensus_publication_mode": "research",
           "consensus_qualified": false,
-          "consensus_rejection_reason": "failed_walk_forward_validation",
+          "consensus_rejection_reason": "raw_model_abstained; non_positive_calibrated_edge; failed_walk_forward_validation",
           "consensus_required": true,
-          "consensus_score": 63.404,
-          "consensus_signal_count": 17,
+          "consensus_score": 35.0,
+          "consensus_signal_count": 14,
           "consensus_signals": [
-            {
-              "category": "market_price",
-              "detail": "calibrated probability beats selected-side market price",
-              "impact": "support",
-              "name": "market_price",
-              "strength": 0.926
-            },
             {
               "category": "calibration",
               "detail": "active calibration group has enough samples",
@@ -42455,17 +42675,10 @@
             },
             {
               "category": "starting_pitcher",
-              "detail": "away offense: opposing starter sample available",
-              "impact": "support",
-              "name": "starting_pitcher",
-              "strength": 1.0
-            },
-            {
-              "category": "starting_pitcher",
-              "detail": "away offense: recent starter form included",
-              "impact": "support",
-              "name": "starter_recent_form",
-              "strength": 0.8
+              "detail": "away offense: thin or missing starter sample",
+              "impact": "missing",
+              "name": "starter_sample_missing",
+              "strength": 0.0
             },
             {
               "category": "starting_pitcher",
@@ -42568,7 +42781,7 @@
           ],
           "date": "2026-08-07",
           "decision": "PASS",
-          "edge": 9.26,
+          "edge": -4.14,
           "game": "Detroit Tigers @ San Francisco Giants",
           "game_id": "823191",
           "game_order": 14,
@@ -42591,8 +42804,8 @@
           "mlb_team_consensus_version": "mlb_team_consensus_v1.1.0",
           "model_assumed_odds": -110,
           "model_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_first_five",
-          "model_prediction": "Detroit Tigers +1.48 F5 runs",
-          "notes": "F5 projection Detroit Tigers 3.56, San Francisco Giants 2.08 (total 5.64). BvP PA away/home: 0+0/0+6; venue F5 total 5.23 over 60 games. Travel away/home: 1d since previous game (fatigue 0.20) / 2d since previous game; 1464 mi; 2h west (fatigue 0.24). Projection: Detroit Tigers 3.56, San Francisco Giants 2.08; total 5.64.",
+          "model_prediction": "Detroit Tigers +0.23 F5 runs",
+          "notes": "F5 projection Detroit Tigers 2.31, San Francisco Giants 2.08 (total 4.39). BvP PA away/home: 0+9/0+6; venue F5 total 5.23 over 60 games. Travel away/home: 1d since previous game (fatigue 0.20) / 2d since previous game; 1464 mi; 2h west (fatigue 0.24). Projection: Detroit Tigers 2.31, San Francisco Giants 2.08; total 4.39.",
           "odds": -135,
           "odds_source": "posted_market",
           "opposite_odds": 105,
@@ -42632,11 +42845,11 @@
           "price_source": "espn_scoreboard:DraftKings",
           "pricing_type": "market",
           "primary_consensus_passed": false,
-          "probability": 0.6164,
+          "probability": 0.4824,
           "ranking_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_first_five",
-          "raw_edge": 15.97,
-          "raw_model_probability": 0.6835,
-          "raw_probability": 0.6835,
+          "raw_edge": 0.58,
+          "raw_model_probability": 0.5296,
+          "raw_probability": 0.5296,
           "selected_odds": -135,
           "selected_side_implied_probability": 0.52381,
           "source": "MLB First Five",
@@ -42651,19 +42864,19 @@
           "actionability": "research_signal",
           "assumed_odds_replaced": true,
           "away_team": "Detroit Tigers",
-          "calibrated_edge": -14.67,
-          "calibrated_model_probability": 0.482916,
-          "calibrated_probability": 0.482916,
+          "calibrated_edge": -8.77,
+          "calibrated_model_probability": 0.477472,
+          "calibrated_probability": 0.477472,
           "calibration": {
             "applied": true,
             "key": "global",
-            "probability_delta": -0.047284,
+            "probability_delta": -0.046228,
             "samples": 128,
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -42710,12 +42923,14 @@
               ]
             },
             "starting_pitcher": {
-              "missing": [],
+              "missing": [
+                "starter_sample_missing"
+              ],
               "risk": [],
               "support": [
+                "starter_venue_history",
                 "starting_pitcher",
                 "starter_recent_form",
-                "starter_venue_history",
                 "starter_vs_opponent_history"
               ]
             },
@@ -42761,17 +42976,10 @@
             },
             {
               "category": "starting_pitcher",
-              "detail": "away offense: opposing starter sample available",
-              "impact": "support",
-              "name": "starting_pitcher",
-              "strength": 1.0
-            },
-            {
-              "category": "starting_pitcher",
-              "detail": "away offense: recent starter form included",
-              "impact": "support",
-              "name": "starter_recent_form",
-              "strength": 0.8
+              "detail": "away offense: thin or missing starter sample",
+              "impact": "missing",
+              "name": "starter_sample_missing",
+              "strength": 0.0
             },
             {
               "category": "starting_pitcher",
@@ -42965,63 +43173,63 @@
           ],
           "date": "2026-08-07",
           "decision": "PASS",
-          "edge": -14.67,
+          "edge": -8.77,
           "game": "Detroit Tigers @ San Francisco Giants",
           "game_id": "823191",
           "game_order": 14,
           "game_start_time": "2026-08-08T02:15:00Z",
           "home_team": "San Francisco Giants",
           "league": "MLB",
-          "line": 5.5,
+          "line": 4.5,
           "line_source": "user_assumed_f5_total_ladder",
           "market": "f5_total",
-          "market_implied_probability": 0.62963,
-          "market_line": 5.5,
-          "market_no_vig_probability": 0.62963,
-          "market_odds_captured_at": "2026-08-07T14:49:07.899998Z",
+          "market_implied_probability": 0.565217,
+          "market_line": 4.5,
+          "market_no_vig_probability": 0.565217,
+          "market_odds_captured_at": "2026-08-07T16:42:22.283262Z",
           "market_odds_provider": "espn_scoreboard:DraftKings",
-          "market_over_odds": 140,
+          "market_over_odds": -110,
           "market_priced": true,
-          "market_under_odds": -180,
-          "market_updated_at": "2026-08-07T14:49:07.899998Z",
+          "market_under_odds": -120,
+          "market_updated_at": "2026-08-07T16:42:22.283262Z",
           "matchup": "Detroit Tigers @ San Francisco Giants",
           "ml_rank_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_first_five",
           "mlb_team_consensus_version": "mlb_team_consensus_v1.1.0",
-          "model_assumed_odds": -170,
+          "model_assumed_odds": -130,
           "model_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_first_five",
-          "model_prediction": "5.64 F5 total",
-          "notes": "F5 projection Detroit Tigers 3.56, San Francisco Giants 2.08 (total 5.64). BvP PA away/home: 0+0/0+6; venue F5 total 5.23 over 60 games. Travel away/home: 1d since previous game (fatigue 0.20) / 2d since previous game; 1464 mi; 2h west (fatigue 0.24). Projection: Detroit Tigers 3.56, San Francisco Giants 2.08; total 5.64.",
-          "odds": 140,
+          "model_prediction": "4.39 F5 total",
+          "notes": "F5 projection Detroit Tigers 2.31, San Francisco Giants 2.08 (total 4.39). BvP PA away/home: 0+9/0+6; venue F5 total 5.23 over 60 games. Travel away/home: 1d since previous game (fatigue 0.20) / 2d since previous game; 1464 mi; 2h west (fatigue 0.24). Projection: Detroit Tigers 2.31, San Francisco Giants 2.08; total 4.39.",
+          "odds": -120,
           "odds_source": "posted_market",
-          "opposite_odds": -180,
-          "pick": "Over 5.5 F5",
+          "opposite_odds": -110,
+          "pick": "Under 4.5 F5",
           "pregame_snapshot": {
             "actionability": "research_signal",
-            "assumed_odds": -170,
+            "assumed_odds": -130,
             "away_team": "Detroit Tigers",
             "confidence": "Low",
             "date": "2026-08-07",
             "decision": "PASS",
-            "edge": -9.94,
+            "edge": -4.15,
             "game": "Detroit Tigers @ San Francisco Giants",
             "game_id": "823191",
             "game_order": 14,
             "game_start_time": "2026-08-08T02:15:00Z",
             "home_team": "San Francisco Giants",
             "league": "MLB",
-            "line": 5.5,
+            "line": 4.5,
             "line_source": "user_assumed_f5_total_ladder",
             "market": "f5_total",
-            "market_implied_probability": 0.62963,
+            "market_implied_probability": 0.565217,
             "market_priced": true,
             "matchup": "Detroit Tigers @ San Francisco Giants",
-            "model_prediction": "5.64 F5 total",
-            "notes": "F5 projection Detroit Tigers 3.56, San Francisco Giants 2.08 (total 5.64). BvP PA away/home: 0+0/0+6; venue F5 total 5.23 over 60 games. Travel away/home: 1d since previous game (fatigue 0.20) / 2d since previous game; 1464 mi; 2h west (fatigue 0.24). Projection: Detroit Tigers 3.56, San Francisco Giants 2.08; total 5.64.",
-            "odds": -170,
-            "odds_source": "user_assumed_f5_total_5.5",
-            "pick": "Over 5.5 F5",
+            "model_prediction": "4.39 F5 total",
+            "notes": "F5 projection Detroit Tigers 2.31, San Francisco Giants 2.08 (total 4.39). BvP PA away/home: 0+9/0+6; venue F5 total 5.23 over 60 games. Travel away/home: 1d since previous game (fatigue 0.20) / 2d since previous game; 1464 mi; 2h west (fatigue 0.24). Projection: Detroit Tigers 2.31, San Francisco Giants 2.08; total 4.39.",
+            "odds": -130,
+            "odds_source": "user_assumed_f5_total_4.5",
+            "pick": "Under 4.5 F5",
             "pricing_type": "user_assumed",
-            "probability": 0.5302,
+            "probability": 0.5237,
             "source": "MLB First Five",
             "sport": "MLB",
             "start_time": "2026-08-08T02:15:00Z",
@@ -43030,13 +43238,13 @@
           "price_source": "espn_scoreboard:DraftKings",
           "pricing_type": "market",
           "primary_consensus_passed": false,
-          "probability": 0.4829,
+          "probability": 0.4775,
           "ranking_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_first_five",
-          "raw_edge": -9.94,
-          "raw_model_probability": 0.5302,
-          "raw_probability": 0.5302,
-          "selected_odds": 140,
-          "selected_side_implied_probability": 0.62963,
+          "raw_edge": -4.15,
+          "raw_model_probability": 0.5237,
+          "raw_probability": 0.5237,
+          "selected_odds": -120,
+          "selected_side_implied_probability": 0.565217,
           "source": "MLB First Five",
           "sport": "MLB",
           "start_time": "2026-08-08T02:15:00Z",
@@ -43054,7 +43262,7 @@
       "consensus_gate_version": "mlb_team_consensus_v1.1.0",
       "consensus_rejection_reasons": {
         "failed_walk_forward_validation": 4,
-        "non_positive_calibrated_edge": 19
+        "non_positive_calibrated_edge": 20
       },
       "consensus_required": true,
       "date": "2026-08-07",
@@ -44952,34 +45160,34 @@
             "8": 0.5625
           },
           "edge_table": {
-            "1": 0.0786,
-            "2": -0.0184,
-            "3": -0.0109,
-            "4": -0.0282,
-            "5": -0.098,
-            "6": -0.0282,
+            "1": 0.1236,
+            "2": 0.0256,
+            "3": 0.0313,
+            "4": 0.014,
+            "5": -0.0585,
+            "6": 0.014,
             "7": -0.0796,
             "8": -0.1459
           },
           "full_inning_table": {
-            "1": 0.463,
-            "2": 0.5,
-            "3": 0.479,
-            "4": 0.49,
-            "5": 0.406,
-            "6": 0.49,
+            "1": 0.508,
+            "2": 0.544,
+            "3": 0.521,
+            "4": 0.532,
+            "5": 0.446,
+            "6": 0.532,
             "7": 0.468,
             "8": 0.417
           },
           "game_id": "823191",
           "game_order": 14,
           "game_start_time": "2026-08-08T02:15:00Z",
-          "home_pitcher": "Carson Whisenhunt",
+          "home_pitcher": "JT Brubaker",
           "home_pitcher_context": {
-            "era": 7.25,
-            "name": "Carson Whisenhunt",
-            "opponent_obp": 0.39,
-            "opponent_slg": 0.506,
+            "era": 3.17,
+            "name": "JT Brubaker",
+            "opponent_obp": 0.294,
+            "opponent_slg": 0.335,
             "team_bullpen": {
               "back_to_back_arms_count": 1,
               "effective_unavailable_count": 3.78,
@@ -44989,7 +45197,7 @@
               "lookback_games": 2,
               "unavailable_today_count": 2
             },
-            "whip": 1.84
+            "whip": 1.17
           },
           "home_team": "San Francisco Giants",
           "matchup": "San Francisco Giants vs Detroit Tigers",
@@ -44997,11 +45205,20 @@
             {
               "baseline": 0.3844,
               "confidence": "Medium",
-              "decision": "LEAN",
-              "edge_pp": 7.86,
+              "decision": "BET",
+              "edge_pp": 12.36,
               "inning": 1,
-              "label": "Inning 1 - No Run Scored (46.3%, edge +7.9pp)",
-              "probability_scoreless": 0.463
+              "label": "Inning 1 - No Run Scored (50.8%, edge +12.4pp)",
+              "probability_scoreless": 0.508
+            },
+            {
+              "baseline": 0.49,
+              "confidence": "Medium",
+              "decision": "LEAN",
+              "edge_pp": 3.13,
+              "inning": 3,
+              "label": "Inning 3 - No Run Scored (52.1%, edge +3.1pp)",
+              "probability_scoreless": 0.521
             }
           ],
           "travel": {
@@ -45052,7 +45269,7 @@
         }
       ],
       "model": "MLBInning",
-      "note": "MLB Inning processed 15 game(s), returned 23 top inning pick(s).",
+      "note": "MLB Inning processed 15 game(s), returned 24 top inning pick(s).",
       "ok": true,
       "picks": [
         {
@@ -45071,8 +45288,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -45315,8 +45532,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -45572,8 +45789,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -45816,8 +46033,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -46060,8 +46277,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -46304,8 +46521,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -46561,8 +46778,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -46798,8 +47015,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -47051,8 +47268,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -47295,8 +47512,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -47539,8 +47756,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -47783,8 +48000,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -48027,8 +48244,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -48271,8 +48488,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -48515,8 +48732,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -48744,8 +48961,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -48989,8 +49206,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -49234,8 +49451,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -49479,8 +49696,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -49740,8 +49957,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -49985,8 +50202,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -50225,8 +50442,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -50451,19 +50668,19 @@
           "assumed_odds": -120,
           "away_team": "Detroit Tigers",
           "baseline_probability": 0.3844,
-          "calibrated_edge": -11.83,
-          "calibrated_model_probability": 0.427136,
-          "calibrated_probability": 0.427136,
+          "calibrated_edge": -8.11,
+          "calibrated_model_probability": 0.464371,
+          "calibrated_probability": 0.464371,
           "calibration": {
             "applied": true,
             "key": "global",
-            "probability_delta": -0.035864,
+            "probability_delta": -0.043629,
             "samples": 128,
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -50618,8 +50835,8 @@
           ],
           "date": "2026-08-07",
           "decision": "PASS",
-          "edge": -11.83,
-          "edge_pp": 7.86,
+          "edge": -8.11,
+          "edge_pp": 12.36,
           "game": "San Francisco Giants vs Detroit Tigers",
           "game_id": "823191",
           "game_order": 14,
@@ -50636,8 +50853,8 @@
           "ml_rank_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
           "mlb_team_consensus_version": "mlb_team_consensus_v1.1.0",
           "model_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
-          "model_prediction": "46.3%",
-          "notes": "Top no-run inning candidate (edge +7.9pp vs baseline). Full table: {\"1\": 0.463, \"2\": 0.5, \"3\": 0.479, \"4\": 0.49, \"5\": 0.406, \"6\": 0.49, \"7\": 0.468, \"8\": 0.417}",
+          "model_prediction": "50.8%",
+          "notes": "Top no-run inning candidate (edge +12.4pp vs baseline). Full table: {\"1\": 0.508, \"2\": 0.544, \"3\": 0.521, \"4\": 0.532, \"5\": 0.446, \"6\": 0.532, \"7\": 0.468, \"8\": 0.417}",
           "odds": -120,
           "odds_source": "user_assumed_no_run_inning_-120",
           "pick": "Inning 1 - No Run Scored",
@@ -50677,11 +50894,256 @@
           },
           "pricing_type": "user_assumed",
           "primary_consensus_passed": false,
-          "probability": 0.4271,
+          "probability": 0.4644,
           "ranking_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
-          "raw_edge": 7.86,
-          "raw_model_probability": 0.463,
-          "raw_probability": 0.463,
+          "raw_edge": 12.36,
+          "raw_model_probability": 0.508,
+          "raw_probability": 0.508,
+          "selected_side_implied_probability": 0.545455,
+          "source": "MLB Inning",
+          "sport": "MLB",
+          "start_time": "2026-08-08T02:15:00Z",
+          "team": "",
+          "units": 0.0,
+          "walk_forward_roi": null,
+          "walk_forward_samples": 0
+        },
+        {
+          "actionability": "research_signal",
+          "assumed_odds": -120,
+          "away_team": "Detroit Tigers",
+          "baseline_probability": 0.49,
+          "calibrated_edge": -7.02,
+          "calibrated_model_probability": 0.475214,
+          "calibrated_probability": 0.475214,
+          "calibration": {
+            "applied": true,
+            "key": "global",
+            "probability_delta": -0.045786,
+            "samples": 128,
+            "version": "cal-v2-1850-2026-07-11"
+          },
+          "certification_timing": {
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
+            "source": "model-cache-refresh",
+            "trusted": true
+          },
+          "confidence": "Medium",
+          "consensus_factor_categories": {
+            "calibration": {
+              "missing": [],
+              "risk": [],
+              "support": [
+                "probability_calibration"
+              ]
+            },
+            "inning_baseline": {
+              "missing": [],
+              "risk": [],
+              "support": [
+                "inning_baseline_edge",
+                "matchup_structure"
+              ]
+            },
+            "park_weather": {
+              "missing": [],
+              "risk": [],
+              "support": [
+                "park_weather",
+                "park_factor",
+                "venue_context"
+              ]
+            },
+            "starting_pitcher": {
+              "missing": [],
+              "risk": [],
+              "support": [
+                "starting_pitcher",
+                "starter_run_prevention"
+              ]
+            },
+            "travel_rest": {
+              "missing": [],
+              "risk": [],
+              "support": [
+                "travel_rest_context",
+                "short_rest_schedule",
+                "long_distance_travel"
+              ]
+            }
+          },
+          "consensus_gate_version": "mlb_team_consensus_v1.1.0",
+          "consensus_hard_blockers": [
+            "non_positive_calibrated_edge",
+            "failed_walk_forward_validation"
+          ],
+          "consensus_passed": false,
+          "consensus_publication_mode": "research",
+          "consensus_qualified": false,
+          "consensus_rejection_reason": "non_positive_calibrated_edge; failed_walk_forward_validation",
+          "consensus_required": true,
+          "consensus_score": 27.5,
+          "consensus_signal_count": 11,
+          "consensus_signals": [
+            {
+              "category": "calibration",
+              "detail": "active calibration group has enough samples",
+              "impact": "support",
+              "name": "probability_calibration",
+              "strength": 1.0
+            },
+            {
+              "category": "inning_baseline",
+              "detail": "scoreless probability beats inning baseline",
+              "impact": "support",
+              "name": "inning_baseline_edge",
+              "strength": 1.0
+            },
+            {
+              "category": "starting_pitcher",
+              "detail": "starter inning profile is applicable",
+              "impact": "support",
+              "name": "starting_pitcher",
+              "strength": 1.0
+            },
+            {
+              "category": "starting_pitcher",
+              "detail": "home: ERA/WHIP run-prevention context included",
+              "impact": "support",
+              "name": "starter_run_prevention",
+              "strength": 0.7
+            },
+            {
+              "category": "starting_pitcher",
+              "detail": "away: ERA/WHIP run-prevention context included",
+              "impact": "support",
+              "name": "starter_run_prevention",
+              "strength": 0.7
+            },
+            {
+              "category": "park_weather",
+              "detail": "venue factor included in inning projection",
+              "impact": "support",
+              "name": "park_weather",
+              "strength": 1.0
+            },
+            {
+              "category": "park_weather",
+              "detail": "park run factor included",
+              "impact": "support",
+              "name": "park_factor",
+              "strength": 0.8
+            },
+            {
+              "category": "park_weather",
+              "detail": "venue context included: Oracle Park",
+              "impact": "support",
+              "name": "venue_context",
+              "strength": 0.5
+            },
+            {
+              "category": "inning_baseline",
+              "detail": "full inning table available for matchup shape",
+              "impact": "support",
+              "name": "matchup_structure",
+              "strength": 1.0
+            },
+            {
+              "category": "travel_rest",
+              "detail": "away team: 1d since previous game",
+              "impact": "support",
+              "name": "travel_rest_context",
+              "strength": 1.0
+            },
+            {
+              "category": "travel_rest",
+              "detail": "away team: 1 day(s) since previous game",
+              "impact": "support",
+              "name": "short_rest_schedule",
+              "strength": 0.6
+            },
+            {
+              "category": "travel_rest",
+              "detail": "home team: 2d since previous game; 1464 mi; 2h west",
+              "impact": "support",
+              "name": "travel_rest_context",
+              "strength": 1.0
+            },
+            {
+              "category": "travel_rest",
+              "detail": "home team: 1464 miles since previous game",
+              "impact": "support",
+              "name": "long_distance_travel",
+              "strength": 0.7
+            }
+          ],
+          "date": "2026-08-07",
+          "decision": "PASS",
+          "edge": -7.02,
+          "edge_pp": 3.13,
+          "game": "San Francisco Giants vs Detroit Tigers",
+          "game_id": "823191",
+          "game_order": 14,
+          "game_start_time": "2026-08-08T02:15:00Z",
+          "home_team": "San Francisco Giants",
+          "inning": 3,
+          "league": "MLB",
+          "line_source": "user_assumed_no_run_inning_price",
+          "market": "no_run_inning",
+          "market_implied_probability": 0.545455,
+          "market_no_vig_probability": 0.545455,
+          "market_priced": true,
+          "matchup": "San Francisco Giants vs Detroit Tigers",
+          "ml_rank_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
+          "mlb_team_consensus_version": "mlb_team_consensus_v1.1.0",
+          "model_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
+          "model_prediction": "52.1%",
+          "notes": "Top no-run inning candidate (edge +3.1pp vs baseline). Full table: {\"1\": 0.508, \"2\": 0.544, \"3\": 0.521, \"4\": 0.532, \"5\": 0.446, \"6\": 0.532, \"7\": 0.468, \"8\": 0.417}",
+          "odds": -120,
+          "odds_source": "user_assumed_no_run_inning_-120",
+          "pick": "Inning 3 - No Run Scored",
+          "pregame_snapshot": {
+            "actionability": "research_signal",
+            "assumed_odds": -120,
+            "away_team": "Detroit Tigers",
+            "baseline_probability": 0.49,
+            "confidence": "Medium",
+            "date": "2026-08-07",
+            "decision": "LEAN",
+            "edge": 3.13,
+            "edge_pp": 3.13,
+            "game": "San Francisco Giants vs Detroit Tigers",
+            "game_id": "823191",
+            "game_order": 14,
+            "game_start_time": "2026-08-08T02:15:00Z",
+            "home_team": "San Francisco Giants",
+            "inning": 3,
+            "league": "MLB",
+            "line_source": "user_assumed_no_run_inning_price",
+            "market": "no_run_inning",
+            "market_implied_probability": 0.545455,
+            "market_priced": true,
+            "matchup": "San Francisco Giants vs Detroit Tigers",
+            "model_prediction": "52.1%",
+            "notes": "Top no-run inning candidate (edge +3.1pp vs baseline). Full table: {\"1\": 0.508, \"2\": 0.544, \"3\": 0.521, \"4\": 0.532, \"5\": 0.446, \"6\": 0.532, \"7\": 0.468, \"8\": 0.417}",
+            "odds": -120,
+            "odds_source": "user_assumed_no_run_inning_-120",
+            "pick": "Inning 3 - No Run Scored",
+            "pricing_type": "user_assumed",
+            "probability": 0.521,
+            "source": "MLB Inning",
+            "sport": "MLB",
+            "start_time": "2026-08-08T02:15:00Z",
+            "team": ""
+          },
+          "pricing_type": "user_assumed",
+          "primary_consensus_passed": false,
+          "probability": 0.4752,
+          "ranking_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
+          "raw_edge": 3.13,
+          "raw_model_probability": 0.521,
+          "raw_probability": 0.521,
           "selected_side_implied_probability": 0.545455,
           "source": "MLB Inning",
           "sport": "MLB",
@@ -50755,8 +51217,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -50891,8 +51353,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -51026,8 +51488,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -51160,8 +51622,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -51295,8 +51757,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -51429,8 +51891,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -51564,8 +52026,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -51698,8 +52160,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -51833,8 +52295,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -51967,8 +52429,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -52114,8 +52576,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -52250,8 +52712,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -52397,8 +52859,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -52533,8 +52995,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -52668,8 +53130,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -52804,8 +53266,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -52939,8 +53401,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -53073,8 +53535,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -53208,8 +53670,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -53342,8 +53804,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -53489,8 +53951,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -53623,8 +54085,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -53757,8 +54219,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -53893,8 +54355,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -54028,8 +54490,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -54164,8 +54626,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -54311,8 +54773,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -54447,8 +54909,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -54605,8 +55067,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -54730,19 +55192,19 @@
           "actionability": "research_signal",
           "assumed_odds_replaced": true,
           "away_team": "Detroit Tigers",
-          "calibrated_edge": -4.31,
-          "calibrated_model_probability": 0.480737,
-          "calibrated_probability": 0.480737,
+          "calibrated_edge": -4.62,
+          "calibrated_model_probability": 0.477639,
+          "calibrated_probability": 0.477639,
           "calibration": {
             "applied": true,
             "key": "global",
-            "probability_delta": -0.046863,
+            "probability_delta": -0.046261,
             "samples": 128,
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T15:47:33.027094Z",
-            "published_at": "2026-08-07T15:47:33.027094Z",
+            "data_as_of": "2026-08-07T16:42:16.355446Z",
+            "published_at": "2026-08-07T16:42:16.355446Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -54807,9 +55269,9 @@
           ],
           "decision": "PASS",
           "direction": "Under",
-          "edge": -4.31,
+          "edge": -4.62,
           "home_team": "San Francisco Giants",
-          "kelly": 0.2,
+          "kelly": 0.0,
           "line": 8.5,
           "market_line": 8.5,
           "market_no_vig_probability": 0.5238095238095238,
@@ -54856,12 +55318,12 @@
           "price_source": "espn_scoreboard:DraftKings",
           "pricing_type": "market",
           "primary_consensus_passed": false,
-          "prob": 0.5276,
-          "probability": 0.4807,
+          "prob": 0.5239,
+          "probability": 0.4776,
           "ranking_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_new",
-          "raw_edge": 0.38,
-          "raw_model_probability": 0.5276,
-          "raw_probability": 0.5276,
+          "raw_edge": 0.01,
+          "raw_model_probability": 0.5239,
+          "raw_probability": 0.5239,
           "raw_units": 0.0,
           "selected_odds": -115,
           "selected_side_implied_probability": 0.5238095238095238,
@@ -54911,7 +55373,7 @@
           "confidence": 55.2,
           "confidence_label": "Low",
           "decision": "PASS",
-          "edge": -16.77,
+          "edge": -17.93,
           "game": "Phoenix Mercury @ Connecticut Sun",
           "guardrail_reasons": [],
           "h2h_games": 0,
@@ -54919,12 +55381,12 @@
           "home_team": "Connecticut Sun",
           "league": "WNBA",
           "market_away_odds": -250,
-          "market_edge": -0.117,
+          "market_edge": -0.1286,
           "market_home_odds": 205,
           "market_odds_captured_at": "2026-08-07T13:47:05.499043Z",
           "market_odds_provider": "espn_scoreboard:DraftKings",
-          "market_pick_odds": -230,
-          "market_pick_prob": 0.669,
+          "market_pick_odds": -245,
+          "market_pick_prob": 0.6806,
           "market_priced": true,
           "market_source": "DraftKings via ESPN",
           "market_type": "h2h",
@@ -54986,59 +55448,59 @@
         {
           "assumed_odds_replaced": true,
           "away_team": "Phoenix Mercury",
-          "calibrated_probability": 0.510855,
+          "calibrated_probability": 0.53254,
           "calibration": {
             "applied": true,
             "key": "model:wnba|source:wnba model|sport:wnba|bet:spread",
-            "probability_delta": -0.104145,
+            "probability_delta": -0.11086,
             "samples": 32,
             "version": "cal-v2-1850-2026-07-11"
           },
-          "confidence": 61.5,
+          "confidence": 64.3,
           "confidence_label": "High",
-          "cover_margin": 3.89,
+          "cover_margin": 4.89,
           "decision": "PASS",
-          "edge": -1.29,
+          "edge": 0.87,
           "game": "Phoenix Mercury @ Connecticut Sun",
           "guardrail_reasons": [],
           "h2h_games": 0,
           "has_market_price": true,
           "home_team": "Connecticut Sun",
           "league": "WNBA",
-          "line": 5.5,
-          "market_edge": 0.0912,
-          "market_line": 5.5,
-          "market_odds_captured_at": "2026-08-07T15:47:40.400002Z",
+          "line": 6.5,
+          "market_edge": 0.1196,
+          "market_line": 6.5,
+          "market_odds_captured_at": "2026-08-07T13:47:05.499043Z",
           "market_odds_provider": "espn_scoreboard:DraftKings",
           "market_pick_odds": -110,
           "market_pick_prob": 0.5238,
           "market_priced": true,
           "market_source": "DraftKings via ESPN",
           "market_type": "spread",
-          "market_updated_at": "2026-08-07T15:47:40.400002Z",
+          "market_updated_at": "2026-08-07T13:47:05.499043Z",
           "matchup": "Phoenix Mercury @ Connecticut Sun",
           "model_assumed_odds": -110,
           "model_prediction": -1.61,
-          "odds": -105,
+          "odds": -112,
           "odds_source": "posted_market",
-          "opposite_odds": -115,
-          "pick": "Connecticut Sun +5.5 (Phoenix Mercury @ Connecticut Sun)",
+          "opposite_odds": -108,
+          "pick": "Connecticut Sun +6.5 (Phoenix Mercury @ Connecticut Sun)",
           "pregame_snapshot": {
             "away_team": "Phoenix Mercury",
-            "confidence": 61.5,
+            "confidence": 64.3,
             "confidence_label": "High",
-            "cover_margin": 3.89,
+            "cover_margin": 4.89,
             "decision": "BET",
-            "edge": 9.12,
+            "edge": 11.96,
             "game": "Phoenix Mercury @ Connecticut Sun",
             "guardrail_reasons": [],
             "h2h_games": 0,
             "has_market_price": true,
             "home_team": "Connecticut Sun",
             "league": "WNBA",
-            "line": 5.5,
-            "market_edge": 0.0912,
-            "market_line": 5.5,
+            "line": 6.5,
+            "market_edge": 0.1196,
+            "market_line": 6.5,
             "market_pick_odds": -110,
             "market_pick_prob": 0.5238,
             "market_source": "DraftKings via ESPN",
@@ -55046,8 +55508,8 @@
             "matchup": "Phoenix Mercury @ Connecticut Sun",
             "model_prediction": -1.61,
             "odds": -110,
-            "pick": "Connecticut Sun +5.5 (Phoenix Mercury @ Connecticut Sun)",
-            "probability": 0.615,
+            "pick": "Connecticut Sun +6.5 (Phoenix Mercury @ Connecticut Sun)",
+            "probability": 0.6434,
             "projected_total": 165.6,
             "selection": "Connecticut Sun",
             "source": "WNBA Model",
@@ -55056,16 +55518,16 @@
             "starters_questionable": [],
             "team": "Connecticut Sun",
             "units": 0.03,
-            "vegas": 5.5
+            "vegas": 6.5
           },
           "price_source": "espn_scoreboard:DraftKings",
           "pricing_type": "market",
-          "probability": 0.5109,
+          "probability": 0.5325,
           "projected_total": 165.6,
-          "raw_edge": 9.12,
-          "raw_probability": 0.615,
+          "raw_edge": 11.96,
+          "raw_probability": 0.6434,
           "raw_units": 0.03,
-          "selected_odds": -105,
+          "selected_odds": -112,
           "selection": "Connecticut Sun",
           "source": "WNBA Model",
           "sport": "WNBA",
@@ -55073,23 +55535,23 @@
           "starters_questionable": [],
           "team": "Connecticut Sun",
           "units": 0,
-          "vegas": 5.5
+          "vegas": 6.5
         },
         {
           "assumed_odds_replaced": true,
           "away_team": "Phoenix Mercury",
-          "calibrated_probability": 0.597372,
+          "calibrated_probability": 0.58083,
           "calibration": {
             "applied": true,
             "key": "model:wnba|source:wnba model|sport:wnba|bet:totals",
-            "probability_delta": -0.111428,
+            "probability_delta": -0.10867,
             "samples": 47,
             "version": "cal-v2-1850-2026-07-11"
           },
-          "confidence": 70.9,
+          "confidence": 69.0,
           "confidence_label": "Medium",
           "decision": "LEAN",
-          "edge": 7.36,
+          "edge": 5.7,
           "game": "Phoenix Mercury @ Connecticut Sun",
           "guardrail_reasons": [
             "new totals market capped at LEAN while its live record is established"
@@ -55098,32 +55560,32 @@
           "has_market_price": true,
           "home_team": "Connecticut Sun",
           "league": "WNBA",
-          "line": 175.5,
-          "market_edge": 0.185,
-          "market_line": 175.5,
-          "market_odds_captured_at": "2026-08-07T15:47:40.400002Z",
+          "line": 174.5,
+          "market_edge": 0.1657,
+          "market_line": 174.5,
+          "market_odds_captured_at": "2026-08-07T13:47:05.499043Z",
           "market_odds_provider": "espn_scoreboard:DraftKings",
-          "market_over_odds": -108,
+          "market_over_odds": -115,
           "market_pick_odds": -110,
           "market_pick_prob": 0.5238,
           "market_priced": true,
           "market_source": "DraftKings via ESPN",
           "market_type": "totals",
-          "market_under_odds": -112,
-          "market_updated_at": "2026-08-07T15:47:40.400002Z",
+          "market_under_odds": -105,
+          "market_updated_at": "2026-08-07T13:47:05.499043Z",
           "matchup": "Phoenix Mercury @ Connecticut Sun",
           "model_assumed_odds": -110,
           "model_prediction": 165.6,
-          "odds": -112,
+          "odds": -105,
           "odds_source": "posted_market",
-          "opposite_odds": -108,
-          "pick": "Under 175.5 (Phoenix Mercury vs Connecticut Sun)",
+          "opposite_odds": -115,
+          "pick": "Under 174.5 (Phoenix Mercury vs Connecticut Sun)",
           "pregame_snapshot": {
             "away_team": "Phoenix Mercury",
-            "confidence": 70.9,
+            "confidence": 69.0,
             "confidence_label": "Medium",
             "decision": "LEAN",
-            "edge": 18.5,
+            "edge": 16.57,
             "game": "Phoenix Mercury @ Connecticut Sun",
             "guardrail_reasons": [
               "new totals market capped at LEAN while its live record is established"
@@ -55132,9 +55594,9 @@
             "has_market_price": true,
             "home_team": "Connecticut Sun",
             "league": "WNBA",
-            "line": 175.5,
-            "market_edge": 0.185,
-            "market_line": 175.5,
+            "line": 174.5,
+            "market_edge": 0.1657,
+            "market_line": 174.5,
             "market_pick_odds": -110,
             "market_pick_prob": 0.5238,
             "market_source": "DraftKings via ESPN",
@@ -55142,28 +55604,28 @@
             "matchup": "Phoenix Mercury @ Connecticut Sun",
             "model_prediction": 165.6,
             "odds": -110,
-            "pick": "Under 175.5 (Phoenix Mercury vs Connecticut Sun)",
-            "probability": 0.7088,
+            "pick": "Under 174.5 (Phoenix Mercury vs Connecticut Sun)",
+            "probability": 0.6895,
             "projected_total": 165.6,
             "selection": "Under",
             "source": "WNBA Model",
             "sport": "WNBA",
             "units": 0.03,
-            "vegas": 175.5
+            "vegas": 174.5
           },
           "price_source": "espn_scoreboard:DraftKings",
           "pricing_type": "market",
-          "probability": 0.5974,
+          "probability": 0.5808,
           "projected_total": 165.6,
-          "raw_edge": 18.5,
-          "raw_probability": 0.7088,
+          "raw_edge": 16.57,
+          "raw_probability": 0.6895,
           "raw_units": 0.03,
-          "selected_odds": -112,
+          "selected_odds": -105,
           "selection": "Under",
           "source": "WNBA Model",
           "sport": "WNBA",
           "units": 0.01,
-          "vegas": 175.5
+          "vegas": 174.5
         },
         {
           "assumed_odds_replaced": true,
@@ -55618,6 +56080,278 @@
         {
           "assumed_odds_replaced": true,
           "away_team": "Golden State Valkyries",
+          "calibrated_probability": 0.471013,
+          "calibration": {
+            "applied": true,
+            "key": "model:wnba|source:wnba model|sport:wnba|bet:totals",
+            "probability_delta": -0.079787,
+            "samples": 47,
+            "version": "cal-v2-1850-2026-07-11"
+          },
+          "confidence": 55.1,
+          "confidence_label": "Low",
+          "decision": "PASS",
+          "edge": -5.28,
+          "game": "Golden State Valkyries @ Dallas Wings",
+          "guardrail_reasons": [
+            "model-to-line total gap below 5 points"
+          ],
+          "h2h_games": 0,
+          "has_market_price": true,
+          "home_team": "Dallas Wings",
+          "league": "WNBA",
+          "line": 162.5,
+          "market_edge": 0.027,
+          "market_line": 162.5,
+          "market_odds_captured_at": "2026-08-07T16:42:22.283262Z",
+          "market_odds_provider": "espn_scoreboard:DraftKings",
+          "market_over_odds": -110,
+          "market_pick_odds": -110,
+          "market_pick_prob": 0.5238,
+          "market_priced": true,
+          "market_source": "DraftKings via ESPN",
+          "market_type": "totals",
+          "market_under_odds": -110,
+          "market_updated_at": "2026-08-07T16:42:22.283262Z",
+          "matchup": "Golden State Valkyries @ Dallas Wings",
+          "model_assumed_odds": -110,
+          "model_prediction": 164.8,
+          "odds": -110,
+          "odds_source": "posted_market",
+          "opposite_odds": -110,
+          "pick": "Over 162.5 (Golden State Valkyries vs Dallas Wings)",
+          "pregame_snapshot": {
+            "away_team": "Golden State Valkyries",
+            "confidence": 55.1,
+            "confidence_label": "Low",
+            "decision": "PASS",
+            "edge": 2.7,
+            "game": "Golden State Valkyries @ Dallas Wings",
+            "guardrail_reasons": [
+              "model-to-line total gap below 5 points"
+            ],
+            "h2h_games": 0,
+            "has_market_price": true,
+            "home_team": "Dallas Wings",
+            "league": "WNBA",
+            "line": 162.5,
+            "market_edge": 0.027,
+            "market_line": 162.5,
+            "market_pick_odds": -110,
+            "market_pick_prob": 0.5238,
+            "market_source": "DraftKings via ESPN",
+            "market_type": "totals",
+            "matchup": "Golden State Valkyries @ Dallas Wings",
+            "model_prediction": 164.8,
+            "odds": -110,
+            "pick": "Over 162.5 (Golden State Valkyries vs Dallas Wings)",
+            "probability": 0.5508,
+            "projected_total": 164.8,
+            "selection": "Over",
+            "source": "WNBA Model",
+            "sport": "WNBA",
+            "units": 0.0,
+            "vegas": 162.5
+          },
+          "price_source": "espn_scoreboard:DraftKings",
+          "pricing_type": "market",
+          "probability": 0.471,
+          "projected_total": 164.8,
+          "raw_edge": 2.7,
+          "raw_probability": 0.5508,
+          "raw_units": 0.0,
+          "selected_odds": -110,
+          "selection": "Over",
+          "source": "WNBA Model",
+          "sport": "WNBA",
+          "units": 0,
+          "vegas": 162.5
+        },
+        {
+          "assumed_odds_replaced": true,
+          "away_team": "Phoenix Mercury",
+          "calibrated_probability": 0.510855,
+          "calibration": {
+            "applied": true,
+            "key": "model:wnba|source:wnba model|sport:wnba|bet:spread",
+            "probability_delta": -0.104145,
+            "samples": 32,
+            "version": "cal-v2-1850-2026-07-11"
+          },
+          "confidence": 61.5,
+          "confidence_label": "High",
+          "cover_margin": 3.89,
+          "decision": "PASS",
+          "edge": -1.29,
+          "game": "Phoenix Mercury @ Connecticut Sun",
+          "guardrail_reasons": [],
+          "h2h_games": 0,
+          "has_market_price": true,
+          "home_team": "Connecticut Sun",
+          "league": "WNBA",
+          "line": 5.5,
+          "market_edge": 0.0912,
+          "market_line": 5.5,
+          "market_odds_captured_at": "2026-08-07T15:47:40.400002Z",
+          "market_odds_provider": "espn_scoreboard:DraftKings",
+          "market_pick_odds": -110,
+          "market_pick_prob": 0.5238,
+          "market_priced": true,
+          "market_source": "DraftKings via ESPN",
+          "market_type": "spread",
+          "market_updated_at": "2026-08-07T15:47:40.400002Z",
+          "matchup": "Phoenix Mercury @ Connecticut Sun",
+          "model_assumed_odds": -110,
+          "model_prediction": -1.61,
+          "odds": -105,
+          "odds_source": "posted_market",
+          "opposite_odds": -115,
+          "pick": "Connecticut Sun +5.5 (Phoenix Mercury @ Connecticut Sun)",
+          "pregame_snapshot": {
+            "away_team": "Phoenix Mercury",
+            "confidence": 61.5,
+            "confidence_label": "High",
+            "cover_margin": 3.89,
+            "decision": "BET",
+            "edge": 9.12,
+            "game": "Phoenix Mercury @ Connecticut Sun",
+            "guardrail_reasons": [],
+            "h2h_games": 0,
+            "has_market_price": true,
+            "home_team": "Connecticut Sun",
+            "league": "WNBA",
+            "line": 5.5,
+            "market_edge": 0.0912,
+            "market_line": 5.5,
+            "market_pick_odds": -110,
+            "market_pick_prob": 0.5238,
+            "market_source": "DraftKings via ESPN",
+            "market_type": "spread",
+            "matchup": "Phoenix Mercury @ Connecticut Sun",
+            "model_prediction": -1.61,
+            "odds": -110,
+            "pick": "Connecticut Sun +5.5 (Phoenix Mercury @ Connecticut Sun)",
+            "probability": 0.615,
+            "projected_total": 165.6,
+            "selection": "Connecticut Sun",
+            "source": "WNBA Model",
+            "sport": "WNBA",
+            "starters_out": [],
+            "starters_questionable": [],
+            "team": "Connecticut Sun",
+            "units": 0.03,
+            "vegas": 5.5
+          },
+          "price_source": "espn_scoreboard:DraftKings",
+          "pricing_type": "market",
+          "probability": 0.5109,
+          "projected_total": 165.6,
+          "raw_edge": 9.12,
+          "raw_probability": 0.615,
+          "raw_units": 0.03,
+          "selected_odds": -105,
+          "selection": "Connecticut Sun",
+          "source": "WNBA Model",
+          "sport": "WNBA",
+          "starters_out": [],
+          "starters_questionable": [],
+          "team": "Connecticut Sun",
+          "units": 0,
+          "vegas": 5.5
+        },
+        {
+          "assumed_odds_replaced": true,
+          "away_team": "Phoenix Mercury",
+          "calibrated_probability": 0.597372,
+          "calibration": {
+            "applied": true,
+            "key": "model:wnba|source:wnba model|sport:wnba|bet:totals",
+            "probability_delta": -0.111428,
+            "samples": 47,
+            "version": "cal-v2-1850-2026-07-11"
+          },
+          "confidence": 70.9,
+          "confidence_label": "Medium",
+          "decision": "LEAN",
+          "edge": 7.36,
+          "game": "Phoenix Mercury @ Connecticut Sun",
+          "guardrail_reasons": [
+            "new totals market capped at LEAN while its live record is established"
+          ],
+          "h2h_games": 0,
+          "has_market_price": true,
+          "home_team": "Connecticut Sun",
+          "league": "WNBA",
+          "line": 175.5,
+          "market_edge": 0.185,
+          "market_line": 175.5,
+          "market_odds_captured_at": "2026-08-07T15:47:40.400002Z",
+          "market_odds_provider": "espn_scoreboard:DraftKings",
+          "market_over_odds": -108,
+          "market_pick_odds": -110,
+          "market_pick_prob": 0.5238,
+          "market_priced": true,
+          "market_source": "DraftKings via ESPN",
+          "market_type": "totals",
+          "market_under_odds": -112,
+          "market_updated_at": "2026-08-07T15:47:40.400002Z",
+          "matchup": "Phoenix Mercury @ Connecticut Sun",
+          "model_assumed_odds": -110,
+          "model_prediction": 165.6,
+          "odds": -112,
+          "odds_source": "posted_market",
+          "opposite_odds": -108,
+          "pick": "Under 175.5 (Phoenix Mercury vs Connecticut Sun)",
+          "pregame_snapshot": {
+            "away_team": "Phoenix Mercury",
+            "confidence": 70.9,
+            "confidence_label": "Medium",
+            "decision": "LEAN",
+            "edge": 18.5,
+            "game": "Phoenix Mercury @ Connecticut Sun",
+            "guardrail_reasons": [
+              "new totals market capped at LEAN while its live record is established"
+            ],
+            "h2h_games": 0,
+            "has_market_price": true,
+            "home_team": "Connecticut Sun",
+            "league": "WNBA",
+            "line": 175.5,
+            "market_edge": 0.185,
+            "market_line": 175.5,
+            "market_pick_odds": -110,
+            "market_pick_prob": 0.5238,
+            "market_source": "DraftKings via ESPN",
+            "market_type": "totals",
+            "matchup": "Phoenix Mercury @ Connecticut Sun",
+            "model_prediction": 165.6,
+            "odds": -110,
+            "pick": "Under 175.5 (Phoenix Mercury vs Connecticut Sun)",
+            "probability": 0.7088,
+            "projected_total": 165.6,
+            "selection": "Under",
+            "source": "WNBA Model",
+            "sport": "WNBA",
+            "units": 0.03,
+            "vegas": 175.5
+          },
+          "price_source": "espn_scoreboard:DraftKings",
+          "pricing_type": "market",
+          "probability": 0.5974,
+          "projected_total": 165.6,
+          "raw_edge": 18.5,
+          "raw_probability": 0.7088,
+          "raw_units": 0.03,
+          "selected_odds": -112,
+          "selection": "Under",
+          "source": "WNBA Model",
+          "sport": "WNBA",
+          "units": 0.01,
+          "vegas": 175.5
+        },
+        {
+          "assumed_odds_replaced": true,
+          "away_team": "Golden State Valkyries",
           "calibrated_probability": 0.487547,
           "calibration": {
             "applied": true,
@@ -55704,188 +56438,6 @@
           "sport": "WNBA",
           "units": 0,
           "vegas": 161.5
-        },
-        {
-          "assumed_odds_replaced": true,
-          "away_team": "Phoenix Mercury",
-          "calibrated_probability": 0.53254,
-          "calibration": {
-            "applied": true,
-            "key": "model:wnba|source:wnba model|sport:wnba|bet:spread",
-            "probability_delta": -0.11086,
-            "samples": 32,
-            "version": "cal-v2-1850-2026-07-11"
-          },
-          "confidence": 64.3,
-          "confidence_label": "High",
-          "cover_margin": 4.89,
-          "decision": "PASS",
-          "edge": 0.87,
-          "game": "Phoenix Mercury @ Connecticut Sun",
-          "guardrail_reasons": [],
-          "h2h_games": 0,
-          "has_market_price": true,
-          "home_team": "Connecticut Sun",
-          "league": "WNBA",
-          "line": 6.5,
-          "market_edge": 0.1196,
-          "market_line": 6.5,
-          "market_odds_captured_at": "2026-08-07T13:47:05.499043Z",
-          "market_odds_provider": "espn_scoreboard:DraftKings",
-          "market_pick_odds": -110,
-          "market_pick_prob": 0.5238,
-          "market_priced": true,
-          "market_source": "DraftKings via ESPN",
-          "market_type": "spread",
-          "market_updated_at": "2026-08-07T13:47:05.499043Z",
-          "matchup": "Phoenix Mercury @ Connecticut Sun",
-          "model_assumed_odds": -110,
-          "model_prediction": -1.61,
-          "odds": -112,
-          "odds_source": "posted_market",
-          "opposite_odds": -108,
-          "pick": "Connecticut Sun +6.5 (Phoenix Mercury @ Connecticut Sun)",
-          "pregame_snapshot": {
-            "away_team": "Phoenix Mercury",
-            "confidence": 64.3,
-            "confidence_label": "High",
-            "cover_margin": 4.89,
-            "decision": "BET",
-            "edge": 11.96,
-            "game": "Phoenix Mercury @ Connecticut Sun",
-            "guardrail_reasons": [],
-            "h2h_games": 0,
-            "has_market_price": true,
-            "home_team": "Connecticut Sun",
-            "league": "WNBA",
-            "line": 6.5,
-            "market_edge": 0.1196,
-            "market_line": 6.5,
-            "market_pick_odds": -110,
-            "market_pick_prob": 0.5238,
-            "market_source": "DraftKings via ESPN",
-            "market_type": "spread",
-            "matchup": "Phoenix Mercury @ Connecticut Sun",
-            "model_prediction": -1.61,
-            "odds": -110,
-            "pick": "Connecticut Sun +6.5 (Phoenix Mercury @ Connecticut Sun)",
-            "probability": 0.6434,
-            "projected_total": 165.6,
-            "selection": "Connecticut Sun",
-            "source": "WNBA Model",
-            "sport": "WNBA",
-            "starters_out": [],
-            "starters_questionable": [],
-            "team": "Connecticut Sun",
-            "units": 0.03,
-            "vegas": 6.5
-          },
-          "price_source": "espn_scoreboard:DraftKings",
-          "pricing_type": "market",
-          "probability": 0.5325,
-          "projected_total": 165.6,
-          "raw_edge": 11.96,
-          "raw_probability": 0.6434,
-          "raw_units": 0.03,
-          "selected_odds": -112,
-          "selection": "Connecticut Sun",
-          "source": "WNBA Model",
-          "sport": "WNBA",
-          "starters_out": [],
-          "starters_questionable": [],
-          "team": "Connecticut Sun",
-          "units": 0,
-          "vegas": 6.5
-        },
-        {
-          "assumed_odds_replaced": true,
-          "away_team": "Phoenix Mercury",
-          "calibrated_probability": 0.58083,
-          "calibration": {
-            "applied": true,
-            "key": "model:wnba|source:wnba model|sport:wnba|bet:totals",
-            "probability_delta": -0.10867,
-            "samples": 47,
-            "version": "cal-v2-1850-2026-07-11"
-          },
-          "confidence": 69.0,
-          "confidence_label": "Medium",
-          "decision": "LEAN",
-          "edge": 5.7,
-          "game": "Phoenix Mercury @ Connecticut Sun",
-          "guardrail_reasons": [
-            "new totals market capped at LEAN while its live record is established"
-          ],
-          "h2h_games": 0,
-          "has_market_price": true,
-          "home_team": "Connecticut Sun",
-          "league": "WNBA",
-          "line": 174.5,
-          "market_edge": 0.1657,
-          "market_line": 174.5,
-          "market_odds_captured_at": "2026-08-07T13:47:05.499043Z",
-          "market_odds_provider": "espn_scoreboard:DraftKings",
-          "market_over_odds": -115,
-          "market_pick_odds": -110,
-          "market_pick_prob": 0.5238,
-          "market_priced": true,
-          "market_source": "DraftKings via ESPN",
-          "market_type": "totals",
-          "market_under_odds": -105,
-          "market_updated_at": "2026-08-07T13:47:05.499043Z",
-          "matchup": "Phoenix Mercury @ Connecticut Sun",
-          "model_assumed_odds": -110,
-          "model_prediction": 165.6,
-          "odds": -105,
-          "odds_source": "posted_market",
-          "opposite_odds": -115,
-          "pick": "Under 174.5 (Phoenix Mercury vs Connecticut Sun)",
-          "pregame_snapshot": {
-            "away_team": "Phoenix Mercury",
-            "confidence": 69.0,
-            "confidence_label": "Medium",
-            "decision": "LEAN",
-            "edge": 16.57,
-            "game": "Phoenix Mercury @ Connecticut Sun",
-            "guardrail_reasons": [
-              "new totals market capped at LEAN while its live record is established"
-            ],
-            "h2h_games": 0,
-            "has_market_price": true,
-            "home_team": "Connecticut Sun",
-            "league": "WNBA",
-            "line": 174.5,
-            "market_edge": 0.1657,
-            "market_line": 174.5,
-            "market_pick_odds": -110,
-            "market_pick_prob": 0.5238,
-            "market_source": "DraftKings via ESPN",
-            "market_type": "totals",
-            "matchup": "Phoenix Mercury @ Connecticut Sun",
-            "model_prediction": 165.6,
-            "odds": -110,
-            "pick": "Under 174.5 (Phoenix Mercury vs Connecticut Sun)",
-            "probability": 0.6895,
-            "projected_total": 165.6,
-            "selection": "Under",
-            "source": "WNBA Model",
-            "sport": "WNBA",
-            "units": 0.03,
-            "vegas": 174.5
-          },
-          "price_source": "espn_scoreboard:DraftKings",
-          "pricing_type": "market",
-          "probability": 0.5808,
-          "projected_total": 165.6,
-          "raw_edge": 16.57,
-          "raw_probability": 0.6895,
-          "raw_units": 0.03,
-          "selected_odds": -105,
-          "selection": "Under",
-          "source": "WNBA Model",
-          "sport": "WNBA",
-          "units": 0.01,
-          "vegas": 174.5
         },
         {
           "assumed_odds_replaced": true,
@@ -55998,7 +56550,7 @@
     "ok": false,
     "picks": []
   },
-  "updatedAt": "2026-08-07T15:47:33.027094Z",
+  "updatedAt": "2026-08-07T16:42:16.355446Z",
   "wnba": {
     "ok": true,
     "picks": [
@@ -56016,7 +56568,7 @@
         "confidence": 55.2,
         "confidence_label": "Low",
         "decision": "PASS",
-        "edge": -16.77,
+        "edge": -17.93,
         "game": "Phoenix Mercury @ Connecticut Sun",
         "guardrail_reasons": [],
         "h2h_games": 0,
@@ -56024,12 +56576,12 @@
         "home_team": "Connecticut Sun",
         "league": "WNBA",
         "market_away_odds": -250,
-        "market_edge": -0.117,
+        "market_edge": -0.1286,
         "market_home_odds": 205,
         "market_odds_captured_at": "2026-08-07T13:47:05.499043Z",
         "market_odds_provider": "espn_scoreboard:DraftKings",
-        "market_pick_odds": -230,
-        "market_pick_prob": 0.669,
+        "market_pick_odds": -245,
+        "market_pick_prob": 0.6806,
         "market_priced": true,
         "market_source": "DraftKings via ESPN",
         "market_type": "h2h",
@@ -56091,59 +56643,59 @@
       {
         "assumed_odds_replaced": true,
         "away_team": "Phoenix Mercury",
-        "calibrated_probability": 0.510855,
+        "calibrated_probability": 0.53254,
         "calibration": {
           "applied": true,
           "key": "model:wnba|source:wnba model|sport:wnba|bet:spread",
-          "probability_delta": -0.104145,
+          "probability_delta": -0.11086,
           "samples": 32,
           "version": "cal-v2-1850-2026-07-11"
         },
-        "confidence": 61.5,
+        "confidence": 64.3,
         "confidence_label": "High",
-        "cover_margin": 3.89,
+        "cover_margin": 4.89,
         "decision": "PASS",
-        "edge": -1.29,
+        "edge": 0.87,
         "game": "Phoenix Mercury @ Connecticut Sun",
         "guardrail_reasons": [],
         "h2h_games": 0,
         "has_market_price": true,
         "home_team": "Connecticut Sun",
         "league": "WNBA",
-        "line": 5.5,
-        "market_edge": 0.0912,
-        "market_line": 5.5,
-        "market_odds_captured_at": "2026-08-07T15:47:40.400002Z",
+        "line": 6.5,
+        "market_edge": 0.1196,
+        "market_line": 6.5,
+        "market_odds_captured_at": "2026-08-07T13:47:05.499043Z",
         "market_odds_provider": "espn_scoreboard:DraftKings",
         "market_pick_odds": -110,
         "market_pick_prob": 0.5238,
         "market_priced": true,
         "market_source": "DraftKings via ESPN",
         "market_type": "spread",
-        "market_updated_at": "2026-08-07T15:47:40.400002Z",
+        "market_updated_at": "2026-08-07T13:47:05.499043Z",
         "matchup": "Phoenix Mercury @ Connecticut Sun",
         "model_assumed_odds": -110,
         "model_prediction": -1.61,
-        "odds": -105,
+        "odds": -112,
         "odds_source": "posted_market",
-        "opposite_odds": -115,
-        "pick": "Connecticut Sun +5.5 (Phoenix Mercury @ Connecticut Sun)",
+        "opposite_odds": -108,
+        "pick": "Connecticut Sun +6.5 (Phoenix Mercury @ Connecticut Sun)",
         "pregame_snapshot": {
           "away_team": "Phoenix Mercury",
-          "confidence": 61.5,
+          "confidence": 64.3,
           "confidence_label": "High",
-          "cover_margin": 3.89,
+          "cover_margin": 4.89,
           "decision": "BET",
-          "edge": 9.12,
+          "edge": 11.96,
           "game": "Phoenix Mercury @ Connecticut Sun",
           "guardrail_reasons": [],
           "h2h_games": 0,
           "has_market_price": true,
           "home_team": "Connecticut Sun",
           "league": "WNBA",
-          "line": 5.5,
-          "market_edge": 0.0912,
-          "market_line": 5.5,
+          "line": 6.5,
+          "market_edge": 0.1196,
+          "market_line": 6.5,
           "market_pick_odds": -110,
           "market_pick_prob": 0.5238,
           "market_source": "DraftKings via ESPN",
@@ -56151,8 +56703,8 @@
           "matchup": "Phoenix Mercury @ Connecticut Sun",
           "model_prediction": -1.61,
           "odds": -110,
-          "pick": "Connecticut Sun +5.5 (Phoenix Mercury @ Connecticut Sun)",
-          "probability": 0.615,
+          "pick": "Connecticut Sun +6.5 (Phoenix Mercury @ Connecticut Sun)",
+          "probability": 0.6434,
           "projected_total": 165.6,
           "selection": "Connecticut Sun",
           "source": "WNBA Model",
@@ -56161,16 +56713,16 @@
           "starters_questionable": [],
           "team": "Connecticut Sun",
           "units": 0.03,
-          "vegas": 5.5
+          "vegas": 6.5
         },
         "price_source": "espn_scoreboard:DraftKings",
         "pricing_type": "market",
-        "probability": 0.5109,
+        "probability": 0.5325,
         "projected_total": 165.6,
-        "raw_edge": 9.12,
-        "raw_probability": 0.615,
+        "raw_edge": 11.96,
+        "raw_probability": 0.6434,
         "raw_units": 0.03,
-        "selected_odds": -105,
+        "selected_odds": -112,
         "selection": "Connecticut Sun",
         "source": "WNBA Model",
         "sport": "WNBA",
@@ -56178,23 +56730,23 @@
         "starters_questionable": [],
         "team": "Connecticut Sun",
         "units": 0,
-        "vegas": 5.5
+        "vegas": 6.5
       },
       {
         "assumed_odds_replaced": true,
         "away_team": "Phoenix Mercury",
-        "calibrated_probability": 0.597372,
+        "calibrated_probability": 0.58083,
         "calibration": {
           "applied": true,
           "key": "model:wnba|source:wnba model|sport:wnba|bet:totals",
-          "probability_delta": -0.111428,
+          "probability_delta": -0.10867,
           "samples": 47,
           "version": "cal-v2-1850-2026-07-11"
         },
-        "confidence": 70.9,
+        "confidence": 69.0,
         "confidence_label": "Medium",
         "decision": "LEAN",
-        "edge": 7.36,
+        "edge": 5.7,
         "game": "Phoenix Mercury @ Connecticut Sun",
         "guardrail_reasons": [
           "new totals market capped at LEAN while its live record is established"
@@ -56203,32 +56755,32 @@
         "has_market_price": true,
         "home_team": "Connecticut Sun",
         "league": "WNBA",
-        "line": 175.5,
-        "market_edge": 0.185,
-        "market_line": 175.5,
-        "market_odds_captured_at": "2026-08-07T15:47:40.400002Z",
+        "line": 174.5,
+        "market_edge": 0.1657,
+        "market_line": 174.5,
+        "market_odds_captured_at": "2026-08-07T13:47:05.499043Z",
         "market_odds_provider": "espn_scoreboard:DraftKings",
-        "market_over_odds": -108,
+        "market_over_odds": -115,
         "market_pick_odds": -110,
         "market_pick_prob": 0.5238,
         "market_priced": true,
         "market_source": "DraftKings via ESPN",
         "market_type": "totals",
-        "market_under_odds": -112,
-        "market_updated_at": "2026-08-07T15:47:40.400002Z",
+        "market_under_odds": -105,
+        "market_updated_at": "2026-08-07T13:47:05.499043Z",
         "matchup": "Phoenix Mercury @ Connecticut Sun",
         "model_assumed_odds": -110,
         "model_prediction": 165.6,
-        "odds": -112,
+        "odds": -105,
         "odds_source": "posted_market",
-        "opposite_odds": -108,
-        "pick": "Under 175.5 (Phoenix Mercury vs Connecticut Sun)",
+        "opposite_odds": -115,
+        "pick": "Under 174.5 (Phoenix Mercury vs Connecticut Sun)",
         "pregame_snapshot": {
           "away_team": "Phoenix Mercury",
-          "confidence": 70.9,
+          "confidence": 69.0,
           "confidence_label": "Medium",
           "decision": "LEAN",
-          "edge": 18.5,
+          "edge": 16.57,
           "game": "Phoenix Mercury @ Connecticut Sun",
           "guardrail_reasons": [
             "new totals market capped at LEAN while its live record is established"
@@ -56237,9 +56789,9 @@
           "has_market_price": true,
           "home_team": "Connecticut Sun",
           "league": "WNBA",
-          "line": 175.5,
-          "market_edge": 0.185,
-          "market_line": 175.5,
+          "line": 174.5,
+          "market_edge": 0.1657,
+          "market_line": 174.5,
           "market_pick_odds": -110,
           "market_pick_prob": 0.5238,
           "market_source": "DraftKings via ESPN",
@@ -56247,28 +56799,28 @@
           "matchup": "Phoenix Mercury @ Connecticut Sun",
           "model_prediction": 165.6,
           "odds": -110,
-          "pick": "Under 175.5 (Phoenix Mercury vs Connecticut Sun)",
-          "probability": 0.7088,
+          "pick": "Under 174.5 (Phoenix Mercury vs Connecticut Sun)",
+          "probability": 0.6895,
           "projected_total": 165.6,
           "selection": "Under",
           "source": "WNBA Model",
           "sport": "WNBA",
           "units": 0.03,
-          "vegas": 175.5
+          "vegas": 174.5
         },
         "price_source": "espn_scoreboard:DraftKings",
         "pricing_type": "market",
-        "probability": 0.5974,
+        "probability": 0.5808,
         "projected_total": 165.6,
-        "raw_edge": 18.5,
-        "raw_probability": 0.7088,
+        "raw_edge": 16.57,
+        "raw_probability": 0.6895,
         "raw_units": 0.03,
-        "selected_odds": -112,
+        "selected_odds": -105,
         "selection": "Under",
         "source": "WNBA Model",
         "sport": "WNBA",
         "units": 0.01,
-        "vegas": 175.5
+        "vegas": 174.5
       },
       {
         "assumed_odds_replaced": true,
@@ -56723,6 +57275,278 @@
       {
         "assumed_odds_replaced": true,
         "away_team": "Golden State Valkyries",
+        "calibrated_probability": 0.471013,
+        "calibration": {
+          "applied": true,
+          "key": "model:wnba|source:wnba model|sport:wnba|bet:totals",
+          "probability_delta": -0.079787,
+          "samples": 47,
+          "version": "cal-v2-1850-2026-07-11"
+        },
+        "confidence": 55.1,
+        "confidence_label": "Low",
+        "decision": "PASS",
+        "edge": -5.28,
+        "game": "Golden State Valkyries @ Dallas Wings",
+        "guardrail_reasons": [
+          "model-to-line total gap below 5 points"
+        ],
+        "h2h_games": 0,
+        "has_market_price": true,
+        "home_team": "Dallas Wings",
+        "league": "WNBA",
+        "line": 162.5,
+        "market_edge": 0.027,
+        "market_line": 162.5,
+        "market_odds_captured_at": "2026-08-07T16:42:22.283262Z",
+        "market_odds_provider": "espn_scoreboard:DraftKings",
+        "market_over_odds": -110,
+        "market_pick_odds": -110,
+        "market_pick_prob": 0.5238,
+        "market_priced": true,
+        "market_source": "DraftKings via ESPN",
+        "market_type": "totals",
+        "market_under_odds": -110,
+        "market_updated_at": "2026-08-07T16:42:22.283262Z",
+        "matchup": "Golden State Valkyries @ Dallas Wings",
+        "model_assumed_odds": -110,
+        "model_prediction": 164.8,
+        "odds": -110,
+        "odds_source": "posted_market",
+        "opposite_odds": -110,
+        "pick": "Over 162.5 (Golden State Valkyries vs Dallas Wings)",
+        "pregame_snapshot": {
+          "away_team": "Golden State Valkyries",
+          "confidence": 55.1,
+          "confidence_label": "Low",
+          "decision": "PASS",
+          "edge": 2.7,
+          "game": "Golden State Valkyries @ Dallas Wings",
+          "guardrail_reasons": [
+            "model-to-line total gap below 5 points"
+          ],
+          "h2h_games": 0,
+          "has_market_price": true,
+          "home_team": "Dallas Wings",
+          "league": "WNBA",
+          "line": 162.5,
+          "market_edge": 0.027,
+          "market_line": 162.5,
+          "market_pick_odds": -110,
+          "market_pick_prob": 0.5238,
+          "market_source": "DraftKings via ESPN",
+          "market_type": "totals",
+          "matchup": "Golden State Valkyries @ Dallas Wings",
+          "model_prediction": 164.8,
+          "odds": -110,
+          "pick": "Over 162.5 (Golden State Valkyries vs Dallas Wings)",
+          "probability": 0.5508,
+          "projected_total": 164.8,
+          "selection": "Over",
+          "source": "WNBA Model",
+          "sport": "WNBA",
+          "units": 0.0,
+          "vegas": 162.5
+        },
+        "price_source": "espn_scoreboard:DraftKings",
+        "pricing_type": "market",
+        "probability": 0.471,
+        "projected_total": 164.8,
+        "raw_edge": 2.7,
+        "raw_probability": 0.5508,
+        "raw_units": 0.0,
+        "selected_odds": -110,
+        "selection": "Over",
+        "source": "WNBA Model",
+        "sport": "WNBA",
+        "units": 0,
+        "vegas": 162.5
+      },
+      {
+        "assumed_odds_replaced": true,
+        "away_team": "Phoenix Mercury",
+        "calibrated_probability": 0.510855,
+        "calibration": {
+          "applied": true,
+          "key": "model:wnba|source:wnba model|sport:wnba|bet:spread",
+          "probability_delta": -0.104145,
+          "samples": 32,
+          "version": "cal-v2-1850-2026-07-11"
+        },
+        "confidence": 61.5,
+        "confidence_label": "High",
+        "cover_margin": 3.89,
+        "decision": "PASS",
+        "edge": -1.29,
+        "game": "Phoenix Mercury @ Connecticut Sun",
+        "guardrail_reasons": [],
+        "h2h_games": 0,
+        "has_market_price": true,
+        "home_team": "Connecticut Sun",
+        "league": "WNBA",
+        "line": 5.5,
+        "market_edge": 0.0912,
+        "market_line": 5.5,
+        "market_odds_captured_at": "2026-08-07T15:47:40.400002Z",
+        "market_odds_provider": "espn_scoreboard:DraftKings",
+        "market_pick_odds": -110,
+        "market_pick_prob": 0.5238,
+        "market_priced": true,
+        "market_source": "DraftKings via ESPN",
+        "market_type": "spread",
+        "market_updated_at": "2026-08-07T15:47:40.400002Z",
+        "matchup": "Phoenix Mercury @ Connecticut Sun",
+        "model_assumed_odds": -110,
+        "model_prediction": -1.61,
+        "odds": -105,
+        "odds_source": "posted_market",
+        "opposite_odds": -115,
+        "pick": "Connecticut Sun +5.5 (Phoenix Mercury @ Connecticut Sun)",
+        "pregame_snapshot": {
+          "away_team": "Phoenix Mercury",
+          "confidence": 61.5,
+          "confidence_label": "High",
+          "cover_margin": 3.89,
+          "decision": "BET",
+          "edge": 9.12,
+          "game": "Phoenix Mercury @ Connecticut Sun",
+          "guardrail_reasons": [],
+          "h2h_games": 0,
+          "has_market_price": true,
+          "home_team": "Connecticut Sun",
+          "league": "WNBA",
+          "line": 5.5,
+          "market_edge": 0.0912,
+          "market_line": 5.5,
+          "market_pick_odds": -110,
+          "market_pick_prob": 0.5238,
+          "market_source": "DraftKings via ESPN",
+          "market_type": "spread",
+          "matchup": "Phoenix Mercury @ Connecticut Sun",
+          "model_prediction": -1.61,
+          "odds": -110,
+          "pick": "Connecticut Sun +5.5 (Phoenix Mercury @ Connecticut Sun)",
+          "probability": 0.615,
+          "projected_total": 165.6,
+          "selection": "Connecticut Sun",
+          "source": "WNBA Model",
+          "sport": "WNBA",
+          "starters_out": [],
+          "starters_questionable": [],
+          "team": "Connecticut Sun",
+          "units": 0.03,
+          "vegas": 5.5
+        },
+        "price_source": "espn_scoreboard:DraftKings",
+        "pricing_type": "market",
+        "probability": 0.5109,
+        "projected_total": 165.6,
+        "raw_edge": 9.12,
+        "raw_probability": 0.615,
+        "raw_units": 0.03,
+        "selected_odds": -105,
+        "selection": "Connecticut Sun",
+        "source": "WNBA Model",
+        "sport": "WNBA",
+        "starters_out": [],
+        "starters_questionable": [],
+        "team": "Connecticut Sun",
+        "units": 0,
+        "vegas": 5.5
+      },
+      {
+        "assumed_odds_replaced": true,
+        "away_team": "Phoenix Mercury",
+        "calibrated_probability": 0.597372,
+        "calibration": {
+          "applied": true,
+          "key": "model:wnba|source:wnba model|sport:wnba|bet:totals",
+          "probability_delta": -0.111428,
+          "samples": 47,
+          "version": "cal-v2-1850-2026-07-11"
+        },
+        "confidence": 70.9,
+        "confidence_label": "Medium",
+        "decision": "LEAN",
+        "edge": 7.36,
+        "game": "Phoenix Mercury @ Connecticut Sun",
+        "guardrail_reasons": [
+          "new totals market capped at LEAN while its live record is established"
+        ],
+        "h2h_games": 0,
+        "has_market_price": true,
+        "home_team": "Connecticut Sun",
+        "league": "WNBA",
+        "line": 175.5,
+        "market_edge": 0.185,
+        "market_line": 175.5,
+        "market_odds_captured_at": "2026-08-07T15:47:40.400002Z",
+        "market_odds_provider": "espn_scoreboard:DraftKings",
+        "market_over_odds": -108,
+        "market_pick_odds": -110,
+        "market_pick_prob": 0.5238,
+        "market_priced": true,
+        "market_source": "DraftKings via ESPN",
+        "market_type": "totals",
+        "market_under_odds": -112,
+        "market_updated_at": "2026-08-07T15:47:40.400002Z",
+        "matchup": "Phoenix Mercury @ Connecticut Sun",
+        "model_assumed_odds": -110,
+        "model_prediction": 165.6,
+        "odds": -112,
+        "odds_source": "posted_market",
+        "opposite_odds": -108,
+        "pick": "Under 175.5 (Phoenix Mercury vs Connecticut Sun)",
+        "pregame_snapshot": {
+          "away_team": "Phoenix Mercury",
+          "confidence": 70.9,
+          "confidence_label": "Medium",
+          "decision": "LEAN",
+          "edge": 18.5,
+          "game": "Phoenix Mercury @ Connecticut Sun",
+          "guardrail_reasons": [
+            "new totals market capped at LEAN while its live record is established"
+          ],
+          "h2h_games": 0,
+          "has_market_price": true,
+          "home_team": "Connecticut Sun",
+          "league": "WNBA",
+          "line": 175.5,
+          "market_edge": 0.185,
+          "market_line": 175.5,
+          "market_pick_odds": -110,
+          "market_pick_prob": 0.5238,
+          "market_source": "DraftKings via ESPN",
+          "market_type": "totals",
+          "matchup": "Phoenix Mercury @ Connecticut Sun",
+          "model_prediction": 165.6,
+          "odds": -110,
+          "pick": "Under 175.5 (Phoenix Mercury vs Connecticut Sun)",
+          "probability": 0.7088,
+          "projected_total": 165.6,
+          "selection": "Under",
+          "source": "WNBA Model",
+          "sport": "WNBA",
+          "units": 0.03,
+          "vegas": 175.5
+        },
+        "price_source": "espn_scoreboard:DraftKings",
+        "pricing_type": "market",
+        "probability": 0.5974,
+        "projected_total": 165.6,
+        "raw_edge": 18.5,
+        "raw_probability": 0.7088,
+        "raw_units": 0.03,
+        "selected_odds": -112,
+        "selection": "Under",
+        "source": "WNBA Model",
+        "sport": "WNBA",
+        "units": 0.01,
+        "vegas": 175.5
+      },
+      {
+        "assumed_odds_replaced": true,
+        "away_team": "Golden State Valkyries",
         "calibrated_probability": 0.487547,
         "calibration": {
           "applied": true,
@@ -56809,188 +57633,6 @@
         "sport": "WNBA",
         "units": 0,
         "vegas": 161.5
-      },
-      {
-        "assumed_odds_replaced": true,
-        "away_team": "Phoenix Mercury",
-        "calibrated_probability": 0.53254,
-        "calibration": {
-          "applied": true,
-          "key": "model:wnba|source:wnba model|sport:wnba|bet:spread",
-          "probability_delta": -0.11086,
-          "samples": 32,
-          "version": "cal-v2-1850-2026-07-11"
-        },
-        "confidence": 64.3,
-        "confidence_label": "High",
-        "cover_margin": 4.89,
-        "decision": "PASS",
-        "edge": 0.87,
-        "game": "Phoenix Mercury @ Connecticut Sun",
-        "guardrail_reasons": [],
-        "h2h_games": 0,
-        "has_market_price": true,
-        "home_team": "Connecticut Sun",
-        "league": "WNBA",
-        "line": 6.5,
-        "market_edge": 0.1196,
-        "market_line": 6.5,
-        "market_odds_captured_at": "2026-08-07T13:47:05.499043Z",
-        "market_odds_provider": "espn_scoreboard:DraftKings",
-        "market_pick_odds": -110,
-        "market_pick_prob": 0.5238,
-        "market_priced": true,
-        "market_source": "DraftKings via ESPN",
-        "market_type": "spread",
-        "market_updated_at": "2026-08-07T13:47:05.499043Z",
-        "matchup": "Phoenix Mercury @ Connecticut Sun",
-        "model_assumed_odds": -110,
-        "model_prediction": -1.61,
-        "odds": -112,
-        "odds_source": "posted_market",
-        "opposite_odds": -108,
-        "pick": "Connecticut Sun +6.5 (Phoenix Mercury @ Connecticut Sun)",
-        "pregame_snapshot": {
-          "away_team": "Phoenix Mercury",
-          "confidence": 64.3,
-          "confidence_label": "High",
-          "cover_margin": 4.89,
-          "decision": "BET",
-          "edge": 11.96,
-          "game": "Phoenix Mercury @ Connecticut Sun",
-          "guardrail_reasons": [],
-          "h2h_games": 0,
-          "has_market_price": true,
-          "home_team": "Connecticut Sun",
-          "league": "WNBA",
-          "line": 6.5,
-          "market_edge": 0.1196,
-          "market_line": 6.5,
-          "market_pick_odds": -110,
-          "market_pick_prob": 0.5238,
-          "market_source": "DraftKings via ESPN",
-          "market_type": "spread",
-          "matchup": "Phoenix Mercury @ Connecticut Sun",
-          "model_prediction": -1.61,
-          "odds": -110,
-          "pick": "Connecticut Sun +6.5 (Phoenix Mercury @ Connecticut Sun)",
-          "probability": 0.6434,
-          "projected_total": 165.6,
-          "selection": "Connecticut Sun",
-          "source": "WNBA Model",
-          "sport": "WNBA",
-          "starters_out": [],
-          "starters_questionable": [],
-          "team": "Connecticut Sun",
-          "units": 0.03,
-          "vegas": 6.5
-        },
-        "price_source": "espn_scoreboard:DraftKings",
-        "pricing_type": "market",
-        "probability": 0.5325,
-        "projected_total": 165.6,
-        "raw_edge": 11.96,
-        "raw_probability": 0.6434,
-        "raw_units": 0.03,
-        "selected_odds": -112,
-        "selection": "Connecticut Sun",
-        "source": "WNBA Model",
-        "sport": "WNBA",
-        "starters_out": [],
-        "starters_questionable": [],
-        "team": "Connecticut Sun",
-        "units": 0,
-        "vegas": 6.5
-      },
-      {
-        "assumed_odds_replaced": true,
-        "away_team": "Phoenix Mercury",
-        "calibrated_probability": 0.58083,
-        "calibration": {
-          "applied": true,
-          "key": "model:wnba|source:wnba model|sport:wnba|bet:totals",
-          "probability_delta": -0.10867,
-          "samples": 47,
-          "version": "cal-v2-1850-2026-07-11"
-        },
-        "confidence": 69.0,
-        "confidence_label": "Medium",
-        "decision": "LEAN",
-        "edge": 5.7,
-        "game": "Phoenix Mercury @ Connecticut Sun",
-        "guardrail_reasons": [
-          "new totals market capped at LEAN while its live record is established"
-        ],
-        "h2h_games": 0,
-        "has_market_price": true,
-        "home_team": "Connecticut Sun",
-        "league": "WNBA",
-        "line": 174.5,
-        "market_edge": 0.1657,
-        "market_line": 174.5,
-        "market_odds_captured_at": "2026-08-07T13:47:05.499043Z",
-        "market_odds_provider": "espn_scoreboard:DraftKings",
-        "market_over_odds": -115,
-        "market_pick_odds": -110,
-        "market_pick_prob": 0.5238,
-        "market_priced": true,
-        "market_source": "DraftKings via ESPN",
-        "market_type": "totals",
-        "market_under_odds": -105,
-        "market_updated_at": "2026-08-07T13:47:05.499043Z",
-        "matchup": "Phoenix Mercury @ Connecticut Sun",
-        "model_assumed_odds": -110,
-        "model_prediction": 165.6,
-        "odds": -105,
-        "odds_source": "posted_market",
-        "opposite_odds": -115,
-        "pick": "Under 174.5 (Phoenix Mercury vs Connecticut Sun)",
-        "pregame_snapshot": {
-          "away_team": "Phoenix Mercury",
-          "confidence": 69.0,
-          "confidence_label": "Medium",
-          "decision": "LEAN",
-          "edge": 16.57,
-          "game": "Phoenix Mercury @ Connecticut Sun",
-          "guardrail_reasons": [
-            "new totals market capped at LEAN while its live record is established"
-          ],
-          "h2h_games": 0,
-          "has_market_price": true,
-          "home_team": "Connecticut Sun",
-          "league": "WNBA",
-          "line": 174.5,
-          "market_edge": 0.1657,
-          "market_line": 174.5,
-          "market_pick_odds": -110,
-          "market_pick_prob": 0.5238,
-          "market_source": "DraftKings via ESPN",
-          "market_type": "totals",
-          "matchup": "Phoenix Mercury @ Connecticut Sun",
-          "model_prediction": 165.6,
-          "odds": -110,
-          "pick": "Under 174.5 (Phoenix Mercury vs Connecticut Sun)",
-          "probability": 0.6895,
-          "projected_total": 165.6,
-          "selection": "Under",
-          "source": "WNBA Model",
-          "sport": "WNBA",
-          "units": 0.03,
-          "vegas": 174.5
-        },
-        "price_source": "espn_scoreboard:DraftKings",
-        "pricing_type": "market",
-        "probability": 0.5808,
-        "projected_total": 165.6,
-        "raw_edge": 16.57,
-        "raw_probability": 0.6895,
-        "raw_units": 0.03,
-        "selected_odds": -105,
-        "selection": "Under",
-        "source": "WNBA Model",
-        "sport": "WNBA",
-        "units": 0.01,
-        "vegas": 174.5
       },
       {
         "assumed_odds_replaced": true,
