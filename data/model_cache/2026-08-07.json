@@ -1082,7 +1082,7 @@
     "error": "403 Client Error: Forbidden for url: https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=20260807&limit=100",
     "ok": false
   },
-  "generatedAt": "2026-08-07T16:42:16.355446Z",
+  "generatedAt": "2026-08-07T17:41:49.389891Z",
   "generatedBy": "github-actions:model-cache-refresh",
   "mlb_first_five": {
     "consensus_gate_version": "mlb_team_consensus_v1.1.0",
@@ -5422,8 +5422,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -5742,8 +5742,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -6140,8 +6140,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -6472,8 +6472,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -6891,8 +6891,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -7269,8 +7269,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -7556,8 +7556,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -7960,8 +7960,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -8272,8 +8272,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -8696,8 +8696,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -9020,8 +9020,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -9320,8 +9320,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -9696,8 +9696,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -10012,8 +10012,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -10416,8 +10416,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -10826,8 +10826,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -11149,8 +11149,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -11457,8 +11457,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -11834,8 +11834,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -12158,8 +12158,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -12555,8 +12555,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -12859,8 +12859,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -13272,8 +13272,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -13592,8 +13592,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -14012,8 +14012,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -14416,8 +14416,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -14723,8 +14723,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -15135,8 +15135,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -15447,8 +15447,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -15744,8 +15744,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -16130,8 +16130,8 @@
   "mlb_inning": {
     "consensus_gate_version": "mlb_team_consensus_v1.1.0",
     "consensus_rejection_reasons": {
-      "failed_walk_forward_validation": 4,
-      "non_positive_calibrated_edge": 20
+      "failed_walk_forward_validation": 3,
+      "non_positive_calibrated_edge": 21
     },
     "consensus_required": true,
     "date": "2026-08-07",
@@ -16305,20 +16305,20 @@
         "edge_table": {
           "1": 0.1473,
           "2": 0.0837,
-          "3": 0.0082,
+          "3": -0.0021,
           "4": 0.0363,
           "5": 0.0988,
-          "6": 0.0258,
+          "6": 0.014,
           "7": -0.129,
           "8": -0.1722
         },
         "full_inning_table": {
           "1": 0.532,
           "2": 0.602,
-          "3": 0.498,
+          "3": 0.488,
           "4": 0.555,
           "5": 0.603,
-          "6": 0.544,
+          "6": 0.532,
           "7": 0.419,
           "8": 0.39
         },
@@ -16578,23 +16578,23 @@
         },
         "edge_table": {
           "1": 0.1706,
-          "2": 0.0663,
+          "2": 0.0105,
           "3": 0.0304,
           "4": -0.042,
-          "5": 0.1332,
+          "5": 0.0593,
           "6": 0.047,
           "7": -0.1871,
-          "8": -0.0762
+          "8": -0.1383
         },
         "full_inning_table": {
           "1": 0.555,
-          "2": 0.585,
+          "2": 0.529,
           "3": 0.52,
           "4": 0.476,
-          "5": 0.637,
+          "5": 0.563,
           "6": 0.565,
           "7": 0.36,
-          "8": 0.486
+          "8": 0.424
         },
         "game_id": "823515",
         "game_order": 3,
@@ -16630,12 +16630,12 @@
           },
           {
             "baseline": 0.5041,
-            "confidence": "High",
-            "decision": "BET",
-            "edge_pp": 13.32,
+            "confidence": "Medium",
+            "decision": "LEAN",
+            "edge_pp": 5.93,
             "inning": 5,
-            "label": "Inning 5 - No Run Scored (63.7%, edge +13.3pp)",
-            "probability_scoreless": 0.637
+            "label": "Inning 5 - No Run Scored (56.3%, edge +5.9pp)",
+            "probability_scoreless": 0.563
           }
         ],
         "travel": {
@@ -17627,23 +17627,23 @@
           "8": 0.5625
         },
         "edge_table": {
-          "1": 0.1771,
+          "1": 0.1002,
           "2": 0.093,
           "3": -0.0173,
-          "4": -0.0079,
+          "4": -0.0762,
           "5": 0.0364,
           "6": -0.0552,
-          "7": -0.0394,
+          "7": -0.1257,
           "8": -0.2018
         },
         "full_inning_table": {
-          "1": 0.561,
+          "1": 0.485,
           "2": 0.611,
           "3": 0.473,
-          "4": 0.51,
+          "4": 0.442,
           "5": 0.54,
           "6": 0.463,
-          "7": 0.508,
+          "7": 0.422,
           "8": 0.361
         },
         "game_id": "825051",
@@ -17671,12 +17671,12 @@
         "top_2_picks": [
           {
             "baseline": 0.3844,
-            "confidence": "High",
-            "decision": "BET",
-            "edge_pp": 17.71,
+            "confidence": "Medium",
+            "decision": "LEAN",
+            "edge_pp": 10.02,
             "inning": 1,
-            "label": "Inning 1 - No Run Scored (56.1%, edge +17.7pp)",
-            "probability_scoreless": 0.561
+            "label": "Inning 1 - No Run Scored (48.5%, edge +10.0pp)",
+            "probability_scoreless": 0.485
           },
           {
             "baseline": 0.5184,
@@ -18157,8 +18157,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -18401,8 +18401,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -18658,8 +18658,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -18832,7 +18832,7 @@
         "mlb_team_consensus_version": "mlb_team_consensus_v1.1.0",
         "model_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
         "model_prediction": "53.2%",
-        "notes": "Top no-run inning candidate (edge +14.7pp vs baseline). Full table: {\"1\": 0.532, \"2\": 0.602, \"3\": 0.498, \"4\": 0.555, \"5\": 0.603, \"6\": 0.544, \"7\": 0.419, \"8\": 0.39}",
+        "notes": "Top no-run inning candidate (edge +14.7pp vs baseline). Full table: {\"1\": 0.532, \"2\": 0.602, \"3\": 0.488, \"4\": 0.555, \"5\": 0.603, \"6\": 0.532, \"7\": 0.419, \"8\": 0.39}",
         "odds": -120,
         "odds_source": "user_assumed_no_run_inning_-120",
         "pick": "Inning 1 - No Run Scored",
@@ -18902,8 +18902,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -19076,7 +19076,7 @@
         "mlb_team_consensus_version": "mlb_team_consensus_v1.1.0",
         "model_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
         "model_prediction": "60.3%",
-        "notes": "Top no-run inning candidate (edge +9.9pp vs baseline). Full table: {\"1\": 0.532, \"2\": 0.602, \"3\": 0.498, \"4\": 0.555, \"5\": 0.603, \"6\": 0.544, \"7\": 0.419, \"8\": 0.39}",
+        "notes": "Top no-run inning candidate (edge +9.9pp vs baseline). Full table: {\"1\": 0.532, \"2\": 0.602, \"3\": 0.488, \"4\": 0.555, \"5\": 0.603, \"6\": 0.532, \"7\": 0.419, \"8\": 0.39}",
         "odds": -120,
         "odds_source": "user_assumed_no_run_inning_-120",
         "pick": "Inning 5 - No Run Scored",
@@ -19146,8 +19146,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -19375,7 +19375,7 @@
         "walk_forward_samples": 0
       },
       {
-        "actionability": "research_signal",
+        "actionability": "validation_lean",
         "assumed_odds": -120,
         "away_team": "Cincinnati Reds",
         "baseline_probability": 0.5184,
@@ -19390,8 +19390,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -19449,8 +19449,8 @@
         "consensus_hard_blockers": [
           "failed_walk_forward_validation"
         ],
-        "consensus_passed": false,
-        "consensus_publication_mode": "research",
+        "consensus_passed": true,
+        "consensus_publication_mode": "validation_fallback",
         "consensus_qualified": false,
         "consensus_rejection_reason": "failed_walk_forward_validation",
         "consensus_required": true,
@@ -19557,7 +19557,7 @@
           }
         ],
         "date": "2026-08-07",
-        "decision": "PASS",
+        "decision": "LEAN",
         "edge": 0.9,
         "edge_pp": 9.58,
         "game": "Washington Nationals vs Cincinnati Reds",
@@ -19627,7 +19627,10 @@
         "sport": "MLB",
         "start_time": "2026-08-07T22:45:00Z",
         "team": "",
-        "units": 0.0,
+        "units": 0.25,
+        "validation_lean": true,
+        "validation_reason": "validation fallback: mlb_inning had zero strict BET/LEAN publications; published top raw model signal as a small LEAN for tracking",
+        "validation_score": 48.48,
         "walk_forward_roi": null,
         "walk_forward_samples": 0
       },
@@ -19647,8 +19650,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -19814,7 +19817,7 @@
         "mlb_team_consensus_version": "mlb_team_consensus_v1.1.0",
         "model_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
         "model_prediction": "55.5%",
-        "notes": "Top no-run inning candidate (edge +17.1pp vs baseline). Full table: {\"1\": 0.555, \"2\": 0.585, \"3\": 0.52, \"4\": 0.476, \"5\": 0.637, \"6\": 0.565, \"7\": 0.36, \"8\": 0.486}",
+        "notes": "Top no-run inning candidate (edge +17.1pp vs baseline). Full table: {\"1\": 0.555, \"2\": 0.529, \"3\": 0.52, \"4\": 0.476, \"5\": 0.563, \"6\": 0.565, \"7\": 0.36, \"8\": 0.424}",
         "odds": -120,
         "odds_source": "user_assumed_no_run_inning_-120",
         "pick": "Inning 1 - No Run Scored",
@@ -19869,27 +19872,27 @@
         "walk_forward_samples": 0
       },
       {
-        "actionability": "validation_lean",
+        "actionability": "research_signal",
         "assumed_odds": -120,
         "away_team": "Atlanta Braves",
         "baseline_probability": 0.5041,
-        "calibrated_edge": 2.92,
-        "calibrated_model_probability": 0.574652,
-        "calibrated_probability": 0.574652,
+        "calibrated_edge": -3.49,
+        "calibrated_model_probability": 0.510594,
+        "calibrated_probability": 0.510594,
         "calibration": {
           "applied": true,
           "key": "global",
-          "probability_delta": -0.062348,
+          "probability_delta": -0.052406,
           "samples": 128,
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
-        "confidence": "High",
+        "confidence": "Medium",
         "consensus_factor_categories": {
           "calibration": {
             "missing": [],
@@ -19904,13 +19907,6 @@
             "support": [
               "inning_baseline_edge",
               "matchup_structure"
-            ]
-          },
-          "market_price": {
-            "missing": [],
-            "risk": [],
-            "support": [
-              "market_price"
             ]
           },
           "park_weather": {
@@ -19941,23 +19937,17 @@
         },
         "consensus_gate_version": "mlb_team_consensus_v1.1.0",
         "consensus_hard_blockers": [
+          "non_positive_calibrated_edge",
           "failed_walk_forward_validation"
         ],
-        "consensus_passed": true,
-        "consensus_publication_mode": "validation_fallback",
+        "consensus_passed": false,
+        "consensus_publication_mode": "research",
         "consensus_qualified": false,
-        "consensus_rejection_reason": "failed_walk_forward_validation",
+        "consensus_rejection_reason": "non_positive_calibrated_edge; failed_walk_forward_validation",
         "consensus_required": true,
-        "consensus_score": 37.885,
-        "consensus_signal_count": 11,
+        "consensus_score": 26.059,
+        "consensus_signal_count": 10,
         "consensus_signals": [
-          {
-            "category": "market_price",
-            "detail": "calibrated probability beats selected-side market price",
-            "impact": "support",
-            "name": "market_price",
-            "strength": 0.292
-          },
           {
             "category": "calibration",
             "detail": "active calibration group has enough samples",
@@ -20044,9 +20034,9 @@
           }
         ],
         "date": "2026-08-07",
-        "decision": "LEAN",
-        "edge": 2.92,
-        "edge_pp": 13.32,
+        "decision": "PASS",
+        "edge": -3.49,
+        "edge_pp": 5.93,
         "game": "New York Yankees vs Atlanta Braves",
         "game_id": "823515",
         "game_order": 3,
@@ -20063,8 +20053,8 @@
         "ml_rank_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
         "mlb_team_consensus_version": "mlb_team_consensus_v1.1.0",
         "model_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
-        "model_prediction": "63.7%",
-        "notes": "Top no-run inning candidate (edge +13.3pp vs baseline). Full table: {\"1\": 0.555, \"2\": 0.585, \"3\": 0.52, \"4\": 0.476, \"5\": 0.637, \"6\": 0.565, \"7\": 0.36, \"8\": 0.486}",
+        "model_prediction": "56.3%",
+        "notes": "Top no-run inning candidate (edge +5.9pp vs baseline). Full table: {\"1\": 0.555, \"2\": 0.529, \"3\": 0.52, \"4\": 0.476, \"5\": 0.563, \"6\": 0.565, \"7\": 0.36, \"8\": 0.424}",
         "odds": -120,
         "odds_source": "user_assumed_no_run_inning_-120",
         "pick": "Inning 5 - No Run Scored",
@@ -20104,20 +20094,17 @@
         },
         "pricing_type": "user_assumed",
         "primary_consensus_passed": false,
-        "probability": 0.5747,
+        "probability": 0.5106,
         "ranking_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
-        "raw_edge": 13.32,
-        "raw_model_probability": 0.637,
-        "raw_probability": 0.637,
+        "raw_edge": 5.93,
+        "raw_model_probability": 0.563,
+        "raw_probability": 0.563,
         "selected_side_implied_probability": 0.545455,
         "source": "MLB Inning",
         "sport": "MLB",
         "start_time": "2026-08-07T23:05:00Z",
         "team": "",
-        "units": 0.25,
-        "validation_lean": true,
-        "validation_reason": "validation fallback: mlb_inning had zero strict BET/LEAN publications; published top raw model signal as a small LEAN for tracking",
-        "validation_score": 54.52,
+        "units": 0.0,
         "walk_forward_roi": null,
         "walk_forward_samples": 0
       },
@@ -20137,8 +20124,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -20381,8 +20368,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -20625,8 +20612,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -20869,8 +20856,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -21113,8 +21100,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -21357,8 +21344,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -21601,8 +21588,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -21830,8 +21817,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -22075,8 +22062,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -22309,23 +22296,23 @@
         "assumed_odds": -120,
         "away_team": "Los Angeles Dodgers",
         "baseline_probability": 0.3844,
-        "calibrated_edge": -3.66,
-        "calibrated_model_probability": 0.508895,
-        "calibrated_probability": 0.508895,
+        "calibrated_edge": -10.02,
+        "calibrated_model_probability": 0.445288,
+        "calibrated_probability": 0.445288,
         "calibration": {
           "applied": true,
           "key": "global",
-          "probability_delta": -0.052105,
+          "probability_delta": -0.039712,
           "samples": 128,
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
-        "confidence": "High",
+        "confidence": "Medium",
         "consensus_factor_categories": {
           "calibration": {
             "missing": [],
@@ -22379,7 +22366,7 @@
         "consensus_qualified": false,
         "consensus_rejection_reason": "non_positive_calibrated_edge; failed_walk_forward_validation",
         "consensus_required": true,
-        "consensus_score": 28.389,
+        "consensus_score": 27.5,
         "consensus_signal_count": 11,
         "consensus_signals": [
           {
@@ -22476,8 +22463,8 @@
         ],
         "date": "2026-08-07",
         "decision": "PASS",
-        "edge": -3.66,
-        "edge_pp": 17.71,
+        "edge": -10.02,
+        "edge_pp": 10.02,
         "game": "Arizona Diamondbacks vs Los Angeles Dodgers",
         "game_id": "825051",
         "game_order": 11,
@@ -22494,8 +22481,8 @@
         "ml_rank_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
         "mlb_team_consensus_version": "mlb_team_consensus_v1.1.0",
         "model_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
-        "model_prediction": "56.1%",
-        "notes": "Top no-run inning candidate (edge +17.7pp vs baseline). Full table: {\"1\": 0.561, \"2\": 0.611, \"3\": 0.473, \"4\": 0.51, \"5\": 0.54, \"6\": 0.463, \"7\": 0.508, \"8\": 0.361}",
+        "model_prediction": "48.5%",
+        "notes": "Top no-run inning candidate (edge +10.0pp vs baseline). Full table: {\"1\": 0.485, \"2\": 0.611, \"3\": 0.473, \"4\": 0.442, \"5\": 0.54, \"6\": 0.463, \"7\": 0.422, \"8\": 0.361}",
         "odds": -120,
         "odds_source": "user_assumed_no_run_inning_-120",
         "pick": "Inning 1 - No Run Scored",
@@ -22535,11 +22522,11 @@
         },
         "pricing_type": "user_assumed",
         "primary_consensus_passed": false,
-        "probability": 0.5089,
+        "probability": 0.4453,
         "ranking_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
-        "raw_edge": 17.71,
-        "raw_model_probability": 0.561,
-        "raw_probability": 0.561,
+        "raw_edge": 10.02,
+        "raw_model_probability": 0.485,
+        "raw_probability": 0.485,
         "selected_side_implied_probability": 0.545455,
         "source": "MLB Inning",
         "sport": "MLB",
@@ -22565,8 +22552,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -22753,7 +22740,7 @@
         "mlb_team_consensus_version": "mlb_team_consensus_v1.1.0",
         "model_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
         "model_prediction": "61.1%",
-        "notes": "Top no-run inning candidate (edge +9.3pp vs baseline). Full table: {\"1\": 0.561, \"2\": 0.611, \"3\": 0.473, \"4\": 0.51, \"5\": 0.54, \"6\": 0.463, \"7\": 0.508, \"8\": 0.361}",
+        "notes": "Top no-run inning candidate (edge +9.3pp vs baseline). Full table: {\"1\": 0.485, \"2\": 0.611, \"3\": 0.473, \"4\": 0.442, \"5\": 0.54, \"6\": 0.463, \"7\": 0.422, \"8\": 0.361}",
         "odds": -120,
         "odds_source": "user_assumed_no_run_inning_-120",
         "pick": "Inning 2 - No Run Scored",
@@ -22826,8 +22813,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -23071,8 +23058,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -23311,8 +23298,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -23548,8 +23535,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -23793,8 +23780,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -24086,8 +24073,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -24222,8 +24209,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -24357,8 +24344,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -24491,8 +24478,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -24626,8 +24613,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -24760,8 +24747,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -24895,8 +24882,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -25029,8 +25016,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -25164,8 +25151,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -25298,8 +25285,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -25445,8 +25432,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -25581,8 +25568,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -25728,8 +25715,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -25864,8 +25851,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -25999,8 +25986,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -26135,8 +26122,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -26270,8 +26257,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -26404,8 +26391,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -26539,8 +26526,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -26673,8 +26660,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -26820,8 +26807,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -26954,8 +26941,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -27088,8 +27075,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -27224,8 +27211,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -27359,8 +27346,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -27495,8 +27482,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -27642,8 +27629,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -27778,8 +27765,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -27936,8 +27923,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -28072,8 +28059,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-07T16:42:16.355446Z",
-          "published_at": "2026-08-07T16:42:16.355446Z",
+          "data_as_of": "2026-08-07T17:41:49.389891Z",
+          "published_at": "2026-08-07T17:41:49.389891Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -32553,8 +32540,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -32873,8 +32860,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -33271,8 +33258,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -33603,8 +33590,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -34022,8 +34009,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -34400,8 +34387,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -34687,8 +34674,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -35091,8 +35078,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -35403,8 +35390,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -35827,8 +35814,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -36151,8 +36138,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -36451,8 +36438,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -36827,8 +36814,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -37143,8 +37130,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -37547,8 +37534,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -37957,8 +37944,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -38280,8 +38267,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -38588,8 +38575,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -38965,8 +38952,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -39289,8 +39276,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -39686,8 +39673,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -39990,8 +39977,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -40403,8 +40390,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -40723,8 +40710,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -41143,8 +41130,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -41547,8 +41534,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -41854,8 +41841,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -42266,8 +42253,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -42578,8 +42565,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -42875,8 +42862,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -43261,8 +43248,8 @@
     "mlb_inning": {
       "consensus_gate_version": "mlb_team_consensus_v1.1.0",
       "consensus_rejection_reasons": {
-        "failed_walk_forward_validation": 4,
-        "non_positive_calibrated_edge": 20
+        "failed_walk_forward_validation": 3,
+        "non_positive_calibrated_edge": 21
       },
       "consensus_required": true,
       "date": "2026-08-07",
@@ -43436,20 +43423,20 @@
           "edge_table": {
             "1": 0.1473,
             "2": 0.0837,
-            "3": 0.0082,
+            "3": -0.0021,
             "4": 0.0363,
             "5": 0.0988,
-            "6": 0.0258,
+            "6": 0.014,
             "7": -0.129,
             "8": -0.1722
           },
           "full_inning_table": {
             "1": 0.532,
             "2": 0.602,
-            "3": 0.498,
+            "3": 0.488,
             "4": 0.555,
             "5": 0.603,
-            "6": 0.544,
+            "6": 0.532,
             "7": 0.419,
             "8": 0.39
           },
@@ -43709,23 +43696,23 @@
           },
           "edge_table": {
             "1": 0.1706,
-            "2": 0.0663,
+            "2": 0.0105,
             "3": 0.0304,
             "4": -0.042,
-            "5": 0.1332,
+            "5": 0.0593,
             "6": 0.047,
             "7": -0.1871,
-            "8": -0.0762
+            "8": -0.1383
           },
           "full_inning_table": {
             "1": 0.555,
-            "2": 0.585,
+            "2": 0.529,
             "3": 0.52,
             "4": 0.476,
-            "5": 0.637,
+            "5": 0.563,
             "6": 0.565,
             "7": 0.36,
-            "8": 0.486
+            "8": 0.424
           },
           "game_id": "823515",
           "game_order": 3,
@@ -43761,12 +43748,12 @@
             },
             {
               "baseline": 0.5041,
-              "confidence": "High",
-              "decision": "BET",
-              "edge_pp": 13.32,
+              "confidence": "Medium",
+              "decision": "LEAN",
+              "edge_pp": 5.93,
               "inning": 5,
-              "label": "Inning 5 - No Run Scored (63.7%, edge +13.3pp)",
-              "probability_scoreless": 0.637
+              "label": "Inning 5 - No Run Scored (56.3%, edge +5.9pp)",
+              "probability_scoreless": 0.563
             }
           ],
           "travel": {
@@ -44758,23 +44745,23 @@
             "8": 0.5625
           },
           "edge_table": {
-            "1": 0.1771,
+            "1": 0.1002,
             "2": 0.093,
             "3": -0.0173,
-            "4": -0.0079,
+            "4": -0.0762,
             "5": 0.0364,
             "6": -0.0552,
-            "7": -0.0394,
+            "7": -0.1257,
             "8": -0.2018
           },
           "full_inning_table": {
-            "1": 0.561,
+            "1": 0.485,
             "2": 0.611,
             "3": 0.473,
-            "4": 0.51,
+            "4": 0.442,
             "5": 0.54,
             "6": 0.463,
-            "7": 0.508,
+            "7": 0.422,
             "8": 0.361
           },
           "game_id": "825051",
@@ -44802,12 +44789,12 @@
           "top_2_picks": [
             {
               "baseline": 0.3844,
-              "confidence": "High",
-              "decision": "BET",
-              "edge_pp": 17.71,
+              "confidence": "Medium",
+              "decision": "LEAN",
+              "edge_pp": 10.02,
               "inning": 1,
-              "label": "Inning 1 - No Run Scored (56.1%, edge +17.7pp)",
-              "probability_scoreless": 0.561
+              "label": "Inning 1 - No Run Scored (48.5%, edge +10.0pp)",
+              "probability_scoreless": 0.485
             },
             {
               "baseline": 0.5184,
@@ -45288,8 +45275,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -45532,8 +45519,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -45789,8 +45776,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -45963,7 +45950,7 @@
           "mlb_team_consensus_version": "mlb_team_consensus_v1.1.0",
           "model_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
           "model_prediction": "53.2%",
-          "notes": "Top no-run inning candidate (edge +14.7pp vs baseline). Full table: {\"1\": 0.532, \"2\": 0.602, \"3\": 0.498, \"4\": 0.555, \"5\": 0.603, \"6\": 0.544, \"7\": 0.419, \"8\": 0.39}",
+          "notes": "Top no-run inning candidate (edge +14.7pp vs baseline). Full table: {\"1\": 0.532, \"2\": 0.602, \"3\": 0.488, \"4\": 0.555, \"5\": 0.603, \"6\": 0.532, \"7\": 0.419, \"8\": 0.39}",
           "odds": -120,
           "odds_source": "user_assumed_no_run_inning_-120",
           "pick": "Inning 1 - No Run Scored",
@@ -46033,8 +46020,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -46207,7 +46194,7 @@
           "mlb_team_consensus_version": "mlb_team_consensus_v1.1.0",
           "model_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
           "model_prediction": "60.3%",
-          "notes": "Top no-run inning candidate (edge +9.9pp vs baseline). Full table: {\"1\": 0.532, \"2\": 0.602, \"3\": 0.498, \"4\": 0.555, \"5\": 0.603, \"6\": 0.544, \"7\": 0.419, \"8\": 0.39}",
+          "notes": "Top no-run inning candidate (edge +9.9pp vs baseline). Full table: {\"1\": 0.532, \"2\": 0.602, \"3\": 0.488, \"4\": 0.555, \"5\": 0.603, \"6\": 0.532, \"7\": 0.419, \"8\": 0.39}",
           "odds": -120,
           "odds_source": "user_assumed_no_run_inning_-120",
           "pick": "Inning 5 - No Run Scored",
@@ -46277,8 +46264,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -46506,7 +46493,7 @@
           "walk_forward_samples": 0
         },
         {
-          "actionability": "research_signal",
+          "actionability": "validation_lean",
           "assumed_odds": -120,
           "away_team": "Cincinnati Reds",
           "baseline_probability": 0.5184,
@@ -46521,8 +46508,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -46580,8 +46567,8 @@
           "consensus_hard_blockers": [
             "failed_walk_forward_validation"
           ],
-          "consensus_passed": false,
-          "consensus_publication_mode": "research",
+          "consensus_passed": true,
+          "consensus_publication_mode": "validation_fallback",
           "consensus_qualified": false,
           "consensus_rejection_reason": "failed_walk_forward_validation",
           "consensus_required": true,
@@ -46688,7 +46675,7 @@
             }
           ],
           "date": "2026-08-07",
-          "decision": "PASS",
+          "decision": "LEAN",
           "edge": 0.9,
           "edge_pp": 9.58,
           "game": "Washington Nationals vs Cincinnati Reds",
@@ -46758,7 +46745,10 @@
           "sport": "MLB",
           "start_time": "2026-08-07T22:45:00Z",
           "team": "",
-          "units": 0.0,
+          "units": 0.25,
+          "validation_lean": true,
+          "validation_reason": "validation fallback: mlb_inning had zero strict BET/LEAN publications; published top raw model signal as a small LEAN for tracking",
+          "validation_score": 48.48,
           "walk_forward_roi": null,
           "walk_forward_samples": 0
         },
@@ -46778,8 +46768,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -46945,7 +46935,7 @@
           "mlb_team_consensus_version": "mlb_team_consensus_v1.1.0",
           "model_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
           "model_prediction": "55.5%",
-          "notes": "Top no-run inning candidate (edge +17.1pp vs baseline). Full table: {\"1\": 0.555, \"2\": 0.585, \"3\": 0.52, \"4\": 0.476, \"5\": 0.637, \"6\": 0.565, \"7\": 0.36, \"8\": 0.486}",
+          "notes": "Top no-run inning candidate (edge +17.1pp vs baseline). Full table: {\"1\": 0.555, \"2\": 0.529, \"3\": 0.52, \"4\": 0.476, \"5\": 0.563, \"6\": 0.565, \"7\": 0.36, \"8\": 0.424}",
           "odds": -120,
           "odds_source": "user_assumed_no_run_inning_-120",
           "pick": "Inning 1 - No Run Scored",
@@ -47000,27 +46990,27 @@
           "walk_forward_samples": 0
         },
         {
-          "actionability": "validation_lean",
+          "actionability": "research_signal",
           "assumed_odds": -120,
           "away_team": "Atlanta Braves",
           "baseline_probability": 0.5041,
-          "calibrated_edge": 2.92,
-          "calibrated_model_probability": 0.574652,
-          "calibrated_probability": 0.574652,
+          "calibrated_edge": -3.49,
+          "calibrated_model_probability": 0.510594,
+          "calibrated_probability": 0.510594,
           "calibration": {
             "applied": true,
             "key": "global",
-            "probability_delta": -0.062348,
+            "probability_delta": -0.052406,
             "samples": 128,
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
-          "confidence": "High",
+          "confidence": "Medium",
           "consensus_factor_categories": {
             "calibration": {
               "missing": [],
@@ -47035,13 +47025,6 @@
               "support": [
                 "inning_baseline_edge",
                 "matchup_structure"
-              ]
-            },
-            "market_price": {
-              "missing": [],
-              "risk": [],
-              "support": [
-                "market_price"
               ]
             },
             "park_weather": {
@@ -47072,23 +47055,17 @@
           },
           "consensus_gate_version": "mlb_team_consensus_v1.1.0",
           "consensus_hard_blockers": [
+            "non_positive_calibrated_edge",
             "failed_walk_forward_validation"
           ],
-          "consensus_passed": true,
-          "consensus_publication_mode": "validation_fallback",
+          "consensus_passed": false,
+          "consensus_publication_mode": "research",
           "consensus_qualified": false,
-          "consensus_rejection_reason": "failed_walk_forward_validation",
+          "consensus_rejection_reason": "non_positive_calibrated_edge; failed_walk_forward_validation",
           "consensus_required": true,
-          "consensus_score": 37.885,
-          "consensus_signal_count": 11,
+          "consensus_score": 26.059,
+          "consensus_signal_count": 10,
           "consensus_signals": [
-            {
-              "category": "market_price",
-              "detail": "calibrated probability beats selected-side market price",
-              "impact": "support",
-              "name": "market_price",
-              "strength": 0.292
-            },
             {
               "category": "calibration",
               "detail": "active calibration group has enough samples",
@@ -47175,9 +47152,9 @@
             }
           ],
           "date": "2026-08-07",
-          "decision": "LEAN",
-          "edge": 2.92,
-          "edge_pp": 13.32,
+          "decision": "PASS",
+          "edge": -3.49,
+          "edge_pp": 5.93,
           "game": "New York Yankees vs Atlanta Braves",
           "game_id": "823515",
           "game_order": 3,
@@ -47194,8 +47171,8 @@
           "ml_rank_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
           "mlb_team_consensus_version": "mlb_team_consensus_v1.1.0",
           "model_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
-          "model_prediction": "63.7%",
-          "notes": "Top no-run inning candidate (edge +13.3pp vs baseline). Full table: {\"1\": 0.555, \"2\": 0.585, \"3\": 0.52, \"4\": 0.476, \"5\": 0.637, \"6\": 0.565, \"7\": 0.36, \"8\": 0.486}",
+          "model_prediction": "56.3%",
+          "notes": "Top no-run inning candidate (edge +5.9pp vs baseline). Full table: {\"1\": 0.555, \"2\": 0.529, \"3\": 0.52, \"4\": 0.476, \"5\": 0.563, \"6\": 0.565, \"7\": 0.36, \"8\": 0.424}",
           "odds": -120,
           "odds_source": "user_assumed_no_run_inning_-120",
           "pick": "Inning 5 - No Run Scored",
@@ -47235,20 +47212,17 @@
           },
           "pricing_type": "user_assumed",
           "primary_consensus_passed": false,
-          "probability": 0.5747,
+          "probability": 0.5106,
           "ranking_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
-          "raw_edge": 13.32,
-          "raw_model_probability": 0.637,
-          "raw_probability": 0.637,
+          "raw_edge": 5.93,
+          "raw_model_probability": 0.563,
+          "raw_probability": 0.563,
           "selected_side_implied_probability": 0.545455,
           "source": "MLB Inning",
           "sport": "MLB",
           "start_time": "2026-08-07T23:05:00Z",
           "team": "",
-          "units": 0.25,
-          "validation_lean": true,
-          "validation_reason": "validation fallback: mlb_inning had zero strict BET/LEAN publications; published top raw model signal as a small LEAN for tracking",
-          "validation_score": 54.52,
+          "units": 0.0,
           "walk_forward_roi": null,
           "walk_forward_samples": 0
         },
@@ -47268,8 +47242,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -47512,8 +47486,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -47756,8 +47730,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -48000,8 +47974,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -48244,8 +48218,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -48488,8 +48462,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -48732,8 +48706,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -48961,8 +48935,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -49206,8 +49180,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -49440,23 +49414,23 @@
           "assumed_odds": -120,
           "away_team": "Los Angeles Dodgers",
           "baseline_probability": 0.3844,
-          "calibrated_edge": -3.66,
-          "calibrated_model_probability": 0.508895,
-          "calibrated_probability": 0.508895,
+          "calibrated_edge": -10.02,
+          "calibrated_model_probability": 0.445288,
+          "calibrated_probability": 0.445288,
           "calibration": {
             "applied": true,
             "key": "global",
-            "probability_delta": -0.052105,
+            "probability_delta": -0.039712,
             "samples": 128,
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
-          "confidence": "High",
+          "confidence": "Medium",
           "consensus_factor_categories": {
             "calibration": {
               "missing": [],
@@ -49510,7 +49484,7 @@
           "consensus_qualified": false,
           "consensus_rejection_reason": "non_positive_calibrated_edge; failed_walk_forward_validation",
           "consensus_required": true,
-          "consensus_score": 28.389,
+          "consensus_score": 27.5,
           "consensus_signal_count": 11,
           "consensus_signals": [
             {
@@ -49607,8 +49581,8 @@
           ],
           "date": "2026-08-07",
           "decision": "PASS",
-          "edge": -3.66,
-          "edge_pp": 17.71,
+          "edge": -10.02,
+          "edge_pp": 10.02,
           "game": "Arizona Diamondbacks vs Los Angeles Dodgers",
           "game_id": "825051",
           "game_order": 11,
@@ -49625,8 +49599,8 @@
           "ml_rank_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
           "mlb_team_consensus_version": "mlb_team_consensus_v1.1.0",
           "model_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
-          "model_prediction": "56.1%",
-          "notes": "Top no-run inning candidate (edge +17.7pp vs baseline). Full table: {\"1\": 0.561, \"2\": 0.611, \"3\": 0.473, \"4\": 0.51, \"5\": 0.54, \"6\": 0.463, \"7\": 0.508, \"8\": 0.361}",
+          "model_prediction": "48.5%",
+          "notes": "Top no-run inning candidate (edge +10.0pp vs baseline). Full table: {\"1\": 0.485, \"2\": 0.611, \"3\": 0.473, \"4\": 0.442, \"5\": 0.54, \"6\": 0.463, \"7\": 0.422, \"8\": 0.361}",
           "odds": -120,
           "odds_source": "user_assumed_no_run_inning_-120",
           "pick": "Inning 1 - No Run Scored",
@@ -49666,11 +49640,11 @@
           },
           "pricing_type": "user_assumed",
           "primary_consensus_passed": false,
-          "probability": 0.5089,
+          "probability": 0.4453,
           "ranking_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
-          "raw_edge": 17.71,
-          "raw_model_probability": 0.561,
-          "raw_probability": 0.561,
+          "raw_edge": 10.02,
+          "raw_model_probability": 0.485,
+          "raw_probability": 0.485,
           "selected_side_implied_probability": 0.545455,
           "source": "MLB Inning",
           "sport": "MLB",
@@ -49696,8 +49670,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -49884,7 +49858,7 @@
           "mlb_team_consensus_version": "mlb_team_consensus_v1.1.0",
           "model_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
           "model_prediction": "61.1%",
-          "notes": "Top no-run inning candidate (edge +9.3pp vs baseline). Full table: {\"1\": 0.561, \"2\": 0.611, \"3\": 0.473, \"4\": 0.51, \"5\": 0.54, \"6\": 0.463, \"7\": 0.508, \"8\": 0.361}",
+          "notes": "Top no-run inning candidate (edge +9.3pp vs baseline). Full table: {\"1\": 0.485, \"2\": 0.611, \"3\": 0.473, \"4\": 0.442, \"5\": 0.54, \"6\": 0.463, \"7\": 0.422, \"8\": 0.361}",
           "odds": -120,
           "odds_source": "user_assumed_no_run_inning_-120",
           "pick": "Inning 2 - No Run Scored",
@@ -49957,8 +49931,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -50202,8 +50176,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -50442,8 +50416,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -50679,8 +50653,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -50924,8 +50898,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -51217,8 +51191,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -51353,8 +51327,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -51488,8 +51462,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -51622,8 +51596,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -51757,8 +51731,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -51891,8 +51865,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -52026,8 +52000,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -52160,8 +52134,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -52295,8 +52269,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -52429,8 +52403,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -52576,8 +52550,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -52712,8 +52686,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -52859,8 +52833,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -52995,8 +52969,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -53130,8 +53104,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -53266,8 +53240,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -53401,8 +53375,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -53535,8 +53509,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -53670,8 +53644,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -53804,8 +53778,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -53951,8 +53925,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -54085,8 +54059,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -54219,8 +54193,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -54355,8 +54329,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -54490,8 +54464,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -54626,8 +54600,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -54773,8 +54747,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -54909,8 +54883,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -55067,8 +55041,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -55203,8 +55177,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-07T16:42:16.355446Z",
-            "published_at": "2026-08-07T16:42:16.355446Z",
+            "data_as_of": "2026-08-07T17:41:49.389891Z",
+            "published_at": "2026-08-07T17:41:49.389891Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -55373,7 +55347,7 @@
           "confidence": 55.2,
           "confidence_label": "Low",
           "decision": "PASS",
-          "edge": -17.93,
+          "edge": -18.95,
           "game": "Phoenix Mercury @ Connecticut Sun",
           "guardrail_reasons": [],
           "h2h_games": 0,
@@ -55381,12 +55355,12 @@
           "home_team": "Connecticut Sun",
           "league": "WNBA",
           "market_away_odds": -250,
-          "market_edge": -0.1286,
+          "market_edge": -0.1388,
           "market_home_odds": 205,
           "market_odds_captured_at": "2026-08-07T13:47:05.499043Z",
           "market_odds_provider": "espn_scoreboard:DraftKings",
-          "market_pick_odds": -245,
-          "market_pick_prob": 0.6806,
+          "market_pick_odds": -258,
+          "market_pick_prob": 0.6908,
           "market_priced": true,
           "market_source": "DraftKings via ESPN",
           "market_type": "h2h",
@@ -55540,18 +55514,18 @@
         {
           "assumed_odds_replaced": true,
           "away_team": "Phoenix Mercury",
-          "calibrated_probability": 0.58083,
+          "calibrated_probability": 0.564172,
           "calibration": {
             "applied": true,
             "key": "model:wnba|source:wnba model|sport:wnba|bet:totals",
-            "probability_delta": -0.10867,
+            "probability_delta": -0.105428,
             "samples": 47,
             "version": "cal-v2-1850-2026-07-11"
           },
-          "confidence": 69.0,
+          "confidence": 67.0,
           "confidence_label": "Medium",
           "decision": "LEAN",
-          "edge": 5.7,
+          "edge": 4.04,
           "game": "Phoenix Mercury @ Connecticut Sun",
           "guardrail_reasons": [
             "new totals market capped at LEAN while its live record is established"
@@ -55560,32 +55534,32 @@
           "has_market_price": true,
           "home_team": "Connecticut Sun",
           "league": "WNBA",
-          "line": 174.5,
-          "market_edge": 0.1657,
-          "market_line": 174.5,
-          "market_odds_captured_at": "2026-08-07T13:47:05.499043Z",
+          "line": 173.5,
+          "market_edge": 0.1458,
+          "market_line": 173.5,
+          "market_odds_captured_at": "2026-08-07T17:41:53.967850Z",
           "market_odds_provider": "espn_scoreboard:DraftKings",
-          "market_over_odds": -115,
+          "market_over_odds": -108,
           "market_pick_odds": -110,
           "market_pick_prob": 0.5238,
           "market_priced": true,
           "market_source": "DraftKings via ESPN",
           "market_type": "totals",
-          "market_under_odds": -105,
-          "market_updated_at": "2026-08-07T13:47:05.499043Z",
+          "market_under_odds": -112,
+          "market_updated_at": "2026-08-07T17:41:53.967850Z",
           "matchup": "Phoenix Mercury @ Connecticut Sun",
           "model_assumed_odds": -110,
           "model_prediction": 165.6,
-          "odds": -105,
+          "odds": -112,
           "odds_source": "posted_market",
-          "opposite_odds": -115,
-          "pick": "Under 174.5 (Phoenix Mercury vs Connecticut Sun)",
+          "opposite_odds": -108,
+          "pick": "Under 173.5 (Phoenix Mercury vs Connecticut Sun)",
           "pregame_snapshot": {
             "away_team": "Phoenix Mercury",
-            "confidence": 69.0,
+            "confidence": 67.0,
             "confidence_label": "Medium",
             "decision": "LEAN",
-            "edge": 16.57,
+            "edge": 14.58,
             "game": "Phoenix Mercury @ Connecticut Sun",
             "guardrail_reasons": [
               "new totals market capped at LEAN while its live record is established"
@@ -55594,9 +55568,9 @@
             "has_market_price": true,
             "home_team": "Connecticut Sun",
             "league": "WNBA",
-            "line": 174.5,
-            "market_edge": 0.1657,
-            "market_line": 174.5,
+            "line": 173.5,
+            "market_edge": 0.1458,
+            "market_line": 173.5,
             "market_pick_odds": -110,
             "market_pick_prob": 0.5238,
             "market_source": "DraftKings via ESPN",
@@ -55604,28 +55578,28 @@
             "matchup": "Phoenix Mercury @ Connecticut Sun",
             "model_prediction": 165.6,
             "odds": -110,
-            "pick": "Under 174.5 (Phoenix Mercury vs Connecticut Sun)",
-            "probability": 0.6895,
+            "pick": "Under 173.5 (Phoenix Mercury vs Connecticut Sun)",
+            "probability": 0.6696,
             "projected_total": 165.6,
             "selection": "Under",
             "source": "WNBA Model",
             "sport": "WNBA",
-            "units": 0.03,
-            "vegas": 174.5
+            "units": 0.02,
+            "vegas": 173.5
           },
           "price_source": "espn_scoreboard:DraftKings",
           "pricing_type": "market",
-          "probability": 0.5808,
+          "probability": 0.5642,
           "projected_total": 165.6,
-          "raw_edge": 16.57,
-          "raw_probability": 0.6895,
-          "raw_units": 0.03,
-          "selected_odds": -105,
+          "raw_edge": 14.58,
+          "raw_probability": 0.6696,
+          "raw_units": 0.02,
+          "selected_odds": -112,
           "selection": "Under",
           "source": "WNBA Model",
           "sport": "WNBA",
           "units": 0.01,
-          "vegas": 174.5
+          "vegas": 173.5
         },
         {
           "assumed_odds_replaced": true,
@@ -56170,6 +56144,96 @@
         {
           "assumed_odds_replaced": true,
           "away_team": "Phoenix Mercury",
+          "calibrated_probability": 0.58083,
+          "calibration": {
+            "applied": true,
+            "key": "model:wnba|source:wnba model|sport:wnba|bet:totals",
+            "probability_delta": -0.10867,
+            "samples": 47,
+            "version": "cal-v2-1850-2026-07-11"
+          },
+          "confidence": 69.0,
+          "confidence_label": "Medium",
+          "decision": "LEAN",
+          "edge": 5.7,
+          "game": "Phoenix Mercury @ Connecticut Sun",
+          "guardrail_reasons": [
+            "new totals market capped at LEAN while its live record is established"
+          ],
+          "h2h_games": 0,
+          "has_market_price": true,
+          "home_team": "Connecticut Sun",
+          "league": "WNBA",
+          "line": 174.5,
+          "market_edge": 0.1657,
+          "market_line": 174.5,
+          "market_odds_captured_at": "2026-08-07T13:47:05.499043Z",
+          "market_odds_provider": "espn_scoreboard:DraftKings",
+          "market_over_odds": -115,
+          "market_pick_odds": -110,
+          "market_pick_prob": 0.5238,
+          "market_priced": true,
+          "market_source": "DraftKings via ESPN",
+          "market_type": "totals",
+          "market_under_odds": -105,
+          "market_updated_at": "2026-08-07T13:47:05.499043Z",
+          "matchup": "Phoenix Mercury @ Connecticut Sun",
+          "model_assumed_odds": -110,
+          "model_prediction": 165.6,
+          "odds": -105,
+          "odds_source": "posted_market",
+          "opposite_odds": -115,
+          "pick": "Under 174.5 (Phoenix Mercury vs Connecticut Sun)",
+          "pregame_snapshot": {
+            "away_team": "Phoenix Mercury",
+            "confidence": 69.0,
+            "confidence_label": "Medium",
+            "decision": "LEAN",
+            "edge": 16.57,
+            "game": "Phoenix Mercury @ Connecticut Sun",
+            "guardrail_reasons": [
+              "new totals market capped at LEAN while its live record is established"
+            ],
+            "h2h_games": 0,
+            "has_market_price": true,
+            "home_team": "Connecticut Sun",
+            "league": "WNBA",
+            "line": 174.5,
+            "market_edge": 0.1657,
+            "market_line": 174.5,
+            "market_pick_odds": -110,
+            "market_pick_prob": 0.5238,
+            "market_source": "DraftKings via ESPN",
+            "market_type": "totals",
+            "matchup": "Phoenix Mercury @ Connecticut Sun",
+            "model_prediction": 165.6,
+            "odds": -110,
+            "pick": "Under 174.5 (Phoenix Mercury vs Connecticut Sun)",
+            "probability": 0.6895,
+            "projected_total": 165.6,
+            "selection": "Under",
+            "source": "WNBA Model",
+            "sport": "WNBA",
+            "units": 0.03,
+            "vegas": 174.5
+          },
+          "price_source": "espn_scoreboard:DraftKings",
+          "pricing_type": "market",
+          "probability": 0.5808,
+          "projected_total": 165.6,
+          "raw_edge": 16.57,
+          "raw_probability": 0.6895,
+          "raw_units": 0.03,
+          "selected_odds": -105,
+          "selection": "Under",
+          "source": "WNBA Model",
+          "sport": "WNBA",
+          "units": 0.01,
+          "vegas": 174.5
+        },
+        {
+          "assumed_odds_replaced": true,
+          "away_team": "Phoenix Mercury",
           "calibrated_probability": 0.510855,
           "calibration": {
             "applied": true,
@@ -56550,7 +56614,7 @@
     "ok": false,
     "picks": []
   },
-  "updatedAt": "2026-08-07T16:42:16.355446Z",
+  "updatedAt": "2026-08-07T17:41:49.389891Z",
   "wnba": {
     "ok": true,
     "picks": [
@@ -56568,7 +56632,7 @@
         "confidence": 55.2,
         "confidence_label": "Low",
         "decision": "PASS",
-        "edge": -17.93,
+        "edge": -18.95,
         "game": "Phoenix Mercury @ Connecticut Sun",
         "guardrail_reasons": [],
         "h2h_games": 0,
@@ -56576,12 +56640,12 @@
         "home_team": "Connecticut Sun",
         "league": "WNBA",
         "market_away_odds": -250,
-        "market_edge": -0.1286,
+        "market_edge": -0.1388,
         "market_home_odds": 205,
         "market_odds_captured_at": "2026-08-07T13:47:05.499043Z",
         "market_odds_provider": "espn_scoreboard:DraftKings",
-        "market_pick_odds": -245,
-        "market_pick_prob": 0.6806,
+        "market_pick_odds": -258,
+        "market_pick_prob": 0.6908,
         "market_priced": true,
         "market_source": "DraftKings via ESPN",
         "market_type": "h2h",
@@ -56735,18 +56799,18 @@
       {
         "assumed_odds_replaced": true,
         "away_team": "Phoenix Mercury",
-        "calibrated_probability": 0.58083,
+        "calibrated_probability": 0.564172,
         "calibration": {
           "applied": true,
           "key": "model:wnba|source:wnba model|sport:wnba|bet:totals",
-          "probability_delta": -0.10867,
+          "probability_delta": -0.105428,
           "samples": 47,
           "version": "cal-v2-1850-2026-07-11"
         },
-        "confidence": 69.0,
+        "confidence": 67.0,
         "confidence_label": "Medium",
         "decision": "LEAN",
-        "edge": 5.7,
+        "edge": 4.04,
         "game": "Phoenix Mercury @ Connecticut Sun",
         "guardrail_reasons": [
           "new totals market capped at LEAN while its live record is established"
@@ -56755,32 +56819,32 @@
         "has_market_price": true,
         "home_team": "Connecticut Sun",
         "league": "WNBA",
-        "line": 174.5,
-        "market_edge": 0.1657,
-        "market_line": 174.5,
-        "market_odds_captured_at": "2026-08-07T13:47:05.499043Z",
+        "line": 173.5,
+        "market_edge": 0.1458,
+        "market_line": 173.5,
+        "market_odds_captured_at": "2026-08-07T17:41:53.967850Z",
         "market_odds_provider": "espn_scoreboard:DraftKings",
-        "market_over_odds": -115,
+        "market_over_odds": -108,
         "market_pick_odds": -110,
         "market_pick_prob": 0.5238,
         "market_priced": true,
         "market_source": "DraftKings via ESPN",
         "market_type": "totals",
-        "market_under_odds": -105,
-        "market_updated_at": "2026-08-07T13:47:05.499043Z",
+        "market_under_odds": -112,
+        "market_updated_at": "2026-08-07T17:41:53.967850Z",
         "matchup": "Phoenix Mercury @ Connecticut Sun",
         "model_assumed_odds": -110,
         "model_prediction": 165.6,
-        "odds": -105,
+        "odds": -112,
         "odds_source": "posted_market",
-        "opposite_odds": -115,
-        "pick": "Under 174.5 (Phoenix Mercury vs Connecticut Sun)",
+        "opposite_odds": -108,
+        "pick": "Under 173.5 (Phoenix Mercury vs Connecticut Sun)",
         "pregame_snapshot": {
           "away_team": "Phoenix Mercury",
-          "confidence": 69.0,
+          "confidence": 67.0,
           "confidence_label": "Medium",
           "decision": "LEAN",
-          "edge": 16.57,
+          "edge": 14.58,
           "game": "Phoenix Mercury @ Connecticut Sun",
           "guardrail_reasons": [
             "new totals market capped at LEAN while its live record is established"
@@ -56789,9 +56853,9 @@
           "has_market_price": true,
           "home_team": "Connecticut Sun",
           "league": "WNBA",
-          "line": 174.5,
-          "market_edge": 0.1657,
-          "market_line": 174.5,
+          "line": 173.5,
+          "market_edge": 0.1458,
+          "market_line": 173.5,
           "market_pick_odds": -110,
           "market_pick_prob": 0.5238,
           "market_source": "DraftKings via ESPN",
@@ -56799,28 +56863,28 @@
           "matchup": "Phoenix Mercury @ Connecticut Sun",
           "model_prediction": 165.6,
           "odds": -110,
-          "pick": "Under 174.5 (Phoenix Mercury vs Connecticut Sun)",
-          "probability": 0.6895,
+          "pick": "Under 173.5 (Phoenix Mercury vs Connecticut Sun)",
+          "probability": 0.6696,
           "projected_total": 165.6,
           "selection": "Under",
           "source": "WNBA Model",
           "sport": "WNBA",
-          "units": 0.03,
-          "vegas": 174.5
+          "units": 0.02,
+          "vegas": 173.5
         },
         "price_source": "espn_scoreboard:DraftKings",
         "pricing_type": "market",
-        "probability": 0.5808,
+        "probability": 0.5642,
         "projected_total": 165.6,
-        "raw_edge": 16.57,
-        "raw_probability": 0.6895,
-        "raw_units": 0.03,
-        "selected_odds": -105,
+        "raw_edge": 14.58,
+        "raw_probability": 0.6696,
+        "raw_units": 0.02,
+        "selected_odds": -112,
         "selection": "Under",
         "source": "WNBA Model",
         "sport": "WNBA",
         "units": 0.01,
-        "vegas": 174.5
+        "vegas": 173.5
       },
       {
         "assumed_odds_replaced": true,
@@ -57361,6 +57425,96 @@
         "sport": "WNBA",
         "units": 0,
         "vegas": 162.5
+      },
+      {
+        "assumed_odds_replaced": true,
+        "away_team": "Phoenix Mercury",
+        "calibrated_probability": 0.58083,
+        "calibration": {
+          "applied": true,
+          "key": "model:wnba|source:wnba model|sport:wnba|bet:totals",
+          "probability_delta": -0.10867,
+          "samples": 47,
+          "version": "cal-v2-1850-2026-07-11"
+        },
+        "confidence": 69.0,
+        "confidence_label": "Medium",
+        "decision": "LEAN",
+        "edge": 5.7,
+        "game": "Phoenix Mercury @ Connecticut Sun",
+        "guardrail_reasons": [
+          "new totals market capped at LEAN while its live record is established"
+        ],
+        "h2h_games": 0,
+        "has_market_price": true,
+        "home_team": "Connecticut Sun",
+        "league": "WNBA",
+        "line": 174.5,
+        "market_edge": 0.1657,
+        "market_line": 174.5,
+        "market_odds_captured_at": "2026-08-07T13:47:05.499043Z",
+        "market_odds_provider": "espn_scoreboard:DraftKings",
+        "market_over_odds": -115,
+        "market_pick_odds": -110,
+        "market_pick_prob": 0.5238,
+        "market_priced": true,
+        "market_source": "DraftKings via ESPN",
+        "market_type": "totals",
+        "market_under_odds": -105,
+        "market_updated_at": "2026-08-07T13:47:05.499043Z",
+        "matchup": "Phoenix Mercury @ Connecticut Sun",
+        "model_assumed_odds": -110,
+        "model_prediction": 165.6,
+        "odds": -105,
+        "odds_source": "posted_market",
+        "opposite_odds": -115,
+        "pick": "Under 174.5 (Phoenix Mercury vs Connecticut Sun)",
+        "pregame_snapshot": {
+          "away_team": "Phoenix Mercury",
+          "confidence": 69.0,
+          "confidence_label": "Medium",
+          "decision": "LEAN",
+          "edge": 16.57,
+          "game": "Phoenix Mercury @ Connecticut Sun",
+          "guardrail_reasons": [
+            "new totals market capped at LEAN while its live record is established"
+          ],
+          "h2h_games": 0,
+          "has_market_price": true,
+          "home_team": "Connecticut Sun",
+          "league": "WNBA",
+          "line": 174.5,
+          "market_edge": 0.1657,
+          "market_line": 174.5,
+          "market_pick_odds": -110,
+          "market_pick_prob": 0.5238,
+          "market_source": "DraftKings via ESPN",
+          "market_type": "totals",
+          "matchup": "Phoenix Mercury @ Connecticut Sun",
+          "model_prediction": 165.6,
+          "odds": -110,
+          "pick": "Under 174.5 (Phoenix Mercury vs Connecticut Sun)",
+          "probability": 0.6895,
+          "projected_total": 165.6,
+          "selection": "Under",
+          "source": "WNBA Model",
+          "sport": "WNBA",
+          "units": 0.03,
+          "vegas": 174.5
+        },
+        "price_source": "espn_scoreboard:DraftKings",
+        "pricing_type": "market",
+        "probability": 0.5808,
+        "projected_total": 165.6,
+        "raw_edge": 16.57,
+        "raw_probability": 0.6895,
+        "raw_units": 0.03,
+        "selected_odds": -105,
+        "selection": "Under",
+        "source": "WNBA Model",
+        "sport": "WNBA",
+        "units": 0.01,
+        "vegas": 174.5
       },
       {
         "assumed_odds_replaced": true,
