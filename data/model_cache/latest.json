@@ -1082,7 +1082,7 @@
     "error": "403 Client Error: Forbidden for url: https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=20260810&limit=100",
     "ok": false
   },
-  "generatedAt": "2026-08-10T16:11:16.531604Z",
+  "generatedAt": "2026-08-10T17:17:32.911097Z",
   "generatedBy": "github-actions:model-cache-refresh",
   "mlb_first_five": {
     "consensus_gate_version": "mlb_team_consensus_v1.1.0",
@@ -3944,8 +3944,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -4260,8 +4260,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -4657,8 +4657,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -4977,8 +4977,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -5396,8 +5396,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -5805,8 +5805,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -6129,8 +6129,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -6437,8 +6437,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -6819,8 +6819,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -7274,8 +7274,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -7611,8 +7611,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -7907,8 +7907,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -8313,8 +8313,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -8642,8 +8642,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -9071,8 +9071,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -9391,8 +9391,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -9789,8 +9789,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -10172,8 +10172,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -10485,8 +10485,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -10809,8 +10809,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -12473,23 +12473,23 @@
           "8": 0.5625
         },
         "edge_table": {
-          "1": 0.1683,
+          "1": 0.1252,
           "2": 0.0706,
           "3": -0.0024,
-          "4": 0.0094,
+          "4": -0.0308,
           "5": 0.0507,
           "6": -0.0199,
-          "7": -0.0817,
+          "7": -0.1269,
           "8": -0.1586
         },
         "full_inning_table": {
-          "1": 0.553,
+          "1": 0.51,
           "2": 0.589,
           "3": 0.488,
-          "4": 0.528,
+          "4": 0.488,
           "5": 0.555,
           "6": 0.499,
-          "7": 0.466,
+          "7": 0.421,
           "8": 0.404
         },
         "game_id": "823918",
@@ -12517,12 +12517,12 @@
         "top_2_picks": [
           {
             "baseline": 0.3844,
-            "confidence": "High",
+            "confidence": "Medium",
             "decision": "BET",
-            "edge_pp": 16.83,
+            "edge_pp": 12.52,
             "inning": 1,
-            "label": "Inning 1 - No Run Scored (55.3%, edge +16.8pp)",
-            "probability_scoreless": 0.553
+            "label": "Inning 1 - No Run Scored (51.0%, edge +12.5pp)",
+            "probability_scoreless": 0.51
           },
           {
             "baseline": 0.5184,
@@ -12601,8 +12601,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -12845,8 +12845,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -13089,8 +13089,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -13333,8 +13333,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -13577,8 +13577,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -13821,8 +13821,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -14065,8 +14065,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -14309,8 +14309,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -14553,8 +14553,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -14821,8 +14821,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -15089,8 +15089,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -15341,8 +15341,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -15593,8 +15593,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -15854,8 +15854,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -16106,8 +16106,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -16358,8 +16358,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -16602,8 +16602,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -16835,23 +16835,23 @@
         "assumed_odds": -120,
         "away_team": "Kansas City Royals",
         "baseline_probability": 0.3844,
-        "calibrated_edge": -4.33,
-        "calibrated_model_probability": 0.502117,
-        "calibrated_probability": 0.502117,
+        "calibrated_edge": -7.94,
+        "calibrated_model_probability": 0.466036,
+        "calibrated_probability": 0.466036,
         "calibration": {
           "applied": true,
           "key": "global",
-          "probability_delta": -0.050883,
+          "probability_delta": -0.043964,
           "samples": 128,
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
-        "confidence": "High",
+        "confidence": "Medium",
         "consensus_factor_categories": {
           "calibration": {
             "missing": [],
@@ -16905,7 +16905,7 @@
         "consensus_qualified": false,
         "consensus_rejection_reason": "non_positive_calibrated_edge; failed_walk_forward_validation",
         "consensus_required": true,
-        "consensus_score": 27.712,
+        "consensus_score": 27.5,
         "consensus_signal_count": 11,
         "consensus_signals": [
           {
@@ -17009,8 +17009,8 @@
         ],
         "date": "2026-08-10",
         "decision": "PASS",
-        "edge": -4.33,
-        "edge_pp": 16.83,
+        "edge": -7.94,
+        "edge_pp": 12.52,
         "game": "Los Angeles Dodgers vs Kansas City Royals",
         "game_id": "823918",
         "game_order": 9,
@@ -17027,8 +17027,8 @@
         "ml_rank_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
         "mlb_team_consensus_version": "mlb_team_consensus_v1.1.0",
         "model_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
-        "model_prediction": "55.3%",
-        "notes": "Top no-run inning candidate (edge +16.8pp vs baseline). Full table: {\"1\": 0.553, \"2\": 0.589, \"3\": 0.488, \"4\": 0.528, \"5\": 0.555, \"6\": 0.499, \"7\": 0.466, \"8\": 0.404}",
+        "model_prediction": "51.0%",
+        "notes": "Top no-run inning candidate (edge +12.5pp vs baseline). Full table: {\"1\": 0.51, \"2\": 0.589, \"3\": 0.488, \"4\": 0.488, \"5\": 0.555, \"6\": 0.499, \"7\": 0.421, \"8\": 0.404}",
         "odds": -120,
         "odds_source": "user_assumed_no_run_inning_-120",
         "pick": "Inning 1 - No Run Scored",
@@ -17068,11 +17068,11 @@
         },
         "pricing_type": "user_assumed",
         "primary_consensus_passed": false,
-        "probability": 0.5021,
+        "probability": 0.466,
         "ranking_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
-        "raw_edge": 16.83,
-        "raw_model_probability": 0.553,
-        "raw_probability": 0.553,
+        "raw_edge": 12.52,
+        "raw_model_probability": 0.51,
+        "raw_probability": 0.51,
         "selected_side_implied_probability": 0.545455,
         "source": "MLB Inning",
         "sport": "MLB",
@@ -17098,8 +17098,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -17280,7 +17280,7 @@
         "mlb_team_consensus_version": "mlb_team_consensus_v1.1.0",
         "model_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
         "model_prediction": "58.9%",
-        "notes": "Top no-run inning candidate (edge +7.1pp vs baseline). Full table: {\"1\": 0.553, \"2\": 0.589, \"3\": 0.488, \"4\": 0.528, \"5\": 0.555, \"6\": 0.499, \"7\": 0.466, \"8\": 0.404}",
+        "notes": "Top no-run inning candidate (edge +7.1pp vs baseline). Full table: {\"1\": 0.51, \"2\": 0.589, \"3\": 0.488, \"4\": 0.488, \"5\": 0.555, \"6\": 0.499, \"7\": 0.421, \"8\": 0.404}",
         "odds": -120,
         "odds_source": "user_assumed_no_run_inning_-120",
         "pick": "Inning 2 - No Run Scored",
@@ -17396,8 +17396,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -17532,8 +17532,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -17679,8 +17679,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -17813,8 +17813,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -17960,8 +17960,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -18094,8 +18094,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -18240,8 +18240,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -18376,8 +18376,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -18510,8 +18510,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -18646,8 +18646,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -18796,8 +18796,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -18938,8 +18938,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -19085,8 +19085,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -19219,8 +19219,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -19354,8 +19354,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -19490,8 +19490,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -19624,8 +19624,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -19760,8 +19760,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -19907,8 +19907,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -20043,8 +20043,8 @@
           "version": "cal-v2-1850-2026-07-11"
         },
         "certification_timing": {
-          "data_as_of": "2026-08-10T16:11:16.531604Z",
-          "published_at": "2026-08-10T16:11:16.531604Z",
+          "data_as_of": "2026-08-10T17:17:32.911097Z",
+          "published_at": "2026-08-10T17:17:32.911097Z",
           "source": "model-cache-refresh",
           "trusted": true
         },
@@ -23033,8 +23033,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -23349,8 +23349,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -23746,8 +23746,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -24066,8 +24066,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -24485,8 +24485,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -24894,8 +24894,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -25218,8 +25218,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -25526,8 +25526,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -25908,8 +25908,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -26363,8 +26363,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -26700,8 +26700,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -26996,8 +26996,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -27402,8 +27402,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -27731,8 +27731,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -28160,8 +28160,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -28480,8 +28480,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -28878,8 +28878,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -29261,8 +29261,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -29574,8 +29574,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -29898,8 +29898,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -31562,23 +31562,23 @@
             "8": 0.5625
           },
           "edge_table": {
-            "1": 0.1683,
+            "1": 0.1252,
             "2": 0.0706,
             "3": -0.0024,
-            "4": 0.0094,
+            "4": -0.0308,
             "5": 0.0507,
             "6": -0.0199,
-            "7": -0.0817,
+            "7": -0.1269,
             "8": -0.1586
           },
           "full_inning_table": {
-            "1": 0.553,
+            "1": 0.51,
             "2": 0.589,
             "3": 0.488,
-            "4": 0.528,
+            "4": 0.488,
             "5": 0.555,
             "6": 0.499,
-            "7": 0.466,
+            "7": 0.421,
             "8": 0.404
           },
           "game_id": "823918",
@@ -31606,12 +31606,12 @@
           "top_2_picks": [
             {
               "baseline": 0.3844,
-              "confidence": "High",
+              "confidence": "Medium",
               "decision": "BET",
-              "edge_pp": 16.83,
+              "edge_pp": 12.52,
               "inning": 1,
-              "label": "Inning 1 - No Run Scored (55.3%, edge +16.8pp)",
-              "probability_scoreless": 0.553
+              "label": "Inning 1 - No Run Scored (51.0%, edge +12.5pp)",
+              "probability_scoreless": 0.51
             },
             {
               "baseline": 0.5184,
@@ -31690,8 +31690,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -31934,8 +31934,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -32178,8 +32178,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -32422,8 +32422,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -32666,8 +32666,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -32910,8 +32910,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -33154,8 +33154,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -33398,8 +33398,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -33642,8 +33642,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -33910,8 +33910,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -34178,8 +34178,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -34430,8 +34430,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -34682,8 +34682,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -34943,8 +34943,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -35195,8 +35195,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -35447,8 +35447,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -35691,8 +35691,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -35924,23 +35924,23 @@
           "assumed_odds": -120,
           "away_team": "Kansas City Royals",
           "baseline_probability": 0.3844,
-          "calibrated_edge": -4.33,
-          "calibrated_model_probability": 0.502117,
-          "calibrated_probability": 0.502117,
+          "calibrated_edge": -7.94,
+          "calibrated_model_probability": 0.466036,
+          "calibrated_probability": 0.466036,
           "calibration": {
             "applied": true,
             "key": "global",
-            "probability_delta": -0.050883,
+            "probability_delta": -0.043964,
             "samples": 128,
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
-          "confidence": "High",
+          "confidence": "Medium",
           "consensus_factor_categories": {
             "calibration": {
               "missing": [],
@@ -35994,7 +35994,7 @@
           "consensus_qualified": false,
           "consensus_rejection_reason": "non_positive_calibrated_edge; failed_walk_forward_validation",
           "consensus_required": true,
-          "consensus_score": 27.712,
+          "consensus_score": 27.5,
           "consensus_signal_count": 11,
           "consensus_signals": [
             {
@@ -36098,8 +36098,8 @@
           ],
           "date": "2026-08-10",
           "decision": "PASS",
-          "edge": -4.33,
-          "edge_pp": 16.83,
+          "edge": -7.94,
+          "edge_pp": 12.52,
           "game": "Los Angeles Dodgers vs Kansas City Royals",
           "game_id": "823918",
           "game_order": 9,
@@ -36116,8 +36116,8 @@
           "ml_rank_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
           "mlb_team_consensus_version": "mlb_team_consensus_v1.1.0",
           "model_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
-          "model_prediction": "55.3%",
-          "notes": "Top no-run inning candidate (edge +16.8pp vs baseline). Full table: {\"1\": 0.553, \"2\": 0.589, \"3\": 0.488, \"4\": 0.528, \"5\": 0.555, \"6\": 0.499, \"7\": 0.466, \"8\": 0.404}",
+          "model_prediction": "51.0%",
+          "notes": "Top no-run inning candidate (edge +12.5pp vs baseline). Full table: {\"1\": 0.51, \"2\": 0.589, \"3\": 0.488, \"4\": 0.488, \"5\": 0.555, \"6\": 0.499, \"7\": 0.421, \"8\": 0.404}",
           "odds": -120,
           "odds_source": "user_assumed_no_run_inning_-120",
           "pick": "Inning 1 - No Run Scored",
@@ -36157,11 +36157,11 @@
           },
           "pricing_type": "user_assumed",
           "primary_consensus_passed": false,
-          "probability": 0.5021,
+          "probability": 0.466,
           "ranking_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
-          "raw_edge": 16.83,
-          "raw_model_probability": 0.553,
-          "raw_probability": 0.553,
+          "raw_edge": 12.52,
+          "raw_model_probability": 0.51,
+          "raw_probability": 0.51,
           "selected_side_implied_probability": 0.545455,
           "source": "MLB Inning",
           "sport": "MLB",
@@ -36187,8 +36187,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -36369,7 +36369,7 @@
           "mlb_team_consensus_version": "mlb_team_consensus_v1.1.0",
           "model_epoch": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
           "model_prediction": "58.9%",
-          "notes": "Top no-run inning candidate (edge +7.1pp vs baseline). Full table: {\"1\": 0.553, \"2\": 0.589, \"3\": 0.488, \"4\": 0.528, \"5\": 0.555, \"6\": 0.499, \"7\": 0.466, \"8\": 0.404}",
+          "notes": "Top no-run inning candidate (edge +7.1pp vs baseline). Full table: {\"1\": 0.51, \"2\": 0.589, \"3\": 0.488, \"4\": 0.488, \"5\": 0.555, \"6\": 0.499, \"7\": 0.421, \"8\": 0.404}",
           "odds": -120,
           "odds_source": "user_assumed_no_run_inning_-120",
           "pick": "Inning 2 - No Run Scored",
@@ -36485,8 +36485,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -36621,8 +36621,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -36768,8 +36768,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -36902,8 +36902,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -37049,8 +37049,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -37183,8 +37183,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -37329,8 +37329,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -37465,8 +37465,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -37599,8 +37599,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -37735,8 +37735,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -37885,8 +37885,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -38027,8 +38027,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -38174,8 +38174,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -38308,8 +38308,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -38443,8 +38443,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -38579,8 +38579,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -38713,8 +38713,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -38849,8 +38849,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -38996,8 +38996,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -39132,8 +39132,8 @@
             "version": "cal-v2-1850-2026-07-11"
           },
           "certification_timing": {
-            "data_as_of": "2026-08-10T16:11:16.531604Z",
-            "published_at": "2026-08-10T16:11:16.531604Z",
+            "data_as_of": "2026-08-10T17:17:32.911097Z",
+            "published_at": "2026-08-10T17:17:32.911097Z",
             "source": "model-cache-refresh",
             "trusted": true
           },
@@ -39289,7 +39289,7 @@
           "confidence": 77.7,
           "confidence_label": "Low",
           "decision": "PASS",
-          "edge": -16.2,
+          "edge": -15.73,
           "game": "Toronto Tempo @ Atlanta Dream",
           "guardrail_reasons": [],
           "h2h_games": 0,
@@ -39297,12 +39297,12 @@
           "home_team": "Atlanta Dream",
           "league": "WNBA",
           "market_away_odds": 575,
-          "market_edge": -0.0905,
+          "market_edge": -0.0858,
           "market_home_odds": -850,
           "market_odds_captured_at": "2026-08-10T13:52:28.705879Z",
           "market_odds_provider": "espn_scoreboard:DraftKings",
-          "market_pick_odds": -950,
-          "market_pick_prob": 0.8677,
+          "market_pick_odds": -900,
+          "market_pick_prob": 0.863,
           "market_priced": true,
           "market_source": "DraftKings via ESPN",
           "market_type": "h2h",
@@ -39557,7 +39557,7 @@
           "confidence": 51.4,
           "confidence_label": "Low",
           "decision": "PASS",
-          "edge": -7.33,
+          "edge": -5.67,
           "game": "Chicago Sky @ Seattle Storm",
           "guardrail_reasons": [],
           "h2h_games": 0,
@@ -39565,12 +39565,12 @@
           "home_team": "Seattle Storm",
           "league": "WNBA",
           "market_away_odds": -108,
-          "market_edge": -0.0283,
+          "market_edge": -0.0117,
           "market_home_odds": -112,
           "market_odds_captured_at": "2026-08-10T13:52:28.705879Z",
           "market_odds_provider": "espn_scoreboard:DraftKings",
-          "market_pick_odds": -130,
-          "market_pick_prob": 0.5427,
+          "market_pick_odds": -122,
+          "market_pick_prob": 0.5261,
           "market_priced": true,
           "market_source": "DraftKings via ESPN",
           "market_type": "h2h",
@@ -40187,7 +40187,7 @@
     "ok": false,
     "picks": []
   },
-  "updatedAt": "2026-08-10T16:11:16.531604Z",
+  "updatedAt": "2026-08-10T17:17:32.911097Z",
   "wnba": {
     "ok": true,
     "picks": [
@@ -40205,7 +40205,7 @@
         "confidence": 77.7,
         "confidence_label": "Low",
         "decision": "PASS",
-        "edge": -16.2,
+        "edge": -15.73,
         "game": "Toronto Tempo @ Atlanta Dream",
         "guardrail_reasons": [],
         "h2h_games": 0,
@@ -40213,12 +40213,12 @@
         "home_team": "Atlanta Dream",
         "league": "WNBA",
         "market_away_odds": 575,
-        "market_edge": -0.0905,
+        "market_edge": -0.0858,
         "market_home_odds": -850,
         "market_odds_captured_at": "2026-08-10T13:52:28.705879Z",
         "market_odds_provider": "espn_scoreboard:DraftKings",
-        "market_pick_odds": -950,
-        "market_pick_prob": 0.8677,
+        "market_pick_odds": -900,
+        "market_pick_prob": 0.863,
         "market_priced": true,
         "market_source": "DraftKings via ESPN",
         "market_type": "h2h",
@@ -40473,7 +40473,7 @@
         "confidence": 51.4,
         "confidence_label": "Low",
         "decision": "PASS",
-        "edge": -7.33,
+        "edge": -5.67,
         "game": "Chicago Sky @ Seattle Storm",
         "guardrail_reasons": [],
         "h2h_games": 0,
@@ -40481,12 +40481,12 @@
         "home_team": "Seattle Storm",
         "league": "WNBA",
         "market_away_odds": -108,
-        "market_edge": -0.0283,
+        "market_edge": -0.0117,
         "market_home_odds": -112,
         "market_odds_captured_at": "2026-08-10T13:52:28.705879Z",
         "market_odds_provider": "espn_scoreboard:DraftKings",
-        "market_pick_odds": -130,
-        "market_pick_prob": 0.5427,
+        "market_pick_odds": -122,
+        "market_pick_prob": 0.5261,
         "market_priced": true,
         "market_source": "DraftKings via ESPN",
         "market_type": "h2h",
