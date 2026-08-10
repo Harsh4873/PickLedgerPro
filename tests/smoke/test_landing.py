@@ -62,6 +62,7 @@ def test_landing_routes_every_app_without_new_tabs():
         "/research/",
         "/fare/",
         "/gym/",
+        "/studies/",
     }
     app_cards = [link for link in parser.links if "app-card" in link.get("class", "")]
 
