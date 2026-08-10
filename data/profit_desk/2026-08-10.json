@@ -19,6 +19,161 @@
       "canonicalGame": "2026-08-10:wnba:atlanta dream|toronto tempo",
       "consensusSources": [],
       "date": "2026-08-10",
+      "decimalOdds": 1.952381,
+      "decision": "LEAN",
+      "dedupeRule": "exact_market_identity_best_executable_price",
+      "direction": "under",
+      "duplicateCount": 1,
+      "duplicateSources": [
+        "WNBA Model"
+      ],
+      "edgeQualified": false,
+      "estimate": {
+        "alpha": -0.071723,
+        "alphaStdError": 0.083143,
+        "breakEvenProbability": 0.512195,
+        "conservativeExpectedValue": -0.393022,
+        "expectedValue": -0.184992,
+        "lowerProbability": 0.310891,
+        "marketProbability": 0.489166,
+        "method": "market_baseline_plus_hierarchically_shrunk_prior_residual",
+        "probability": 0.417443,
+        "probabilityPositiveEv": 0.127221,
+        "sourceAlpha": -0.054765,
+        "value": {
+          "alpha": -0.054765,
+          "alphaStdError": 0.064857,
+          "conservativeExpectedValue": -0.269198,
+          "expectedValue": -0.106922,
+          "lowerProbability": 0.374313,
+          "method": "source_flat_roi_shrunk_residual_vs_break_even",
+          "probability": 0.45743,
+          "probabilityPositiveEv": 0.199224
+        }
+      },
+      "evidence": {
+        "chronologicalHalvesNonnegative": false,
+        "cutoffExclusive": "2026-08-10",
+        "distinctDates": 1,
+        "firstHalfFlatNetUnits": 0,
+        "flatNetUnits": -1.0,
+        "flatRoi": -1.0,
+        "losses": 1,
+        "modelVersion": "source_identity:wnba",
+        "policyVersion": "profit_desk_policy_v2",
+        "priorOnly": true,
+        "pushes": 0,
+        "secondHalfFlatNetUnits": -1.0,
+        "segmentDistinctDates": 1,
+        "segmentEvidenceKey": "team|wnba|wnba|source_identity:wnba|totals|under|0.45_0.50",
+        "segmentSamples": 1,
+        "sourceChronologicalHalvesNonnegative": false,
+        "sourceDistinctDates": 1,
+        "sourceEvidenceKey": "team|wnba|wnba",
+        "sourceFirstHalfFlatNetUnits": -4.0,
+        "sourceFlatNetUnits": -5.6717,
+        "sourceFlatRoi": -0.630191,
+        "sourceLosses": 7,
+        "sourceSamples": 9,
+        "sourceSecondHalfFlatNetUnits": -1.6717,
+        "sourceWins": 2,
+        "wins": 0
+      },
+      "game": "Toronto Tempo @ Atlanta Dream",
+      "gradeSupportSource": "repository_grader_default",
+      "gradeSupported": true,
+      "id": "profit-6d9d94e6ff4208596c2d6898",
+      "lane": null,
+      "laneBlockers": {
+        "edge": [
+          "edge_insufficient_source_samples",
+          "edge_insufficient_segment_samples",
+          "edge_insufficient_distinct_prior_dates",
+          "edge_negative_chronological_evidence_half",
+          "edge_probability_positive_ev_below_0.80",
+          "edge_conservative_probability_margin_below_0.02",
+          "edge_non_positive_conservative_ev"
+        ],
+        "structural": [
+          "missing_or_invalid_game_start_time"
+        ],
+        "value": [
+          "value_insufficient_source_samples",
+          "value_insufficient_distinct_prior_dates",
+          "value_negative_chronological_evidence_half",
+          "value_non_positive_flat_roi",
+          "value_probability_positive_ev_below_0.70"
+        ]
+      },
+      "line": 186.5,
+      "liveQualified": false,
+      "market": "totals",
+      "marketFamily": "totals",
+      "marketIdentity": "market:13ef5190eaf3822e25a11714",
+      "mode": "team",
+      "modelVersion": "source_identity:wnba",
+      "oddsAmerican": -105,
+      "pick": "Under 186.5 (Toronto Tempo vs Atlanta Dream)",
+      "player": null,
+      "policyVersion": "profit_desk_policy_v2",
+      "price": {
+        "ageHours": null,
+        "breakEvenProbability": 0.512195,
+        "decimalOdds": 1.952381,
+        "eligibleForAlphaEstimate": true,
+        "fresh": false,
+        "freshPregame": false,
+        "maxAgeHours": 24.0,
+        "noVigInputs": {
+          "hold": 1.047079,
+          "oppositeOdds": -115,
+          "selectedOdds": -105
+        },
+        "noVigMethod": "derived_two_sided:pick.selected_opposite",
+        "noVigProbability": 0.489166,
+        "noVigVerified": true,
+        "observedExecutable": true,
+        "oddsAmerican": -105,
+        "quality": "verified_two_sided",
+        "source": "espn_scoreboard:DraftKings",
+        "sourceField": "pick.price_source",
+        "startTime": null,
+        "tier": "B",
+        "tierLabel": "posted_two_sided",
+        "timestamp": "2026-08-10T16:11:20.589782Z",
+        "timestampField": "pick.market_updated_at",
+        "twoSided": true,
+        "updatedAt": "2026-08-10T16:11:20.589782Z"
+      },
+      "rawModelProbabilityIgnored": 0.7546,
+      "result": "pending",
+      "shadowQualified": false,
+      "source": "WNBA Model",
+      "sourceKey": "wnba",
+      "sport": "WNBA",
+      "stakeUnits": 0.0,
+      "tier": "avoid",
+      "valueQualified": false
+    },
+    {
+      "blockers": [
+        "missing_or_invalid_game_start_time",
+        "edge_insufficient_source_samples",
+        "edge_insufficient_segment_samples",
+        "edge_insufficient_distinct_prior_dates",
+        "edge_negative_chronological_evidence_half",
+        "edge_probability_positive_ev_below_0.80",
+        "edge_conservative_probability_margin_below_0.02",
+        "edge_non_positive_conservative_ev",
+        "value_insufficient_source_samples",
+        "value_insufficient_distinct_prior_dates",
+        "value_negative_chronological_evidence_half",
+        "value_non_positive_flat_roi",
+        "value_probability_positive_ev_below_0.70"
+      ],
+      "canonicalGame": "2026-08-10:wnba:atlanta dream|toronto tempo",
+      "consensusSources": [],
+      "date": "2026-08-10",
       "decimalOdds": 1.869565,
       "decision": "LEAN",
       "dedupeRule": "exact_market_identity_best_executable_price",
@@ -565,10 +720,10 @@
         "startTime": null,
         "tier": "D",
         "tierLabel": "assumed_proxy_or_synthetic",
-        "timestamp": "2026-08-10T15:03:28.725595Z",
+        "timestamp": "2026-08-10T16:11:16.531604Z",
         "timestampField": "pick.certification_timing.data_as_of",
         "twoSided": true,
-        "updatedAt": "2026-08-10T15:03:28.725595Z"
+        "updatedAt": "2026-08-10T16:11:16.531604Z"
       },
       "rawModelProbabilityIgnored": 0.6047,
       "result": "pending",
@@ -579,124 +734,13 @@
       "stakeUnits": 0.0,
       "tier": "avoid",
       "valueQualified": false
-    },
-    {
-      "blockers": [
-        "assumed_or_non_executable_price",
-        "edge_no_usable_price_baseline",
-        "value_no_usable_price_baseline"
-      ],
-      "canonicalGame": "2026-08-10:mlb:los angeles angels|texas rangers",
-      "consensusSources": [],
-      "date": "2026-08-10",
-      "decimalOdds": 1.833333,
-      "decision": "LEAN",
-      "dedupeRule": "exact_market_identity_best_executable_price",
-      "direction": "no",
-      "duplicateCount": 1,
-      "duplicateSources": [
-        "MLB Inning"
-      ],
-      "edgeQualified": false,
-      "estimate": null,
-      "evidence": {
-        "chronologicalHalvesNonnegative": false,
-        "cutoffExclusive": "2026-08-10",
-        "distinctDates": 0,
-        "firstHalfFlatNetUnits": 0.0,
-        "flatNetUnits": 0.0,
-        "flatRoi": null,
-        "losses": 0,
-        "modelVersion": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
-        "policyVersion": "profit_desk_policy_v2",
-        "priorOnly": true,
-        "pushes": 0,
-        "secondHalfFlatNetUnits": 0.0,
-        "segmentDistinctDates": 0,
-        "segmentEvidenceKey": null,
-        "segmentSamples": 0,
-        "sourceChronologicalHalvesNonnegative": false,
-        "sourceDistinctDates": 0,
-        "sourceEvidenceKey": "team|mlb_inning|mlb",
-        "sourceFirstHalfFlatNetUnits": 0.0,
-        "sourceFlatNetUnits": 0.0,
-        "sourceFlatRoi": null,
-        "sourceLosses": 0,
-        "sourceSamples": 0,
-        "sourceSecondHalfFlatNetUnits": 0.0,
-        "sourceWins": 0,
-        "wins": 0
-      },
-      "game": "Los Angeles Angels vs Texas Rangers",
-      "gradeSupportSource": "repository_grader_default",
-      "gradeSupported": true,
-      "id": "profit-b69cb2b34dd3c9d5128a5216",
-      "lane": null,
-      "laneBlockers": {
-        "edge": [
-          "edge_no_usable_price_baseline"
-        ],
-        "structural": [
-          "assumed_or_non_executable_price"
-        ],
-        "value": [
-          "value_no_usable_price_baseline"
-        ]
-      },
-      "line": null,
-      "liveQualified": false,
-      "market": "no_run_inning",
-      "marketFamily": "no run inning",
-      "marketIdentity": "market:3e2bf793166471b81a2c35e9",
-      "mode": "team",
-      "modelVersion": "MLB:mlb_team_consensus_v1.1.0:mlb_inning",
-      "oddsAmerican": -120,
-      "pick": "Inning 4 - No Run Scored",
-      "player": null,
-      "policyVersion": "profit_desk_policy_v2",
-      "price": {
-        "ageHours": 10.575,
-        "breakEvenProbability": 0.545455,
-        "decimalOdds": 1.833333,
-        "eligibleForAlphaEstimate": false,
-        "fresh": true,
-        "freshPregame": true,
-        "maxAgeHours": 24.0,
-        "noVigInputs": {
-          "field": "market_no_vig_probability"
-        },
-        "noVigMethod": "explicit:pick.market_no_vig_probability",
-        "noVigProbability": 0.545455,
-        "noVigVerified": true,
-        "observedExecutable": false,
-        "oddsAmerican": -120,
-        "quality": "assumed",
-        "source": "user_assumed_no_run_inning_-120",
-        "sourceField": "pick.odds_source",
-        "startTime": "2026-08-11T01:38:00Z",
-        "tier": "D",
-        "tierLabel": "assumed_proxy_or_synthetic",
-        "timestamp": "2026-08-10T15:03:28.725595Z",
-        "timestampField": "pick.certification_timing.data_as_of",
-        "twoSided": true,
-        "updatedAt": "2026-08-10T15:03:28.725595Z"
-      },
-      "rawModelProbabilityIgnored": 0.684,
-      "result": "pending",
-      "shadowQualified": false,
-      "source": "MLB Inning",
-      "sourceKey": "mlb_inning",
-      "sport": "MLB",
-      "stakeUnits": 0.0,
-      "tier": "avoid",
-      "valueQualified": false
     }
   ],
   "cutoverDate": "2026-07-10",
   "date": "2026-08-10",
   "engineVersion": "profit_desk_v2_live",
   "firstLiveDate": "2026-07-11",
-  "generatedAt": "2026-08-10T15:03:28.725595Z",
+  "generatedAt": "2026-08-10T16:11:16.531604Z",
   "notices": [
     "Qualified picks carry real flat stakes: EDGE 1.0u, VALUE 0.5u; everything else stays 0u.",
     "The market price is the baseline; historical residual alpha is shrunk and uncertainty-adjusted.",
@@ -1499,52 +1543,6 @@
       "wins": 11
     },
     {
-      "alpha": 0.0,
-      "candidatesToday": 1,
-      "distinctDates": 0,
-      "evidenceQualified": false,
-      "flatNetUnits": 0,
-      "flatRoi": null,
-      "gates": {
-        "distinctPriorDates": {
-          "actual": 0,
-          "passed": false,
-          "required": 15
-        },
-        "positiveFlatRoi": {
-          "actual": null,
-          "passed": false,
-          "required": 0.0
-        },
-        "probabilityPositiveEv": {
-          "actual": 0.5,
-          "passed": false,
-          "required": 0.7
-        },
-        "sourceSamples": {
-          "actual": 0,
-          "passed": false,
-          "required": 150
-        },
-        "stableChronologicalHalves": {
-          "actual": true,
-          "passed": false,
-          "required": true
-        }
-      },
-      "gatesPassed": 0,
-      "gatesTotal": 5,
-      "liveToday": 0,
-      "losses": 0,
-      "mode": "team",
-      "probabilityPositiveEv": 0.5,
-      "samples": 0,
-      "source": "MLB Inning",
-      "sourceKey": "mlb_inning",
-      "sport": "mlb",
-      "wins": 0
-    },
-    {
       "alpha": -0.007823,
       "candidatesToday": 0,
       "distinctDates": 8,
@@ -1822,7 +1820,7 @@
     },
     {
       "alpha": -0.054765,
-      "candidatesToday": 3,
+      "candidatesToday": 4,
       "distinctDates": 1,
       "evidenceQualified": false,
       "flatNetUnits": -5.6717,
@@ -1974,7 +1972,7 @@
         "edgeQualified": 0,
         "evidenceRows": 1020,
         "liveQualified": 0,
-        "observedPriceCandidates": 3,
+        "observedPriceCandidates": 4,
         "portfolioCandidates": 0,
         "researchQualified": 0,
         "selected": 0,
@@ -1983,7 +1981,7 @@
         "watchlist": 0
       }
     },
-    "observedPriceCandidates": 3,
+    "observedPriceCandidates": 4,
     "portfolioCandidates": 0,
     "researchQualified": 0,
     "researchRecord": {
@@ -2013,7 +2011,7 @@
       "stakedUnits": 0.0,
       "wins": 0
     },
-    "sourcesTracked": 25,
+    "sourcesTracked": 24,
     "valueQualified": 0,
     "watchlist": 0
   }
