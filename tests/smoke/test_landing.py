@@ -127,8 +127,14 @@ def test_pages_workflow_builds_and_tests_this_repo_only():
     assert "Deployment was deferred" not in workflow
 
 
-def test_repo_keeps_no_duplicate_pickledger_schedulers():
-    workflows = {path.name for path in (ROOT / ".github" / "workflows").glob("*.yml")}
+def test_repo_runs_no_pickledger_workflows():
+    """PickLedger's schedulers belong to the pickledger repository.
+
+    Concurrency groups do not span repositories, so a second copy here meant two
+    schedulers writing the same pick data, and after the repository split they
+    only ever operated on a frozen `pickledger` branch snapshot.
+    """
+    workflows = sorted((ROOT / ".github" / "workflows").glob("*.yml"))
     duplicated_in_pickledger = {
         "auto-grade.yml",
         "model-cache-refresh.yml",
@@ -136,9 +142,12 @@ def test_repo_keeps_no_duplicate_pickledger_schedulers():
         "external-feed-refresh.yml",
         "calibration-refresh.yml",
         "profit-desk-notify.yml",
+        "model-cache-freshness-guard.yml",
     }
 
-    assert workflows & duplicated_in_pickledger == set()
+    assert {path.name for path in workflows} & duplicated_in_pickledger == set()
+    for path in workflows:
+        assert "ref: pickledger" not in path.read_text(encoding="utf-8")
 
 
 def test_robots_allows_the_launcher_and_hides_the_private_tools():
