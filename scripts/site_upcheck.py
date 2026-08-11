@@ -16,8 +16,12 @@ PROJECT_PATHS = (
     "/pickledger/",
     "/genes/",
     "/research/",
+    "/notes/",
     "/fare/",
     "/gym/",
+    "/shotlab/",
+    "/studies/",
+    "/degree/",
     "/portfolio/",
 )
 def main() -> int:

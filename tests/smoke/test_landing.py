@@ -60,8 +60,12 @@ def test_landing_routes_every_app_without_new_tabs():
         "/pickledger/",
         "/genes/",
         "/research/",
+        "/notes/",
         "/fare/",
         "/gym/",
+        "/shotlab/",
+        "/studies/",
+        "/degree/",
     }
     app_cards = [link for link in parser.links if "app-card" in link.get("class", "")]
 
