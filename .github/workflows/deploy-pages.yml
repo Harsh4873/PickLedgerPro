@@ -1,5 +1,13 @@
 name: Deploy to GitHub Pages
 
+# This repository publishes the landing launcher and /today/ only. Every app it
+# links to (PickLedger, Gym, Portfolio, Daymark, Slate, Fare, MtbScope, Recall,
+# Notes, ShotLab, Studies, Degree, Radar) is its own repository with its own
+# Pages deployment serving harsh.bet/<app>/, so nothing here rebuilds them.
+#
+# Nothing in this workflow is gated on daily sports data: a landing or Today fix
+# must never be silently skipped because a data refresh elsewhere ran late.
+
 on:
   push:
     branches: [main]
@@ -15,89 +23,15 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  readiness:
-    runs-on: ubuntu-latest
-    outputs:
-      ready: ${{ steps.daily-data.outputs.ready }}
-    steps:
-      - name: Checkout PickLedger data branch
-        uses: actions/checkout@v4
-        with:
-          ref: pickledger
-          path: pickledger-app
-
-      - name: Check daily data readiness
-        id: daily-data
-        working-directory: pickledger-app
-        run: |
-          if python scripts/site_upcheck.py --data-only; then
-            echo "ready=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "ready=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::Daily model data is not ready. Deployment was deferred without failing."
-          fi
-
   deploy:
-    needs: readiness
-    # A landing/Today code push must not be held behind an unrelated daily
-    # market-data refresh. Data-triggered/manual deployments keep the readiness
-    # gate; main pushes may publish the currently committed PickLedger snapshot.
-    if: needs.readiness.outputs.ready == 'true' || github.event_name == 'push'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout landing site
         uses: actions/checkout@v4
-
-      - name: Checkout PickLedger app
-        uses: actions/checkout@v4
-        with:
-          ref: pickledger
-          path: pickledger-app
-
-      - name: Checkout Gym app
-        uses: actions/checkout@v4
-        with:
-          ref: gym
-          path: gym-app
-
-      - name: Checkout personal portfolio
-        uses: actions/checkout@v4
-        with:
-          ref: portfolio
-          path: portfolio-app
-
-      - name: Checkout Daymark
-        uses: actions/checkout@v4
-        with:
-          ref: daymark
-          path: daymark-app
-
-      - name: Checkout Slate
-        uses: actions/checkout@v4
-        with:
-          ref: slate
-          path: slate-app
-
-      - name: Checkout Fare
-        uses: actions/checkout@v4
-        with:
-          ref: fare
-          path: fare-app
-
-      - name: Checkout genes (MtbScope)
-        uses: actions/checkout@v4
-        with:
-          ref: genome
-          path: genes-app
-
-      - name: Checkout Sift research workspace
-        uses: actions/checkout@v4
-        with:
-          ref: research
-          path: research-app
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -107,138 +41,35 @@ jobs:
         with:
           node-version: "22"
           cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            pickledger-app/package-lock.json
-            gym-app/package-lock.json
-            portfolio-app/package-lock.json
-            daymark-app/package-lock.json
-            slate-app/package-lock.json
-            fare-app/package-lock.json
-            genes-app/package-lock.json
-            research-app/package-lock.json
+          cache-dependency-path: package-lock.json
 
-      - name: Install landing dependencies
-        run: npm ci
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
-      - name: Install PickLedger dependencies
-        working-directory: pickledger-app
-        run: npm ci
+      - name: Install dependencies
+        run: |
+          npm ci
+          python -m pip install --upgrade pytest
 
-      - name: Install Gym dependencies
-        working-directory: gym-app
-        run: npm ci
+      - name: Test
+        run: npm test
 
-      - name: Install portfolio dependencies
-        working-directory: portfolio-app
-        run: npm ci
-
-      - name: Install Daymark dependencies
-        working-directory: daymark-app
-        run: npm ci
-
-      - name: Install Slate dependencies
-        working-directory: slate-app
-        run: npm ci
-
-      - name: Install Fare dependencies
-        working-directory: fare-app
-        run: npm ci
-
-      - name: Install genes dependencies
-        working-directory: genes-app
-        run: npm ci
-
-      - name: Install Sift dependencies
-        working-directory: research-app
-        run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
 
       - name: Build landing artifact
-        run: |
-          npm run build
-          mkdir -p dist
+        run: npm run build
 
-      - name: Build PickLedger artifact
-        working-directory: pickledger-app
-        run: |
-          npm run build
-          if [ "${{ needs.readiness.outputs.ready }}" = "true" ]; then
-            python scripts/site_upcheck.py
-          else
-            echo "Daily PickLedger data is not ready; publishing the currently committed snapshot with this site-code release."
-          fi
-          mkdir -p ../dist/pickledger
-          cp -R dist/. ../dist/pickledger/
-          mkdir -p ../dist/pickledger/data ../dist/pickledger/ipl
-          cp -R data/. ../dist/pickledger/data/
-          cp ipl/ipl_styles.css ../dist/pickledger/ipl/ || true
-          cp ipl/ipl_frontend.js ../dist/pickledger/ipl/ || true
-
-      - name: Build Gym artifact
-        working-directory: gym-app
-        run: |
-          npm run build
-          mkdir -p ../dist/gym
-          cp -R dist/. ../dist/gym/
-
-      - name: Build personal portfolio artifact
-        working-directory: portfolio-app
-        run: |
-          npm run build
-          mkdir -p ../dist/portfolio
-          cp -R dist/. ../dist/portfolio/
-
-      - name: Build Daymark artifact
-        working-directory: daymark-app
-        run: |
-          npm run build
-          mkdir -p ../dist/daymark
-          cp -R dist/. ../dist/daymark/
-
-      - name: Build Slate artifact
-        working-directory: slate-app
-        run: |
-          npm run build
-          mkdir -p ../dist/slate
-          cp -R dist/. ../dist/slate/
-
-      - name: Build Fare artifact
-        working-directory: fare-app
-        run: |
-          npm run build
-          mkdir -p ../dist/fare
-          cp -R dist/. ../dist/fare/
-
-      - name: Build genes artifact
-        working-directory: genes-app
-        run: |
-          npm run build
-          mkdir -p ../dist/genes
-          cp -R dist/. ../dist/genes/
-
-      - name: Build Sift artifact
-        working-directory: research-app
-        env:
-          VITE_RESEARCH_API_URL: ${{ vars.RESEARCH_API_URL }}
-        run: |
-          test -n "$VITE_RESEARCH_API_URL"
-          npm run build
-          mkdir -p ../dist/research
-          cp -R dist/. ../dist/research/
-
-      - name: Finalize Pages artifact
-        run: |
-          cp .nojekyll dist/ || true
-          cp CNAME dist/ || true
-
-      - name: Verify styled Pages artifact
+      - name: Verify Pages artifact
         run: |
           test -f dist/index.html
           test -f dist/today/index.html
-          test -f dist/pickledger/index.html
-          test -f dist/pickledger/data/model_cache/index.json
-          test -f dist/pickledger/data/profit_desk/index.json
-          test -f dist/pickledger/data/profit_desk/latest.json
+          test -f dist/robots.txt
+          test -f dist/CNAME
+          test -f dist/.nojekyll
+          python scripts/site_upcheck.py
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

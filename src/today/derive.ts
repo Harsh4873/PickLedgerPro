@@ -6,7 +6,6 @@ import type {
   Habit,
   HabitEntry,
   HabitStatus,
-  SlateBlock,
   SlateState,
   SlateTask,
   TodaySources,
@@ -60,17 +59,14 @@ export interface DayPressure {
   label: 'Light' | 'Manageable' | 'Loaded' | 'Tight';
   confidence: 'Low' | 'Medium' | 'High';
   factors: string[];
-  nextOpenWindow: { startMin: number; durationMin: number } | null;
 }
 
 export interface DashboardModel {
   now: Date;
   todayKey: DateKey;
-  blocks: SlateBlock[];
-  currentBlock: SlateBlock | null;
-  nextBlock: SlateBlock | null;
   priority: PriorityTask | null;
   dueTasks: SlateTask[];
+  openTasks: number;
   dueHabits: HabitStatus[];
   flexibleHabits: HabitStatus[];
   overdueHabits: HabitStatus[];
@@ -205,21 +201,20 @@ function deriveHabits(state: DaymarkState | null, today: Date) {
   return { due, flexible, overdue };
 }
 
-function rankTasks(state: SlateState | null, todayKey: DateKey, blocks: SlateBlock[]): {
+function rankTasks(state: SlateState | null, todayKey: DateKey): {
   priority: PriorityTask | null;
   due: SlateTask[];
+  open: number;
 } {
-  if (!state) return { priority: null, due: [] };
+  if (!state) return { priority: null, due: [], open: 0 };
   const sections = new Map(state.sections.filter((section) => !section.deleted).map((section) => [section.id, section]));
-  const blockTitles = new Set(blocks.map((block) => block.title.trim().toLowerCase()));
   const tasks = state.tasks.filter((task) => !task.deleted && !task.done);
   const ranked = [...tasks].sort((left, right) => {
     const score = (task: SlateTask) => {
       if (task.due && task.due < todayKey) return 0;
       if (task.due === todayKey) return 1;
-      if (blockTitles.has(task.title.trim().toLowerCase())) return 2;
-      if (task.due) return 3;
-      return 4;
+      if (task.due) return 2;
+      return 3;
     };
     const scoreDifference = score(left) - score(right);
     if (scoreDifference) return scoreDifference;
@@ -235,15 +230,13 @@ function rankTasks(state: SlateState | null, todayKey: DateKey, blocks: SlateBlo
       ? `Overdue since ${formatShortDate(task.due)}`
       : task.due === todayKey
         ? 'Due today'
-        : blockTitles.has(task.title.trim().toLowerCase())
-          ? 'Scheduled today'
-          : task.due
-            ? `Due ${formatShortDate(task.due)}`
-            : 'First in Slate';
+        : task.due
+          ? `Due ${formatShortDate(task.due)}`
+          : 'First in Slate';
     priority = { task, section: sections.get(task.sectionId)?.title ?? 'Tasks', reason };
   }
   const due = ranked.filter((task) => task.due && task.due <= todayKey);
-  return { priority, due };
+  return { priority, due, open: ranked.length };
 }
 
 function deriveNutrition(state: FareState | null, dateKey: DateKey): NutritionSummary | null {
@@ -376,24 +369,10 @@ function trendNarrative(trends: TrendWeek[]): string {
   return 'The three signals moved independently this week; no shared direction is clear yet.';
 }
 
-function findNextOpenWindow(blocks: SlateBlock[], now: Date): DayPressure['nextOpenWindow'] {
-  const minute = now.getHours() * 60 + now.getMinutes();
-  const dayEnd = 22 * 60;
-  if (minute >= dayEnd) return null;
-  let cursor = minute;
-  for (const block of blocks) {
-    const blockEnd = block.startMin + block.durationMin;
-    if (blockEnd <= cursor) continue;
-    if (block.startMin - cursor >= 30) return { startMin: cursor, durationMin: block.startMin - cursor };
-    cursor = Math.max(cursor, blockEnd);
-  }
-  return dayEnd - cursor >= 30 ? { startMin: cursor, durationMin: dayEnd - cursor } : null;
-}
-
 function derivePressure(options: {
   sources: TodaySources;
-  blocks: SlateBlock[];
   dueTasks: SlateTask[];
+  openTasks: number;
   dueHabits: HabitStatus[];
   overdueHabits: HabitStatus[];
   nutrition: NutritionSummary | null;
@@ -401,9 +380,12 @@ function derivePressure(options: {
   now: Date;
 }): DayPressure {
   const minute = options.now.getHours() * 60 + options.now.getMinutes();
-  const remainingBlockMinutes = options.blocks
-    .filter((block) => block.startMin + block.durationMin > minute)
-    .reduce((sum, block) => sum + Math.max(0, block.startMin + block.durationMin - Math.max(minute, block.startMin)), 0);
+  // Slate retired its schedule blocks, so no source on this device knows how
+  // much of the day is already committed. Pressure is built only from load
+  // that is actually recorded: the rest of Slate's open list stands in for the
+  // scheduled-time input it used to carry, counted once (tasks already due are
+  // scored above and excluded here).
+  const backlogTasks = Math.max(0, options.openTasks - options.dueTasks.length);
   const openWorkout = options.workout
     ? Math.max(0, options.workout.exercises.length - options.workout.completed - options.workout.skipped)
     : 0;
@@ -414,7 +396,7 @@ function derivePressure(options: {
     Math.min(28, options.dueTasks.length * 9)
     + Math.min(22, options.overdueHabits.reduce((sum, habit) => sum + habit.previousMisses * 3, 0))
     + Math.min(10, options.dueHabits.length * 2.5)
-    + Math.min(20, remainingBlockMinutes / 24)
+    + Math.min(20, backlogTasks * 1.5)
     + Math.min(12, openWorkout * 1.5)
     + Math.min(8, lateProteinGap * 8),
   ));
@@ -424,16 +406,10 @@ function derivePressure(options: {
   const factors = [
     options.dueTasks.length ? `${options.dueTasks.length} due task${options.dueTasks.length === 1 ? '' : 's'}` : '',
     options.overdueHabits.length ? `${options.overdueHabits.length} habit${options.overdueHabits.length === 1 ? '' : 's'} carrying misses` : '',
-    remainingBlockMinutes ? `${Math.round(remainingBlockMinutes / 30) / 2}h scheduled ahead` : '',
+    backlogTasks ? `${backlogTasks} other open task${backlogTasks === 1 ? '' : 's'} in Slate` : '',
     openWorkout ? `${openWorkout} workout movement${openWorkout === 1 ? '' : 's'} open` : '',
   ].filter(Boolean).slice(0, 3);
-  return {
-    score,
-    label,
-    confidence,
-    factors,
-    nextOpenWindow: findNextOpenWindow(options.blocks, options.now),
-  };
+  return { score, label, confidence, factors };
 }
 
 function trendDelta(trends: TrendWeek[], key: 'nutrition' | 'training' | 'habits'): number | null {
@@ -444,10 +420,8 @@ function trendDelta(trends: TrendWeek[], key: 'nutrition' | 'training' | 'habits
 
 function deriveAdvice(options: {
   now: Date;
-  currentBlock: SlateBlock | null;
-  nextBlock: SlateBlock | null;
   priority: PriorityTask | null;
-  pressure: DayPressure;
+  dueTasks: SlateTask[];
   overdueHabits: HabitStatus[];
   flexibleHabits: HabitStatus[];
   nutrition: NutritionSummary | null;
@@ -459,42 +433,26 @@ function deriveAdvice(options: {
   const minute = options.now.getHours() * 60 + options.now.getMinutes();
   const add = (insight: AdviceInsight) => advice.push(insight);
 
-  if (options.currentBlock) {
-    const minutesLeft = Math.max(1, options.currentBlock.startMin + options.currentBlock.durationMin - minute);
-    add({
-      id: 'stay-in-block',
-      title: `Stay with ${options.currentBlock.title}`,
-      detail: `Keep the next ${minutesLeft} minutes protected before switching contexts.`,
-      evidence: `Slate marks this block active until ${minutesLabel(options.currentBlock.startMin + options.currentBlock.durationMin)}.`,
-      source: 'Slate', href: '/slate/', priority: 100, tone: 'protect',
-    });
-  } else if (options.priority && options.priority.reason.startsWith('Overdue')) {
-    const window = options.pressure.nextOpenWindow;
+  if (options.priority && options.priority.reason.startsWith('Overdue')) {
+    const alsoDue = Math.max(0, options.dueTasks.length - 1);
     add({
       id: 'clear-overdue-task',
       title: `Move “${options.priority.task.title}” first`,
-      detail: window ? `Use the open ${window.durationMin}-minute window beginning ${minutesLabel(window.startMin)}.` : 'Give it the next unclaimed block before adding anything new.',
+      detail: alsoDue
+        ? `Close it before the ${alsoDue} other task${alsoDue === 1 ? '' : 's'} due today, and before adding anything new.`
+        : 'Give it the next unclaimed stretch of the day before adding anything new.',
       evidence: `${options.priority.reason}; Slate ranks it above the remaining open work.`,
       source: 'Slate', href: '/slate/', priority: 96, tone: 'act',
     });
-  } else if (options.priority && options.pressure.nextOpenWindow) {
-    const window = options.pressure.nextOpenWindow;
+  } else if (options.priority) {
     add({
-      id: 'use-open-window',
-      title: `Use the next open window on “${options.priority.task.title}”`,
-      detail: `${window.durationMin} minutes are open from ${minutesLabel(window.startMin)}.`,
-      evidence: 'This is Slate’s highest-ranked unfinished task and the first gap of at least 30 minutes.',
-      source: 'Today', href: '/slate/', priority: 82, tone: 'act',
-    });
-  }
-
-  if (options.nextBlock && options.nextBlock.startMin - minute <= 45 && options.nextBlock.startMin > minute) {
-    add({
-      id: 'prepare-next-block',
-      title: `Prepare for ${options.nextBlock.title}`,
-      detail: `It begins in ${options.nextBlock.startMin - minute} minutes. Close the current loop and set up what it needs.`,
-      evidence: `Next Slate block starts at ${minutesLabel(options.nextBlock.startMin)}.`,
-      source: 'Slate', href: '/slate/', priority: 92, tone: 'prepare',
+      id: 'start-priority-task',
+      title: `Start “${options.priority.task.title}”`,
+      detail: options.dueTasks.length
+        ? `${options.dueTasks.length} task${options.dueTasks.length === 1 ? ' is' : 's are'} due today and this one ranks first.`
+        : 'Nothing is due yet, so the top of the open list is the cheapest thing to finish next.',
+      evidence: `Slate ranks it first in ${options.priority.section} (${options.priority.reason.toLowerCase()}).`,
+      source: 'Slate', href: '/slate/', priority: 82, tone: 'act',
     });
   }
 
@@ -553,7 +511,7 @@ function deriveAdvice(options: {
     add({
       id: 'court-plan',
       title: `Keep room for ${sport}`,
-      detail: options.workout.completed ? 'Some training is already done; keep the remaining court block visible when the day gets busy.' : 'It is part of today’s Gym program, even if Slate does not give it a time.',
+      detail: options.workout.completed ? 'Some training is already done; keep the remaining court time visible when the day gets busy.' : 'It is part of today’s Gym program, so protect the time it needs.',
       evidence: `${options.workout.courtSports.length} court session${options.workout.courtSports.length === 1 ? '' : 's'} detected in today’s Gym plan.`,
       source: 'Gym', href: '/gym/', priority: 72, tone: 'prepare',
     });
@@ -594,11 +552,6 @@ function deriveAdvice(options: {
   return advice.sort((left, right) => right.priority - left.priority).slice(0, 3);
 }
 
-function minutesLabel(minutes: number): string {
-  const date = new Date(2000, 0, 1, Math.floor(minutes / 60), minutes % 60);
-  return new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' }).format(date);
-}
-
 function capitalize(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
@@ -609,21 +562,15 @@ export function formatShortDate(key: DateKey): string {
 
 export function deriveDashboard(sources: TodaySources, now = new Date()): DashboardModel {
   const todayKey = toDateKey(now);
-  const minute = now.getHours() * 60 + now.getMinutes();
-  const blocks = (sources.slate.state?.blocks ?? [])
-    .filter((block) => !block.deleted && block.dateKey === todayKey)
-    .sort((left, right) => left.startMin - right.startMin);
-  const currentBlock = blocks.find((block) => block.startMin <= minute && block.startMin + block.durationMin > minute) ?? null;
-  const nextBlock = blocks.find((block) => block.startMin > minute) ?? null;
-  const tasks = rankTasks(sources.slate.state, todayKey, blocks);
+  const tasks = rankTasks(sources.slate.state, todayKey);
   const habits = deriveHabits(sources.daymark.state, now);
   const trends = deriveTrends(sources, now);
   const nutrition = deriveNutrition(sources.fare.state, todayKey);
   const workout = deriveWorkout(sources, now, todayKey);
   const pressure = derivePressure({
     sources,
-    blocks,
     dueTasks: tasks.due,
+    openTasks: tasks.open,
     dueHabits: habits.due,
     overdueHabits: habits.overdue,
     nutrition,
@@ -632,10 +579,8 @@ export function deriveDashboard(sources: TodaySources, now = new Date()): Dashbo
   });
   const advice = deriveAdvice({
     now,
-    currentBlock,
-    nextBlock,
     priority: tasks.priority,
-    pressure,
+    dueTasks: tasks.due,
     overdueHabits: habits.overdue,
     flexibleHabits: habits.flexible,
     nutrition,
@@ -646,11 +591,9 @@ export function deriveDashboard(sources: TodaySources, now = new Date()): Dashbo
   return {
     now,
     todayKey,
-    blocks,
-    currentBlock,
-    nextBlock,
     priority: tasks.priority,
     dueTasks: tasks.due,
+    openTasks: tasks.open,
     dueHabits: habits.due,
     flexibleHabits: habits.flexible,
     overdueHabits: habits.overdue,

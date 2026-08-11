@@ -57,20 +57,13 @@ export interface SlateSection {
   deleted?: boolean;
 }
 
-export interface SlateBlock {
-  id: string;
-  dateKey: DateKey;
-  startMin: number;
-  durationMin: number;
-  title: string;
-  color: string;
-  deleted?: boolean;
-}
-
+// Slate persists `{ storageFormat, savedAt, state }`; this is the `state`.
+// Its retired schedule feature's `blocks` array is gone — Slate's store drops
+// it on load and never writes it — so Today does not model schedule blocks.
 export interface SlateState {
+  version: 1;
   tasks: SlateTask[];
   sections: SlateSection[];
-  blocks: SlateBlock[];
 }
 
 export interface NutritionValue {

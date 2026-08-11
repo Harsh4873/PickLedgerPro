@@ -1,0 +1,20 @@
+# harsh.bet — a personal app launcher. Each app below is published from its own
+# repository under the path listed here.
+#
+# The disallowed paths are private, single-user tools: they render an empty
+# shell until the owner's own data is loaded in their own browser, so a crawler
+# would only ever index chrome. The launcher, the portfolio, and the public
+# reference tools stay crawlable.
+
+User-agent: *
+Disallow: /today/
+Disallow: /daymark/
+Disallow: /slate/
+Disallow: /fare/
+Disallow: /gym/
+Disallow: /notes/
+Disallow: /degree/
+Disallow: /research/
+Disallow: /radar/
+
+# Public: / (launcher), /portfolio/, /pickledger/, /genes/, /shotlab/, /studies/

@@ -1,6 +1,6 @@
-import { deriveDashboard, type DashboardModel } from './derive';
+import { deriveDashboard, formatShortDate, type DashboardModel } from './derive';
 import { readTodaySources } from './data';
-import type { Exercise, HabitStatus, SlateBlock, TrendWeek } from './types';
+import type { Exercise, HabitStatus, SlateTask, TrendWeek } from './types';
 
 const dashboard = document.querySelector<HTMLElement>('#dashboard');
 const dateNode = document.querySelector<HTMLElement>('#today-date');
@@ -45,18 +45,6 @@ function setHtml(id: string, html: string): void {
   if (node) node.innerHTML = html;
 }
 
-function formatTime(minutes: number): string {
-  const date = new Date(2000, 0, 1, Math.floor(minutes / 60), minutes % 60);
-  return new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' }).format(date);
-}
-
-function formatDuration(minutes: number): string {
-  if (minutes < 60) return `${minutes}m`;
-  const hours = Math.floor(minutes / 60);
-  const remainder = minutes % 60;
-  return remainder ? `${hours}h ${remainder}m` : `${hours}h`;
-}
-
 function formatNumber(value: number): string {
   return new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 }).format(Math.round(value * 10) / 10);
 }
@@ -84,20 +72,10 @@ function hero(model: DashboardModel): void {
   const kicker = document.querySelector<HTMLElement>('#hero-kicker');
   if (!title || !detail || !kicker) return;
 
-  if (model.currentBlock) {
-    kicker.textContent = `Now · until ${formatTime(model.currentBlock.startMin + model.currentBlock.durationMin)}`;
-    title.textContent = model.currentBlock.title;
-    detail.textContent = model.priority && model.priority.task.title !== model.currentBlock.title
-      ? `Then protect the main unfinished task: ${model.priority.task.title}.`
-      : 'This is the active block on your Slate.';
-  } else if (model.priority && /Overdue|Due today/.test(model.priority.reason)) {
+  if (model.priority && /Overdue|Due today/.test(model.priority.reason)) {
     kicker.textContent = model.priority.reason;
     title.textContent = model.priority.task.title;
     detail.textContent = `This ranks first across ${model.dueTasks.length} due or overdue unfinished task${model.dueTasks.length === 1 ? '' : 's'}.`;
-  } else if (model.nextBlock) {
-    kicker.textContent = `Next · ${formatTime(model.nextBlock.startMin)}`;
-    title.textContent = model.nextBlock.title;
-    detail.textContent = model.priority ? `Before then, the clearest open loop is ${model.priority.task.title}.` : 'Your next scheduled block is already protected.';
   } else if (model.workout?.exercises.length) {
     kicker.textContent = 'Training plan';
     title.textContent = model.workout.blocks[0]?.label ?? 'Today’s workout';
@@ -113,8 +91,8 @@ function hero(model: DashboardModel): void {
   }
 
   setHtml('hero-meta', `
-    <div><strong>${model.blocks.length}</strong><span>blocks</span></div>
     <div><strong>${model.dueTasks.length}</strong><span>tasks due</span></div>
+    <div><strong>${model.openTasks}</strong><span>tasks open</span></div>
     <div><strong>${model.dueHabits.length}</strong><span>habits open</span></div>
   `);
 }
@@ -148,7 +126,7 @@ function renderAdvice(model: DashboardModel): void {
         <span class="eyebrow">Day pressure</span>
         <h3>${pressure.label} · ${pressure.confidence.toLowerCase()} confidence</h3>
         ${factors}
-        ${pressure.nextOpenWindow ? `<p class="open-window"><span>Next 30+ min opening</span><strong>${formatTime(pressure.nextOpenWindow.startMin)} · ${formatDuration(pressure.nextOpenWindow.durationMin)}</strong></p>` : '<p class="open-window"><span>Next 30+ min opening</span><strong>None before 10 PM</strong></p>'}
+        <p class="open-window"><span>Reading</span><strong>${model.connectedCount} of 4 apps on this device</strong></p>
         <small>Pressure describes remaining load, not performance.</small>
       </aside>
       <div class="advice-list">${advice}</div>
@@ -174,25 +152,30 @@ function renderPriority(model: DashboardModel): void {
   setHtml('priority-card', `${panelHeader('Priority', 'Most important unfinished', '/slate/', 'Slate')}${content}`);
 }
 
-function blockRow(block: SlateBlock, nowMinutes: number): string {
-  const active = block.startMin <= nowMinutes && block.startMin + block.durationMin > nowMinutes;
-  const past = block.startMin + block.durationMin <= nowMinutes;
+function dueTaskRow(task: SlateTask, todayKey: string, section: string): string {
+  const overdue = Boolean(task.due && task.due < todayKey);
   return `
-    <li class="timeline-row${active ? ' active' : ''}${past ? ' past' : ''}">
-      <time>${formatTime(block.startMin)}</time>
-      <span class="timeline-rule" style="--block-color:${escapeHtml(block.color)}"></span>
-      <div><strong>${escapeHtml(block.title)}</strong><span>${formatDuration(block.durationMin)}${active ? ' · now' : ''}</span></div>
+    <li class="timeline-row">
+      <time>${overdue ? escapeHtml(formatShortDate(task.due ?? todayKey)) : 'Today'}</time>
+      <span class="timeline-rule" style="--block-color:${overdue ? 'var(--coral)' : 'var(--lime)'}"></span>
+      <div><strong>${escapeHtml(task.title)}</strong><span>${overdue ? 'overdue' : escapeHtml(section)}</span></div>
     </li>`;
 }
 
+// Slate retired its schedule blocks, so this card shows what Slate can still
+// answer honestly: everything it holds that is due today or already late.
 function renderSchedule(model: DashboardModel): void {
-  const minute = model.now.getHours() * 60 + model.now.getMinutes();
+  const sections = new Map((model.sources.slate.state?.sections ?? []).map((section) => [section.id, section.title]));
   const content = !model.sources.slate.connected
-    ? emptyState('Slate', '/slate/', 'Today’s schedule will appear after Slate is opened on this device.')
-    : model.blocks.length
-      ? `<ol class="timeline">${model.blocks.map((block) => blockRow(block, minute)).join('')}</ol>`
-      : '<div class="resolved-state quiet"><strong>No time blocks today</strong><p>The day is unscheduled in Slate.</p></div>';
-  setHtml('schedule-card', `${panelHeader('Plan', 'What today asks of you', '/slate/', 'Slate')}${content}`);
+    ? emptyState('Slate', '/slate/', 'Today’s due tasks will appear after Slate is opened on this device.')
+    : model.dueTasks.length
+      ? `<ol class="timeline">${model.dueTasks.map((task) => dueTaskRow(task, model.todayKey, sections.get(task.sectionId) ?? 'Tasks')).join('')}</ol>`
+      : `<div class="resolved-state quiet"><strong>Nothing is due today</strong><p>${model.openTasks === 0
+        ? 'Slate has no open tasks left.'
+        : model.openTasks === 1
+          ? 'The one open task in Slate is not dated for today.'
+          : `None of the ${model.openTasks} open tasks in Slate are dated for today.`}</p></div>`;
+  setHtml('schedule-card', `${panelHeader('Due', 'What today asks of you', '/slate/', 'Slate')}${content}`);
 }
 
 function habitRow(status: HabitStatus, kind: 'overdue' | 'due' | 'flexible'): string {

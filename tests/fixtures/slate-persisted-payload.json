@@ -1,0 +1,58 @@
+{
+  "storageFormat": "slate-v1",
+  "savedAt": "2026-07-12T10:00:00.000Z",
+  "state": {
+    "version": 1,
+    "settings": {
+      "theme": "system",
+      "hideCompleted": false,
+      "updatedAt": "2026-07-12T10:00:00.000Z"
+    },
+    "sections": [
+      {
+        "id": "starter-inbox",
+        "title": "Inbox",
+        "color": "#b8f35b",
+        "order": 1000,
+        "collapsed": false,
+        "createdAt": "2026-07-12T10:00:00.000Z",
+        "updatedAt": "2026-07-12T10:00:00.000Z"
+      }
+    ],
+    "tasks": [
+      {
+        "sectionId": "starter-inbox",
+        "notes": "",
+        "done": false,
+        "createdAt": "2026-07-12T10:00:00.000Z",
+        "updatedAt": "2026-07-12T10:00:00.000Z",
+        "id": "task-reading",
+        "title": "Finish the reading",
+        "order": 1000,
+        "due": "2026-07-12",
+        "priority": "high"
+      },
+      {
+        "sectionId": "starter-inbox",
+        "notes": "Attach the signed copy.",
+        "done": false,
+        "createdAt": "2026-07-12T10:00:00.000Z",
+        "updatedAt": "2026-07-12T10:00:00.000Z",
+        "id": "task-invoice",
+        "title": "Send the invoice",
+        "order": 2000
+      },
+      {
+        "sectionId": "starter-inbox",
+        "notes": "",
+        "done": true,
+        "createdAt": "2026-07-12T10:00:00.000Z",
+        "updatedAt": "2026-07-12T10:00:00.000Z",
+        "id": "task-laundry",
+        "title": "Laundry",
+        "order": 3000,
+        "completedAt": "2026-07-12T10:00:00.000Z"
+      }
+    ]
+  }
+}

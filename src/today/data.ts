@@ -27,7 +27,12 @@ function savedAt(value: unknown): number {
   return 0;
 }
 
-function envelopeState<T>(value: unknown): { state: T; savedAt: number } | null {
+/**
+ * Source apps store `{ savedAt, state }` envelopes; a few older copies are the
+ * bare state. Unwrap `state` when it is there so validators only ever see the
+ * app's own document, never the envelope around it.
+ */
+export function envelopeState<T>(value: unknown): { state: T; savedAt: number } | null {
   const raw = object(value);
   if (!raw) return null;
   const state = object(raw.state) ?? raw;
@@ -90,9 +95,19 @@ function validDaymark(value: unknown): value is DaymarkState {
   return Boolean(raw && object(raw.profile) && Array.isArray(raw.habits) && object(raw.entries));
 }
 
-function validSlate(value: unknown): value is SlateState {
+/**
+ * Slate's document, already unwrapped from its `{ storageFormat, savedAt,
+ * state }` envelope: `version`, `settings`, `sections`, `tasks`.
+ *
+ * Requiring a `blocks` array here made this false forever — `blocks` is the
+ * retired schedule feature that Slate's own store deliberately drops — so
+ * every Slate read reported "not connected". Requiring `version === 1` keeps
+ * the check honest: it only passes on the nested document Slate really writes,
+ * and a future schema bump reports "not connected" instead of misreading it.
+ */
+export function validSlate(value: unknown): value is SlateState {
   const raw = object(value);
-  return Boolean(raw && Array.isArray(raw.tasks) && Array.isArray(raw.sections) && Array.isArray(raw.blocks));
+  return Boolean(raw && raw.version === 1 && Array.isArray(raw.tasks) && Array.isArray(raw.sections));
 }
 
 function validFare(value: unknown): value is FareState {

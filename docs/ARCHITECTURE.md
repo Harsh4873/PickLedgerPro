@@ -17,6 +17,7 @@ Harsh4873/notes                ──> harsh.bet/notes/
 Harsh4873/shotlab              ──> harsh.bet/shotlab/
 Harsh4873/studies              ──> harsh.bet/studies/
 Harsh4873/degree               ──> harsh.bet/degree/
+Harsh4873/radar                ──> harsh.bet/radar/
 ```
 
 The root is a small Vite + TypeScript landing page with no framework, persistence, authentication, model pipeline, or runtime API dependency. Its anchors work without JavaScript; `src/main.ts` only supplies the current year and reduced-motion-aware reveal behavior.
@@ -27,11 +28,14 @@ Each project repository builds and deploys its own `dist/` artifact through GitH
 
 `.github/workflows/deploy-pages.yml` runs on pushes to `main` and manual dispatches:
 
-1. Install the locked Node dependencies.
-2. Type-check and build the landing.
-3. Copy `CNAME` and `.nojekyll` into `dist/` through the package `postbuild` step.
-4. Validate compiled CSS/JavaScript, metadata, project paths, and the absence of bundled project directories.
-5. Upload and deploy the artifact through GitHub Pages.
+1. Install the locked Node dependencies and pytest.
+2. Run `npm test`: the Today data contract plus the smoke tests.
+3. Type-check and build the landing.
+4. Copy `CNAME` and `.nojekyll` into `dist/` through the package `postbuild` step.
+5. Validate compiled CSS/JavaScript, metadata, project paths, `robots.txt`, and the absence of bundled project directories.
+6. Upload and deploy the artifact through GitHub Pages.
+
+The workflow builds this repository only. It never checks out another app's branch and never defers on another project's data freshness: a landing or Today fix must not be able to pass with a green run that published nothing.
 
 ## Repository split
 

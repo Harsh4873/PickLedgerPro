@@ -66,6 +66,7 @@ def test_landing_routes_every_app_without_new_tabs():
         "/shotlab/",
         "/studies/",
         "/degree/",
+        "/radar/",
     }
     app_cards = [link for link in parser.links if "app-card" in link.get("class", "")]
 
@@ -103,14 +104,48 @@ def test_landing_is_responsive_and_accessible():
     assert not (ROOT / "player_props").exists()
 
 
-def test_pages_workflow_builds_the_shared_artifact():
+def test_pages_workflow_builds_and_tests_this_repo_only():
     workflow = (ROOT / ".github" / "workflows" / "deploy-pages.yml").read_text(encoding="utf-8")
 
     assert "actions/checkout@v4" in workflow
     assert "actions/setup-node@v4" in workflow
+    assert "npm test" in workflow
     assert "npm run build" in workflow
     assert "actions/upload-pages-artifact@v3" in workflow
     assert "actions/deploy-pages@v4" in workflow
     assert "path: dist" in workflow
-    assert "github.event_name == 'push'" in workflow
     assert "test -f dist/today/index.html" in workflow
+    assert "test -f dist/robots.txt" in workflow
+
+    # Every other app is its own repository with its own Pages deployment.
+    # Rebuilding them here republished frozen copies over their live paths.
+    for app in ("pickledger", "gym", "portfolio", "daymark", "slate", "fare", "genome", "research"):
+        assert f"ref: {app}" not in workflow
+
+    # A code deploy must never be deferred because sports data landed late.
+    assert "--data-only" not in workflow
+    assert "Deployment was deferred" not in workflow
+
+
+def test_repo_keeps_no_duplicate_pickledger_schedulers():
+    workflows = {path.name for path in (ROOT / ".github" / "workflows").glob("*.yml")}
+    duplicated_in_pickledger = {
+        "auto-grade.yml",
+        "model-cache-refresh.yml",
+        "player-props-refresh.yml",
+        "external-feed-refresh.yml",
+        "calibration-refresh.yml",
+        "profit-desk-notify.yml",
+    }
+
+    assert workflows & duplicated_in_pickledger == set()
+
+
+def test_robots_allows_the_launcher_and_hides_the_private_tools():
+    robots = (ROOT / "public" / "robots.txt").read_text(encoding="utf-8")
+
+    assert "User-agent: *" in robots
+    for private in ("/today/", "/daymark/", "/slate/", "/fare/", "/gym/", "/notes/"):
+        assert f"Disallow: {private}" in robots
+    assert "Disallow: /\n" not in robots
+    assert "Disallow: /portfolio/" not in robots

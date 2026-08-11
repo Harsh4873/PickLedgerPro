@@ -9,9 +9,11 @@
     "postbuild": "cp .nojekyll CNAME dist/",
     "upcheck": "npm run build && python3 scripts/site_upcheck.py",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --test src/today/*.test.ts && python3 -m pytest tests/smoke -q"
   },
   "devDependencies": {
+    "@types/node": "^22.20.1",
     "typescript": "^5.8.3",
     "vite": "^6.3.5"
   }
