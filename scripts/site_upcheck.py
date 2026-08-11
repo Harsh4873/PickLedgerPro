@@ -22,6 +22,7 @@ PROJECT_PATHS = (
     "/shotlab/",
     "/studies/",
     "/degree/",
+    "/radar/",
     "/portfolio/",
 )
 def main() -> int:
@@ -89,6 +90,13 @@ def main() -> int:
     for reference in asset_refs:
         if not (DIST / reference.removeprefix("./")).is_file():
             failures.append(f"compiled asset is missing: {reference}")
+
+    # Every app icon the landing references must actually ship. A missing one
+    # renders as a broken image in both the rail and the grid, and nothing else
+    # here would catch it - the page still builds and every link still works.
+    for icon in sorted(set(re.findall(r'src="(/app-icons/[^"]+)"', source))):
+        if not (DIST / icon.lstrip("/")).is_file():
+            failures.append(f"app icon is missing from the build: {icon}")
 
     cname = DIST / "CNAME"
     if not cname.is_file() or cname.read_text(encoding="utf-8").strip() != "harsh.bet":
