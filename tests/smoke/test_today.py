@@ -57,6 +57,9 @@ def test_today_does_not_model_slates_retired_schedule_blocks():
     assert "raw.blocks" not in data
     assert "Array.isArray(raw.tasks) && Array.isArray(raw.sections)" in data
     assert "raw.version === 1" in data
+    assert "basis: 'load-only'" in derive
+    assert "Load only · schedule unavailable" in (ROOT / "src" / "today" / "main.ts").read_text(encoding="utf-8")
+    assert "available time" not in (ROOT / "src" / "today" / "main.ts").read_text(encoding="utf-8")
 
 
 def test_today_validator_is_covered_by_a_real_slate_payload():

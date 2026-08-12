@@ -67,6 +67,7 @@ jobs:
           test -f dist/index.html
           test -f dist/today/index.html
           test -f dist/robots.txt
+          test -f dist/sitemap.xml
           test -f dist/CNAME
           test -f dist/.nojekyll
           python scripts/site_upcheck.py

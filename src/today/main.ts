@@ -116,7 +116,7 @@ function renderAdvice(model: DashboardModel): void {
 
   setHtml('advice-card', `
     <div class="advice-heading">
-      <div><span class="eyebrow">Decision support</span><h2>What the signals suggest</h2><p>Rules combine urgency, available time, fuel, training, and recent consistency. Nothing is written back.</p></div>
+      <div><span class="eyebrow">Decision support</span><h2>What the signals suggest</h2><p>Rules combine urgency, open workload, fuel, training, and recent consistency. Nothing is written back.</p></div>
       <div class="pressure-meter" style="--pressure:${pressure.score}" role="meter" aria-label="Day pressure" aria-valuenow="${pressure.score}" aria-valuemin="0" aria-valuemax="100">
         <div><strong>${pressure.score}</strong><span>${pressure.label}</span></div>
       </div>
@@ -124,9 +124,9 @@ function renderAdvice(model: DashboardModel): void {
     <div class="advice-layout">
       <aside class="pressure-explain">
         <span class="eyebrow">Day pressure</span>
-        <h3>${pressure.label} · ${pressure.confidence.toLowerCase()} confidence</h3>
+        <h3>${pressure.label} · ${pressure.confidence.toLowerCase()} confidence in recorded load</h3>
         ${factors}
-        <p class="open-window"><span>Reading</span><strong>${model.connectedCount} of 4 apps on this device</strong></p>
+        <p class="open-window"><span>Coverage</span><strong>Load only · schedule unavailable</strong></p>
         <small>Pressure describes remaining load, not performance.</small>
       </aside>
       <div class="advice-list">${advice}</div>
@@ -147,7 +147,7 @@ function renderPriority(model: DashboardModel): void {
         <h3>${escapeHtml(task.title)}</h3>
         <p>${escapeHtml(section)}${task.notes ? ` · ${escapeHtml(task.notes)}` : ''}</p>
       </div>
-      <div class="ranking-note"><span>Ranked by</span><strong>overdue → due today → scheduled → list order</strong></div>`;
+      <div class="ranking-note"><span>Ranked by</span><strong>overdue → due today → future due → list order</strong></div>`;
   }
   setHtml('priority-card', `${panelHeader('Priority', 'Most important unfinished', '/slate/', 'Slate')}${content}`);
 }

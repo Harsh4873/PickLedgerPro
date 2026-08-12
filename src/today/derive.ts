@@ -58,6 +58,7 @@ export interface DayPressure {
   score: number;
   label: 'Light' | 'Manageable' | 'Loaded' | 'Tight';
   confidence: 'Low' | 'Medium' | 'High';
+  basis: 'load-only';
   factors: string[];
 }
 
@@ -381,10 +382,9 @@ function derivePressure(options: {
 }): DayPressure {
   const minute = options.now.getHours() * 60 + options.now.getMinutes();
   // Slate retired its schedule blocks, so no source on this device knows how
-  // much of the day is already committed. Pressure is built only from load
-  // that is actually recorded: the rest of Slate's open list stands in for the
-  // scheduled-time input it used to carry, counted once (tasks already due are
-  // scored above and excluded here).
+  // much of the day is already committed. This is deliberately a load-only
+  // estimate: open tasks contribute workload, never invented availability.
+  // Tasks already due are scored above and excluded from the backlog count.
   const backlogTasks = Math.max(0, options.openTasks - options.dueTasks.length);
   const openWorkout = options.workout
     ? Math.max(0, options.workout.exercises.length - options.workout.completed - options.workout.skipped)
@@ -402,14 +402,16 @@ function derivePressure(options: {
   ));
   const label = score >= 70 ? 'Tight' : score >= 50 ? 'Loaded' : score >= 25 ? 'Manageable' : 'Light';
   const connectedCount = Object.values(options.sources).filter((source) => source.connected).length;
-  const confidence = connectedCount === 4 ? 'High' : connectedCount >= 2 ? 'Medium' : 'Low';
+  // Even with all four sources connected, missing calendar commitments cap the
+  // estimate at medium confidence. A future schedule source can restore high.
+  const confidence = connectedCount >= 2 ? 'Medium' : 'Low';
   const factors = [
     options.dueTasks.length ? `${options.dueTasks.length} due task${options.dueTasks.length === 1 ? '' : 's'}` : '',
     options.overdueHabits.length ? `${options.overdueHabits.length} habit${options.overdueHabits.length === 1 ? '' : 's'} carrying misses` : '',
     backlogTasks ? `${backlogTasks} other open task${backlogTasks === 1 ? '' : 's'} in Slate` : '',
     openWorkout ? `${openWorkout} workout movement${openWorkout === 1 ? '' : 's'} open` : '',
   ].filter(Boolean).slice(0, 3);
-  return { score, label, confidence, factors };
+  return { score, label, confidence, basis: 'load-only', factors };
 }
 
 function trendDelta(trends: TrendWeek[], key: 'nutrition' | 'training' | 'habits'): number | null {
@@ -543,7 +545,7 @@ function deriveAdvice(options: {
     add({
       id: 'steady-day',
       title: 'Keep the day simple',
-      detail: 'Nothing in the connected sources requires a correction. Follow the next scheduled item.',
+      detail: 'Nothing in the connected sources requires a correction. Continue with the highest-priority open item.',
       evidence: 'No high-pressure rule fired from the available task, habit, nutrition, or training data.',
       source: 'Today', href: '#source-strip', priority: 20, tone: 'positive',
     });

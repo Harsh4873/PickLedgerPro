@@ -25,6 +25,17 @@ PROJECT_PATHS = (
     "/radar/",
     "/portfolio/",
 )
+
+PUBLIC_INDEX_PATHS = (
+    "https://harsh.bet/",
+    "https://harsh.bet/portfolio/",
+    "https://harsh.bet/pickledger/",
+    "https://harsh.bet/genes/",
+    "https://harsh.bet/shotlab/",
+    "https://harsh.bet/studies/",
+)
+
+
 def main() -> int:
     failures: list[str] = []
 
@@ -103,6 +114,26 @@ def main() -> int:
         failures.append("dist/CNAME must contain harsh.bet")
     if not (DIST / ".nojekyll").is_file():
         failures.append("dist/.nojekyll is missing")
+
+    robots_path = DIST / "robots.txt"
+    robots = robots_path.read_text(encoding="utf-8") if robots_path.is_file() else ""
+    if not robots:
+        failures.append("dist/robots.txt is missing")
+    elif "Sitemap: https://harsh.bet/sitemap.xml" not in robots:
+        failures.append("dist/robots.txt does not advertise the sitemap")
+
+    sitemap_path = DIST / "sitemap.xml"
+    sitemap = sitemap_path.read_text(encoding="utf-8") if sitemap_path.is_file() else ""
+    if not sitemap:
+        failures.append("dist/sitemap.xml is missing")
+    else:
+        for url in PUBLIC_INDEX_PATHS:
+            if f"<loc>{url}</loc>" not in sitemap:
+                failures.append(f"dist/sitemap.xml is missing public URL {url}")
+        for private_path in ("today", "daymark", "slate", "fare", "gym", "notes", "degree", "research", "radar"):
+            if f"https://harsh.bet/{private_path}/" in sitemap:
+                failures.append(f"dist/sitemap.xml exposes robots-disallowed path /{private_path}/")
+
     resume = DIST / "resume.pdf"
     if not resume.is_file() or resume.stat().st_size < 100_000:
         failures.append("dist/resume.pdf is missing or unexpectedly small")

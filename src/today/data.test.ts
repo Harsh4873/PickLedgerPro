@@ -72,4 +72,33 @@ test('the dashboard derives real work from the payload', () => {
   assert.equal(model.priority?.reason, 'Due today');
   assert.equal(model.priority?.section, 'Inbox');
   assert.ok(model.pressure.score > 0, 'due work should register as pressure');
+  assert.equal(model.pressure.basis, 'load-only');
+  assert.equal(model.pressure.confidence, 'Low');
+});
+
+test('missing schedule data keeps pressure explicitly degraded even with all sources connected', () => {
+  const unwrapped = envelopeState<SlateState>(payload);
+  assert.ok(unwrapped && validSlate(unwrapped.state));
+  const sources: TodaySources = {
+    daymark: {
+      state: { profile: { weekStartsOn: 1 }, habits: [], entries: {} },
+      connected: true,
+      source: 'localstorage',
+    },
+    slate: { state: unwrapped.state, connected: true, source: 'localstorage' },
+    fare: {
+      state: {
+        profile: { onboardingComplete: true },
+        targets: { calories: 0, proteinG: 0 },
+        entries: [],
+      },
+      connected: true,
+      source: 'localstorage',
+    },
+    gym: { state: { program: {}, logs: {} }, connected: true, source: 'localstorage' },
+  };
+
+  const model = deriveDashboard(sources, new Date(2026, 6, 12, 9, 0));
+  assert.equal(model.pressure.basis, 'load-only');
+  assert.equal(model.pressure.confidence, 'Medium');
 });

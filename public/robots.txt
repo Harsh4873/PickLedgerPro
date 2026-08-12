@@ -17,4 +17,6 @@ Disallow: /degree/
 Disallow: /research/
 Disallow: /radar/
 
+Sitemap: https://harsh.bet/sitemap.xml
+
 # Public: / (launcher), /portfolio/, /pickledger/, /genes/, /shotlab/, /studies/

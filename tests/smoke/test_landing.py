@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from html.parser import HTMLParser
 from pathlib import Path
+from xml.etree import ElementTree
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -116,6 +117,7 @@ def test_pages_workflow_builds_and_tests_this_repo_only():
     assert "path: dist" in workflow
     assert "test -f dist/today/index.html" in workflow
     assert "test -f dist/robots.txt" in workflow
+    assert "test -f dist/sitemap.xml" in workflow
 
     # Every other app is its own repository with its own Pages deployment.
     # Rebuilding them here republished frozen copies over their live paths.
@@ -150,11 +152,23 @@ def test_repo_runs_no_pickledger_workflows():
         assert "ref: pickledger" not in path.read_text(encoding="utf-8")
 
 
-def test_robots_allows_the_launcher_and_hides_the_private_tools():
+def test_robots_and_sitemap_index_only_public_routes():
     robots = (ROOT / "public" / "robots.txt").read_text(encoding="utf-8")
+    sitemap = ElementTree.parse(ROOT / "public" / "sitemap.xml")
+    namespace = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+    locations = {node.text for node in sitemap.findall("sm:url/sm:loc", namespace)}
 
     assert "User-agent: *" in robots
+    assert "Sitemap: https://harsh.bet/sitemap.xml" in robots
     for private in ("/today/", "/daymark/", "/slate/", "/fare/", "/gym/", "/notes/"):
         assert f"Disallow: {private}" in robots
     assert "Disallow: /\n" not in robots
     assert "Disallow: /portfolio/" not in robots
+    assert locations == {
+        "https://harsh.bet/",
+        "https://harsh.bet/portfolio/",
+        "https://harsh.bet/pickledger/",
+        "https://harsh.bet/genes/",
+        "https://harsh.bet/shotlab/",
+        "https://harsh.bet/studies/",
+    }
