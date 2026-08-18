@@ -15,9 +15,9 @@ Harsh4873/genes                ──> harsh.bet/genes/
 Harsh4873/research             ──> harsh.bet/research/
 Harsh4873/notes                ──> harsh.bet/notes/
 Harsh4873/shotlab              ──> harsh.bet/shotlab/
-Harsh4873/studies              ──> harsh.bet/studies/
 Harsh4873/degree               ──> harsh.bet/degree/
 Harsh4873/radar                ──> harsh.bet/radar/
+Harsh4873/studies              ──> harsh.bet/studies/  (redirects to /radar/studies/)
 ```
 
 The root is a small Vite + TypeScript landing page with no framework, persistence, authentication, model pipeline, or runtime API dependency. Its anchors work without JavaScript; `src/main.ts` only supplies the current year and reduced-motion-aware reveal behavior.

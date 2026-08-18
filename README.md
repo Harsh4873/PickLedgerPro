@@ -18,9 +18,9 @@
 | `/research/` | Recall | `Harsh4873/research` |
 | `/notes/` | Notes | `Harsh4873/notes` |
 | `/shotlab/` | ShotLab | `Harsh4873/shotlab` |
-| `/studies/` | Studies | `Harsh4873/studies` |
 | `/degree/` | Degree Canvas | `Harsh4873/degree` |
-| `/radar/` | Radar | `Harsh4873/radar` |
+| `/radar/` | Radar (literature, campus, paid studies) | `Harsh4873/radar` |
+| `/studies/` | Redirect into `/radar/studies/` | `Harsh4873/studies` |
 
 The user-site repository owns the `harsh.bet` custom domain. GitHub Pages applies that domain to the project repositories at their matching paths, so project repositories do not contain a `CNAME` file.
 

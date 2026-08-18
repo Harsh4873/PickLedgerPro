@@ -20,7 +20,6 @@ PROJECT_PATHS = (
     "/fare/",
     "/gym/",
     "/shotlab/",
-    "/studies/",
     "/degree/",
     "/radar/",
     "/portfolio/",
@@ -32,7 +31,6 @@ PUBLIC_INDEX_PATHS = (
     "https://harsh.bet/pickledger/",
     "https://harsh.bet/genes/",
     "https://harsh.bet/shotlab/",
-    "https://harsh.bet/studies/",
 )
 
 

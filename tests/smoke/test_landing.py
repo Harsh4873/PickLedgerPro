@@ -65,7 +65,6 @@ def test_landing_routes_every_app_without_new_tabs():
         "/fare/",
         "/gym/",
         "/shotlab/",
-        "/studies/",
         "/degree/",
         "/radar/",
     }
@@ -170,5 +169,4 @@ def test_robots_and_sitemap_index_only_public_routes():
         "https://harsh.bet/pickledger/",
         "https://harsh.bet/genes/",
         "https://harsh.bet/shotlab/",
-        "https://harsh.bet/studies/",
     }

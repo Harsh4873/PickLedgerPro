@@ -19,4 +19,4 @@ Disallow: /radar/
 
 Sitemap: https://harsh.bet/sitemap.xml
 
-# Public: / (launcher), /portfolio/, /pickledger/, /genes/, /shotlab/, /studies/
+# Public: / (launcher), /portfolio/, /pickledger/, /genes/, /shotlab/
