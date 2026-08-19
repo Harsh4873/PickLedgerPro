@@ -3,10 +3,11 @@
 ## Production shape
 
 ```text
-Harsh4873/harsh4873.github.io  ──> harsh.bet/
+Harsh4873/harsh4873.github.io  ──> harsh.bet/            (redirects to /portfolio/)
+                                      harsh.bet/apps/
                                       harsh.bet/today/
-Harsh4873/pickledger           ──> harsh.bet/pickledger/
 Harsh4873/portfolio            ──> harsh.bet/portfolio/
+Harsh4873/pickledger           ──> harsh.bet/pickledger/
 Harsh4873/daymark              ──> harsh.bet/daymark/
 Harsh4873/slate                ──> harsh.bet/slate/
 Harsh4873/gym                  ──> harsh.bet/gym/
@@ -19,7 +20,7 @@ Harsh4873/degree               ──> harsh.bet/degree/
 Harsh4873/radar                ──> harsh.bet/radar/
 ```
 
-The root is a small Vite + TypeScript landing page with no framework, persistence, authentication, model pipeline, or runtime API dependency. Its anchors work without JavaScript; `src/main.ts` only supplies the current year and reduced-motion-aware reveal behavior.
+The `/apps/` launcher is a small Vite + TypeScript page with no framework, persistence, authentication, model pipeline, or runtime API dependency. Its anchors work without JavaScript. The domain root redirects to `/portfolio/`.
 
 Each project repository builds and deploys its own `dist/` artifact through GitHub Actions. The user-site repository is the only repository with `CNAME`; GitHub Pages inherits that custom domain for project-site paths.
 

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Harsh Dave - Apps</title>
+    <meta name="description" content="Apps by Harsh Dave." />
+    <meta name="theme-color" content="#151513" />
+    <meta property="og:title" content="Harsh Dave - Apps" />
+    <meta property="og:description" content="Apps by Harsh Dave." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://harsh.bet/apps/" />
+    <meta property="og:site_name" content="harsh.bet" />
+    <meta name="twitter:card" content="summary" />
+    <link rel="canonical" href="https://harsh.bet/apps/" />
+    <script>
+      (() => {
+        try {
+          const savedTheme = localStorage.getItem('harsh-theme');
+          const theme = savedTheme === 'light' || savedTheme === 'dark'
+            ? savedTheme
+            : matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+          document.documentElement.dataset.theme = theme;
+        } catch {
+          document.documentElement.dataset.theme = 'dark';
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="../src/styles/landing.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to apps</a>
+
+    <aside class="app-rail" aria-label="App navigation">
+      <div class="rail-topline">
+        <a class="rail-mark" href="#main-content" aria-label="Harsh Dave, apps">HD</a>
+        <button class="mobile-menu-button" type="button" data-menu-toggle aria-expanded="false" aria-controls="app-rail-content">Menu</button>
+      </div>
+
+      <nav class="rail-content app-nav" id="app-rail-content" aria-label="Apps">
+        <a href="/" class="app-nav-link"><span class="nav-icon"><img src="/app-icons/portfolio.png" alt="" /></span><strong>Portfolio</strong></a>
+        <a href="/today/" class="app-nav-link"><span class="nav-icon today-icon" aria-hidden="true">TOD</span><strong>Today</strong></a>
+        <a href="/pickledger/" class="app-nav-link"><span class="nav-icon"><img src="/app-icons/pickledger.png" alt="" /></span><strong>PickLedger</strong></a>
+        <a href="/genes/" class="app-nav-link"><span class="nav-icon"><img src="/app-icons/mtbscope.svg" alt="" /></span><strong>MtbScope</strong></a>
+        <a href="/research/" class="app-nav-link"><span class="nav-icon"><img src="/app-icons/recall.png" alt="" /></span><strong>Recall</strong></a>
+        <a href="/radar/" class="app-nav-link"><span class="nav-icon"><img src="/app-icons/radar.svg" alt="" /></span><strong>Radar</strong></a>
+        <a href="/daymark/" class="app-nav-link"><span class="nav-icon"><img src="/app-icons/daymark.png" alt="" /></span><strong>Daymark</strong></a>
+        <a href="/slate/" class="app-nav-link"><span class="nav-icon"><img src="/app-icons/slate.png" alt="" /></span><strong>Slate</strong></a>
+        <a href="/notes/" class="app-nav-link"><span class="nav-icon"><img src="/app-icons/notes.png" alt="" /></span><strong>Notes</strong></a>
+        <a href="/fare/" class="app-nav-link"><span class="nav-icon"><img src="/app-icons/fare.png" alt="" /></span><strong>Fare</strong></a>
+        <a href="/gym/" class="app-nav-link"><span class="nav-icon"><img src="/app-icons/gym.png" alt="" /></span><strong>Gym</strong></a>
+        <a href="/shotlab/" class="app-nav-link"><span class="nav-icon"><img src="/app-icons/shotlab.png" alt="" /></span><strong>ShotLab</strong></a>
+        <a href="/degree/" class="app-nav-link"><span class="nav-icon"><img src="/app-icons/degree.svg" alt="" /></span><strong>Degree</strong></a>
+      </nav>
+    </aside>
+    <button class="rail-scrim" type="button" data-menu-close aria-label="Close menu" tabindex="-1"></button>
+
+    <main class="app-launcher" id="main-content" aria-label="Apps">
+      <div class="app-grid">
+        <a class="app-card" href="/"><img class="app-icon" src="/app-icons/portfolio.png" alt="" /><strong>Portfolio</strong></a>
+        <a class="app-card" href="/today/"><span class="app-icon today-app-icon" aria-hidden="true"><span>TOD</span></span><strong>Today</strong></a>
+        <a class="app-card" href="/pickledger/"><img class="app-icon" src="/app-icons/pickledger.png" alt="" /><strong>PickLedger</strong></a>
+        <a class="app-card" href="/genes/"><img class="app-icon" src="/app-icons/mtbscope.svg" alt="" /><strong>MtbScope</strong></a>
+        <a class="app-card" href="/research/"><img class="app-icon" src="/app-icons/recall.png" alt="" /><strong>Recall</strong></a>
+        <a class="app-card" href="/radar/"><img class="app-icon" src="/app-icons/radar.svg" alt="" /><strong>Radar</strong></a>
+        <a class="app-card" href="/daymark/"><img class="app-icon" src="/app-icons/daymark.png" alt="" /><strong>Daymark</strong></a>
+        <a class="app-card" href="/slate/"><img class="app-icon" src="/app-icons/slate.png" alt="" /><strong>Slate</strong></a>
+        <a class="app-card" href="/notes/"><img class="app-icon" src="/app-icons/notes.png" alt="" /><strong>Notes</strong></a>
+        <a class="app-card" href="/fare/"><img class="app-icon" src="/app-icons/fare.png" alt="" /><strong>Fare</strong></a>
+        <a class="app-card" href="/gym/"><img class="app-icon" src="/app-icons/gym.png" alt="" /><strong>Gym</strong></a>
+        <a class="app-card" href="/shotlab/"><img class="app-icon" src="/app-icons/shotlab.png" alt="" /><strong>ShotLab</strong></a>
+        <a class="app-card" href="/degree/"><img class="app-icon" src="/app-icons/degree.svg" alt="" /><strong>Degree</strong></a>
+      </div>
+    </main>
+
+    <script type="module" src="../src/main.ts"></script>
+  </body>
+</html>

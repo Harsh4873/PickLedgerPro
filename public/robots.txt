@@ -1,5 +1,5 @@
-# harsh.bet — a personal app launcher. Each app below is published from its own
-# repository under the path listed here.
+# harsh.bet — portfolio at /, app launcher at /apps/. Each app below is
+# published from its own repository under the path listed here.
 #
 # The disallowed paths are private, single-user tools: they render an empty
 # shell until the owner's own data is loaded in their own browser, so a crawler
@@ -19,4 +19,4 @@ Disallow: /radar/
 
 Sitemap: https://harsh.bet/sitemap.xml
 
-# Public: / (launcher), /portfolio/, /pickledger/, /genes/, /shotlab/
+# Public: / (portfolio), /apps/ (launcher), /portfolio/, /pickledger/, /genes/, /shotlab/

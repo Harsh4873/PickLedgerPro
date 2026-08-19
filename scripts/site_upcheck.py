@@ -22,11 +22,11 @@ PROJECT_PATHS = (
     "/shotlab/",
     "/degree/",
     "/radar/",
-    "/portfolio/",
 )
 
 PUBLIC_INDEX_PATHS = (
     "https://harsh.bet/",
+    "https://harsh.bet/apps/",
     "https://harsh.bet/portfolio/",
     "https://harsh.bet/pickledger/",
     "https://harsh.bet/genes/",
@@ -37,22 +37,23 @@ PUBLIC_INDEX_PATHS = (
 def main() -> int:
     failures: list[str] = []
 
-    source_path = ROOT / "index.html"
-    built_path = DIST / "index.html"
+    source_path = ROOT / "apps" / "index.html"
+    built_path = DIST / "apps" / "index.html"
     source = source_path.read_text(encoding="utf-8") if source_path.is_file() else ""
     built = built_path.read_text(encoding="utf-8") if built_path.is_file() else ""
 
     if not source:
-        failures.append("index.html is missing")
+        failures.append("apps/index.html is missing")
     if not built:
-        failures.append("dist/index.html is missing")
+        failures.append("dist/apps/index.html is missing")
 
     source_contract = (
-        ('<link rel="canonical" href="https://harsh.bet/"', "canonical URL"),
+        ('<link rel="canonical" href="https://harsh.bet/apps/"', "canonical URL"),
         ('<meta name="theme-color" content="#151513"', "dark theme color"),
-        ('href="./src/styles/landing.css"', "landing stylesheet entry"),
-        ('src="./src/main.ts"', "TypeScript module entry"),
+        ('href="../src/styles/landing.css"', "landing stylesheet entry"),
+        ('src="../src/main.ts"', "TypeScript module entry"),
         ('href="/today/"', "Today dashboard route"),
+        ('href="/"', "Portfolio home route"),
     )
     for marker, label in source_contract:
         if marker not in source:
@@ -88,16 +89,22 @@ def main() -> int:
             if marker not in today_html:
                 failures.append(f"source is missing {label}")
 
-    if "src/main.ts" in built or "src/styles/landing.css" in built:
-        failures.append("dist/index.html still references source files")
+    redirect = DIST / "index.html"
+    redirect_html = redirect.read_text(encoding="utf-8") if redirect.is_file() else ""
+    if "/portfolio/" not in redirect_html or "location.replace" not in redirect_html:
+        failures.append("dist/index.html must redirect to /portfolio/")
 
-    asset_refs = re.findall(r'(?:href|src)="(\./assets/[^"]+)"', built)
+    if "src/main.ts" in built or "src/styles/landing.css" in built:
+        failures.append("dist/apps/index.html still references source files")
+
+    asset_refs = re.findall(r'(?:href|src)="((?:\./)?/?assets/[^"]+)"', built)
     if not any(ref.endswith(".css") for ref in asset_refs):
         failures.append("compiled CSS asset is missing")
     if not any(ref.endswith(".js") for ref in asset_refs):
         failures.append("compiled JavaScript asset is missing")
     for reference in asset_refs:
-        if not (DIST / reference.removeprefix("./")).is_file():
+        relative = reference.lstrip("./").lstrip("/")
+        if not (DIST / relative).is_file() and not (DIST / "apps" / relative).is_file():
             failures.append(f"compiled asset is missing: {reference}")
 
     # Every app icon the landing references must actually ship. A missing one
@@ -141,7 +148,7 @@ def main() -> int:
             print(f"[upcheck] {failure}")
         return 1
 
-    print(f"[upcheck] healthy landing, Today dashboard, {len(PROJECT_PATHS) - 1} systems, Portfolio, and Resume")
+    print(f"[upcheck] healthy apps launcher, Today dashboard, {len(PROJECT_PATHS)} systems, Portfolio redirect, and Resume")
     return 0
 
 

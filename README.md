@@ -1,15 +1,16 @@
 # harsh.bet
 
-`harsh.bet` is the personal app launcher and shared read-only daily operating view. Every source app remains maintained in its own public repository; this repository owns the landing page and `/today/` integration route.
+`harsh.bet` is the personal site. The domain root and `/portfolio/` serve the portfolio. `/apps/` is the app launcher. `/today/` is the shared read-only daily operating view. Every source app remains maintained in its own public repository; this repository owns the launcher, the root redirect, and `/today/`.
 
 ## Project map
 
 | Path | Project | Repository |
 | --- | --- | --- |
-| `/` | harsh.bet landing | `Harsh4873/harsh4873.github.io` |
+| `/` | Portfolio (redirects to `/portfolio/`) | `Harsh4873/portfolio` |
+| `/portfolio/` | Portfolio | `Harsh4873/portfolio` |
+| `/apps/` | App launcher | `Harsh4873/harsh4873.github.io` |
 | `/today/` | Shared daily operating view | `Harsh4873/harsh4873.github.io` |
 | `/pickledger/` | PickLedger | `Harsh4873/pickledger` |
-| `/portfolio/` | Portfolio | `Harsh4873/portfolio` |
 | `/daymark/` | Daymark | `Harsh4873/daymark` |
 | `/slate/` | Slate | `Harsh4873/slate` |
 | `/gym/` | Gym | `Harsh4873/gym` |

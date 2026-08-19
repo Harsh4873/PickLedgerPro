@@ -29,7 +29,7 @@ class LandingParser(HTMLParser):
 
 
 def _landing() -> tuple[str, LandingParser]:
-    html = (ROOT / "index.html").read_text(encoding="utf-8")
+    html = (ROOT / "apps" / "index.html").read_text(encoding="utf-8")
     parser = LandingParser()
     parser.feed(html)
     return html, parser
@@ -39,23 +39,31 @@ def test_landing_has_app_metadata_and_accessible_structure():
     html, parser = _landing()
 
     assert "<title>Harsh Dave - Apps</title>" in html
-    assert 'content="https://harsh.bet/"' in html
-    assert '<link rel="canonical" href="https://harsh.bet/"' in html
+    assert 'content="https://harsh.bet/apps/"' in html
+    assert '<link rel="canonical" href="https://harsh.bet/apps/"' in html
     assert 'class="skip-link" href="#main-content"' in html
     assert parser.main_ids == ["main-content"]
-    assert parser.stylesheets == ["./src/styles/landing.css"]
+    assert parser.stylesheets == ["../src/styles/landing.css"]
     assert any(
-        script.get("type") == "module" and script.get("src") == "./src/main.ts"
+        script.get("type") == "module" and script.get("src") == "../src/main.ts"
         for script in parser.scripts
     )
     assert "fonts.googleapis.com" not in html
 
 
+def test_root_redirects_to_portfolio():
+    html = (ROOT / "index.html").read_text(encoding="utf-8")
+
+    assert 'url=/portfolio/' in html
+    assert "location.replace('/portfolio/')" in html
+    assert 'canonical" href="https://harsh.bet/portfolio/"' in html
+
+
 def test_landing_routes_every_app_without_new_tabs():
     _, parser = _landing()
     expected_paths = {
+        "/",
         "/today/",
-        "/portfolio/",
         "/daymark/",
         "/slate/",
         "/pickledger/",
@@ -115,6 +123,7 @@ def test_pages_workflow_builds_and_tests_this_repo_only():
     assert "actions/deploy-pages@v4" in workflow
     assert "path: dist" in workflow
     assert "test -f dist/today/index.html" in workflow
+    assert "test -f dist/apps/index.html" in workflow
     assert "test -f dist/robots.txt" in workflow
     assert "test -f dist/sitemap.xml" in workflow
 
@@ -165,6 +174,7 @@ def test_robots_and_sitemap_index_only_public_routes():
     assert "Disallow: /portfolio/" not in robots
     assert locations == {
         "https://harsh.bet/",
+        "https://harsh.bet/apps/",
         "https://harsh.bet/portfolio/",
         "https://harsh.bet/pickledger/",
         "https://harsh.bet/genes/",
