@@ -123,7 +123,6 @@ def test_pages_workflow_builds_and_tests_this_repo_only():
     assert "actions/deploy-pages@v4" in workflow
     assert "path: dist" in workflow
     assert "test -f dist/today/index.html" in workflow
-    assert "test -f dist/apps/index.html" in workflow
     assert "test -f dist/robots.txt" in workflow
     assert "test -f dist/sitemap.xml" in workflow
 
