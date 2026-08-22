@@ -71,6 +71,7 @@ def test_landing_routes_every_app_without_new_tabs():
         "/research/",
         "/notes/",
         "/fare/",
+        "/recipes/",
         "/gym/",
         "/shotlab/",
         "/degree/",
@@ -128,7 +129,7 @@ def test_pages_workflow_builds_and_tests_this_repo_only():
 
     # Every other app is its own repository with its own Pages deployment.
     # Rebuilding them here republished frozen copies over their live paths.
-    for app in ("pickledger", "gym", "portfolio", "daymark", "slate", "fare", "genome", "research"):
+    for app in ("pickledger", "gym", "portfolio", "daymark", "slate", "fare", "recipes", "genome", "research"):
         assert f"ref: {app}" not in workflow
 
     # A code deploy must never be deferred because sports data landed late.
@@ -167,7 +168,7 @@ def test_robots_and_sitemap_index_only_public_routes():
 
     assert "User-agent: *" in robots
     assert "Sitemap: https://harsh.bet/sitemap.xml" in robots
-    for private in ("/today/", "/daymark/", "/slate/", "/fare/", "/gym/", "/notes/"):
+    for private in ("/today/", "/daymark/", "/slate/", "/fare/", "/recipes/", "/gym/", "/notes/", "/degree/", "/research/", "/radar/"):
         assert f"Disallow: {private}" in robots
     assert "Disallow: /\n" not in robots
     assert "Disallow: /portfolio/" not in robots

@@ -18,6 +18,7 @@ PROJECT_PATHS = (
     "/research/",
     "/notes/",
     "/fare/",
+    "/recipes/",
     "/gym/",
     "/shotlab/",
     "/degree/",
@@ -135,7 +136,7 @@ def main() -> int:
         for url in PUBLIC_INDEX_PATHS:
             if f"<loc>{url}</loc>" not in sitemap:
                 failures.append(f"dist/sitemap.xml is missing public URL {url}")
-        for private_path in ("today", "daymark", "slate", "fare", "gym", "notes", "degree", "research", "radar"):
+        for private_path in ("today", "daymark", "slate", "fare", "recipes", "gym", "notes", "degree", "research", "radar"):
             if f"https://harsh.bet/{private_path}/" in sitemap:
                 failures.append(f"dist/sitemap.xml exposes robots-disallowed path /{private_path}/")
 

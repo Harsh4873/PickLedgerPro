@@ -12,6 +12,7 @@ Harsh4873/daymark              ──> harsh.bet/daymark/
 Harsh4873/slate                ──> harsh.bet/slate/
 Harsh4873/gym                  ──> harsh.bet/gym/
 Harsh4873/fare                 ──> harsh.bet/fare/
+Harsh4873/recipes              ──> harsh.bet/recipes/
 Harsh4873/genes                ──> harsh.bet/genes/
 Harsh4873/research             ──> harsh.bet/research/
 Harsh4873/notes                ──> harsh.bet/notes/

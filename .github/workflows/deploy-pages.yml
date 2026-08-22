@@ -2,7 +2,7 @@ name: Deploy to GitHub Pages
 
 # This repository publishes the landing launcher and /today/ only. Every app it
 # links to (PickLedger, Gym, Portfolio, Daymark, Slate, Fare, MtbScope, Recall,
-# Notes, ShotLab, Studies, Degree, Radar) is its own repository with its own
+# Notes, ShotLab, Recipes, Degree, Radar) is its own repository with its own
 # Pages deployment serving harsh.bet/<app>/, so nothing here rebuilds them.
 #
 # Nothing in this workflow is gated on daily sports data: a landing or Today fix

@@ -11,6 +11,7 @@ Disallow: /today/
 Disallow: /daymark/
 Disallow: /slate/
 Disallow: /fare/
+Disallow: /recipes/
 Disallow: /gym/
 Disallow: /notes/
 Disallow: /degree/

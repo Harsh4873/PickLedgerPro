@@ -15,6 +15,7 @@
 | `/slate/` | Slate | `Harsh4873/slate` |
 | `/gym/` | Gym | `Harsh4873/gym` |
 | `/fare/` | Fare | `Harsh4873/fare` |
+| `/recipes/` | Recipes | `Harsh4873/recipes` |
 | `/genes/` | MtbScope | `Harsh4873/genes` |
 | `/research/` | Recall | `Harsh4873/research` |
 | `/notes/` | Notes | `Harsh4873/notes` |
